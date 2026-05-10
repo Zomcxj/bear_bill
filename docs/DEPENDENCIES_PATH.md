@@ -180,7 +180,7 @@ flutter build apk --release
 ```
 ┌─────────────────────────────────────┐
 │      小熊记账本项目                  │
-│  f:/WorkBuddy_workspace/bear_bill   │
+│            bear_bill/               │
 └──────────────┬──────────────────────┘
                │
                ├─ 读取 pubspec.yaml
