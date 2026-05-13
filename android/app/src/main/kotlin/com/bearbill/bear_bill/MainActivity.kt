@@ -204,11 +204,19 @@ class MainActivity : FlutterFragmentActivity() {
                     result.success(true)
                 }
 
-                "markRecordedToday" -> {
+                "updateTodaySummary" -> {
+                    val count = call.argument<Int>("count") ?: 0
+                    val expense = call.argument<Double>("expense") ?: 0.0
+                    val income = call.argument<Double>("income") ?: 0.0
                     val today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
                         .format(java.util.Date())
                     val prefs = getSharedPreferences("alarm_prefs", MODE_PRIVATE)
-                    prefs.edit().putString("last_recorded_date", today).apply()
+                    prefs.edit()
+                        .putString("summary_date", today)
+                        .putInt("today_count", count)
+                        .putFloat("today_expense", expense.toFloat())
+                        .putFloat("today_income", income.toFloat())
+                        .apply()
                     result.success(true)
                 }
 

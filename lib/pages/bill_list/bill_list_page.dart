@@ -5,6 +5,7 @@ import '../../models/models.dart';
 import '../../providers/app_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../services/database_service.dart';
+import '../../services/notification_service.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/utils.dart' as utils;
 import 'widgets/bill_search_bar.dart';
@@ -485,6 +486,7 @@ class _BillListPageState extends State<BillListPage> {
     if (confirmed == true) {
       await DatabaseService.instance.deleteRecord(recordId);
       context.read<AppProvider>().onRecordDeleted();
+      NotificationService.instance.refreshTodaySummary();
       _loadRecords();
 
       if (mounted) {

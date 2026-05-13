@@ -4,6 +4,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
+import 'database_service.dart';
+
 /// 本地通知服务 - 记账提醒
 /// 调度使用原生 Android AlarmManager（兼容 vivo 等国产 ROM）
 /// 显示使用 flutter_local_notifications
@@ -132,16 +134,80 @@ class NotificationService {
     return await _notifications.pendingNotificationRequests();
   }
 
-  /// 标记今日已记账（闹钟触发时会跳过提醒）
-  Future<void> markRecordedToday() async {
+  /// 更新今日记账摘要（闹钟触发时显示总结）
+  Future<void> updateTodaySummary({
+    required int count,
+    required double expense,
+    required double income,
+  }) async {
     try {
-      await _alarmChannel.invokeMethod('markRecordedToday');
+      await _alarmChannel.invokeMethod('updateTodaySummary', {
+        'count': count,
+        'expense': expense,
+        'income': income,
+      });
     } catch (_) {}
   }
 
-  /// 立即发送测试通知（使用 flutter_local_notifications，已验证可用）
+  /// 自动计算今日记录并更新摘要（记账/删账后调用）
+  Future<void> refreshTodaySummary() async {
+    try {
+      final records = await DatabaseService.instance.getTodayRecords();
+      double expense = 0;
+      double income = 0;
+      for (final r in records) {
+        if (r.type == 'expense') {
+          expense += r.amount;
+        } else {
+          income += r.amount;
+        }
+      }
+      await updateTodaySummary(
+        count: records.length,
+        expense: expense,
+        income: income,
+      );
+    } catch (_) {}
+  }
+
+  /// 立即发送测试通知（显示真实今日内容）
   Future<void> showTestNotification() async {
     await init();
+
+    // 获取今日数据
+    final records = await DatabaseService.instance.getTodayRecords();
+    double expense = 0;
+    double income = 0;
+    for (final r in records) {
+      if (r.type == 'expense') {
+        expense += r.amount;
+      } else {
+        income += r.amount;
+      }
+    }
+
+    final String title;
+    final String content;
+    if (records.isNotEmpty) {
+      title = '🐼 今日记账总结';
+      final parts = <String>[];
+      parts.add('${records.length}笔记录');
+      if (expense > 0) parts.add('支出¥${expense.toStringAsFixed(0)}');
+      if (income > 0) parts.add('收入¥${income.toStringAsFixed(0)}');
+      final suffix = expense >= 5000
+          ? '简直壕气！💰'
+          : expense >= 1000
+              ? '太有实力了！💪'
+              : expense >= 500
+                  ? '花得不少呢～😅'
+                  : expense > 0
+                      ? '继续保持～'
+                      : '今天没有支出，攒钱达人！🌟';
+      content = '${parts.join('，')}。$suffix';
+    } else {
+      title = '🐼 记账提醒';
+      content = '今天还没记账哦，快来记录一笔吧～';
+    }
 
     const androidDetails = AndroidNotificationDetails(
       'test_channel',
@@ -150,7 +216,7 @@ class NotificationService {
       importance: Importance.high,
       priority: Priority.high,
       icon: '@mipmap/ic_notification',
-      color: Color(0xFFFF8FAB), // 硬编码：通知颜色不随主题变化（系统通知栏无法实时更新）
+      color: Color(0xFFFF8FAB),
     );
 
     const notificationDetails = NotificationDetails(
@@ -160,8 +226,8 @@ class NotificationService {
 
     await _notifications.show(
       999,
-      '🐻 测试通知',
-      '通知功能正常工作！',
+      title,
+      content,
       notificationDetails,
     );
   }

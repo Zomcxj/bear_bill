@@ -203,8 +203,8 @@ class _AddRecordPageState extends State<AddRecordPage> {
       await DatabaseService.instance.insertRecord(record);
     }
 
-    // 标记今日已记账（跳过今日提醒）
-    NotificationService.instance.markRecordedToday();
+    // 更新今日记账摘要（通知显示总结）
+    NotificationService.instance.refreshTodaySummary();
 
     // 显示成功提示
     if (mounted) {

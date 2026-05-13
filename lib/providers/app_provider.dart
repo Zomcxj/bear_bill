@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../models/models.dart';
+import '../services/notification_service.dart';
 import '../services/services.dart';
 import '../utils/utils.dart';
 
@@ -42,6 +43,8 @@ class AppProvider extends ChangeNotifier {
     await levelUp();
     // 启动时同步检查所有成就
     await _syncAllAchievements();
+    // 启动时刷新今日记账摘要（用于通知显示）
+    NotificationService.instance.refreshTodaySummary();
   }
 
   /// 启动时同步所有成就状态

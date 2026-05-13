@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../models/models.dart';
 import '../../providers/app_provider.dart';
 import '../../services/database_service.dart';
+import '../../services/notification_service.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/utils.dart' as utils;
 import '../add_record/add_record_page.dart';
@@ -88,6 +89,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
     if (confirmed == true) {
       await DatabaseService.instance.deleteRecord(_record!.id);
       context.read<AppProvider>().onRecordDeleted();
+      NotificationService.instance.refreshTodaySummary();
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
