@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 
 class AlarmReceiver : BroadcastReceiver() {
@@ -16,6 +17,11 @@ class AlarmReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context, intent: Intent?) {
+        // WakeLock 防止 CPU 休眠导致重新调度失败
+        val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+        val wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "bear_bill:alarm")
+        wakeLock.acquire(10_000L)
+
         val prefs = context.getSharedPreferences("alarm_prefs", Context.MODE_PRIVATE)
 
         // 创建通知渠道（确保存在）
@@ -81,6 +87,8 @@ class AlarmReceiver : BroadcastReceiver() {
         if (hour >= 0 && minute >= 0) {
             AlarmScheduler.scheduleDaily(context, hour, minute)
         }
+
+        wakeLock.release()
     }
 
     private fun createNotificationChannel(context: Context) {

@@ -59,12 +59,15 @@
             android:name=".AlarmReceiver"
             android:exported="false" />
 
-        <!-- 开机自启接收器 -->
+        <!-- 开机/更新/时间变更接收器（恢复闹钟） -->
         <receiver
             android:name=".BootReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
             </intent-filter>
         </receiver>
     </application>

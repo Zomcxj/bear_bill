@@ -23,6 +23,9 @@ class MainActivity : FlutterFragmentActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
+        // 启动时检查并恢复闹钟（防止被系统杀掉后丢失）
+        AlarmScheduler.ensureScheduled(this)
+
         // 注册文件导出 launcher
         exportDocumentLauncher = registerForActivityResult(
             ActivityResultContracts.CreateDocument("*/*")

@@ -4,7 +4,6 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import java.util.Calendar
 
 object AlarmScheduler {
@@ -31,30 +30,26 @@ object AlarmScheduler {
             }
         }
 
-        // 使用最精确的闹钟 API
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            // Android 12+ 检查是否可以使用精确闹钟
-            if (alarmManager.canScheduleExactAlarms()) {
-                alarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    calendar.timeInMillis,
-                    pendingIntent
-                )
-            } else {
-                // 降级到非精确闹钟
-                alarmManager.setAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    calendar.timeInMillis,
-                    pendingIntent
-                )
-            }
-        } else {
-            // Android 12 以下直接使用精确闹钟
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                calendar.timeInMillis,
-                pendingIntent
-            )
+        // 使用 setAlarmClock — Android 将其视为用户可见的闹钟
+        // 不受 Doze 模式和省电策略影响，所有 ROM 均可靠触发
+        val showIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+        val showPendingIntent = PendingIntent.getActivity(
+            context, 0, showIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        alarmManager.setAlarmClock(
+            AlarmManager.AlarmClockInfo(calendar.timeInMillis, showPendingIntent),
+            pendingIntent
+        )
+    }
+
+    /// 检查闹钟是否已设置，未设置则重新调度
+    fun ensureScheduled(context: Context) {
+        val prefs = context.getSharedPreferences("alarm_prefs", Context.MODE_PRIVATE)
+        val hour = prefs.getInt("reminder_hour", -1)
+        val minute = prefs.getInt("reminder_minute", -1)
+        if (hour >= 0 && minute >= 0) {
+            scheduleDaily(context, hour, minute)
         }
     }
 
