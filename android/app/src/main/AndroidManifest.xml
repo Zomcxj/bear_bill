@@ -22,7 +22,7 @@
 
     <!-- 开机自启（确保重启后提醒恢复） -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-
+    
     <!-- 保持 CPU 唤醒（闹钟触发时） -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     
@@ -70,5 +70,6 @@
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
             </intent-filter>
         </receiver>
+
     </application>
 </manifest>

@@ -1,6 +1,7 @@
 package com.bearbill.bear_bill
 
 import android.app.AlarmManager
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -11,15 +12,18 @@ object AlarmScheduler {
 
     fun scheduleDaily(context: Context, hour: Int, minute: Int) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
         val intent = Intent(context, AlarmReceiver::class.java)
 
         val pendingIntent = PendingIntent.getBroadcast(
-            context, REQUEST_CODE, intent,
+            context,
+            REQUEST_CODE,
+            intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // 计算下次提醒时间
+        // 同一天内多次改时间时，先清掉旧闹钟，避免残留多个计划任务。
+        alarmManager.cancel(pendingIntent)
+
         val calendar = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, hour)
             set(Calendar.MINUTE, minute)
@@ -30,20 +34,20 @@ object AlarmScheduler {
             }
         }
 
-        // 使用 setAlarmClock — Android 将其视为用户可见的闹钟
-        // 不受 Doze 模式和省电策略影响，所有 ROM 均可靠触发
         val showIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
         val showPendingIntent = PendingIntent.getActivity(
-            context, 0, showIntent,
+            context,
+            0,
+            showIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+
         alarmManager.setAlarmClock(
             AlarmManager.AlarmClockInfo(calendar.timeInMillis, showPendingIntent),
             pendingIntent
         )
     }
 
-    /// 检查闹钟是否已设置，未设置则重新调度
     fun ensureScheduled(context: Context) {
         val prefs = context.getSharedPreferences("alarm_prefs", Context.MODE_PRIVATE)
         val hour = prefs.getInt("reminder_hour", -1)
@@ -57,9 +61,15 @@ object AlarmScheduler {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, AlarmReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
-            context, REQUEST_CODE, intent,
+            context,
+            REQUEST_CODE,
+            intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         alarmManager.cancel(pendingIntent)
+
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(AlarmReceiver.NOTIFICATION_ID)
     }
 }

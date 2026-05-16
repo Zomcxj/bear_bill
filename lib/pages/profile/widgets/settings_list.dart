@@ -253,6 +253,27 @@ class SettingsList extends StatelessWidget {
                 icon: const Icon(Icons.notifications_active, size: 18),
                 label: const Text('发送测试通知'),
               ),
+              const SizedBox(height: 8),
+              // 允许后台耗电引导
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppTheme.primary.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.battery_saver, size: 16, color: AppTheme.primary),
+                    const SizedBox(width: 6),
+                    const Expanded(
+                      child: Text(
+                        '提醒不生效？请到系统设置中允许本App后台耗电',
+                        style: TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
           actions: [

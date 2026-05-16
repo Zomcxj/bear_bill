@@ -43,7 +43,7 @@ class AppProvider extends ChangeNotifier {
     await levelUp();
     // 启动时同步检查所有成就
     await _syncAllAchievements();
-    // 启动时刷新今日记账摘要（用于通知显示）
+    // 启动时刷新今日记账摘要（用于提醒展示总结）
     NotificationService.instance.refreshTodaySummary();
   }
 

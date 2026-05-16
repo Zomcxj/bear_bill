@@ -6,11 +6,15 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.io.File
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 class MainActivity : FlutterFragmentActivity() {
     private var pendingExportResult: MethodChannel.Result? = null
@@ -25,6 +29,15 @@ class MainActivity : FlutterFragmentActivity() {
 
         // 启动时检查并恢复闹钟（防止被系统杀掉后丢失）
         AlarmScheduler.ensureScheduled(this)
+
+        // 注册 WorkManager 周期任务作为闹钟兜底
+        val workRequest = PeriodicWorkRequestBuilder<ReminderWorker>(15, TimeUnit.MINUTES)
+            .build()
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "daily_reminder_check",
+            ExistingPeriodicWorkPolicy.KEEP,
+            workRequest
+        )
 
         // 注册文件导出 launcher
         exportDocumentLauncher = registerForActivityResult(
@@ -188,11 +201,11 @@ class MainActivity : FlutterFragmentActivity() {
                     val hour = call.argument<Int>("hour") ?: 0
                     val minute = call.argument<Int>("minute") ?: 0
 
-                    // 保存到 SharedPreferences（开机自启时恢复）
                     val prefs = getSharedPreferences("alarm_prefs", MODE_PRIVATE)
                     prefs.edit()
                         .putInt("reminder_hour", hour)
                         .putInt("reminder_minute", minute)
+                        .remove("last_fire_date")
                         .apply()
 
                     AlarmScheduler.scheduleDaily(this, hour, minute)
@@ -204,6 +217,7 @@ class MainActivity : FlutterFragmentActivity() {
                     prefs.edit().remove("reminder_hour").remove("reminder_minute").apply()
 
                     AlarmScheduler.cancel(this)
+                    WorkManager.getInstance(this).cancelUniqueWork("daily_reminder_check")
                     result.success(true)
                 }
 
