@@ -57,12 +57,6 @@ class SettingsList extends StatelessWidget {
           ),
           _buildDivider(),
           _buildMenuItem(
-            emoji: '📖',
-            title: '使用帮助',
-            onTap: () => _showHelpDialog(context),
-          ),
-          _buildDivider(),
-          _buildMenuItem(
             emoji: '🔤',
             title: '字号调整',
             onTap: () => _showFontSizeDialog(context),
@@ -75,14 +69,20 @@ class SettingsList extends StatelessWidget {
           ),
           _buildDivider(),
           _buildMenuItem(
+            emoji: '📖',
+            title: '使用帮助',
+            onTap: () => _showHelpDialog(context),
+          ),
+          _buildDivider(),
+          _buildMenuItem(
             emoji: 'ℹ️',
             title: '关于',
-            trailing: 'v1.1.0',
+            trailing: 'v1.0.2',
             onTap: () {
               showAboutDialog(
                 context: context,
                 applicationName: '小熊记账本',
-                applicationVersion: 'v1.1.0',
+                applicationVersion: 'v1.0.2',
                 applicationIcon:
                     const Text('🐻', style: TextStyle(fontSize: 48)),
                 children: [
