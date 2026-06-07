@@ -61,7 +61,7 @@ class WishJarCard extends StatelessWidget {
                   children: [
                     Text(
                       wish.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                         color: AppTheme.textPrimary,
@@ -72,12 +72,12 @@ class WishJarCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Row(
                         children: [
-                          const Icon(Icons.calendar_today,
+                          Icon(Icons.calendar_today,
                               size: 12, color: AppTheme.textHint),
                           const SizedBox(width: 4),
                           Text(
                             '${wish.deadline!.year}-${wish.deadline!.month.toString().padLeft(2, '0')}-${wish.deadline!.day.toString().padLeft(2, '0')} 截止',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 11,
                               color: AppTheme.textSecondary,
                             ),
@@ -89,7 +89,7 @@ class WishJarCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         wish.description!,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
                           color: AppTheme.textSecondary,
                         ),
@@ -108,11 +108,11 @@ class WishJarCard extends StatelessWidget {
                   width: 24,
                   height: 24,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppTheme.bgCard,
                     borderRadius: BorderRadius.circular(AppRadius.full),
                     border: Border.all(color: AppTheme.border),
                   ),
-                  child: const Icon(Icons.close,
+                  child: Icon(Icons.close,
                       size: 14, color: AppTheme.textHint),
                 ),
               ),
@@ -139,7 +139,7 @@ class WishJarCard extends StatelessWidget {
                     TextSpan(
                       text:
                           ' / ¥${FormatUtils.formatAmount(wish.targetAmount)}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         color: AppTheme.textSecondary,
                       ),
@@ -165,7 +165,7 @@ class WishJarCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppRadius.full),
             child: LinearProgressIndicator(
               value: wish.progress,
-              backgroundColor: Colors.white,
+              backgroundColor: AppTheme.bgCard,
               valueColor: AlwaysStoppedAnimation<Color>(themeColor),
               minHeight: 8,
             ),

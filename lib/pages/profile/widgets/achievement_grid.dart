@@ -19,11 +19,11 @@ class AchievementGrid extends StatelessWidget {
         final unlockedIds = appProvider.unlockedAchievements;
 
         return Container(
-          margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-          padding: const EdgeInsets.all(AppSpacing.sm),
+          margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          padding: const EdgeInsets.all(AppSpacing.md),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(AppRadius.md),
+            color: AppTheme.bgCard,
+            borderRadius: BorderRadius.circular(AppRadius.lg),
             border: Border.all(color: AppTheme.border),
           ),
           child: Column(
@@ -32,7 +32,7 @@ class AchievementGrid extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     '🏆 成就徽章',
                     style: TextStyle(
                       fontSize: 14,
@@ -53,13 +53,13 @@ class AchievementGrid extends StatelessWidget {
                       children: [
                         Text(
                           '${unlockedIds.length}/${AchievementDefinitions.all.length}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             color: AppTheme.textSecondary,
                           ),
                         ),
                         const SizedBox(width: 2),
-                        const Icon(
+                        Icon(
                           Icons.chevron_right,
                           size: 16,
                           color: AppTheme.textSecondary,
@@ -69,9 +69,9 @@ class AchievementGrid extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 8),
               SizedBox(
-                height: 58,
+                height: 64,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
@@ -132,7 +132,7 @@ class _AchievementBadge extends StatelessWidget {
                 achievement.emoji,
                 style: TextStyle(
                   fontSize: 14,
-                  color: isUnlocked ? Colors.black : Colors.grey.shade400,
+                  color: isUnlocked ? AppTheme.textPrimary : Colors.grey.shade400,
                 ),
               ),
             ),
@@ -213,7 +213,7 @@ class _AchievementBadge extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 '${achievement.unlockedAt!.year}年${achievement.unlockedAt!.month}月${achievement.unlockedAt!.day}日',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 14, color: AppTheme.textSecondary),
               ),
             ],

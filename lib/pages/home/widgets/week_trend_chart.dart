@@ -88,7 +88,7 @@ class _WeekTrendChartState extends State<WeekTrendChart> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 '📊 本周趋势',
                 style: TextStyle(
                   fontSize: 15,

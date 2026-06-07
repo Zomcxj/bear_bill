@@ -23,7 +23,7 @@ class StatTabs extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.sm),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.bgCard,
         border: Border(bottom: BorderSide(color: AppTheme.border)),
       ),
       child: Row(

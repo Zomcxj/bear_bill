@@ -6,8 +6,10 @@ import '../../providers/theme_provider.dart';
 import '../../services/database_service.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/format_utils.dart';
+import '../bill_list/bill_list_page.dart';
 import 'widgets/category_breakdown.dart';
 import 'widgets/monthly_summary.dart';
+import 'widgets/trend_line_chart.dart';
 import 'widgets/stat_tabs.dart';
 import 'widgets/income_expense_summary.dart';
 import 'widgets/year_summary.dart';
@@ -158,12 +160,17 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
                               const SizedBox(height: 10),
 
+                              // 2.5 收支趋势折线图
+                              const TrendLineChart(),
+
+                              const SizedBox(height: 10),
+
                               // 3. 支出/收入切换 + 分类明细
                               Container(
                                 margin: const EdgeInsets.all(AppSpacing.sm),
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: AppTheme.bgCard,
                                   borderRadius: BorderRadius.circular(AppRadius.lg),
                                   boxShadow: [
                                     BoxShadow(
@@ -189,11 +196,22 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
                                     const SizedBox(height: 12),
 
-                                    // 分类明细（带图标）
+                                    // 分类明细（带图标，可点击下钻）
                                     CategoryBreakdown(
                                       categories: _activeTab == 'expense'
                                           ? _expenseCategories
                                           : _incomeCategories,
+                                      onCategoryTap: (category) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => BillListPage(
+                                              initialCategoryId: category['id'] as String,
+                                              initialType: _activeTab,
+                                            ),
+                                          ),
+                                        );
+                                      },
                                     ),
                                   ],
                           ),
@@ -255,7 +273,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                   children: [
                     Text(
                       monthTitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: AppTheme.textPrimary,
@@ -265,7 +283,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                   ],
                 ),
                 const SizedBox(height: 2),
-                const Text(
+                Text(
                   '消费报告',
                   style: TextStyle(
                     fontSize: 12,

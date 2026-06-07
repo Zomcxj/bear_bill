@@ -69,7 +69,7 @@ class _AchievementPageState extends State<AchievementPage> {
             title: Text(
               '成就徽章  ${unlockedIds.length}/${AchievementDefinitions.all.length}',
             ),
-            backgroundColor: Colors.white,
+            backgroundColor: AppTheme.bgCard,
             foregroundColor: AppTheme.textPrimary,
             elevation: 0,
           ),
@@ -189,7 +189,7 @@ class _AchievementCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppTheme.bgCard,
           borderRadius: BorderRadius.circular(AppRadius.md),
           border: Border.all(
             color: isUnlocked ? AppTheme.primary : AppTheme.border,
@@ -345,7 +345,7 @@ class _AchievementCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 '$percent%',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   color: AppTheme.textSecondary,
                 ),
@@ -363,7 +363,7 @@ class _AchievementCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 '${achievement.unlockedAt!.year}年${achievement.unlockedAt!.month}月${achievement.unlockedAt!.day}日',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 14, color: AppTheme.textSecondary),
               ),
             ],

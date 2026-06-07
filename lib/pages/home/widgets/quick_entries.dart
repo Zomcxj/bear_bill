@@ -95,7 +95,7 @@ class QuickEntries extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             '⚡ 快捷记账',
             style: TextStyle(
               fontSize: 15,
@@ -184,7 +184,7 @@ class _QuickEntryItem extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
               color: AppTheme.textSecondary,
               fontWeight: FontWeight.w500,

@@ -20,7 +20,7 @@ class MoodSelector extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
       child: Row(
         children: [
-          const Text(
+          Text(
             '心情：',
             style: TextStyle(
               fontSize: 13,
@@ -47,7 +47,7 @@ class MoodSelector extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isSelected 
                       ? AppTheme.primaryLight 
-                      : Colors.white,
+                      : AppTheme.bgCard,
                   borderRadius: BorderRadius.circular(AppRadius.full),
                   border: Border.all(
                     color: isSelected 

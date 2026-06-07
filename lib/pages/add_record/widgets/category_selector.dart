@@ -47,7 +47,7 @@ class CategorySelector extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: isSelected
                             ? _hexToColor(category.color).withOpacity(0.15)
-                            : Colors.white,
+                            : AppTheme.bgCard,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isSelected

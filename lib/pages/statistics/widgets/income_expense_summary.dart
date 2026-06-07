@@ -22,7 +22,7 @@ class IncomeExpenseSummary extends StatelessWidget {
       margin: const EdgeInsets.all(AppSpacing.sm),
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.bgCard,
         borderRadius: BorderRadius.circular(AppRadius.lg),
         boxShadow: [
           BoxShadow(
@@ -45,11 +45,11 @@ class IncomeExpenseSummary extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFFE8607A),
+                    color: AppTheme.primaryDark,
                   ),
                 ),
                 const SizedBox(height: 2),
-                const Text(
+                Text(
                   '支出',
                   style: TextStyle(
                     fontSize: 12,
@@ -79,11 +79,11 @@ class IncomeExpenseSummary extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF4CAF50),
+                    color: AppTheme.success,
                   ),
                 ),
                 const SizedBox(height: 2),
-                const Text(
+                Text(
                   '收入',
                   style: TextStyle(
                     fontSize: 12,
@@ -119,7 +119,7 @@ class IncomeExpenseSummary extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 2),
-                const Text(
+                Text(
                   '结余',
                   style: TextStyle(
                     fontSize: 12,

@@ -51,7 +51,7 @@ class MonthlySummary extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 6),
                 child: Text(
                   line,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     color: AppTheme.textPrimary,
                     height: 1.5,

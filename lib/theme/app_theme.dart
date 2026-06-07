@@ -31,10 +31,16 @@ class AppTheme {
   static const Color warning = Color(0xFFFFA94D);
   static const Color warningLight = Color(0xFFFFE8CC);
 
-  // ── 文字色 ──
-  static const Color textPrimary = Color(0xFF3D2C2C);
-  static const Color textSecondary = Color(0xFF8B6B6B);
-  static const Color textHint = Color(0xFFC4A4A4);
+  // ── 文字色（深色模式感知） ──
+  static Color get textPrimary => _themeProvider?.isDarkMode == true
+      ? const Color(0xFFE8E0E0)
+      : const Color(0xFF3D2C2C);
+  static Color get textSecondary => _themeProvider?.isDarkMode == true
+      ? const Color(0xFF9A8A8A)
+      : const Color(0xFF8B6B6B);
+  static Color get textHint => _themeProvider?.isDarkMode == true
+      ? const Color(0xFF5A4A4A)
+      : const Color(0xFFC4A4A4);
   static const Color textWhite = Color(0xFFFFFFFF);
 
   // ── Hero 区域专用白色文字（在渐变背景上） ──
@@ -48,7 +54,9 @@ class AppTheme {
 
   // ── 背景（动态） ──
   static Color get bgPage => _themeProvider?.bgPage ?? const Color(0xFFFFF5F7);
-  static const Color bgCard = Color(0xFFFFFFFF);
+  static Color get bgCard => _themeProvider?.isDarkMode == true
+      ? const Color(0xFF1E1E30)
+      : const Color(0xFFFFFFFF);
   static Color get bgSection => _themeProvider?.bgSection ?? const Color(0xFFF9F0F2);
 
   // ── 边框/分割线（动态） ──
@@ -120,6 +128,10 @@ class AppTheme {
   //  ThemeData（动态）
   // ══════════════════════════════════════
 
+  // ── 当前主题（深色模式感知） ──
+  static ThemeData get currentTheme =>
+      _themeProvider?.isDarkMode == true ? darkTheme : lightTheme;
+
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
@@ -187,6 +199,82 @@ class AppTheme {
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: bgCard,
+        selectedItemColor: primary,
+        unselectedItemColor: textHint,
+        type: BottomNavigationBarType.fixed,
+        elevation: 0,
+      ),
+      fontFamily: '.SF Pro Text',
+    );
+  }
+
+  static ThemeData get darkTheme {
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      primaryColor: primary,
+      scaffoldBackgroundColor: bgPage,
+      colorScheme: ColorScheme.dark(
+        primary: primary,
+        secondary: accent,
+        surface: const Color(0xFF1E1E30),
+        error: const Color(0xFFE8607A),
+      ),
+      appBarTheme: AppBarTheme(
+        backgroundColor: primary,
+        foregroundColor: textWhite,
+        elevation: 0,
+        centerTitle: true,
+        titleTextStyle: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: textWhite,
+        ),
+      ),
+      cardTheme: CardTheme(
+        color: const Color(0xFF1E1E30),
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: border, width: 1),
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primary,
+          foregroundColor: textWhite,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(999),
+          ),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: primary,
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: const Color(0xFF1E1E30),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: border),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: primary, width: 2),
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: const Color(0xFF1E1E30),
         selectedItemColor: primary,
         unselectedItemColor: textHint,
         type: BottomNavigationBarType.fixed,

@@ -89,7 +89,7 @@ class _TodayRecordsState extends State<TodayRecords> {
             children: [
               Row(
                 children: [
-                  const Text(
+                  Text(
                     '📋 今日账单',
                     style: TextStyle(
                       fontSize: 15,
@@ -210,12 +210,12 @@ class _TodayRecordsState extends State<TodayRecords> {
 
   /// 空状态
   Widget _buildEmpty() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: AppSpacing.xl),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
       child: Column(
         children: [
-          Text('🐾', style: TextStyle(fontSize: 40)),
-          SizedBox(height: 8),
+          const Text('🐾', style: TextStyle(fontSize: 40)),
+          const SizedBox(height: 8),
           Text(
             '今天还没记账呢',
             style: TextStyle(
@@ -321,7 +321,7 @@ class _TodayRecordsState extends State<TodayRecords> {
                 children: [
                   Text(
                     category?.name ?? '未分类',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: AppTheme.textPrimary,
@@ -332,7 +332,7 @@ class _TodayRecordsState extends State<TodayRecords> {
                       padding: const EdgeInsets.only(top: 2),
                       child: Text(
                         record.remark!,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           color: AppTheme.textHint,
                         ),
@@ -345,7 +345,7 @@ class _TodayRecordsState extends State<TodayRecords> {
                       padding: const EdgeInsets.only(top: 2),
                       child: Text(
                         '📍 ${record.location!}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
                           color: AppTheme.textSecondary,
                         ),
@@ -358,7 +358,7 @@ class _TodayRecordsState extends State<TodayRecords> {
                       padding: const EdgeInsets.only(top: 2),
                       child: Text(
                         '🖼️ 已添加 ${record.images.length} 张图片',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
                           color: AppTheme.textSecondary,
                         ),
@@ -385,7 +385,7 @@ class _TodayRecordsState extends State<TodayRecords> {
                 ),
                 Text(
                   '${record.createdAt.hour.toString().padLeft(2, '0')}:${record.createdAt.minute.toString().padLeft(2, '0')}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     color: AppTheme.textHint,
                   ),

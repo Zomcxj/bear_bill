@@ -19,7 +19,7 @@ class CustomKeyboard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.bgCard,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -72,7 +72,7 @@ class _KeyButton extends StatelessWidget {
               ? AppTheme.primary 
               : isAction 
                   ? AppTheme.bgSection 
-                  : Colors.white,
+                  : AppTheme.bgCard,
           borderRadius: BorderRadius.circular(AppRadius.sm),
           border: Border.all(
             color: AppTheme.border,

@@ -57,7 +57,7 @@ class RecordDetailDialog extends StatelessWidget {
                         ),
                         Text(
                           '${utils.DateUtils.formatDayCN(record.date)} ${record.createdAt.hour.toString().padLeft(2, '0')}:${record.createdAt.minute.toString().padLeft(2, '0')}:${record.createdAt.second.toString().padLeft(2, '0')}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
                             color: AppTheme.textSecondary,
                           ),
@@ -103,7 +103,7 @@ class RecordDetailDialog extends StatelessWidget {
                       label: '类型',
                       value: Text(
                         record.isExpense ? '支出' : '收入',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           color: AppTheme.textPrimary,
                         ),
@@ -117,7 +117,7 @@ class RecordDetailDialog extends StatelessWidget {
                         label: '备注',
                         value: Text(
                           record.remark!,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             color: AppTheme.textPrimary,
                           ),
@@ -149,7 +149,7 @@ class RecordDetailDialog extends StatelessWidget {
                         label: '位置',
                         value: Text(
                           record.location!,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
                             color: AppTheme.textPrimary,
                           ),
@@ -160,7 +160,7 @@ class RecordDetailDialog extends StatelessWidget {
                     // 图片（如果有）
                     if (record.images.isNotEmpty) ...[
                       const Divider(height: 24),
-                      const Text(
+                      Text(
                         '图片',
                         style: TextStyle(
                           fontSize: 14,
@@ -197,7 +197,7 @@ class RecordDetailDialog extends StatelessWidget {
                     // 标签（如果有）
                     if (record.tags.isNotEmpty) ...[
                       const Divider(height: 24),
-                      const Text(
+                      Text(
                         '标签',
                         style: TextStyle(
                           fontSize: 14,
@@ -251,7 +251,7 @@ class RecordDetailDialog extends StatelessWidget {
           width: 60,
           child: Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               color: AppTheme.textSecondary,
             ),

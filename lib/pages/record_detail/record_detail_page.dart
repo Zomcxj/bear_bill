@@ -153,7 +153,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
                           const SizedBox(width: 6),
                           Text(
                             mood.label,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               color: AppTheme.textPrimary,
                             ),
@@ -167,7 +167,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
                       _record!.remark != null && _record!.remark!.isNotEmpty
                           ? _record!.remark!
                           : '无备注',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         color: AppTheme.textPrimary,
                       ),
@@ -177,7 +177,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
                     '记录时间',
                     Text(
                       '${utils.DateUtils.formatDate(_record!.createdAt)} ${_record!.createdAt.hour.toString().padLeft(2, '0')}:${_record!.createdAt.minute.toString().padLeft(2, '0')}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         color: AppTheme.textSecondary,
                       ),
@@ -188,7 +188,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
                       '位置',
                       Text(
                         _record!.location!,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           color: AppTheme.textPrimary,
                         ),
@@ -220,7 +220,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppTheme.bgCard,
               borderRadius: BorderRadius.circular(AppRadius.full),
               border: Border.all(
                 color: _hexToColor(category?.color ?? '#B0B0B0'),
@@ -237,7 +237,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
           const SizedBox(height: AppSpacing.md),
           Text(
             category?.name ?? '未分类',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: AppTheme.textPrimary,
@@ -261,7 +261,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
             children: [
               Text(
                 utils.DateUtils.formatDayCN(_record!.date),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: AppTheme.textPrimary,
@@ -270,7 +270,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
               const SizedBox(width: 8),
               Text(
                 utils.DateUtils.getWeekday(DateTime.parse(_record!.date)),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   color: AppTheme.textSecondary,
                 ),
@@ -280,7 +280,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
           const SizedBox(height: 4),
           Text(
             _record!.date,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               color: AppTheme.textHint,
             ),
@@ -295,7 +295,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.bgCard,
         borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(color: AppTheme.border),
       ),
@@ -306,7 +306,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
             width: 80,
             child: Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 color: AppTheme.textSecondary,
               ),
@@ -323,14 +323,14 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.bgCard,
         borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(color: AppTheme.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             '图片',
             style: TextStyle(
               fontSize: 14,
@@ -368,7 +368,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.sm),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.bgCard,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),

@@ -182,7 +182,7 @@ class _BudgetPageState extends State<BudgetPage> {
       ),
       child: Column(
         children: [
-          const Text(
+          Text(
             '🎯 当前月度预算',
             style: TextStyle(
               fontSize: 15,
@@ -207,7 +207,7 @@ class _BudgetPageState extends State<BudgetPage> {
             const SizedBox(height: 8),
             Text(
               '每日可用 ¥${FormatUtils.formatAmount(_currentBudget / 30)}',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 color: AppTheme.textSecondary,
               ),
@@ -222,7 +222,7 @@ class _BudgetPageState extends State<BudgetPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           '快捷设置：',
           style: TextStyle(
             fontSize: 14,
@@ -271,7 +271,7 @@ class _BudgetPageState extends State<BudgetPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           '自定义金额：',
           style: TextStyle(
             fontSize: 14,
@@ -296,7 +296,7 @@ class _BudgetPageState extends State<BudgetPage> {
                   )
                 : null,
             filled: true,
-            fillColor: Colors.white,
+            fillColor: AppTheme.bgCard,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.md),
               borderSide: BorderSide.none,

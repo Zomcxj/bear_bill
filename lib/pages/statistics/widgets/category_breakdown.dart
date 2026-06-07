@@ -6,10 +6,12 @@ import '../../../utils/utils.dart';
 /// 分类明细列表
 class CategoryBreakdown extends StatelessWidget {
   final List<Map<String, dynamic>> categories;
+  final void Function(Map<String, dynamic> category)? onCategoryTap;
 
   const CategoryBreakdown({
     super.key,
     required this.categories,
+    this.onCategoryTap,
   });
 
   @override
@@ -21,14 +23,14 @@ class CategoryBreakdown extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.bgCard,
         borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(color: AppTheme.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             '📊 分类明细',
             style: TextStyle(
               fontSize: 15,
@@ -56,7 +58,10 @@ class CategoryBreakdown extends StatelessWidget {
     final percent = category['percent'] as double;
     final count = category['count'] as int? ?? 0;
 
-    return Padding(
+    return GestureDetector(
+      onTap: onCategoryTap != null ? () => onCategoryTap!(category) : null,
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,7 +75,7 @@ class CategoryBreakdown extends StatelessWidget {
                   const SizedBox(width: 8),
                   Text(
                     category['name'],
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: AppTheme.textPrimary,
@@ -79,7 +84,7 @@ class CategoryBreakdown extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     '($count笔)',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       color: AppTheme.textHint,
                     ),
@@ -95,7 +100,7 @@ class CategoryBreakdown extends StatelessWidget {
                 children: [
                   Text(
                     '¥${FormatUtils.formatAmount(amount)}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                       color: AppTheme.textPrimary,
@@ -103,7 +108,7 @@ class CategoryBreakdown extends StatelessWidget {
                   ),
                   Text(
                     '${percent.toStringAsFixed(1)}%',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       color: AppTheme.textSecondary,
                     ),
@@ -129,6 +134,7 @@ class CategoryBreakdown extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }

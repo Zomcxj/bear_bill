@@ -315,7 +315,7 @@ class UserProfileCard extends StatelessWidget {
             else
               const Text('暂无打卡记录'),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               '每天记账即自动打卡，断签会重置连续天数。',
               style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
             ),
@@ -386,7 +386,7 @@ class UserProfileCard extends StatelessWidget {
           margin: const EdgeInsets.only(top: 60),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppTheme.bgCard,
             borderRadius: BorderRadius.circular(AppRadius.lg),
             boxShadow: AppShadow.deep,
             border: Border.all(color: AppTheme.border, width: 1.5),
@@ -403,7 +403,7 @@ class UserProfileCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
+                  Text(
                     '成就解锁！',
                     style: TextStyle(
                       fontSize: 12,
@@ -413,7 +413,7 @@ class UserProfileCard extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     achievements.first.title ?? '新成就',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                       color: AppTheme.textPrimary,

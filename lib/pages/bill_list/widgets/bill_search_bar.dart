@@ -25,7 +25,7 @@ class BillSearchBar extends StatelessWidget {
       padding:
           const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.bgCard,
         border: Border(bottom: BorderSide(color: AppTheme.border)),
       ),
       child: Row(
@@ -41,7 +41,7 @@ class BillSearchBar extends StatelessWidget {
               ),
               child: TextField(
                 onChanged: onKeywordChanged,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: '搜索分类、备注、金额...',
                   hintStyle: TextStyle(
                     fontSize: 13,
@@ -52,7 +52,7 @@ class BillSearchBar extends StatelessWidget {
                     size: 20,
                     color: AppTheme.textSecondary,
                   ),
-                  contentPadding: EdgeInsets.symmetric(
+                  contentPadding: const EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 10,
                   ),

@@ -44,7 +44,7 @@ class RecordGroupList extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.bgCard,
         borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(color: AppTheme.border),
       ),
@@ -69,7 +69,7 @@ class RecordGroupList extends StatelessWidget {
                   children: [
                     Text(
                       group['label'],
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                         color: AppTheme.textPrimary,
@@ -78,7 +78,7 @@ class RecordGroupList extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(
                       group['weekday'],
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         color: AppTheme.textHint,
                       ),
@@ -96,8 +96,8 @@ class RecordGroupList extends StatelessWidget {
                         ),
                       ),
                     if (group['dayExpense'] > 0 && group['dayIncome'] > 0)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 6),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
                         child: Text('|',
                             style: TextStyle(
                                 color: AppTheme.textHint, fontSize: 12)),
@@ -188,7 +188,7 @@ class RecordGroupList extends StatelessWidget {
                   children: [
                     Text(
                       category?.name ?? '未分类',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
                         color: AppTheme.textPrimary,
@@ -198,7 +198,7 @@ class RecordGroupList extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         record.remark!,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           color: AppTheme.textHint,
                         ),

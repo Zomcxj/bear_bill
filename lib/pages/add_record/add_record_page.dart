@@ -367,7 +367,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
       margin: const EdgeInsets.all(AppSpacing.sm),
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.bgCard,
         borderRadius: BorderRadius.circular(AppRadius.full),
         border: Border.all(color: AppTheme.border),
       ),
@@ -440,7 +440,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
             icon: const Icon(Icons.photo_library),
             label: const Text('添加图片'),
             style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
+                backgroundColor: AppTheme.bgCard,
                 foregroundColor: AppTheme.textPrimary),
           ),
           const SizedBox(width: 8),
@@ -464,7 +464,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                               decoration: BoxDecoration(
                                 borderRadius:
                                     BorderRadius.circular(AppRadius.md),
-                                color: Colors.grey[200],
+                                color: AppTheme.bgSection,
                                 image: path.isNotEmpty
                                     ? DecorationImage(
                                         image: FileImage(File(path)),
@@ -505,9 +505,9 @@ class _AddRecordPageState extends State<AddRecordPage> {
         controller: _locationController,
         decoration: InputDecoration(
           hintText: '位置（可选）',
-          prefixIcon: const Icon(Icons.place, color: AppTheme.textHint),
+          prefixIcon: Icon(Icons.place, color: AppTheme.textHint),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: AppTheme.bgCard,
           border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.md),
               borderSide: BorderSide.none),
@@ -532,7 +532,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
             width: double.infinity,
             padding: const EdgeInsets.all(AppSpacing.md),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppTheme.bgCard,
               borderRadius: BorderRadius.circular(AppRadius.lg),
               border: Border.all(color: accentColor.withOpacity(0.12)),
               boxShadow: [
@@ -561,9 +561,9 @@ class _AddRecordPageState extends State<AddRecordPage> {
                         icon: '📅',
                         label:
                             '${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}',
-                        backgroundColor: const Color(0xFFF7F7F8),
+                        backgroundColor: AppTheme.bgSection,
                         textColor: AppTheme.textPrimary,
-                        trailing: const Icon(
+                        trailing: Icon(
                           Icons.chevron_right,
                           size: 16,
                           color: AppTheme.textHint,
@@ -606,7 +606,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                         vertical: 7,
                       ),
                       decoration: BoxDecoration(
-                        color: isSelected ? accentColor : Colors.white,
+                        color: isSelected ? accentColor : AppTheme.bgCard,
                         borderRadius: BorderRadius.circular(AppRadius.full),
                         border: Border.all(
                           color: isSelected
@@ -672,7 +672,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
     return Container(
       margin: const EdgeInsets.all(AppSpacing.sm),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.bgCard,
         borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(color: AppTheme.border),
       ),
@@ -686,7 +686,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
             ),
             child: Row(
               children: [
-                const Text(
+                Text(
                   '心情',
                   style: TextStyle(
                     fontSize: 13,
@@ -771,7 +771,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Text(
+                Text(
                   '备注',
                   style: TextStyle(
                     fontSize: 13,
@@ -787,7 +787,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                     maxLength: 50,
                     maxLines: 1,
                     textInputAction: TextInputAction.done,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: '点这里补一句备注',
                       hintStyle: TextStyle(
                         color: AppTheme.textHint,
@@ -795,7 +795,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                       ),
                       border: InputBorder.none,
                       isDense: true,
-                      contentPadding: EdgeInsets.only(left: 8),
+                      contentPadding: const EdgeInsets.only(left: 8),
                       counterText: '',
                     ),
                     style: const TextStyle(fontSize: 14),
@@ -819,7 +819,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
             ),
             child: Row(
               children: [
-                const Text(
+                Text(
                   '照片',
                   style: TextStyle(
                     fontSize: 13,
@@ -874,7 +874,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                           height: 64,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(AppRadius.md),
-                            color: Colors.grey[200],
+                            color: AppTheme.bgSection,
                             image: path.isNotEmpty
                                 ? DecorationImage(
                                     image: FileImage(File(path)),
@@ -911,7 +911,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
             padding: const EdgeInsets.all(AppSpacing.sm),
             child: Row(
               children: [
-                const Text(
+                Text(
                   '位置',
                   style: TextStyle(
                     fontSize: 13,
@@ -975,7 +975,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                     Expanded(
                       child: Text(
                         _location!,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           color: AppTheme.textPrimary,
                         ),
@@ -988,7 +988,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                           _locationController.clear();
                         });
                       },
-                      child: const Icon(Icons.close,
+                      child: Icon(Icons.close,
                           size: 16, color: AppTheme.textHint),
                     ),
                   ],
@@ -1013,7 +1013,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
       context: context,
       builder: (context) => Container(
         height: 320,
-        color: Colors.white,
+        color: AppTheme.bgCard,
         child: Column(
           children: [
             Row(

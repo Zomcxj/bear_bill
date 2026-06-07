@@ -191,4 +191,71 @@ class NotificationService {
       ),
     );
   }
+
+  /// 显示月度财务简报通知
+  Future<void> showMonthlySummary() async {
+    await init();
+
+    // 获取上个月的月份字符串
+    final now = DateTime.now();
+    final lastMonth = DateTime(now.year, now.month - 1);
+    final monthStr =
+        '${lastMonth.year}-${lastMonth.month.toString().padLeft(2, '0')}';
+    final monthLabel = '${lastMonth.month}月';
+
+    final stats = await DatabaseService.instance.getMonthStatistics(monthStr);
+    final expense = stats['expense'] as double? ?? 0.0;
+    final income = stats['income'] as double? ?? 0.0;
+    final balance = income - expense;
+    final categories = stats['categories'] as List? ?? [];
+    final records = stats['records'] as List? ?? [];
+
+    if (records.isEmpty) return; // 上月无记录不发通知
+
+    // 获取最高分类
+    String topCatText = '';
+    if (categories.isNotEmpty) {
+      final top = categories.first;
+      final amount = top['amount'] as double;
+      final percent = expense > 0 ? (amount / expense * 100).toStringAsFixed(0) : '0';
+      topCatText = '，${top['icon']}${top['name']}占比$percent%';
+    }
+
+    // 构建简报内容
+    final parts = <String>[];
+    parts.add('支出¥${expense.toStringAsFixed(0)}');
+    parts.add('收入¥${income.toStringAsFixed(0)}');
+    if (balance >= 0) {
+      parts.add('结余¥${balance.toStringAsFixed(0)}');
+    } else {
+      parts.add('超支¥${(-balance).toStringAsFixed(0)}');
+    }
+
+    final suffix = balance > 0
+        ? '攒钱达人！'
+        : balance == 0
+            ? '收支平衡～'
+            : '下月加油～';
+
+    final content = '$monthLabel${parts.join('，')}$topCatText$suffix';
+
+    await _notifications.show(
+      888,
+      '📊 ${monthLabel}财务简报',
+      content,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'monthly_summary',
+          '月度财务简报',
+          channelDescription: '每月1日推送上月财务摘要',
+          importance: Importance.high,
+          priority: Priority.high,
+          icon: '@mipmap/ic_notification',
+          color: Color(0xFFFF8FAB),
+          visibility: NotificationVisibility.secret,
+        ),
+        iOS: DarwinNotificationDetails(),
+      ),
+    );
+  }
 }

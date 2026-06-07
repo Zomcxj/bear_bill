@@ -106,7 +106,7 @@ class _YearSummaryState extends State<YearSummary> {
               children: [
                 Text(
                   '$_selectedYear 年',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppTheme.textPrimary,
@@ -212,7 +212,7 @@ class _YearSummaryState extends State<YearSummary> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             '📊 月度趋势',
             style: TextStyle(
               fontSize: 15,
@@ -249,7 +249,7 @@ class _YearSummaryState extends State<YearSummary> {
                               width: 6,
                               height: 120 * expenseRatio,
                               decoration: BoxDecoration(
-                                color: const Color(0xFFE8607A),
+                                color: AppTheme.primaryDark,
                                 borderRadius: BorderRadius.circular(2),
                               ),
                             ),
@@ -258,7 +258,7 @@ class _YearSummaryState extends State<YearSummary> {
                               width: 6,
                               height: 120 * incomeRatio,
                               decoration: BoxDecoration(
-                                color: const Color(0xFF4CAF50),
+                                color: AppTheme.success,
                                 borderRadius: BorderRadius.circular(2),
                               ),
                             ),
@@ -288,11 +288,11 @@ class _YearSummaryState extends State<YearSummary> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(width: 10, height: 10, color: const Color(0xFFE8607A)),
+              Container(width: 10, height: 10, color: AppTheme.primaryDark),
               const SizedBox(width: 4),
               const Text('支出', style: TextStyle(fontSize: 11)),
               const SizedBox(width: 16),
-              Container(width: 10, height: 10, color: const Color(0xFF4CAF50)),
+              Container(width: 10, height: 10, color: AppTheme.success),
               const SizedBox(width: 4),
               const Text('收入', style: TextStyle(fontSize: 11)),
             ],
@@ -327,7 +327,7 @@ class _YearSummaryState extends State<YearSummary> {
         children: [
           Text(
             '📊 年度支出分类 Top ${categoriesWithPercent.length > 5 ? 5 : categoriesWithPercent.length}',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w700,
               color: AppTheme.textPrimary,
@@ -357,7 +357,7 @@ class _YearSummaryState extends State<YearSummary> {
               children: [
                 Text(
                   category['name'],
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     color: AppTheme.textPrimary,
@@ -366,7 +366,7 @@ class _YearSummaryState extends State<YearSummary> {
                 const SizedBox(height: 2),
                 Text(
                   '$count 笔',
-                  style: const TextStyle(fontSize: 12, color: AppTheme.textHint),
+                  style: TextStyle(fontSize: 12, color: AppTheme.textHint),
                 ),
               ],
             ),
@@ -376,7 +376,7 @@ class _YearSummaryState extends State<YearSummary> {
             children: [
               Text(
                 '¥${FormatUtils.formatAmount(amount)}',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                   color: AppTheme.textPrimary,
@@ -385,7 +385,7 @@ class _YearSummaryState extends State<YearSummary> {
               const SizedBox(height: 2),
               Text(
                 '${percent.toStringAsFixed(1)}%',
-                style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
               ),
             ],
           ),
