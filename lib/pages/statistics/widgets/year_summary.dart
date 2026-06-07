@@ -1,0 +1,396 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../../providers/app_provider.dart';
+import '../../../services/database_service.dart';
+import '../../../theme/app_theme.dart';
+import '../../../utils/utils.dart';
+import 'income_expense_summary.dart';
+
+/// 年度总结组件
+class YearSummary extends StatefulWidget {
+  const YearSummary({super.key});
+
+  @override
+  State<YearSummary> createState() => _YearSummaryState();
+}
+
+class _YearSummaryState extends State<YearSummary> {
+  int _selectedYear = DateTime.now().year;
+  double _totalExpense = 0;
+  double _totalIncome = 0;
+  List<Map<String, dynamic>> _monthlyData = [];
+  List<Map<String, dynamic>> _expenseCategories = [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadYearStats();
+  }
+
+  Future<void> _loadYearStats() async {
+    setState(() => _loading = true);
+    final appProvider = context.read<AppProvider>();
+    final data = await DatabaseService.instance.getYearStatistics(
+      '$_selectedYear',
+      bookId: appProvider.currentBookId,
+    );
+
+    if (mounted) {
+      setState(() {
+        _totalExpense = data['totalExpense'] as double;
+        _totalIncome = data['totalIncome'] as double;
+        _monthlyData = (data['monthlyData'] as List).cast<Map<String, dynamic>>();
+        _expenseCategories = (data['categories'] as List)
+            .cast<Map<String, dynamic>>()
+            .where((c) => c['type'] == 'expense')
+            .toList();
+        _loading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _loading
+        ? const Center(child: CircularProgressIndicator())
+        : SingleChildScrollView(
+            child: Column(
+              children: [
+                // 年份选择器
+                _buildYearSelector(),
+                // 收支概览
+                IncomeExpenseSummary(
+                  expense: _totalExpense,
+                  income: _totalIncome,
+                  balance: _totalIncome - _totalExpense,
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                // 12 月柱状图
+                _buildMonthlyChart(),
+                const SizedBox(height: AppSpacing.sm),
+                // 年度分类明细
+                _buildYearCategoryBreakdown(),
+              ],
+            ),
+          );
+  }
+
+  Widget _buildYearSelector() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          GestureDetector(
+            onTap: () {
+              setState(() => _selectedYear--);
+              _loadYearStats();
+            },
+            child: Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppTheme.bgPage,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.chevron_left, size: 24, color: AppTheme.primaryDark),
+            ),
+          ),
+          const SizedBox(width: 16),
+          GestureDetector(
+            onTap: _pickYear,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '$_selectedYear 年',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                Icon(Icons.unfold_more, size: 18, color: AppTheme.textHint),
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          GestureDetector(
+            onTap: _selectedYear < DateTime.now().year
+                ? () {
+                    setState(() => _selectedYear++);
+                    _loadYearStats();
+                  }
+                : null,
+            child: Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppTheme.bgPage,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.chevron_right,
+                size: 24,
+                color: _selectedYear < DateTime.now().year
+                    ? AppTheme.primaryDark
+                    : AppTheme.textHint,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _pickYear() {
+    int tempYear = _selectedYear;
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setState) {
+          return AlertDialog(
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.chevron_left),
+                  onPressed: () => setState(() => tempYear--),
+                ),
+                Text(
+                  '$tempYear 年',
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.chevron_right),
+                  onPressed: tempYear < DateTime.now().year
+                      ? () => setState(() => tempYear++)
+                      : null,
+                ),
+              ],
+            ),
+            content: const Text('选择年份查看年度总结', textAlign: TextAlign.center),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('取消'),
+              ),
+              TextButton(
+                onPressed: () {
+                  setState(() => _selectedYear = tempYear);
+                  Navigator.pop(ctx);
+                  _loadYearStats();
+                },
+                child: Text('确认', style: TextStyle(color: AppTheme.primary)),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildMonthlyChart() {
+    if (_monthlyData.isEmpty) return const SizedBox.shrink();
+
+    final maxAmount = _monthlyData
+        .map((m) => (m['expense'] as double) > (m['income'] as double)
+            ? (m['expense'] as double)
+            : (m['income'] as double))
+        .reduce((a, b) => a > b ? a : b);
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppTheme.bgCard,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: Border.all(color: AppTheme.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            '📊 月度趋势',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 160,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: List.generate(12, (i) {
+                final data = _monthlyData[i];
+                final expense = data['expense'] as double;
+                final income = data['income'] as double;
+                final expenseRatio = maxAmount > 0 ? expense / maxAmount : 0.0;
+                final incomeRatio = maxAmount > 0 ? income / maxAmount : 0.0;
+                final isCurrentMonth = i + 1 == DateTime.now().month &&
+                    _selectedYear == DateTime.now().year;
+
+                return Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 2),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        // 双柱
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Container(
+                              width: 6,
+                              height: 120 * expenseRatio,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE8607A),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                            const SizedBox(width: 2),
+                            Container(
+                              width: 6,
+                              height: 120 * incomeRatio,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF4CAF50),
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${i + 1}',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: isCurrentMonth
+                                ? AppTheme.primary
+                                : AppTheme.textHint,
+                            fontWeight: isCurrentMonth
+                                ? FontWeight.w600
+                                : FontWeight.normal,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(width: 10, height: 10, color: const Color(0xFFE8607A)),
+              const SizedBox(width: 4),
+              const Text('支出', style: TextStyle(fontSize: 11)),
+              const SizedBox(width: 16),
+              Container(width: 10, height: 10, color: const Color(0xFF4CAF50)),
+              const SizedBox(width: 4),
+              const Text('收入', style: TextStyle(fontSize: 11)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildYearCategoryBreakdown() {
+    if (_expenseCategories.isEmpty) return const SizedBox.shrink();
+
+    // 计算百分比
+    final total = _expenseCategories.fold(0.0, (s, c) => s + (c['amount'] as double));
+    final categoriesWithPercent = _expenseCategories.map((c) {
+      return {
+        ...c,
+        'percent': total > 0 ? (c['amount'] as double) / total * 100 : 0.0,
+      };
+    }).toList();
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppTheme.bgCard,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: Border.all(color: AppTheme.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '📊 年度支出分类 Top ${categoriesWithPercent.length > 5 ? 5 : categoriesWithPercent.length}',
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          ...categoriesWithPercent.take(5).map((c) => _buildCategoryItem(c)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryItem(Map<String, dynamic> category) {
+    final amount = category['amount'] as double;
+    final percent = category['percent'] as double;
+    final count = category['count'] as int? ?? 0;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Text(category['icon'] ?? '📦', style: const TextStyle(fontSize: 20)),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  category['name'],
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '$count 笔',
+                  style: const TextStyle(fontSize: 12, color: AppTheme.textHint),
+                ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '¥${FormatUtils.formatAmount(amount)}',
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                '${percent.toStringAsFixed(1)}%',
+                style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}

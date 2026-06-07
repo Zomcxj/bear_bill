@@ -1,0 +1,65 @@
+buildscript {
+    repositories {
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/central' }
+        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+        google()
+        mavenCentral()
+    }
+    configurations.all {
+        resolutionStrategy {
+            force 'org.bouncycastle:bcprov-jdk18on:1.78.1'
+        }
+    }
+}
+
+allprojects {
+    repositories {
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/central' }
+        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+        google()
+        mavenCentral()
+    }
+}
+
+// Provide compile/target SDK values for plugin projects that expect them
+ext {
+    compileSdkVersion = 36
+    targetSdkVersion = 36
+}
+
+rootProject.buildDir = "../build"
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(":app")
+}
+
+// Fix: Flutter plugin projects expect a `flutter` extension with compileSdkVersion.
+// The Flutter Gradle plugin only creates this for the app project, not library subprojects.
+subprojects { project ->
+    project.beforeEvaluate {
+        if (!project.ext.has('flutter')) {
+            project.ext.flutter = [
+                compileSdkVersion: 36,
+                minSdkVersion: 21,
+                targetSdkVersion: 36,
+            ]
+        }
+    }
+}
+
+// Fix: bcprov-jdk18on 1.79 has Java 21 classes that Gradle 8.2 can't process
+allprojects {
+    configurations.all {
+        resolutionStrategy {
+            force 'org.bouncycastle:bcprov-jdk18on:1.78.1'
+        }
+    }
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
