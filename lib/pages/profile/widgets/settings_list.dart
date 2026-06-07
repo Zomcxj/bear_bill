@@ -19,7 +19,7 @@ class SettingsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       decoration: BoxDecoration(
         color: AppTheme.bgCard,
         borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -77,12 +77,12 @@ class SettingsList extends StatelessWidget {
           _buildMenuItem(
             emoji: 'ℹ️',
             title: '关于',
-            trailing: 'v1.1.0',
+            trailing: 'v1.2.0',
             onTap: () {
               showAboutDialog(
                 context: context,
                 applicationName: '小熊记账本',
-                applicationVersion: 'v1.1.0',
+                applicationVersion: 'v1.2.0',
                 applicationIcon:
                     const Text('🐻', style: TextStyle(fontSize: 48)),
                 children: [
@@ -138,7 +138,7 @@ class SettingsList extends StatelessWidget {
             if (trailing != null)
               Text(
                 trailing,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   color: AppTheme.textHint,
                 ),
@@ -265,7 +265,7 @@ class SettingsList extends StatelessWidget {
                   children: [
                     Icon(Icons.battery_saver, size: 16, color: AppTheme.primary),
                     const SizedBox(width: 6),
-                    const Expanded(
+                    Expanded(
                       child: Text(
                         '提醒不生效？请到系统设置中允许本App后台耗电',
                         style: TextStyle(fontSize: 11, color: AppTheme.textSecondary),
@@ -388,7 +388,7 @@ class SettingsList extends StatelessWidget {
                     const SizedBox(width: 12),
                     Text(
                       '($size)',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         color: AppTheme.textSecondary,
                       ),
@@ -477,7 +477,7 @@ class SettingsList extends StatelessWidget {
           const SizedBox(height: 4),
           Text(content,
               style:
-                  const TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
+                  TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
         ],
       ),
     );
@@ -517,7 +517,7 @@ class SettingsList extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 '当前预算：¥${currentBudget.toStringAsFixed(0)}',
-                style: const TextStyle(fontSize: 12, color: AppTheme.textHint),
+                style: TextStyle(fontSize: 12, color: AppTheme.textHint),
               ),
             ],
           ],
@@ -580,7 +580,8 @@ class SettingsList extends StatelessWidget {
 
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
         title: const Text('🎨 主题颜色'),
         content: SizedBox(
           width: double.maxFinite,
@@ -640,6 +641,39 @@ class SettingsList extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 16),
+              // 深色模式开关
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                child: Row(
+                  children: [
+                    const Text('🌙', style: TextStyle(fontSize: 20)),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        '深色模式',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                    ),
+                    Transform.scale(
+                      scale: 0.7,
+                      child: Switch(
+                        value: themeProvider.isDarkMode,
+                        onChanged: (_) {
+                          themeProvider.toggleDarkMode();
+                          setDialogState(() {});
+                        },
+                        activeColor: AppTheme.primary,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
@@ -668,6 +702,7 @@ class SettingsList extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 

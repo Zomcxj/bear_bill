@@ -27,7 +27,7 @@ class MonthSelector extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.bgCard,
         border: Border(bottom: BorderSide(color: AppTheme.border)),
       ),
       child: Row(
@@ -42,7 +42,7 @@ class MonthSelector extends StatelessWidget {
                 color: AppTheme.bgSection,
                 borderRadius: BorderRadius.circular(AppRadius.full),
               ),
-              child: const Icon(Icons.chevron_left, color: AppTheme.textSecondary),
+              child: Icon(Icons.chevron_left, color: AppTheme.textSecondary),
             ),
           ),
           
@@ -62,7 +62,7 @@ class MonthSelector extends StatelessWidget {
                     children: [
                       Text(
                         utils.DateUtils.formatMonthCN(currentMonth),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: AppTheme.textPrimary,
@@ -79,20 +79,20 @@ class MonthSelector extends StatelessWidget {
                   children: [
                     Text(
                       '支 ¥${utils.FormatUtils.formatAmount(totalExpense)}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: Color(0xFFE8607A),
+                        color: AppTheme.primaryDark,
                       ),
                     ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Text('|', style: TextStyle(color: AppTheme.textHint)),
                     ),
                     Text(
                       '收 ¥${utils.FormatUtils.formatAmount(totalIncome)}',
                       style: const TextStyle(
                         fontSize: 12,
-                        color: Color(0xFF4CAF50),
+                        color: AppTheme.success,
                       ),
                     ),
                   ],
@@ -113,7 +113,7 @@ class MonthSelector extends StatelessWidget {
                 color: AppTheme.bgSection,
                 borderRadius: BorderRadius.circular(AppRadius.full),
               ),
-              child: const Icon(Icons.chevron_right, color: AppTheme.textSecondary),
+              child: Icon(Icons.chevron_right, color: AppTheme.textSecondary),
             ),
           ),
         ],

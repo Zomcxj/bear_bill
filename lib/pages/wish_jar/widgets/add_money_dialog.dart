@@ -76,7 +76,7 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
               children: [
                 Text(
                   widget.wish.title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                     color: AppTheme.textPrimary,
@@ -85,7 +85,7 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
                 const SizedBox(height: 4),
                 Text(
                   '已存 ¥${FormatUtils.formatAmount(widget.wish.currentAmount)} / 目标 ¥${FormatUtils.formatAmount(widget.wish.targetAmount)}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     color: AppTheme.textSecondary,
                   ),
@@ -107,7 +107,7 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
           const SizedBox(height: AppSpacing.md),
           
           // 快捷金额
-          const Text(
+          Text(
             '快捷金额：',
             style: TextStyle(
               fontSize: 13,

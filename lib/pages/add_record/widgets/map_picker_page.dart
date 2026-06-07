@@ -361,7 +361,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppTheme.bgCard,
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
@@ -415,7 +415,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppTheme.bgCard,
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
@@ -428,7 +428,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                   child: Row(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary),
+                        icon: Icon(Icons.arrow_back, color: AppTheme.textPrimary),
                         onPressed: () => Navigator.pop(context),
                       ),
                       Expanded(
@@ -472,7 +472,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                     margin: const EdgeInsets.only(top: 4),
                     constraints: const BoxConstraints(maxHeight: 240),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppTheme.bgCard,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
@@ -502,7 +502,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                             r['distance'] != null && r['distance'] != ''
                                 ? '${r['address'] ?? ''} · ${r['distance']}m'
                                 : (r['address'] ?? ''),
-                            style: const TextStyle(fontSize: 12, color: AppTheme.textHint),
+                            style: TextStyle(fontSize: 12, color: AppTheme.textHint),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -524,7 +524,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                 // 定位按钮
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppTheme.bgCard,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
@@ -561,7 +561,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                 MediaQuery.of(context).padding.bottom + 16,
               ),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppTheme.bgCard,
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                 boxShadow: [
                   BoxShadow(
@@ -585,7 +585,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                           children: [
                             Text(
                               _placeName.isNotEmpty ? _placeName : '未知位置',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 color: AppTheme.textPrimary,
@@ -596,7 +596,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                             if (_address.isNotEmpty && _address != _placeName)
                               Text(
                                 _address,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 12,
                                   color: AppTheme.textHint,
                                 ),
@@ -611,7 +611,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                   const SizedBox(height: 4),
                   Text(
                     '坐标: ${_center.latitude.toStringAsFixed(5)}, ${_center.longitude.toStringAsFixed(5)}',
-                    style: const TextStyle(fontSize: 11, color: AppTheme.textHint),
+                    style: TextStyle(fontSize: 11, color: AppTheme.textHint),
                   ),
                   const SizedBox(height: 12),
                   SizedBox(

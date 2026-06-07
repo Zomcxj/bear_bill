@@ -78,7 +78,7 @@ class _ExportPageState extends State<ExportPage> {
                 const SizedBox(height: 8),
                 Text(
                   '文件位置：\n$targetPath',
-                  style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                  style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
                 ),
               ],
             ),
@@ -252,7 +252,7 @@ class _ExportPageState extends State<ExportPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           '选择月份：',
           style: TextStyle(
             fontSize: 14,
@@ -270,7 +270,7 @@ class _ExportPageState extends State<ExportPage> {
               context: context,
               builder: (context) => Container(
                 height: 320,
-                color: Colors.white,
+                color: AppTheme.bgCard,
                 child: Column(
                   children: [
                     Row(
@@ -311,7 +311,7 @@ class _ExportPageState extends State<ExportPage> {
             prefixIcon: Icon(Icons.calendar_today, color: AppTheme.primary),
             suffixIcon: const Icon(Icons.arrow_drop_down),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: AppTheme.bgCard,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.md),
               borderSide: BorderSide.none,

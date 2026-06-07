@@ -27,6 +27,16 @@ class FontSizeNotifier extends ChangeNotifier {
   }
 }
 
+void _checkMonthlySummary() {
+  final now = DateTime.now();
+  if (now.day != 1) return; // 只在每月1日触发
+  final monthKey = 'monthlySummary_${now.year}_${now.month.toString().padLeft(2, '0')}';
+  final sent = StorageService.instance.getString(monthKey);
+  if (sent == '1') return; // 本月已发送
+  StorageService.instance.setString(monthKey, '1');
+  NotificationService.instance.showMonthlySummary();
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -42,6 +52,9 @@ void main() async {
 
   // 初始化通知服务
   await NotificationService.instance.init();
+
+  // 月度财务简报：每月1日自动推送
+  _checkMonthlySummary();
 
   runApp(BearBillApp(themeProvider: themeProvider));
 }
@@ -104,7 +117,7 @@ class _BearBillAppState extends State<BearBillApp> {
       child: MaterialApp(
         title: '🐻 小熊记账本',
         debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
+        theme: AppTheme.currentTheme,
         builder: (context, child) {
           return MediaQuery(
             data: MediaQuery.of(context).copyWith(
@@ -172,7 +185,7 @@ class _MainTabPageState extends State<MainTabPage> {
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppTheme.bgCard,
           boxShadow: AppShadow.navbar,
           border: Border(
             top: BorderSide(color: AppTheme.border, width: 0.5),

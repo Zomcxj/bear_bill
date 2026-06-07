@@ -65,7 +65,7 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppTheme.bgCard,
                     borderRadius: BorderRadius.circular(AppRadius.md),
                     border: Border.all(color: AppTheme.border),
                   ),
@@ -73,7 +73,7 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
                     controller: _controller,
                     decoration: InputDecoration(
                       hintText: '搜索分类、备注或金额',
-                      prefixIcon: const Icon(Icons.search, color: AppTheme.textHint),
+                      prefixIcon: Icon(Icons.search, color: AppTheme.textHint),
                       suffixIcon: widget.keyword.isNotEmpty
                           ? IconButton(
                               icon: const Icon(Icons.clear, size: 18),
@@ -104,9 +104,9 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: widget.showFilter 
-                        ? AppTheme.primaryLight 
-                        : Colors.white,
+                    color: widget.showFilter
+                        ? AppTheme.primaryLight
+                        : AppTheme.bgCard,
                     borderRadius: BorderRadius.circular(AppRadius.md),
                     border: Border.all(
                       color: widget.showFilter 
@@ -166,7 +166,7 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
       padding: const EdgeInsets.all(AppSpacing.sm),
       margin: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppTheme.bgCard,
         borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(color: AppTheme.border),
       ),
@@ -174,7 +174,7 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 类型筛选
-          const Text(
+          Text(
             '类型',
             style: TextStyle(
               fontSize: 13,
@@ -196,7 +196,7 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
           const SizedBox(height: AppSpacing.sm),
           
           // 分类筛选
-          const Text(
+          Text(
             '分类',
             style: TextStyle(
               fontSize: 13,
@@ -229,7 +229,7 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
                   color: AppTheme.bgSection,
                   borderRadius: BorderRadius.circular(AppRadius.full),
                 ),
-                child: const Text(
+                child: Text(
                   '清除筛选',
                   style: TextStyle(
                     fontSize: 13,
@@ -251,7 +251,7 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryLight : Colors.white,
+          color: isSelected ? AppTheme.primaryLight : AppTheme.bgCard,
           borderRadius: BorderRadius.circular(AppRadius.full),
           border: Border.all(
             color: isSelected ? AppTheme.primary : AppTheme.border,
@@ -279,7 +279,7 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
         decoration: BoxDecoration(
           color: isSelected
               ? _hexToColor(category.color).withOpacity(0.2)
-              : Colors.white,
+              : AppTheme.bgCard,
           borderRadius: BorderRadius.circular(AppRadius.full),
           border: Border.all(
             color: isSelected 

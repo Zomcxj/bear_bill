@@ -72,7 +72,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // 快速模板
-              const Text(
+              Text(
                 '快速选择：',
                 style: TextStyle(
                   fontSize: 13,
@@ -178,7 +178,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
                     context: context,
                     builder: (context) => Container(
                       height: 320,
-                      color: Colors.white,
+                      color: AppTheme.bgCard,
                       child: Column(
                         children: [
                           Row(
@@ -248,7 +248,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
                               _deadline = null;
                             });
                           },
-                          child: const Icon(Icons.clear,
+                          child: Icon(Icons.clear,
                               size: 18, color: AppTheme.textHint),
                         ),
                     ],

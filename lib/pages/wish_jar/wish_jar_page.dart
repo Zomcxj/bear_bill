@@ -167,7 +167,7 @@ class _WishJarPageState extends State<WishJarPage>
         child: Container(
           padding: const EdgeInsets.all(AppSpacing.xl),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppTheme.bgCard,
             borderRadius: BorderRadius.circular(AppRadius.lg),
           ),
           child: Column(
@@ -184,7 +184,7 @@ class _WishJarPageState extends State<WishJarPage>
                 },
               ),
               const SizedBox(height: AppSpacing.md),
-              const Text(
+              Text(
                 '恭喜达成心愿！',
                 style: TextStyle(
                   fontSize: 20,
@@ -195,7 +195,7 @@ class _WishJarPageState extends State<WishJarPage>
               const SizedBox(height: AppSpacing.sm),
               Text(
                 wish.title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   color: AppTheme.textSecondary,
                 ),
@@ -241,7 +241,7 @@ class _WishJarPageState extends State<WishJarPage>
 
                     // Tab切换
                     Container(
-                      color: Colors.white,
+                      color: AppTheme.bgCard,
                       child: TabBar(
                         controller: _tabController,
                         indicatorColor: AppTheme.primary,
@@ -314,7 +314,7 @@ class _WishJarPageState extends State<WishJarPage>
             const SizedBox(height: AppSpacing.md),
             Text(
               emptyText,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 color: AppTheme.textSecondary,
               ),
@@ -443,7 +443,7 @@ class _WishJarPageState extends State<WishJarPage>
             },
           ),
           const SizedBox(height: AppSpacing.md),
-          const Text(
+          Text(
             '还没有心愿罐',
             style: TextStyle(
               fontSize: 18,
@@ -452,7 +452,7 @@ class _WishJarPageState extends State<WishJarPage>
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             '许下你的第一个心愿吧！',
             style: TextStyle(
               fontSize: 14,

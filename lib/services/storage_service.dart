@@ -33,6 +33,12 @@ class StorageService {
         final parsed = int.tryParse(themeColor);
         if (parsed != null) _cache['themePrimaryColor'] = parsed;
       }
+
+      final darkMode = await _loadFromFile('themeDarkMode');
+      if (darkMode != null) {
+        final parsed = int.tryParse(darkMode);
+        if (parsed != null) _cache['themeDarkMode'] = parsed;
+      }
     } catch (e) {
       // 忽略加载错误，保持运行
     }

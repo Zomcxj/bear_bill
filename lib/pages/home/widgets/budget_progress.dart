@@ -113,7 +113,7 @@ class _BudgetProgressCardState extends State<BudgetProgressCard> {
                 children: [
                   Text(
                     '¥${utils.FormatUtils.formatAmountWithComma(_totalExpense)}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                       color: AppTheme.textPrimary,
@@ -122,7 +122,7 @@ class _BudgetProgressCardState extends State<BudgetProgressCard> {
                   ),
                   Text(
                     ' / ¥${utils.FormatUtils.formatAmountWithComma(_budget)}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       color: AppTheme.textHint,
                       letterSpacing: -0.3,

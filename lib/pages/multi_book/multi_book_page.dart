@@ -269,12 +269,12 @@ class _MultiBookPageState extends State<MultiBookPage> {
   }
 
   Widget _buildEmptyState() {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('📒', style: TextStyle(fontSize: 80)),
-          SizedBox(height: AppSpacing.md),
+          const Text('📒', style: TextStyle(fontSize: 80)),
+          const SizedBox(height: AppSpacing.md),
           Text(
             '还没有其他账本',
             style: TextStyle(
@@ -368,7 +368,7 @@ class _BookCard extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color:
-            isCurrent ? _hexToColor(book.color).withOpacity(0.1) : Colors.white,
+            isCurrent ? _hexToColor(book.color).withOpacity(0.1) : AppTheme.bgCard,
         borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(
           color: isCurrent ? _hexToColor(book.color) : AppTheme.border,
@@ -406,7 +406,7 @@ class _BookCard extends StatelessWidget {
                       children: [
                         Text(
                           book.name,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: AppTheme.textPrimary,
@@ -439,7 +439,7 @@ class _BookCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       '$recordCount 条记录',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         color: AppTheme.textSecondary,
                       ),
@@ -478,7 +478,7 @@ class _BookCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(AppRadius.full),
                           border: Border.all(color: AppTheme.border),
                         ),
-                        child: const Icon(Icons.close,
+                        child: Icon(Icons.close,
                             size: 16, color: AppTheme.textHint),
                       ),
                     ),

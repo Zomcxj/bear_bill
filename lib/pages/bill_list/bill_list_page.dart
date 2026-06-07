@@ -15,7 +15,10 @@ import 'widgets/record_group_list.dart';
 
 /// 账单列表页 - 搜索、筛选、分组展示、左滑删除
 class BillListPage extends StatefulWidget {
-  const BillListPage({super.key});
+  final String? initialCategoryId;
+  final String? initialType;
+
+  const BillListPage({super.key, this.initialCategoryId, this.initialType});
 
   @override
   State<BillListPage> createState() => _BillListPageState();
@@ -33,11 +36,21 @@ class _BillListPageState extends State<BillListPage> {
   String _filterType = 'all'; // all, expense, income
   final List<String> _filterCategories = [];
   final bool _showFilter = false;
+  double? _minAmount;
+  double? _maxAmount;
+  String _filterLocation = '';
 
   @override
   void initState() {
     super.initState();
     _currentMonth = utils.DateUtils.getCurrentMonth();
+    // 应用初始筛选条件（从统计页下钻传入）
+    if (widget.initialCategoryId != null) {
+      _filterCategories.add(widget.initialCategoryId!);
+    }
+    if (widget.initialType != null) {
+      _filterType = widget.initialType!;
+    }
     _loadRecords();
     // 监听全局 Provider 变化，自动刷新列表（如新增/删除记录、切换账本）
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -95,6 +108,22 @@ class _BillListPageState extends State<BillListPage> {
       if (_filterCategories.isNotEmpty &&
           !_filterCategories.contains(record.categoryId)) {
         return false;
+      }
+
+      // 金额范围筛选
+      if (_minAmount != null && record.amount < _minAmount!) {
+        return false;
+      }
+      if (_maxAmount != null && record.amount > _maxAmount!) {
+        return false;
+      }
+
+      // 位置筛选
+      if (_filterLocation.isNotEmpty) {
+        final location = record.location ?? '';
+        if (!location.toLowerCase().contains(_filterLocation.toLowerCase())) {
+          return false;
+        }
       }
 
       return true;
@@ -188,6 +217,13 @@ class _BillListPageState extends State<BillListPage> {
   }
 
   void _showFilterDialog() {
+    // 临时变量用于对话框内的金额范围
+    final minController = TextEditingController(
+        text: _minAmount != null ? _minAmount.toString() : '');
+    final maxController = TextEditingController(
+        text: _maxAmount != null ? _maxAmount.toString() : '');
+    final locationController = TextEditingController(text: _filterLocation);
+
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
@@ -283,6 +319,73 @@ class _BillListPageState extends State<BillListPage> {
                       }),
                     ],
                   ),
+                  const SizedBox(height: 16),
+
+                  // 金额范围
+                  const Text(
+                    '金额范围',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: minController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            hintText: '最低金额',
+                            isDense: true,
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 10),
+                          ),
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        child: Text('~', style: TextStyle(fontSize: 16)),
+                      ),
+                      Expanded(
+                        child: TextField(
+                          controller: maxController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            hintText: '最高金额',
+                            isDense: true,
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 10),
+                          ),
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 位置筛选
+                  const Text(
+                    '位置',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: locationController,
+                    decoration: const InputDecoration(
+                      hintText: '按位置关键词筛选',
+                      isDense: true,
+                      prefixIcon: Icon(Icons.place, size: 18),
+                      contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 10),
+                    ),
+                    style: const TextStyle(fontSize: 14),
+                  ),
                 ],
               ),
             ),
@@ -292,6 +395,9 @@ class _BillListPageState extends State<BillListPage> {
                   setState(() {
                     _filterType = 'all';
                     _filterCategories.clear();
+                    _minAmount = null;
+                    _maxAmount = null;
+                    _filterLocation = '';
                   });
                   Navigator.pop(context);
                   _loadRecords();
@@ -300,6 +406,14 @@ class _BillListPageState extends State<BillListPage> {
               ),
               TextButton(
                 onPressed: () {
+                  // 读取金额范围
+                  final min = double.tryParse(minController.text.trim());
+                  final max = double.tryParse(maxController.text.trim());
+                  setState(() {
+                    _minAmount = min;
+                    _maxAmount = max;
+                    _filterLocation = locationController.text.trim();
+                  });
                   Navigator.pop(context);
                   _loadRecords();
                 },
@@ -325,7 +439,7 @@ class _BillListPageState extends State<BillListPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: selected ? AppTheme.primary : Colors.white,
+          color: selected ? AppTheme.primary : AppTheme.bgCard,
           borderRadius: BorderRadius.circular(AppRadius.full),
           border: Border.all(
             color: selected ? AppTheme.primary : AppTheme.border,
@@ -437,12 +551,12 @@ class _BillListPageState extends State<BillListPage> {
   }
 
   Widget _buildEmptyState() {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('🔍', style: TextStyle(fontSize: 64)),
-          SizedBox(height: AppSpacing.md),
+          const Text('🔍', style: TextStyle(fontSize: 64)),
+          const SizedBox(height: AppSpacing.md),
           Text(
             '本月还没有账单',
             style: TextStyle(
@@ -450,7 +564,7 @@ class _BillListPageState extends State<BillListPage> {
               color: AppTheme.textSecondary,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             '快去记第一笔吧 🐻',
             style: TextStyle(

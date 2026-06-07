@@ -543,7 +543,7 @@ class _GreetingCardState extends State<GreetingCard>
           margin: const EdgeInsets.only(top: 60),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppTheme.bgCard,
             borderRadius: BorderRadius.circular(AppRadius.lg),
             boxShadow: AppShadow.deep,
             border: Border.all(color: AppTheme.border, width: 1.5),
@@ -560,7 +560,7 @@ class _GreetingCardState extends State<GreetingCard>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
+                  Text(
                     '成就解锁！',
                     style: TextStyle(
                       fontSize: 12,
@@ -570,7 +570,7 @@ class _GreetingCardState extends State<GreetingCard>
                   const SizedBox(height: 2),
                   Text(
                     first.title ?? '新成就',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                       color: AppTheme.textPrimary,
