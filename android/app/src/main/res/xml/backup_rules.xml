@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- 备份数据库 -->
+    <include domain="database" path="bear_bill.db" />
+    <include domain="database" path="bear_bill.db-wal" />
+    <include domain="database" path="bear_bill.db-shm" />
+
+    <!-- 备份 SharedPreferences（闹钟设置等） -->
+    <include domain="sharedpref" path="alarm_prefs.xml" />
+    <include domain="sharedpref" path="FlutterSharedPreferences.xml" />
+
+    <!-- 备份应用文件（图片、头像、存储数据） -->
+    <include domain="file" path="." />
+</full-backup-content>

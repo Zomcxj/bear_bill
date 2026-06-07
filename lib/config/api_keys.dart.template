@@ -1,0 +1,4 @@
+// API 密钥配置模板
+// 复制此文件为 api_keys.dart 并填入你的密钥
+
+const String amapApiKey = 'YOUR_AMAP_API_KEY';
