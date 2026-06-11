@@ -6,6 +6,7 @@ import '../../providers/theme_provider.dart';
 import '../../services/database_service.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/utils.dart';
+import '../../widgets/app_card.dart';
 import 'widgets/add_money_dialog.dart';
 import 'widgets/create_wish_dialog.dart';
 import 'widgets/wish_jar_card.dart';
@@ -164,12 +165,10 @@ class _WishJarPageState extends State<WishJarPage>
       barrierDismissible: false,
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
-        child: Container(
+        child: AppCard(
           padding: const EdgeInsets.all(AppSpacing.xl),
-          decoration: BoxDecoration(
-            color: AppTheme.bgCard,
-            borderRadius: BorderRadius.circular(AppRadius.lg),
-          ),
+          showBorder: false,
+          showShadow: false,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

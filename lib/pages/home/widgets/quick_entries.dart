@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/app_theme.dart';
+import '../../../widgets/app_card.dart';
 import '../../add_record/add_record_page.dart';
 
 /// 快捷记账入口（对齐小程序 6列 Grid 布局）
@@ -83,15 +84,8 @@ class QuickEntries extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return AppCard(
       margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppTheme.border, width: 1),
-        boxShadow: AppShadow.card,
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

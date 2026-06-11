@@ -5,6 +5,7 @@ import '../../../providers/app_provider.dart';
 import '../../../services/database_service.dart';
 import '../../../theme/app_theme.dart';
 import '../../../utils/utils.dart' as utils;
+import '../../../widgets/app_card.dart';
 import '../../multi_book/multi_book_page.dart';
 import '../../statistics/statistics_page.dart';
 
@@ -539,15 +540,10 @@ class _GreetingCardState extends State<GreetingCard>
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        child: Container(
+        child: AppCard(
           margin: const EdgeInsets.only(top: 60),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          decoration: BoxDecoration(
-            color: AppTheme.bgCard,
-            borderRadius: BorderRadius.circular(AppRadius.lg),
-            boxShadow: AppShadow.deep,
-            border: Border.all(color: AppTheme.border, width: 1.5),
-          ),
+          showShadow: true,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [

@@ -4,6 +4,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import '../../../models/models.dart';
 import '../../../theme/app_theme.dart';
 import '../../../utils/utils.dart' as utils;
+import '../../../widgets/app_card.dart';
 
 /// 将 hex 颜色字符串转换为 Color
 Color _hexToColor(String hex) {
@@ -41,13 +42,10 @@ class RecordGroupList extends StatelessWidget {
   Widget _buildDateGroup(Map<String, dynamic> group) {
     final records = group['records'] as List<RecordModel>;
 
-    return Container(
+    return AppCard(
       margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppTheme.border),
-      ),
+      padding: EdgeInsets.zero,
+      showShadow: false,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

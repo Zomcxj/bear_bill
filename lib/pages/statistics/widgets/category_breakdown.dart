@@ -2,6 +2,7 @@
 
 import '../../../theme/app_theme.dart';
 import '../../../utils/utils.dart';
+import '../../../widgets/app_card.dart';
 
 /// 分类明细列表
 class CategoryBreakdown extends StatelessWidget {
@@ -20,13 +21,9 @@ class CategoryBreakdown extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: AppTheme.border),
-      ),
+    return AppCard(
+      borderRadius: AppRadius.md,
+      showShadow: false,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

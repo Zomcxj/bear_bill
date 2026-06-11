@@ -5,7 +5,7 @@ import '../../../providers/app_provider.dart';
 import '../../../providers/theme_provider.dart';
 import '../../../services/database_service.dart';
 import '../../../theme/app_theme.dart';
-import '../../../utils/utils.dart';
+import '../../../widgets/app_card.dart';
 
 /// 近6个月收支趋势折线图
 class TrendLineChart extends StatefulWidget {
@@ -60,15 +60,15 @@ class _TrendLineChartState extends State<TrendLineChart> {
     context.watch<ThemeProvider>(); // 确保深色模式切换时重建
 
     if (_loading) {
-      return Container(
-        height: 260,
+      return AppCard(
         margin: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-        decoration: BoxDecoration(
-          color: AppTheme.bgCard,
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(color: AppTheme.border),
+        padding: const EdgeInsets.all(AppSpacing.md),
+        borderRadius: AppRadius.md,
+        showShadow: false,
+        child: const SizedBox(
+          height: 260,
+          child: Center(child: CircularProgressIndicator()),
         ),
-        child: const Center(child: CircularProgressIndicator()),
       );
     }
 
@@ -84,14 +84,10 @@ class _TrendLineChartState extends State<TrendLineChart> {
     }
     if (maxVal == 0) maxVal = 1; // 避免除零
 
-    return Container(
+    return AppCard(
       margin: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: AppTheme.border),
-      ),
+      borderRadius: AppRadius.md,
+      showShadow: false,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

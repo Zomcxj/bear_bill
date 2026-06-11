@@ -2,6 +2,7 @@
 
 import '../../../models/category_model.dart';
 import '../../../theme/app_theme.dart';
+import '../../../widgets/app_card.dart';
 
 /// 将 hex 颜色字符串转换为 Color
 Color _hexToColor(String hex) {
@@ -63,12 +64,10 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
           child: Row(
             children: [
               Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppTheme.bgCard,
-                    borderRadius: BorderRadius.circular(AppRadius.md),
-                    border: Border.all(color: AppTheme.border),
-                  ),
+                child: AppCard(
+                  padding: EdgeInsets.zero,
+                  borderRadius: AppRadius.md,
+                  showShadow: false,
                   child: TextField(
                     controller: _controller,
                     decoration: InputDecoration(
@@ -162,14 +161,11 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
   }
 
   Widget _buildFilterPanel() {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.sm),
+    return AppCard(
       margin: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: AppTheme.border),
-      ),
+      padding: const EdgeInsets.all(AppSpacing.sm),
+      borderRadius: AppRadius.md,
+      showShadow: false,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

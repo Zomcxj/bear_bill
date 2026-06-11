@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/app_provider.dart';
+import '../../../providers/theme_provider.dart';
 import '../../../services/database_service.dart';
 import '../../../theme/app_theme.dart';
 import '../../../utils/utils.dart';
+import '../../../widgets/app_card.dart';
 import 'income_expense_summary.dart';
 
 /// 年度总结组件
@@ -53,6 +55,7 @@ class _YearSummaryState extends State<YearSummary> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // 确保深色模式切换时重建
     return _loading
         ? const Center(child: CircularProgressIndicator())
         : SingleChildScrollView(
@@ -201,14 +204,9 @@ class _YearSummaryState extends State<YearSummary> {
             : (m['income'] as double))
         .reduce((a, b) => a > b ? a : b);
 
-    return Container(
+    return AppCard(
       margin: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppTheme.border),
-      ),
+      showShadow: false,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -314,14 +312,9 @@ class _YearSummaryState extends State<YearSummary> {
       };
     }).toList();
 
-    return Container(
+    return AppCard(
       margin: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppTheme.border),
-      ),
+      showShadow: false,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
