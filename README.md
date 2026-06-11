@@ -74,8 +74,10 @@ flutter build apk --release
 
 #### iOS IPA
 
+> ⚠️ **iOS 构建必须在 macOS 环境下进行**，Windows/Linux 无法本地构建 iOS。如需 iOS 安装包，请通过 GitHub Actions 自动构建（推送 tag 后自动生成未签名 IPA）。
+
 ```bash
-# 构建未签名 IPA
+# macOS 环境下构建未签名 IPA
 flutter build ios --release --no-codesign
 
 # 使用 AltStore 或 Sideloadly 签名后安装到设备
@@ -99,16 +101,30 @@ flutter run
 
 - ✅ **自动触发**：推送到 `main` 分支或创建 `v*` tag 时自动构建
 - ✅ **并行构建**：Android 和 iOS 同时构建，节省时间
-- ✅ **自动发布**：推送 tag 时自动创建 Release 页面
+- ✅ **自动发布**：推送 tag 时自动创建 Release 页面（含 APK 和未签名 IPA）
 
 #### 使用方法
 
 1. **查看构建状态**：在 GitHub 仓库页面点击 **Actions** 标签
 2. **发布新版本**：
    ```bash
-   git tag v1.0.3
-   git push origin v1.0.3
+   git tag v*.*.*
+   git push origin v*.*.*
    ```
+
+#### 开关控制
+
+如需**临时禁用** Actions 自动构建（例如本地构建 APK、不想触发 CI），将 workflow 文件重命名即可：
+
+```bash
+# 禁用
+mv .github/workflows/build.yml .github/workflows/build.yml.bak
+
+# 恢复
+mv .github/workflows/build.yml.bak .github/workflows/build.yml
+```
+
+> ⚠️ 重命名后需提交并推送才会生效。`.bak` 后缀的文件不会被 GitHub Actions 识别为 workflow。
 
 ## 📚 文档导航
 
