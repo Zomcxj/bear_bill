@@ -6,6 +6,7 @@ import '../../../providers/app_provider.dart';
 import '../../../services/database_service.dart';
 import '../../../theme/app_theme.dart';
 import '../../../utils/utils.dart' as utils;
+import '../../../widgets/app_card.dart';
 import '../../statistics/statistics_page.dart';
 
 /// 本周消费趋势图（对齐小程序 section-card 样式）
@@ -72,15 +73,8 @@ class _WeekTrendChartState extends State<WeekTrendChart> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return AppCard(
       margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppTheme.border, width: 1),
-        boxShadow: AppShadow.card,
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

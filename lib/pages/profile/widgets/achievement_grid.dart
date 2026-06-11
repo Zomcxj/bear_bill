@@ -5,6 +5,7 @@ import '../../../models/achievement_model.dart';
 import '../../../providers/app_provider.dart';
 import '../../../providers/theme_provider.dart';
 import '../../../theme/app_theme.dart';
+import '../../../widgets/app_card.dart';
 import '../achievement_page.dart';
 
 /// 成就徽章网格
@@ -18,14 +19,9 @@ class AchievementGrid extends StatelessWidget {
       builder: (context, appProvider, child) {
         final unlockedIds = appProvider.unlockedAchievements;
 
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-          padding: const EdgeInsets.all(AppSpacing.md),
-          decoration: BoxDecoration(
-            color: AppTheme.bgCard,
-            borderRadius: BorderRadius.circular(AppRadius.lg),
-            border: Border.all(color: AppTheme.border),
-          ),
+        return AppCard(
+          margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          showShadow: false,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
