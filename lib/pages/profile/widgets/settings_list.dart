@@ -5,6 +5,8 @@ import '../../../providers/theme_provider.dart';
 import '../../../services/database_backup_service.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/app_card.dart';
+import '../../map_footprint/map_footprint_page.dart';
+import 'auto_record_settings.dart';
 import 'settings_dialogs.dart';
 
 /// 设置列表
@@ -29,6 +31,13 @@ class SettingsList extends StatelessWidget {
             emoji: '🔔',
             title: '记账提醒',
             onTap: () => showReminderDialog(context),
+          ),
+          _buildDivider(),
+          _buildMenuItem(
+            emoji: '🤖',
+            title: '自动记账',
+            trailing: '微信/支付宝',
+            onTap: () => showAutoRecordDialog(context),
           ),
           _buildDivider(),
           _buildMenuItem(
@@ -60,6 +69,18 @@ class SettingsList extends StatelessWidget {
               context,
               context.read<ThemeProvider>(),
             ),
+          ),
+          _buildDivider(),
+          _buildMenuItem(
+            emoji: '🗺️',
+            title: '消费地图',
+            trailing: '足迹',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const MapFootprintPage()),
+              );
+            },
           ),
           _buildDivider(),
           _buildMenuItem(

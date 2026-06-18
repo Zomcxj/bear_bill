@@ -344,15 +344,18 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
               scrollDirection: Axis.horizontal,
               itemCount: _record!.images.length,
               itemBuilder: (context, index) {
-                return Container(
-                  margin: const EdgeInsets.only(right: 8),
-                  width: 76,
-                  height: 76,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(AppRadius.sm),
-                    image: DecorationImage(
-                      image: FileImage(File(_record!.images[index])),
-                      fit: BoxFit.cover,
+                return GestureDetector(
+                  onTap: () => _showFullImage(index),
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    width: 76,
+                    height: 76,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                      image: DecorationImage(
+                        image: FileImage(File(_record!.images[index])),
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 );
@@ -360,6 +363,16 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showFullImage(int initialIndex) {
+    showDialog(
+      context: context,
+      builder: (context) => _FullImageViewer(
+        images: _record!.images,
+        initialIndex: initialIndex,
       ),
     );
   }
@@ -411,6 +424,81 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// 全屏图片查看器 - 支持左右滑动切换
+class _FullImageViewer extends StatefulWidget {
+  final List<String> images;
+  final int initialIndex;
+
+  const _FullImageViewer({required this.images, required this.initialIndex});
+
+  @override
+  State<_FullImageViewer> createState() => _FullImageViewerState();
+}
+
+class _FullImageViewerState extends State<_FullImageViewer> {
+  late PageController _pageController;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+    _pageController = PageController(initialPage: widget.initialIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text(
+          '${_currentIndex + 1} / ${widget.images.length}',
+          style: const TextStyle(color: Colors.white, fontSize: 16),
+        ),
+        centerTitle: true,
+      ),
+      body: PageView.builder(
+        controller: _pageController,
+        itemCount: widget.images.length,
+        onPageChanged: (index) => setState(() => _currentIndex = index),
+        itemBuilder: (context, index) {
+          return InteractiveViewer(
+            minScale: 0.5,
+            maxScale: 4.0,
+            child: Center(
+              child: Image.file(
+                File(widget.images[index]),
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.broken_image, size: 64, color: Colors.grey[600]),
+                      const SizedBox(height: 12),
+                      Text(
+                        '图片加载失败',
+                        style: TextStyle(color: Colors.grey[400], fontSize: 14),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          );
+        },
       ),
     );
   }

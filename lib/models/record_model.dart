@@ -16,6 +16,8 @@ class RecordModel {
   final String? moodEmoji;
   final List<String> images;
   final String? location;
+  final double? latitude;
+  final double? longitude;
   final List<String> tags;
   final DateTime createdAt;
   
@@ -36,6 +38,8 @@ class RecordModel {
     this.moodEmoji,
     this.images = const [],
     this.location,
+    this.latitude,
+    this.longitude,
     this.tags = const [],
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
@@ -58,6 +62,8 @@ class RecordModel {
       moodEmoji: map['moodEmoji'] as String?,
       images: (map['images'] as String?)?.split(',').where((e) => e.isNotEmpty).toList() ?? [],
       location: map['location'] as String?,
+      latitude: map['latitude'] as double?,
+      longitude: map['longitude'] as double?,
       tags: (map['tags'] as String?)?.split(',').where((e) => e.isNotEmpty).toList() ?? [],
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int? ?? 0),
     );
@@ -81,6 +87,8 @@ class RecordModel {
       'moodEmoji': moodEmoji,
       'images': images.join(','),
       'location': location,
+      'latitude': latitude,
+      'longitude': longitude,
       'tags': tags.join(','),
       'createdAt': createdAt.millisecondsSinceEpoch,
     };
@@ -103,6 +111,8 @@ class RecordModel {
     String? moodEmoji,
     List<String>? images,
     String? location,
+    double? latitude,
+    double? longitude,
     List<String>? tags,
     DateTime? createdAt,
   }) {
@@ -123,6 +133,8 @@ class RecordModel {
       moodEmoji: moodEmoji ?? this.moodEmoji,
       images: images ?? this.images,
       location: location ?? this.location,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
       tags: tags ?? this.tags,
       createdAt: createdAt ?? this.createdAt,
     );

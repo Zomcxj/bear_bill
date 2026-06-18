@@ -195,6 +195,14 @@ class _YearSummaryState extends State<YearSummary> {
     );
   }
 
+  /// 格式化金额为紧凑显示
+  String _formatCompact(double amount) {
+    if (amount <= 0) return '';
+    if (amount >= 10000) return '${(amount / 10000).toStringAsFixed(1)}w';
+    if (amount >= 1000) return '${(amount / 1000).toStringAsFixed(1)}k';
+    return amount.toStringAsFixed(0);
+  }
+
   Widget _buildMonthlyChart() {
     if (_monthlyData.isEmpty) return const SizedBox.shrink();
 
@@ -220,17 +228,19 @@ class _YearSummaryState extends State<YearSummary> {
           ),
           const SizedBox(height: 16),
           SizedBox(
-            height: 160,
+            height: 180,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: List.generate(12, (i) {
                 final data = _monthlyData[i];
                 final expense = data['expense'] as double;
                 final income = data['income'] as double;
+                final hasData = expense > 0 || income > 0;
                 final expenseRatio = maxAmount > 0 ? expense / maxAmount : 0.0;
                 final incomeRatio = maxAmount > 0 ? income / maxAmount : 0.0;
                 final isCurrentMonth = i + 1 == DateTime.now().month &&
                     _selectedYear == DateTime.now().year;
+                final barHeight = hasData ? 120.0 : 2.0;
 
                 return Expanded(
                   child: Padding(
@@ -238,6 +248,17 @@ class _YearSummaryState extends State<YearSummary> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
+                        // 金额标签（仅有数据时显示）
+                        if (hasData)
+                          Text(
+                            _formatCompact(expense),
+                            style: TextStyle(
+                              fontSize: 8,
+                              color: AppTheme.primaryDark,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        if (hasData) const SizedBox(height: 2),
                         // 双柱
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -245,18 +266,22 @@ class _YearSummaryState extends State<YearSummary> {
                           children: [
                             Container(
                               width: 6,
-                              height: 120 * expenseRatio,
+                              height: hasData ? barHeight * expenseRatio : 2,
                               decoration: BoxDecoration(
-                                color: AppTheme.primaryDark,
+                                color: hasData
+                                    ? AppTheme.primaryDark
+                                    : AppTheme.border,
                                 borderRadius: BorderRadius.circular(2),
                               ),
                             ),
                             const SizedBox(width: 2),
                             Container(
                               width: 6,
-                              height: 120 * incomeRatio,
+                              height: hasData ? barHeight * incomeRatio : 2,
                               decoration: BoxDecoration(
-                                color: AppTheme.success,
+                                color: hasData
+                                    ? AppTheme.success
+                                    : AppTheme.border,
                                 borderRadius: BorderRadius.circular(2),
                               ),
                             ),
@@ -339,48 +364,38 @@ class _YearSummaryState extends State<YearSummary> {
     final count = category['count'] as int? ?? 0;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Text(category['icon'] ?? '📦', style: const TextStyle(fontSize: 20)),
-          const SizedBox(width: 10),
+          Text(category['icon'] ?? '📦', style: const TextStyle(fontSize: 18)),
+          const SizedBox(width: 8),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  category['name'],
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: AppTheme.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '$count 笔',
-                  style: TextStyle(fontSize: 12, color: AppTheme.textHint),
-                ),
-              ],
+            child: Text(
+              category['name'],
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: AppTheme.textPrimary,
+              ),
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '¥${FormatUtils.formatAmount(amount)}',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                '${percent.toStringAsFixed(1)}%',
-                style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
-              ),
-            ],
+          Text(
+            '$count笔',
+            style: TextStyle(fontSize: 11, color: AppTheme.textHint),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            '¥${FormatUtils.formatAmount(amount)}',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppTheme.textPrimary,
+            ),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '${percent.toStringAsFixed(1)}%',
+            style: TextStyle(fontSize: 11, color: AppTheme.textSecondary),
           ),
         ],
       ),

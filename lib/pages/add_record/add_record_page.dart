@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:io';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
@@ -12,6 +11,7 @@ import '../../models/models.dart';
 import '../../providers/app_provider.dart';
 import '../../services/amap_location_service.dart';
 import '../../services/database_service.dart';
+import '../../services/image_service.dart';
 import '../../services/notification_service.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/utils.dart' as utils;
@@ -46,6 +46,8 @@ class _AddRecordPageState extends State<AddRecordPage> {
   MoodModel? _selectedMood;
   List<String> _images = [];
   String? _location;
+  double? _latitude;
+  double? _longitude;
   final TextEditingController _locationController = TextEditingController();
 
   final TextEditingController _noteController = TextEditingController();
@@ -70,6 +72,8 @@ class _AddRecordPageState extends State<AddRecordPage> {
       _selectedDate = DateTime.parse(r.date);
       _images = List.from(r.images);
       _location = r.location;
+      _latitude = r.latitude;
+      _longitude = r.longitude;
       if (_location != null) _locationController.text = _location!;
       if (r.mood != null) {
         _selectedMood = getMoodById(r.mood!);
@@ -136,13 +140,23 @@ class _AddRecordPageState extends State<AddRecordPage> {
 
   Future<void> _pickImages() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.image,
-        allowMultiple: true,
-      );
-      if (result != null && result.files.isNotEmpty) {
+      final newImages = await ImageService.instance.pickAndCopyImages();
+      if (newImages.isNotEmpty) {
         setState(() {
-          _images.addAll(result.paths.whereType<String>());
+          _images.addAll(newImages);
+        });
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  Future<void> _captureImage() async {
+    try {
+      final newImage = await ImageService.instance.captureFromCamera();
+      if (newImage != null) {
+        setState(() {
+          _images.add(newImage);
         });
       }
     } catch (e) {
@@ -204,6 +218,8 @@ class _AddRecordPageState extends State<AddRecordPage> {
       moodEmoji: _selectedMood?.emoji,
       images: _images,
       location: _location,
+      latitude: _latitude,
+      longitude: _longitude,
       createdAt: isEdit ? widget.editRecord!.createdAt : DateTime.now(),
     );
 
@@ -211,6 +227,16 @@ class _AddRecordPageState extends State<AddRecordPage> {
       await DatabaseService.instance.updateRecord(record);
     } else {
       await DatabaseService.instance.insertRecord(record);
+    }
+
+    // 保存到常去地点
+    if (_location != null && _location!.isNotEmpty && _latitude != null && _longitude != null) {
+      await DatabaseService.instance.upsertFavoriteLocation(
+        name: _location!,
+        address: _location!,
+        latitude: _latitude!,
+        longitude: _longitude!,
+      );
     }
 
     // 更新今日记账摘要（通知显示总结）
@@ -249,6 +275,8 @@ class _AddRecordPageState extends State<AddRecordPage> {
           _selectedDate = DateTime.now();
           _images = [];
           _location = null;
+          _latitude = null;
+          _longitude = null;
           _locationController.clear();
         });
       } else {
@@ -368,6 +396,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                     onNoteChanged: (v) => _note = v,
                     images: _images,
                     onPickImages: _pickImages,
+                    onCaptureImage: _captureImage,
                     onRemoveImage: _removeImageAt,
                     location: _location,
                     onLocationChanged: (v) {
@@ -525,6 +554,8 @@ class _AddRecordPageState extends State<AddRecordPage> {
       setState(() {
         _location = address;
         _locationController.text = address;
+        _latitude = position?.latitude;
+        _longitude = position?.longitude;
       });
 
       _showSnackBar('定位成功');
@@ -574,9 +605,13 @@ class _AddRecordPageState extends State<AddRecordPage> {
 
     if (result != null && mounted) {
       final name = result['name'] as String? ?? '';
+      final lat = result['latitude'] as double?;
+      final lng = result['longitude'] as double?;
       setState(() {
         _location = name.isNotEmpty ? name : _location;
         _locationController.text = _location ?? '';
+        _latitude = lat;
+        _longitude = lng;
       });
     }
   }

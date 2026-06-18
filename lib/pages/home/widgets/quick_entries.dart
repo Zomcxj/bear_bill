@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/app_card.dart';
 import '../../add_record/add_record_page.dart';
+import '../../ai_chat/ai_chat_page.dart';
 
 /// 快捷记账入口（对齐小程序 6列 Grid 布局）
 class QuickEntries extends StatelessWidget {
@@ -10,6 +11,13 @@ class QuickEntries extends StatelessWidget {
 
   // 常用高频分类
   static final List<Map<String, dynamic>> _entries = [
+    {
+      'id': '__ai__',
+      'icon': '🤖',
+      'label': 'AI记账',
+      'color': Color(0xFF74B9FF),
+      'type': '__ai__',
+    },
     {
       'id': 'food',
       'icon': '🍜',
@@ -150,15 +158,22 @@ class _QuickEntryItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => AddRecordPage(
-              preselectedCategory: categoryId,
-              initialType: recordType,
+        if (recordType == '__ai__') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AiChatPage()),
+          );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AddRecordPage(
+                preselectedCategory: categoryId,
+                initialType: recordType,
+              ),
             ),
-          ),
-        );
+          );
+        }
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
