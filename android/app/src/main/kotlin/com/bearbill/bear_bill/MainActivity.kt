@@ -1,9 +1,11 @@
 package com.bearbill.bear_bill
 
+import android.content.ComponentName
 import android.content.Intent
 import android.location.Geocoder
 import android.net.Uri
 import android.provider.OpenableColumns
+import android.provider.Settings
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -269,6 +271,37 @@ class MainActivity : FlutterFragmentActivity() {
                 "pickFile" -> {
                     pendingImportResult = result
                     importDocumentLauncher.launch(arrayOf("*/*"))
+                }
+
+                else -> result.notImplemented()
+            }
+        }
+
+        // 自动记账 MethodChannel
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "bear_bill/auto_record"
+        ).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "isListenerEnabled" -> {
+                    val componentName = ComponentName(this, NotificationListenerServiceImpl::class.java)
+                    val enabledListeners = Settings.Secure.getString(
+                        contentResolver,
+                        "enabled_notification_listeners"
+                    )
+                    val isEnabled = enabledListeners?.contains(componentName.flattenToString()) == true
+                    result.success(isEnabled)
+                }
+
+                "openListenerSettings" -> {
+                    try {
+                        val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        startActivity(intent)
+                        result.success(true)
+                    } catch (e: Exception) {
+                        result.error("open_failed", e.message, null)
+                    }
                 }
 
                 else -> result.notImplemented()

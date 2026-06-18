@@ -14,6 +14,7 @@ class BottomInfoCard extends StatelessWidget {
   final ValueChanged<String> onNoteChanged;
   final List<String> images;
   final VoidCallback onPickImages;
+  final VoidCallback? onCaptureImage;
   final ValueChanged<int> onRemoveImage;
   final String? location;
   final ValueChanged<String> onLocationChanged;
@@ -29,6 +30,7 @@ class BottomInfoCard extends StatelessWidget {
     required this.onNoteChanged,
     required this.images,
     required this.onPickImages,
+    this.onCaptureImage,
     required this.onRemoveImage,
     required this.location,
     required this.onLocationChanged,
@@ -191,6 +193,7 @@ class BottomInfoCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
+                // 相册选择
                 GestureDetector(
                   onTap: onPickImages,
                   child: Container(
@@ -207,9 +210,34 @@ class BottomInfoCard extends StatelessWidget {
                     ),
                     child: Center(
                       child: Icon(
-                        Icons.camera_alt,
+                        Icons.photo_library,
                         size: 18,
                         color: AppTheme.primary,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // 拍照
+                GestureDetector(
+                  onTap: onCaptureImage,
+                  child: Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: AppTheme.info.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                      border: Border.all(
+                        color: AppTheme.info.withOpacity(0.3),
+                        style: BorderStyle.solid,
+                        width: 1,
+                      ),
+                    ),
+                    child: Center(
+                      child: Icon(
+                        Icons.camera_alt,
+                        size: 18,
+                        color: AppTheme.info,
                       ),
                     ),
                   ),

@@ -119,7 +119,7 @@ class DatabaseService {
 
     return await openDatabase(
       dbPath,
-      version: 2,
+      version: 3,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -145,6 +145,8 @@ class DatabaseService {
         moodEmoji TEXT,
         images TEXT,
         location TEXT,
+        latitude REAL,
+        longitude REAL,
         tags TEXT,
         createdAt INTEGER NOT NULL
       )
@@ -200,6 +202,20 @@ class DatabaseService {
       )
     ''');
 
+    // 常去地点表
+    await db.execute('''
+      CREATE TABLE favorite_locations (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        address TEXT,
+        latitude REAL NOT NULL,
+        longitude REAL NOT NULL,
+        useCount INTEGER DEFAULT 1,
+        lastUsedAt INTEGER NOT NULL,
+        createdAt INTEGER NOT NULL
+      )
+    ''');
+
     // 创建默认账本
     final defaultBook = BookModel(
       id: 'default_book',
@@ -224,6 +240,24 @@ class DatabaseService {
     if (oldVersion < 2) {
       // 版本 2 升级：给 wishes 表添加 deadline 字段
       await db.execute('ALTER TABLE wishes ADD COLUMN deadline INTEGER');
+    }
+    if (oldVersion < 3) {
+      // 版本 3 升级：给 records 表添加 latitude/longitude 字段
+      await db.execute('ALTER TABLE records ADD COLUMN latitude REAL');
+      await db.execute('ALTER TABLE records ADD COLUMN longitude REAL');
+      // 创建常去地点表
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS favorite_locations (
+          id TEXT PRIMARY KEY,
+          name TEXT NOT NULL,
+          address TEXT,
+          latitude REAL NOT NULL,
+          longitude REAL NOT NULL,
+          useCount INTEGER DEFAULT 1,
+          lastUsedAt INTEGER NOT NULL,
+          createdAt INTEGER NOT NULL
+        )
+      ''');
     }
   }
 
@@ -606,6 +640,94 @@ class DatabaseService {
       bookId != null ? [bookId] : [],
     );
     return Sqflite.firstIntValue(result) ?? 0;
+  }
+
+  // ─── 常去地点 CRUD ───
+
+  Future<void> insertFavoriteLocation(FavoriteLocationModel loc) async {
+    final db = await database;
+    await db.insert('favorite_locations', loc.toMap());
+  }
+
+  Future<void> updateFavoriteLocation(FavoriteLocationModel loc) async {
+    final db = await database;
+    await db.update(
+      'favorite_locations',
+      loc.toMap(),
+      where: 'id = ?',
+      whereArgs: [loc.id],
+    );
+  }
+
+  Future<void> deleteFavoriteLocation(String id) async {
+    final db = await database;
+    await db.delete('favorite_locations', where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<List<FavoriteLocationModel>> getFavoriteLocations({int limit = 10}) async {
+    final db = await database;
+    final result = await db.query(
+      'favorite_locations',
+      orderBy: 'useCount DESC, lastUsedAt DESC',
+      limit: limit,
+    );
+    return result.map((map) => FavoriteLocationModel.fromMap(map)).toList();
+  }
+
+  Future<void> incrementLocationUseCount(String id) async {
+    final db = await database;
+    await db.rawUpdate(
+      'UPDATE favorite_locations SET useCount = useCount + 1, lastUsedAt = ? WHERE id = ?',
+      [DateTime.now().millisecondsSinceEpoch, id],
+    );
+  }
+
+  Future<void> upsertFavoriteLocation({
+    required String name,
+    String? address,
+    required double latitude,
+    required double longitude,
+  }) async {
+    final db = await database;
+    // 查找 100m 内的已有地点
+    final existing = await db.rawQuery(
+      'SELECT * FROM favorite_locations WHERE ABS(latitude - ?) < 0.001 AND ABS(longitude - ?) < 0.001 LIMIT 1',
+      [latitude, longitude],
+    );
+    if (existing.isNotEmpty) {
+      await incrementLocationUseCount(existing.first['id'] as String);
+    } else {
+      await insertFavoriteLocation(FavoriteLocationModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        name: name,
+        address: address,
+        latitude: latitude,
+        longitude: longitude,
+      ));
+    }
+  }
+
+  // ─── 带坐标的记录查询 ───
+
+  Future<List<RecordModel>> getRecordsWithLocation({String? categoryId, String? bookId}) async {
+    final db = await database;
+    final where = <String>['latitude IS NOT NULL', 'longitude IS NOT NULL'];
+    final args = <dynamic>[];
+    if (categoryId != null) {
+      where.add('categoryId = ?');
+      args.add(categoryId);
+    }
+    if (bookId != null) {
+      where.add('bookId = ?');
+      args.add(bookId);
+    }
+    final result = await db.query(
+      'records',
+      where: where.join(' AND '),
+      whereArgs: args,
+      orderBy: 'dateTs DESC',
+    );
+    return result.map((map) => RecordModel.fromMap(map)).toList();
   }
 
   // ─── 导出功能 ───

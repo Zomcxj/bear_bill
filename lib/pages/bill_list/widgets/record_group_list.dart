@@ -204,6 +204,19 @@ class RecordGroupList extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
+                    if (record.images.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Icon(Icons.image, size: 12, color: AppTheme.textHint),
+                          const SizedBox(width: 2),
+                          Text(
+                            '${record.images.length}张图片',
+                            style: TextStyle(fontSize: 11, color: AppTheme.textHint),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
