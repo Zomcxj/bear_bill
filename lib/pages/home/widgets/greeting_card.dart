@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/app_provider.dart';
@@ -129,7 +129,7 @@ class _GreetingCardState extends State<GreetingCard>
     return Container(
       decoration: BoxDecoration(
         color: AppTheme.primary,
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(AppRadius.xl),
           bottomRight: Radius.circular(AppRadius.xl),
         ),
@@ -579,6 +579,7 @@ class _GreetingCardState extends State<GreetingCard>
         ),
       ),
     ).then((_) {
+      if (!mounted) return;
       context.read<AppProvider>().clearNewAchievements();
     });
   }
@@ -629,19 +630,19 @@ class _GreetingCardState extends State<GreetingCard>
               if (book != null) {
                 final updatedBook = book.copyWith(budget: budget);
                 await DatabaseService.instance.updateBook(updatedBook);
+                if (!mounted) return;
 
                 // 刷新数据
                 _loadData();
 
-                if (mounted) {
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('预算已更新'),
-                      backgroundColor: AppTheme.success,
-                    ),
-                  );
-                }
+                if (!context.mounted) return;
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('预算已更新'),
+                    backgroundColor: AppTheme.success,
+                  ),
+                );
               }
             },
             style: ElevatedButton.styleFrom(

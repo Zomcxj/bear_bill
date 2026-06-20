@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../services/auto_record_service.dart';
 import '../../../theme/app_theme.dart';
 
 /// 自动记账设置对话框
 Future<void> showAutoRecordDialog(BuildContext context) async {
-  final prefs = await SharedPreferences.getInstance();
-  final enabled = prefs.getBool('auto_record_enabled') ?? false;
+  final enabled = await AutoRecordService.instance.isAutoRecordEnabled();
 
   if (!context.mounted) return;
 
@@ -27,7 +25,8 @@ class _AutoRecordDialogContent extends StatefulWidget {
       _AutoRecordDialogContentState();
 }
 
-class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent> {
+class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
+    with WidgetsBindingObserver {
   late bool _enabled;
   bool _listenerEnabled = false;
 
@@ -35,7 +34,22 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent> {
   void initState() {
     super.initState();
     _enabled = widget.enabled;
+    WidgetsBinding.instance.addObserver(this);
     _checkListenerStatus();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // 从系统设置页返回时重新检查权限
+    if (state == AppLifecycleState.resumed) {
+      _checkListenerStatus();
+    }
   }
 
   Future<void> _checkListenerStatus() async {
@@ -50,14 +64,12 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent> {
     if (value && !_listenerEnabled) {
       // 需要先开启通知监听权限
       await AutoRecordService.instance.openNotificationListenerSettings();
-      // 重新检查
-      await _checkListenerStatus();
-      if (!_listenerEnabled) return;
+      // 不在这里检查，等用户从设置页返回后由 didChangeAppLifecycleState 触发
+      return;
     }
 
     setState(() => _enabled = value);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('auto_record_enabled', value);
+    await AutoRecordService.instance.setAutoRecordEnabled(value);
 
     if (value) {
       AutoRecordService.instance.startPolling();
@@ -117,7 +129,7 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent> {
                     onPressed: () async {
                       await AutoRecordService.instance
                           .openNotificationListenerSettings();
-                      await _checkListenerStatus();
+                      // 返回后由 didChangeAppLifecycleState 重新检查
                     },
                     child: const Text('去开启'),
                   ),

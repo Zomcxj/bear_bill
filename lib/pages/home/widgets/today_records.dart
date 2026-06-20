@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../models/models.dart';
@@ -128,9 +128,9 @@ class _TodayRecordsState extends State<TodayRecords> {
                       ),
                     ),
                     Text(
-                      '›',
+                      ' ›',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 13,
                         color: AppTheme.primary,
                         fontWeight: FontWeight.w700,
                       ),
@@ -217,7 +217,7 @@ class _TodayRecordsState extends State<TodayRecords> {
               color: AppTheme.textSecondary,
             ),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             '快把第一笔花销记下来吧',
             style: TextStyle(
@@ -242,7 +242,7 @@ class _TodayRecordsState extends State<TodayRecords> {
             _buildRecordItem(displayRecords[i]),
             if (i < displayRecords.length - 1)
               Padding(
-                padding: EdgeInsets.symmetric(vertical: 0),
+                padding: const EdgeInsets.symmetric(vertical: 0),
                 child: Divider(height: 1, color: AppTheme.divider),
               ),
           ],

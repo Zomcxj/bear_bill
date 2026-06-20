@@ -95,10 +95,10 @@ class _BudgetProgressCardState extends State<BudgetProgressCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Row(
+              Row(
                 children: [
-                  Text('🎯', style: TextStyle(fontSize: 16)),
-                  SizedBox(width: 6),
+                  const Text('🎯', style: TextStyle(fontSize: 16)),
+                  const SizedBox(width: 6),
                   Text(
                     '月预算',
                     style: TextStyle(

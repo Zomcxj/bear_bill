@@ -64,7 +64,7 @@ class MoodSelector extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         mood.label,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           color: AppTheme.primaryDark,
                         ),

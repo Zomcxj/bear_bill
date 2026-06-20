@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/models.dart';
 import 'database_service.dart';
@@ -21,12 +20,13 @@ class AutoRecordService {
       FlutterLocalNotificationsPlugin();
 
   bool _isPolling = false;
+  bool _initialized = false;
   Timer? _pollTimer;
 
-  /// 初始化自动记账服务
+  /// 初始化自动记账服务（App 启动时调用）
   Future<void> init() async {
-    // 监听来自原生的广播
-    _channel.setMethodCallHandler(_handleMethodCall);
+    if (_initialized) return;
+    _initialized = true;
 
     // 创建通知渠道
     await _notifications.initialize(
@@ -47,6 +47,30 @@ class AutoRecordService {
         ),
       );
     }
+
+    // 恢复轮询状态（如果用户之前启用了自动记账）
+    final enabled = await isAutoRecordEnabled();
+    if (enabled) {
+      startPolling();
+      if (kDebugMode) print('自动记账: 已恢复轮询');
+    }
+  }
+
+  /// 检查自动记账是否已启用（通过 MethodChannel 读取原生 SharedPreferences）
+  Future<bool> isAutoRecordEnabled() async {
+    try {
+      final result = await _channel.invokeMethod<bool>('getAutoRecordEnabled');
+      return result ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// 设置自动记账开关（通过 MethodChannel 写入原生 SharedPreferences）
+  Future<void> setAutoRecordEnabled(bool enabled) async {
+    try {
+      await _channel.invokeMethod('setAutoRecordEnabled', {'enabled': enabled});
+    } catch (_) {}
   }
 
   /// 开始轮询通知
@@ -54,7 +78,7 @@ class AutoRecordService {
     if (_isPolling) return;
     _isPolling = true;
     _pollTimer = Timer.periodic(
-      const Duration(seconds: 5),
+      const Duration(seconds: 3),
       (_) => _checkPendingNotification(),
     );
   }
@@ -66,24 +90,11 @@ class AutoRecordService {
     _pollTimer = null;
   }
 
-  Future<void> _handleMethodCall(MethodCall call) async {
-    if (call.method == 'onNotificationReceived') {
-      final title = call.arguments['title'] as String? ?? '';
-      final text = call.arguments['text'] as String? ?? '';
-      final source = call.arguments['source'] as String? ?? '';
-      await _processPaymentNotification(title, text, source);
-    }
-  }
-
-  /// 检查 SharedPreferences 中的待处理通知
+  /// 通过 MethodChannel 读取并清除待处理的通知
   Future<void> _checkPendingNotification() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final jsonStr = prefs.getString('pending_notification');
+      final jsonStr = await _channel.invokeMethod<String?>('pollPendingNotification');
       if (jsonStr == null) return;
-
-      // 清除已读通知
-      await prefs.remove('pending_notification');
 
       final data = jsonDecode(jsonStr);
       final title = data['title'] as String? ?? '';
@@ -91,8 +102,8 @@ class AutoRecordService {
       final source = data['source'] as String? ?? '';
       final timestamp = data['timestamp'] as int? ?? 0;
 
-      // 忽略超过 30 秒的通知
-      if (DateTime.now().millisecondsSinceEpoch - timestamp > 30000) return;
+      // 忽略超过 60 秒的通知
+      if (DateTime.now().millisecondsSinceEpoch - timestamp > 60000) return;
 
       await _processPaymentNotification(title, text, source);
     } catch (e) {

@@ -100,6 +100,7 @@ class _ProfilePageState extends State<ProfilePage> {
         ],
       ),
     );
+    if (!mounted) return;
 
     if (confirmed == true) {
       final appProvider = context.read<AppProvider>();

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 import '../../../models/models.dart';
@@ -55,7 +55,7 @@ class RecordGroupList extends StatelessWidget {
                 horizontal: AppSpacing.sm, vertical: 12),
             decoration: BoxDecoration(
               color: AppTheme.primaryBg,
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(AppRadius.lg),
                 topRight: Radius.circular(AppRadius.lg),
               ),

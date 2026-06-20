@@ -18,6 +18,7 @@
 
 ### 核心功能
 - 📊 **账单记录与管理** - 支持支出/收入记录，分类选择，心情标签，图片附件
+- 🤖 **AI 对话记账** - 自然语言输入，语音识别，智能分类/金额/日期解析
 - 📒 **多账本管理** - 创建/切换/删除账本，数据隔离，独立统计
 - 📈 **统计分析** - 甜甜圈图分类统计、周趋势图、月度对比、热力日历
 - 📅 **年度总结** - 年度收支总览、12 个月趋势柱状图、年度分类 Top 5
@@ -28,6 +29,9 @@
 - 👑 **等级系统** - 6级小熊形态变化，经验值累积，自动升级
 - 📅 **打卡功能** - 连续记账天数统计，断签重置，已记账自动跳过提醒
 - 🎨 **主题颜色** - 8 种预设主题色 + 自定义调色盘（HSV 滑块），全应用同步
+- 🗺️ **消费地图** - 地图标注消费位置，足迹可视化
+- 🔔 **自动记账** - 监听微信/支付宝通知，自动解析并记录
+- 🎤 **语音输入** - 百度语音识别，按住说话，上滑取消，静音自动停止
 - 💾 **本地 SQLite 存储** - 数据安全，离线可用
 
 ### 技术栈
@@ -35,6 +39,10 @@
 - **状态管理**: Provider ^6.1.1
 - **本地数据库**: sqflite ^2.3.0
 - **图表组件**: fl_chart ^0.66.0
+- **地图**: flutter_map + latlong2
+- **AI 大模型**: GLM-4-Flash（可切换通义/DeepSeek）
+- **语音识别**: 百度语音 REST API + Android 原生 AudioRecord
+- **定位**: geolocator + 高德地图
 - **UI 组件**: flutter_slidable, share_plus, path_provider, uuid, intl
 
 ---
@@ -56,17 +64,31 @@
 
 ## API 密钥配置
 
-本项目使用高德地图 API 进行反向地理编码（坐标转地址）和 POI 搜索。
+本项目使用多个第三方 API 服务。所有密钥统一配置在 `lib/config/api_keys.dart` 中。
 
 ### 配置步骤
 
-1. 到 [高德开放平台](https://lbs.amap.com) 注册并创建应用
-2. 获取 **Web 服务** 类型的 API Key
-3. 复制模板文件并填入密钥：
+1. 复制模板文件：
    ```bash
    cp lib/config/api_keys.dart.template lib/config/api_keys.dart
    ```
-4. 编辑 `lib/config/api_keys.dart`，将 `YOUR_AMAP_API_KEY` 替换为你的密钥
+2. 编辑 `lib/config/api_keys.dart`，填入以下密钥：
+
+| 服务 | 申请地址 | 用途 | 所需密钥 |
+|------|---------|------|---------|
+| **高德地图** | https://console.amap.com/ | 地图定位、反向地理编码 | `amapApiKey` |
+| **大模型** | 见下方说明 | AI 智能记账解析 | `aiBaseUrl` + `aiApiKey` + `aiModel` |
+| **百度语音** | https://console.bce.baidu.com/ | 语音输入识别 | `baiduSpeechAppId` + `baiduSpeechApiKey` + `baiduSpeechSecretKey` |
+
+### 大模型厂商切换
+
+`api_keys.dart` 中的 `aiBaseUrl`、`aiApiKey`、`aiModel` 支持切换不同厂商：
+
+| 厂商 | aiBaseUrl | aiModel | 申请地址 |
+|------|-----------|---------|---------|
+| 智谱 GLM | https://open.bigmodel.cn/api/paas/v4/chat/completions | glm-4-flash | https://open.bigmodel.cn/ |
+| 阿里通义 | https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions | qwen-turbo | https://dashscope.aliyun.com/ |
+| DeepSeek | https://api.deepseek.com/v1/chat/completions | deepseek-chat | https://platform.deepseek.com/ |
 
 > **安全说明**: `lib/config/api_keys.dart` 已加入 `.gitignore`，不会被提交到版本库。模板文件 `api_keys.dart.template` 会保留在仓库中供其他开发者参考。
 
@@ -231,7 +253,7 @@ distributionUrl=https://mirrors.cloud.tencent.com/gradle/gradle-8.2-all.zip
 
 **配置方式**:
 - 系统环境变量: `PUB_CACHE = <YOUR_PUB_CACHE>`
-- 或在 `build-apk.cmd` 中临时设置
+- 或在终端中临时设置
 
 **在项目中的引用**:
 ```yaml
@@ -343,8 +365,8 @@ flutter doctor
 |------|--------|-----|
 | `android/local.properties` | `sdk.dir` | `<YOUR_ANDROID_SDK>` |
 | `android/gradle.properties` | `org.gradle.user.home` | `<YOUR_GRADLE_CACHE>` |
-| `build-apk.cmd` | `set GRADLE_USER_HOME` | `<YOUR_GRADLE_CACHE>` |
-| `build-apk.cmd` | `set PUB_CACHE` | `<YOUR_PUB_CACHE>` |
+| 终端临时变量 | `GRADLE_USER_HOME` | `<YOUR_GRADLE_CACHE>` |
+| 终端临时变量 | `PUB_CACHE` | `<YOUR_PUB_CACHE>` |
 
 ---
 
@@ -555,12 +577,8 @@ flutter doctor --android-licenses
 
 ## 构建 APK
 
-### 方法一：使用构建脚本（推荐）
-
-项目已配置好 `build-apk.cmd` 脚本，自动处理环境变量：
-
-```cmd
-./build-apk.cmd
+```bash
+flutter build apk --release
 ```
 
 构建成功后，APK 文件位于：
@@ -568,9 +586,9 @@ flutter doctor --android-licenses
 build/app/outputs/flutter-apk/app-release.apk
 ```
 
-### 方法二：手动构建
+### 详细步骤
 
-#### 1. 设置环境变量
+#### 1. 设置环境变量（如需要）
 ```powershell
 $env:GRADLE_USER_HOME="<YOUR_GRADLE_CACHE>"
 $env:PUB_CACHE="<YOUR_PUB_CACHE>"
@@ -618,29 +636,37 @@ bear_bill/
 │   └── DEPENDENCIES_PATH.md   # 依赖路径速查
 ├── lib/                       # Flutter 源代码
 │   ├── main.dart              # 应用入口
-│   ├── models/                # 数据模型 (Record, Book, Wish, User, Achievement)
-│   ├── pages/                 # 页面 (15个完整页面)
-│   │   ├── home/              # 首页
-│   │   ├── add_record/        # 记账页
+│   ├── config/                # 配置文件
+│   │   └── api_keys.dart      # API 密钥（gitignore）
+│   ├── models/                # 数据模型 (Record, Book, Wish, User, Achievement, Mood)
+│   ├── pages/                 # 页面
+│   │   ├── home/              # 首页（含话筒语音按钮）
+│   │   ├── add_record/        # 记账页（含地图选点）
+│   │   ├── ai_chat/           # AI 对话记账（含语音输入、心情、定位）
 │   │   ├── bill_list/         # 账单列表
 │   │   ├── statistics/        # 统计页
 │   │   ├── wish_jar/          # 心愿罐
-│   │   ├── profile/           # 个人中心
+│   │   ├── profile/           # 个人中心（含自动记账设置）
 │   │   ├── record_detail/     # 账单详情
 │   │   ├── budget/            # 预算设置
 │   │   ├── export/            # 账单导出
-│   │   └── multi_book/        # 多账本管理
-│   ├── services/              # 服务层 (DatabaseService)
-│   ├── providers/             # 状态管理 (AppProvider)
+│   │   ├── multi_book/        # 多账本管理
+│   │   └── map_footprint/     # 消费地图
+│   ├── services/              # 服务层
+│   │   ├── database_service.dart      # SQLite 数据库
+│   │   ├── glm_service.dart           # AI 大模型解析
+│   │   ├── baidu_speech_service.dart  # 百度语音识别
+│   │   ├── amap_location_service.dart # 高德地图定位
+│   │   ├── auto_record_service.dart   # 自动记账（通知监听）
+│   │   └── notification_service.dart  # 通知服务
+│   ├── providers/             # 状态管理 (AppProvider, ThemeProvider)
 │   ├── theme/                 # 主题配置 (AppTheme)
 │   └── utils/                 # 工具类 (DateUtils, FormatUtils)
-├── android/                   # Android 原生配置
+├── android/                   # Android 原生配置（含 MethodChannel 语音录音）
 ├── assets/                    # 静态资源
-├── .idea/                     # IDE 配置（可选）
-├── build-apk.cmd              # APK 构建脚本
 ├── pubspec.yaml               # Flutter 依赖配置
 ├── README.md                  # 项目介绍
-└── QUICK_START.md             # 快速开始指南
+└── CLAUDE.md                  # Claude Code 项目规则
 ```
 
 ---

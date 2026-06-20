@@ -1,4 +1,4 @@
-﻿import 'package:fl_chart/fl_chart.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 import '../../../theme/app_theme.dart';
@@ -17,14 +17,14 @@ class DonutChartWidget extends StatelessWidget {
   static final List<Color> _colors = [
     AppTheme.primary,
     AppTheme.primaryLight,
-    Color(0xFFFFD93D),
-    Color(0xFF6BCB77),
-    Color(0xFF74C0FC),
-    Color(0xFFCC5DE8),
-    Color(0xFFFFA94D),
-    Color(0xFFA5D8FF),
-    Color(0xFFB2F2BB),
-    Color(0xFFFFE066),
+    const Color(0xFFFFD93D),
+    const Color(0xFF6BCB77),
+    const Color(0xFF74C0FC),
+    const Color(0xFFCC5DE8),
+    const Color(0xFFFFA94D),
+    const Color(0xFFA5D8FF),
+    const Color(0xFFB2F2BB),
+    const Color(0xFFFFE066),
   ];
 
   @override
@@ -33,11 +33,11 @@ class DonutChartWidget extends StatelessWidget {
       return Container(
         height: 200,
         alignment: Alignment.center,
-        child: const Column(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('🐻', style: TextStyle(fontSize: 40)),
-            SizedBox(height: 8),
+            const Text('🐻', style: TextStyle(fontSize: 40)),
+            const SizedBox(height: 8),
             Text(
               '暂无数据',
               style: TextStyle(

@@ -8,6 +8,7 @@ import 'pages/statistics/statistics_page.dart';
 import 'pages/wish_jar/wish_jar_page.dart';
 import 'providers/app_provider.dart';
 import 'providers/theme_provider.dart';
+import 'services/auto_record_service.dart';
 import 'services/database_service.dart';
 import 'services/notification_service.dart';
 import 'services/storage_service.dart';
@@ -52,6 +53,9 @@ void main() async {
 
   // 初始化通知服务
   await NotificationService.instance.init();
+
+  // 初始化自动记账服务（恢复轮询状态）
+  await AutoRecordService.instance.init();
 
   // 月度财务简报：每月1日自动推送
   _checkMonthlySummary();
@@ -169,11 +173,11 @@ class _MainTabPageState extends State<MainTabPage> {
   }
 
   final List<Widget> _pages = [
-    HomePage(),
-    BillListPage(),
-    StatisticsPage(),
-    WishJarPage(),
-    ProfilePage(),
+    const HomePage(),
+    const BillListPage(),
+    const StatisticsPage(),
+    const WishJarPage(),
+    const ProfilePage(),
   ];
 
   @override

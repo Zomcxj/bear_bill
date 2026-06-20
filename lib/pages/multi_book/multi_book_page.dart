@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
@@ -175,6 +175,7 @@ class _MultiBookPageState extends State<MultiBookPage> {
     if (newName != null && newName != book.name) {
       final updatedBook = book.copyWith(name: newName);
       await DatabaseService.instance.updateBook(updatedBook);
+      if (!mounted) return;
       _loadBooks();
 
       // 通知 AppProvider 刷新，以更新首页的账本名称显示
@@ -283,7 +284,7 @@ class _MultiBookPageState extends State<MultiBookPage> {
               color: AppTheme.textPrimary,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             '点击右上角 + 创建新账本',
             style: TextStyle(

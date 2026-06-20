@@ -233,7 +233,7 @@ class BottomInfoCard extends StatelessWidget {
                         width: 1,
                       ),
                     ),
-                    child: Center(
+                    child: const Center(
                       child: Icon(
                         Icons.camera_alt,
                         size: 18,

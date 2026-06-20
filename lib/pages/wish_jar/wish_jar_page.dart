@@ -23,10 +23,8 @@ class _WishJarPageState extends State<WishJarPage>
     with SingleTickerProviderStateMixin {
   List<WishModel> _wishes = [];
   double _totalSaved = 0.0;
-  double _totalTarget = 0.0;
   int _completedCount = 0;
   bool _loading = true;
-  String _currentTab = 'ongoing'; // ongoing, completed
   late TabController _tabController;
 
   @override
@@ -34,9 +32,7 @@ class _WishJarPageState extends State<WishJarPage>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
-      setState(() {
-        _currentTab = _tabController.index == 0 ? 'ongoing' : 'completed';
-      });
+      setState(() {});
     });
     _loadWishes();
   }
@@ -54,12 +50,10 @@ class _WishJarPageState extends State<WishJarPage>
 
     // 计算统计数据
     double totalSaved = 0.0;
-    double totalTarget = 0.0;
     int completedCount = 0;
 
     for (final wish in wishes) {
       totalSaved += wish.currentAmount;
-      totalTarget += wish.targetAmount;
       if (wish.isCompleted) {
         completedCount++;
       }
@@ -68,7 +62,6 @@ class _WishJarPageState extends State<WishJarPage>
     setState(() {
       _wishes = wishes;
       _totalSaved = totalSaved;
-      _totalTarget = totalTarget;
       _completedCount = completedCount;
       _loading = false;
     });

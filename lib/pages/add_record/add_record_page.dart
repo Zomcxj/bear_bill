@@ -252,6 +252,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
         );
         // 自动打卡（已打卡则幂等跳过）
         final checkInAchievements = await appProvider.recordCheckIn();
+        if (!mounted) return;
         achievements.addAll(checkInAchievements);
         if (achievements.isNotEmpty) {
           _showAchievementDialog(achievements);
@@ -281,10 +282,10 @@ class _AddRecordPageState extends State<AddRecordPage> {
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('修改成功！'),
             backgroundColor: AppTheme.success,
-            duration: const Duration(seconds: 1),
+            duration: Duration(seconds: 1),
           ),
         );
       }
