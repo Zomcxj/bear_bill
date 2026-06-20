@@ -1,5 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
+import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
 import '../../../utils/utils.dart';
 
@@ -21,10 +22,10 @@ class StatTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.sm),
+      padding: EdgeInsets.all(DS.base),
       decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        border: Border(bottom: BorderSide(color: AppTheme.border)),
+        color: DS.surfaceContainerLowest,
+        border: Border(bottom: BorderSide(color: DS.outlineVariant)),
       ),
       child: Row(
         children: [
@@ -32,15 +33,15 @@ class StatTabs extends StatelessWidget {
             child: GestureDetector(
               onTap: () => onTabChanged('expense'),
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
                   color: activeTab == 'expense'
-                      ? AppTheme.primaryLight
+                      ? DS.surfaceContainerHigh
                       : Colors.transparent,
-                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  borderRadius: BorderRadius.circular(DS.radiusMd),
                   border: Border.all(
                     color: activeTab == 'expense'
-                        ? AppTheme.primary
+                        ? DS.primary
                         : Colors.transparent,
                     width: 2,
                   ),
@@ -51,32 +52,35 @@ class StatTabs extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          '💸',
-                          style: TextStyle(fontSize: 14),
+                        Icon(
+                          Icons.trending_down,
+                          size: 14,
+                          color: activeTab == 'expense'
+                              ? DS.primaryContainer
+                              : DS.onSurfaceVariant,
                         ),
-                        const SizedBox(width: 4),
+                        SizedBox(width: 4),
                         Text(
                           '支出',
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
                             color: activeTab == 'expense'
-                                ? AppTheme.primaryDark
-                                : AppTheme.textSecondary,
+                                ? DS.primaryContainer
+                                : DS.onSurfaceVariant,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       '¥${FormatUtils.formatAmount(totalExpense)}',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: activeTab == 'expense'
-                            ? AppTheme.primaryDark
-                            : AppTheme.textPrimary,
+                            ? DS.primaryContainer
+                            : DS.onSurface,
                       ),
                     ),
                   ],
@@ -84,20 +88,20 @@ class StatTabs extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: AppSpacing.sm),
+          SizedBox(width: DS.base),
           Expanded(
             child: GestureDetector(
               onTap: () => onTabChanged('income'),
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
                   color: activeTab == 'income'
-                      ? AppTheme.primaryLight
+                      ? DS.surfaceContainerHigh
                       : Colors.transparent,
-                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  borderRadius: BorderRadius.circular(DS.radiusMd),
                   border: Border.all(
                     color: activeTab == 'income'
-                        ? AppTheme.primary
+                        ? DS.primary
                         : Colors.transparent,
                     width: 2,
                   ),
@@ -108,32 +112,35 @@ class StatTabs extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          '💰',
-                          style: TextStyle(fontSize: 14),
+                        Icon(
+                          Icons.trending_up,
+                          size: 14,
+                          color: activeTab == 'income'
+                              ? DS.primaryContainer
+                              : DS.onSurfaceVariant,
                         ),
-                        const SizedBox(width: 4),
+                        SizedBox(width: 4),
                         Text(
                           '收入',
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
                             color: activeTab == 'income'
-                                ? AppTheme.primaryDark
-                                : AppTheme.textSecondary,
+                                ? DS.primaryContainer
+                                : DS.onSurfaceVariant,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       '¥${FormatUtils.formatAmount(totalIncome)}',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: activeTab == 'income'
-                            ? AppTheme.primaryDark
-                            : AppTheme.textPrimary,
+                            ? DS.primaryContainer
+                            : DS.onSurface,
                       ),
                     ),
                   ],

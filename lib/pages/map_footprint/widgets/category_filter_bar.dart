@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../models/models.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/app_design_system.dart';
 
 /// 地图分类筛选条
 class CategoryFilterBar extends StatelessWidget {
@@ -19,12 +19,12 @@ class CategoryFilterBar extends StatelessWidget {
     return Container(
       height: 48,
       decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        border: Border(bottom: BorderSide(color: AppTheme.divider)),
+        color: DS.surfaceContainerLowest,
+        border: Border(bottom: BorderSide(color: DS.outlineVariant)),
       ),
       child: ListView(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 8),
+        padding: EdgeInsets.symmetric(horizontal: 8),
         children: [
           _buildChip(null, '全部', Icons.all_inclusive),
           ...expenseCategories.map((c) => _buildChip(c.id, c.name, null, c.icon)),
@@ -36,31 +36,31 @@ class CategoryFilterBar extends StatelessWidget {
   Widget _buildChip(String? id, String label, IconData? icon, [String? emoji]) {
     final isSelected = id == selectedCategoryId;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       child: GestureDetector(
         onTap: () => onFilter(isSelected ? null : id),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+          padding: EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            color: isSelected ? AppTheme.primary : AppTheme.bgPage,
-            borderRadius: BorderRadius.circular(AppRadius.full),
+            color: isSelected ? DS.primary : DS.background,
+            borderRadius: BorderRadius.circular(DS.radiusFull),
             border: Border.all(
-              color: isSelected ? AppTheme.primary : AppTheme.border,
+              color: isSelected ? DS.primary : DS.outlineVariant,
             ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (emoji != null)
-                Text(emoji, style: const TextStyle(fontSize: 14))
+                Text(emoji, style: TextStyle(fontSize: 14))
               else if (icon != null)
-                Icon(icon, size: 14, color: isSelected ? Colors.white : AppTheme.textSecondary),
-              const SizedBox(width: 4),
+                Icon(icon, size: 14, color: isSelected ? Colors.white : DS.onSurfaceVariant),
+              SizedBox(width: 4),
               Text(
                 label,
                 style: TextStyle(
                   fontSize: 12,
-                  color: isSelected ? Colors.white : AppTheme.textPrimary,
+                  color: isSelected ? Colors.white : DS.onSurface,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 ),
               ),

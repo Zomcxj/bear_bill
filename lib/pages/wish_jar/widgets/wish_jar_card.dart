@@ -1,10 +1,11 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../../../models/models.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/app_design_system.dart';
 import '../../../utils/utils.dart';
+import '../../../widgets/glass_card.dart';
 
-/// 心愿罐卡片
+/// 心愿罐卡片 — 玻璃风格 + Material Icons
 class WishJarCard extends StatelessWidget {
   final WishModel wish;
   final VoidCallback onAddMoney;
@@ -21,78 +22,56 @@ class WishJarCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final progress = wish.progress * 100;
     final themeColor = _getThemeColor(wish.id);
+    final icon = _getWishIcon(wish.title);
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: themeColor.withOpacity(0.18),
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: themeColor.withOpacity(0.45)),
-      ),
+    return GlassCard(
+      margin: EdgeInsets.only(bottom: DS.base),
+      padding: EdgeInsets.all(DS.gutter),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 头部：图标、名称、删除按钮
           Row(
             children: [
-              // 心愿图标
               Container(
-                width: 36,
-                height: 36,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
-                  color: themeColor.withOpacity(0.28),
-                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  color: themeColor.withOpacity(0.15),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: themeColor.withOpacity(0.3)),
                 ),
-                child: Center(
-                  child: Text(
-                    _getWishEmoji(wish.title),
-                    style: const TextStyle(fontSize: 18),
-                  ),
-                ),
+                child: Icon(icon, size: 22, color: themeColor),
               ),
-
-              const SizedBox(width: AppSpacing.sm),
-
-              // 心愿信息
+              SizedBox(width: DS.sm),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       wish.title,
-                      style: TextStyle(
-                        fontSize: 15,
+                      style: DS.bodyMd.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: AppTheme.textPrimary,
+                        color: DS.onSurface,
                       ),
                     ),
-                    // 截止日期
                     if (wish.deadline != null) ...[
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Row(
                         children: [
-                          Icon(Icons.calendar_today,
-                              size: 12, color: AppTheme.textHint),
-                          const SizedBox(width: 4),
+                          Icon(Icons.event, size: 12, color: DS.outline),
+                          SizedBox(width: 4),
                           Text(
                             '${wish.deadline!.year}-${wish.deadline!.month.toString().padLeft(2, '0')}-${wish.deadline!.day.toString().padLeft(2, '0')} 截止',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: AppTheme.textSecondary,
-                            ),
+                            style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
                           ),
                         ],
                       ),
                     ],
                     if (wish.description?.isNotEmpty == true) ...[
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Text(
                         wish.description!,
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: AppTheme.textSecondary,
-                        ),
+                        style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -100,28 +79,23 @@ class WishJarCard extends StatelessWidget {
                   ],
                 ),
               ),
-
-              // 删除按钮
               GestureDetector(
                 onTap: onDelete,
                 child: Container(
-                  width: 24,
-                  height: 24,
+                  width: 28,
+                  height: 28,
                   decoration: BoxDecoration(
-                    color: AppTheme.bgCard,
-                    borderRadius: BorderRadius.circular(AppRadius.full),
-                    border: Border.all(color: AppTheme.border),
+                    color: DS.surfaceContainerLow,
+                    shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.close,
-                      size: 14, color: AppTheme.textHint),
+                  child: Icon(Icons.close, size: 14, color: DS.outline),
                 ),
               ),
             ],
           ),
 
-          const SizedBox(height: AppSpacing.sm),
+          SizedBox(height: DS.sm),
 
-          // 进度信息
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -131,17 +105,18 @@ class WishJarCard extends StatelessWidget {
                     TextSpan(
                       text: '¥${FormatUtils.formatAmount(wish.currentAmount)}',
                       style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                        fontFamily: DS.fontDisplay,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
                         color: themeColor,
                       ),
                     ),
                     TextSpan(
-                      text:
-                          ' / ¥${FormatUtils.formatAmount(wish.targetAmount)}',
+                      text: ' / ¥${FormatUtils.formatAmount(wish.targetAmount)}',
                       style: TextStyle(
+                        fontFamily: DS.fontLabel,
                         fontSize: 13,
-                        color: AppTheme.textSecondary,
+                        color: DS.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -150,7 +125,8 @@ class WishJarCard extends StatelessWidget {
               Text(
                 '${progress.toStringAsFixed(0)}%',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontFamily: DS.fontLabel,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: themeColor,
                 ),
@@ -158,39 +134,35 @@ class WishJarCard extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 6),
+          SizedBox(height: DS.sm),
 
-          // 进度条
           ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadius.full),
+            borderRadius: BorderRadius.circular(DS.radiusFull),
             child: LinearProgressIndicator(
               value: wish.progress,
-              backgroundColor: AppTheme.bgCard,
+              backgroundColor: DS.surfaceContainerHigh,
               valueColor: AlwaysStoppedAnimation<Color>(themeColor),
               minHeight: 8,
             ),
           ),
 
-          const SizedBox(height: AppSpacing.sm),
+          SizedBox(height: DS.sm),
 
-          // 存钱按钮或完成标签
           if (wish.isCompleted)
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 10),
+              padding: EdgeInsets.symmetric(vertical: DS.sm),
               decoration: BoxDecoration(
-                color: AppTheme.success,
-                borderRadius: BorderRadius.circular(AppRadius.full),
+                color: DS.secondary,
+                borderRadius: BorderRadius.circular(DS.radiusFull),
               ),
-              child: const Center(
-                child: Text(
-                  '🎉 已实现',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.check_circle, size: 16, color: DS.onPrimary),
+                  SizedBox(width: DS.xs),
+                  Text('已实现', style: DS.labelMd),
+                ],
               ),
             )
           else
@@ -198,20 +170,26 @@ class WishJarCard extends StatelessWidget {
               onTap: onAddMoney,
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                padding: EdgeInsets.symmetric(vertical: DS.sm),
                 decoration: BoxDecoration(
-                  color: themeColor,
-                  borderRadius: BorderRadius.circular(AppRadius.full),
+                  color: DS.primary,
+                  borderRadius: BorderRadius.circular(DS.radiusFull),
                 ),
-                child: const Center(
-                  child: Text(
-                    '💰 存入',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.savings, size: 16, color: DS.onPrimary),
+                    SizedBox(width: DS.xs),
+                    Text(
+                      '存入',
+                      style: TextStyle(
+                        fontFamily: DS.fontLabel,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: DS.onPrimary,
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),
@@ -221,24 +199,25 @@ class WishJarCard extends StatelessWidget {
   }
 
   Color _getThemeColor(String id) {
-    // 6 个固定颜色，不随主题变化
     const colors = [
-      Color(0xFFFF8FAB), // 蜜桃粉
-      Color(0xFF74C0FC), // 天空蓝
-      Color(0xFF6BCB77), // 薄荷绿
-      Color(0xFFFFA94D), // 活力橙
-      Color(0xFF9B59B6), // 紫罗兰
-      Color(0xFFFF6B6B), // 珊瑚红
+      Color(0xFF40C2FD), // 天蓝
+      Color(0xFFD3579A), // 粉色
+      Color(0xFF00668A), // 深蓝
+      Color(0xFFFFA726), // 橙色
+      Color(0xFF7E57C2), // 紫色
+      Color(0xFF66BB6A), // 绿色
     ];
     return colors[id.hashCode.abs() % colors.length];
   }
 
-  String _getWishEmoji(String title) {
-    if (title.contains('衣服') || title.contains('鞋')) return '👗';
-    if (title.contains('旅行') || title.contains('旅游')) return '✈️';
-    if (title.contains('手机') || title.contains('数码')) return '📱';
-    if (title.contains('学习') || title.contains('课程')) return '📚';
-    if (title.contains('美食') || title.contains('吃')) return '🍱';
-    return '✨';
+  IconData _getWishIcon(String title) {
+    if (title.contains('衣服') || title.contains('鞋')) return Icons.checkroom;
+    if (title.contains('旅行') || title.contains('旅游')) return Icons.flight_takeoff;
+    if (title.contains('手机') || title.contains('数码')) return Icons.devices;
+    if (title.contains('学习') || title.contains('课程')) return Icons.school;
+    if (title.contains('美食') || title.contains('吃')) return Icons.restaurant;
+    if (title.contains('车')) return Icons.directions_car;
+    if (title.contains('房') || title.contains('家')) return Icons.home;
+    return Icons.auto_awesome;
   }
 }

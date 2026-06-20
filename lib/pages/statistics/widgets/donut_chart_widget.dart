@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
+import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
 
 /// 甜甜圈图组件
@@ -15,8 +16,8 @@ class DonutChartWidget extends StatelessWidget {
   });
 
   static final List<Color> _colors = [
-    AppTheme.primary,
-    AppTheme.primaryLight,
+    DS.primary,
+    DS.surfaceContainerHigh,
     const Color(0xFFFFD93D),
     const Color(0xFF6BCB77),
     const Color(0xFF74C0FC),
@@ -36,13 +37,13 @@ class DonutChartWidget extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('🐻', style: TextStyle(fontSize: 40)),
-            const SizedBox(height: 8),
+            Icon(Icons.donut_large, size: 40, color: DS.outline),
+            SizedBox(height: 8),
             Text(
               '暂无数据',
               style: TextStyle(
                 fontSize: 14,
-                color: AppTheme.textSecondary,
+                color: DS.onSurfaceVariant,
               ),
             ),
           ],
@@ -52,7 +53,7 @@ class DonutChartWidget extends StatelessWidget {
 
     return Container(
       height: 200,
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+      padding: EdgeInsets.symmetric(vertical: DS.base),
       child: PieChart(
         PieChartData(
           sections: categories.asMap().entries.map((entry) {
@@ -63,7 +64,7 @@ class DonutChartWidget extends StatelessWidget {
             return PieChartSectionData(
               value: percent,
               title: '${percent.toStringAsFixed(1)}%',
-              titleStyle: const TextStyle(
+              titleStyle: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -72,7 +73,7 @@ class DonutChartWidget extends StatelessWidget {
               color: _colors[index % _colors.length],
               badgeWidget: Text(
                 category['icon'],
-                style: const TextStyle(fontSize: 18),
+                style: TextStyle(fontSize: 18),
               ),
               badgePositionPercentageOffset: 0.8,
             );

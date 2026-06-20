@@ -1,9 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/app_provider.dart';
-import '../../providers/theme_provider.dart';
 import '../../services/database_service.dart';
+import '../../theme/app_design_system.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/format_utils.dart';
 import '../bill_list/bill_list_page.dart';
@@ -14,7 +14,7 @@ import 'widgets/stat_tabs.dart';
 import 'widgets/income_expense_summary.dart';
 import 'widgets/year_summary.dart';
 
-/// 统计页 - 甜甜圈图、分类统计、热力日历、小熊助手总结
+/// 统计页 — Luminous Finance 风格
 class StatisticsPage extends StatefulWidget {
   const StatisticsPage({super.key});
 
@@ -24,7 +24,7 @@ class StatisticsPage extends StatefulWidget {
 
 class _StatisticsPageState extends State<StatisticsPage> {
   DateTime _selectedMonth = DateTime.now();
-  String _activeTab = 'expense'; // expense | income
+  String _activeTab = 'expense';
 
   double _totalExpense = 0.0;
   double _totalIncome = 0.0;
@@ -34,7 +34,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
   List<Map<String, dynamic>> _incomeCategories = [];
 
   bool _loading = true;
-  String _viewMode = 'monthly'; // monthly, yearly
+  String _viewMode = 'monthly';
 
   @override
   void initState() {
@@ -61,26 +61,18 @@ class _StatisticsPageState extends State<StatisticsPage> {
     final income = stats['income'] ?? 0.0;
     final categories = stats['categories'] as List? ?? [];
 
-    // 处理支出分类
     final expCats = categories.where((c) => c['type'] == 'expense').map((c) {
       final percent = expense > 0
           ? FormatUtils.calculatePercentage(c['amount'], expense)
           : 0.0;
-      return <String, dynamic>{
-        ...c,
-        'percent': percent,
-      };
+      return <String, dynamic>{...c, 'percent': percent};
     }).toList();
 
-    // 处理收入分类
     final incCats = categories.where((c) => c['type'] == 'income').map((c) {
       final percent = income > 0
           ? FormatUtils.calculatePercentage(c['amount'], income)
           : 0.0;
-      return <String, dynamic>{
-        ...c,
-        'percent': percent,
-      };
+      return <String, dynamic>{...c, 'percent': percent};
     }).toList();
 
     setState(() {
@@ -95,59 +87,235 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
   @override
   Widget build(BuildContext context) {
-    context.watch<ThemeProvider>(); // listen to theme changes
     final monthTitle = '${_selectedMonth.year}年${_selectedMonth.month}月';
 
     return Scaffold(
-      backgroundColor: AppTheme.bgPage,
-      appBar: AppBar(
-        title: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('📊', style: TextStyle(fontSize: 20)),
-            SizedBox(width: 8),
-            Text(
-              '统计报表',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: AppTheme.primary,
-        centerTitle: true,
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
+      backgroundColor: DS.background,
+      body: SafeArea(
+        top: false,
+        bottom: false,
+        child: _loading
+          ? const Center(child: CircularProgressIndicator(color: DS.secondaryContainer))
           : Column(
               children: [
-                // 月度/年度切换
-                _buildViewModeToggle(),
-
-                // 月份/年份选择器
-                if (_viewMode == 'monthly')
-                  _buildMonthSelector(monthTitle),
-
+                // 渐变 Hero 头部
+                Container(
+                  padding: EdgeInsets.fromLTRB(DS.containerMargin, MediaQuery.of(context).padding.top + DS.gutter, DS.containerMargin, DS.base),
+                  decoration: BoxDecoration(
+                    gradient: DS.heroGradientBlueCurrent,
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(DS.radiusLg),
+                      bottomRight: Radius.circular(DS.radiusLg),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.leaderboard, size: 22, color: DS.onSurface),
+                          SizedBox(width: DS.sm),
+                          Text('统计报表', style: DS.headlineMd),
+                        ],
+                      ),
+                      SizedBox(height: DS.sm),
+                      Container(
+                        padding: EdgeInsets.symmetric(vertical: DS.gutter),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.6),
+                          borderRadius: BorderRadius.circular(DS.radiusMd),
+                          border: Border.all(color: Colors.black.withOpacity(0.08)),
+                        ),
+                        child: IntrinsicHeight(
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    Text('本月支出', style: DS.labelSm),
+                                    SizedBox(height: DS.xs),
+                                    Text(
+                                      '¥${FormatUtils.formatAmount(_totalExpense)}',
+                                      style: TextStyle(
+                                        fontFamily: DS.fontDisplay,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w800,
+                                        color: DS.error,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Container(width: 1, color: DS.outlineVariant),
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    Text('本月收入', style: DS.labelSm),
+                                    SizedBox(height: DS.xs),
+                                    Text(
+                                      '¥${FormatUtils.formatAmount(_totalIncome)}',
+                                      style: TextStyle(
+                                        fontFamily: DS.fontDisplay,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w800,
+                                        color: DS.secondary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Container(width: 1, color: DS.outlineVariant),
+                              Expanded(
+                                child: Column(
+                                  children: [
+                                    Text('结余', style: DS.labelSm),
+                                    SizedBox(height: DS.xs),
+                                    Text(
+                                      '¥${FormatUtils.formatAmount(_balance)}',
+                                      style: TextStyle(
+                                        fontFamily: DS.fontDisplay,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w800,
+                                        color: _balance >= 0 ? DS.secondary : DS.error,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: DS.sm),
+                      // 月份/年份切换
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                if (_viewMode == 'monthly') {
+                                  _selectedMonth = DateTime(_selectedMonth.year, _selectedMonth.month - 1);
+                                } else {
+                                  _selectedMonth = DateTime(_selectedMonth.year - 1, _selectedMonth.month);
+                                }
+                              });
+                              _loadStats();
+                            },
+                            child: Container(
+                              width: 32, height: 32,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.6),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.chevron_left, size: 18, color: DS.onSurface),
+                            ),
+                          ),
+                          SizedBox(width: DS.xs),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => _pickYearMonth(context),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.xs + 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.6),
+                                  borderRadius: BorderRadius.circular(DS.radiusFull),
+                                  border: Border.all(color: Colors.black.withOpacity(0.08)),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      _viewMode == 'monthly' ? monthTitle : '${_selectedMonth.year}年',
+                                      style: DS.labelMd.copyWith(color: DS.onSurface),
+                                    ),
+                                    SizedBox(width: DS.xs),
+                                    Icon(Icons.unfold_more, size: 14, color: DS.outline),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: DS.xs),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                if (_viewMode == 'monthly') {
+                                  _selectedMonth = DateTime(_selectedMonth.year, _selectedMonth.month + 1);
+                                } else {
+                                  _selectedMonth = DateTime(_selectedMonth.year + 1, _selectedMonth.month);
+                                }
+                              });
+                              _loadStats();
+                            },
+                            child: Container(
+                              width: 32, height: 32,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.6),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.chevron_right, size: 18, color: DS.onSurface),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: DS.sm),
+                      // 月度/年度切换
+                      Container(
+                        padding: EdgeInsets.all(3),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.6),
+                          borderRadius: BorderRadius.circular(DS.radiusFull),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () => setState(() => _viewMode = 'monthly'),
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(vertical: DS.sm),
+                                  decoration: BoxDecoration(
+                                    color: _viewMode == 'monthly' ? DS.primary : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(DS.radiusFull),
+                                  ),
+                                  child: Center(
+                                    child: Text('月度', style: DS.labelMd.copyWith(
+                                      color: _viewMode == 'monthly' ? DS.onPrimary : DS.onSurface,
+                                    )),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () => setState(() => _viewMode = 'yearly'),
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(vertical: DS.sm),
+                                  decoration: BoxDecoration(
+                                    color: _viewMode == 'yearly' ? DS.primary : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(DS.radiusFull),
+                                  ),
+                                  child: Center(
+                                    child: Text('年度', style: DS.labelMd.copyWith(
+                                      color: _viewMode == 'yearly' ? DS.onPrimary : DS.onSurface,
+                                    )),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: DS.base),
                 Expanded(
                   child: _viewMode == 'yearly'
-                      ? const YearSummary()
+                      ? YearSummary()
                       : SingleChildScrollView(
                           child: Column(
                             children: [
-                              // 1. 收支结余卡片
-                              IncomeExpenseSummary(
-                                expense: _totalExpense,
-                                income: _totalIncome,
-                                balance: _balance,
-                              ),
-
-                              const SizedBox(height: AppSpacing.sm),
-
-                              // 2. 小熊助手报告
                               Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: AppSpacing.sm),
+                                padding: EdgeInsets.symmetric(horizontal: DS.sm),
                                 child: MonthlySummary(
                                   expense: _totalExpense,
                                   income: _totalIncome,
@@ -157,46 +325,29 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                       : null,
                                 ),
                               ),
-
-                              const SizedBox(height: 10),
-
-                              // 2.5 收支趋势折线图
+                              SizedBox(height: DS.sm),
                               const TrendLineChart(),
-
-                              const SizedBox(height: 10),
-
-                              // 3. 支出/收入切换 + 分类明细
+                              SizedBox(height: DS.sm),
                               Container(
-                                margin: const EdgeInsets.all(AppSpacing.sm),
-                                padding: const EdgeInsets.all(12),
+                                margin: EdgeInsets.symmetric(horizontal: DS.sm),
+                                padding: EdgeInsets.all(DS.sm),
                                 decoration: BoxDecoration(
-                                  color: AppTheme.bgCard,
-                                  borderRadius: BorderRadius.circular(AppRadius.lg),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
+                                  color: DS.surfaceContainerLowest,
+                                  borderRadius: BorderRadius.circular(DS.radiusMd),
+                                  border: Border.all(color: DS.outlineVariant),
+                                  boxShadow: DS.shadowSm,
                                 ),
                                 child: Column(
                                   children: [
-                                    // 支出/收入切换
                                     StatTabs(
                                       activeTab: _activeTab,
                                       totalExpense: _totalExpense,
                                       totalIncome: _totalIncome,
                                       onTabChanged: (tab) {
-                                        setState(() {
-                                          _activeTab = tab;
-                                        });
+                                        setState(() => _activeTab = tab);
                                       },
                                     ),
-
-                                    const SizedBox(height: 12),
-
-                                    // 分类明细（带图标，可点击下钻）
+                                    SizedBox(height: DS.sm),
                                     CategoryBreakdown(
                                       categories: _activeTab == 'expense'
                                           ? _expenseCategories
@@ -214,177 +365,15 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                       },
                                     ),
                                   ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
                 ),
               ],
             ),
-    );
-  }
-
-  /// 构建月份选择器
-  Widget _buildMonthSelector(String monthTitle) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // 左侧留白 + 上一月按钮
-          Row(
-            children: [
-              const SizedBox(width: 20),
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _selectedMonth = DateTime(
-                      _selectedMonth.year,
-                      _selectedMonth.month - 1,
-                    );
-                  });
-                  _loadStats();
-                },
-                child: Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: AppTheme.bgPage,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.chevron_left,
-                    size: 24,
-                    color: AppTheme.primaryDark,
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          // 中间月份显示
-          GestureDetector(
-            onTap: () => _pickYearMonth(context),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      monthTitle,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimary,
-                      ),
-                    ),
-                    Icon(Icons.unfold_more, size: 18, color: AppTheme.textHint),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '消费报告',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppTheme.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // 下一月按钮 + 右侧留白
-          Row(
-            children: [
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _selectedMonth = DateTime(
-                      _selectedMonth.year,
-                      _selectedMonth.month + 1,
-                    );
-                  });
-                  _loadStats();
-                },
-                child: Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: AppTheme.bgPage,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.chevron_right,
-                    size: 24,
-                    color: AppTheme.primaryDark,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 20),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildViewModeToggle() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 8),
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: AppTheme.bgSection,
-        borderRadius: BorderRadius.circular(AppRadius.full),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () => setState(() => _viewMode = 'monthly'),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                decoration: BoxDecoration(
-                  color: _viewMode == 'monthly' ? AppTheme.primary : Colors.transparent,
-                  borderRadius: BorderRadius.circular(AppRadius.full),
-                ),
-                child: Center(
-                  child: Text(
-                    '月度报表',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: _viewMode == 'monthly' ? Colors.white : AppTheme.textSecondary,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () => setState(() => _viewMode = 'yearly'),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                decoration: BoxDecoration(
-                  color: _viewMode == 'yearly' ? AppTheme.primary : Colors.transparent,
-                  borderRadius: BorderRadius.circular(AppRadius.full),
-                ),
-                child: Center(
-                  child: Text(
-                    '年度总结',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: _viewMode == 'yearly' ? Colors.white : AppTheme.textSecondary,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
     );
   }
 
@@ -401,15 +390,12 @@ class _StatisticsPageState extends State<StatisticsPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.chevron_left),
+                  icon: Icon(Icons.chevron_left),
                   onPressed: () => setState(() => selectedYear--),
                 ),
-                Text(
-                  '$selectedYear 年',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                ),
+                Text('$selectedYear 年', style: DS.headlineSm),
                 IconButton(
-                  icon: const Icon(Icons.chevron_right),
+                  icon: Icon(Icons.chevron_right),
                   onPressed: selectedYear < DateTime.now().year
                       ? () => setState(() => selectedYear++)
                       : null,
@@ -422,8 +408,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
                 shrinkWrap: true,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 4,
-                  mainAxisSpacing: 8,
-                  crossAxisSpacing: 8,
+                  mainAxisSpacing: DS.sm,
+                  crossAxisSpacing: DS.sm,
                   childAspectRatio: 1.4,
                 ),
                 itemCount: 12,
@@ -444,20 +430,18 @@ class _StatisticsPageState extends State<StatisticsPage> {
                           },
                     child: Container(
                       decoration: BoxDecoration(
-                        color: isCurrent ? AppTheme.primary : AppTheme.bgSection,
-                        borderRadius: BorderRadius.circular(AppRadius.md),
+                        color: isCurrent ? DS.primary : DS.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(DS.radiusSm),
                       ),
                       alignment: Alignment.center,
                       child: Text(
                         '$month 月',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: isCurrent ? FontWeight.w600 : FontWeight.normal,
+                        style: DS.labelMd.copyWith(
                           color: isFuture
-                              ? AppTheme.textHint
+                              ? DS.outline
                               : isCurrent
-                                  ? Colors.white
-                                  : AppTheme.textPrimary,
+                                  ? DS.onPrimary
+                                  : DS.onSurface,
                         ),
                       ),
                     ),

@@ -10,7 +10,7 @@ import '../../services/amap_location_service.dart';
 import '../../services/database_service.dart';
 import '../../services/glm_service.dart';
 import '../../services/notification_service.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/app_design_system.dart';
 import '../add_record/add_record_page.dart';
 import '../add_record/widgets/map_picker_page.dart';
 import 'widgets/chat_bubble.dart';
@@ -525,8 +525,8 @@ class _AiChatPageState extends State<AiChatPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Icon(Icons.my_location, color: AppTheme.primary),
-              title: const Text('重新获取 GPS 定位'),
+              leading: Icon(Icons.my_location, color: DS.primary),
+              title: Text('重新获取 GPS 定位'),
               onTap: () {
                 Navigator.pop(ctx);
                 setState(() {
@@ -537,8 +537,8 @@ class _AiChatPageState extends State<AiChatPage> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.map, color: AppTheme.primary),
-              title: const Text('地图选点'),
+              leading: Icon(Icons.map, color: DS.primary),
+              title: Text('地图选点'),
               onTap: () {
                 Navigator.pop(ctx);
                 _openMapPicker(msgId);
@@ -546,8 +546,8 @@ class _AiChatPageState extends State<AiChatPage> {
             ),
             if (_msgLocations[msgId] != null)
               ListTile(
-                leading: Icon(Icons.clear, color: AppTheme.textHint),
-                title: const Text('清除位置'),
+                leading: Icon(Icons.clear, color: DS.outline),
+                title: Text('清除位置'),
                 onTap: () {
                   Navigator.pop(ctx);
                   setState(() {
@@ -589,9 +589,9 @@ class _AiChatPageState extends State<AiChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.bgPage,
+      backgroundColor: DS.background,
       appBar: AppBar(
-        title: const Row(
+        title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text('🐻', style: TextStyle(fontSize: 20)),
@@ -606,7 +606,7 @@ class _AiChatPageState extends State<AiChatPage> {
             ),
           ],
         ),
-        backgroundColor: AppTheme.primary,
+        backgroundColor: DS.primary,
         elevation: 0,
       ),
       body: Column(
@@ -615,18 +615,18 @@ class _AiChatPageState extends State<AiChatPage> {
           if (!GlmService.instance.isConfigured)
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              color: AppTheme.primaryLight,
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              color: DS.surfaceContainerHigh,
               child: Row(
                 children: [
-                  Icon(Icons.info_outline, size: 14, color: AppTheme.primaryDark),
-                  const SizedBox(width: 6),
+                  Icon(Icons.info_outline, size: 14, color: DS.primaryContainer),
+                  SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       '未配置 GLM API Key，使用本地关键词解析（精度较低）',
                       style: TextStyle(
                         fontSize: 11,
-                        color: AppTheme.primaryDark,
+                        color: DS.primaryContainer,
                       ),
                     ),
                   ),
@@ -637,13 +637,13 @@ class _AiChatPageState extends State<AiChatPage> {
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              padding: EdgeInsets.symmetric(vertical: 12),
               itemCount: _messages.length + (_isLoading ? 1 : 0),
               itemBuilder: (context, index) {
                 if (index == _messages.length) {
                   // 加载指示器
                   return Padding(
-                    padding: const EdgeInsets.symmetric(
+                    padding: EdgeInsets.symmetric(
                         horizontal: 16, vertical: 8),
                     child: Row(
                       children: [
@@ -651,22 +651,22 @@ class _AiChatPageState extends State<AiChatPage> {
                           width: 36,
                           height: 36,
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryLight,
+                            color: DS.surfaceContainerHigh,
                             borderRadius: BorderRadius.circular(18),
                           ),
                           child: const Center(
                             child: Text('🐻', style: TextStyle(fontSize: 20)),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(
+                          padding: EdgeInsets.symmetric(
                               horizontal: 14, vertical: 10),
                           decoration: BoxDecoration(
-                            color: AppTheme.bgCard,
+                            color: DS.surfaceContainerLowest,
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                                color: AppTheme.border.withOpacity(0.5)),
+                                color: DS.outlineVariant.withOpacity(0.5)),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -676,15 +676,15 @@ class _AiChatPageState extends State<AiChatPage> {
                                 height: 16,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: AppTheme.primary,
+                                  color: DS.primary,
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              SizedBox(width: 8),
                               Text(
                                 '思考中...',
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: AppTheme.textSecondary,
+                                  color: DS.onSurfaceVariant,
                                 ),
                               ),
                             ],

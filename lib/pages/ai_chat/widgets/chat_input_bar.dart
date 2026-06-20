@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../../services/baidu_speech_service.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/app_design_system.dart';
 
 /// 聊天输入栏（支持百度语音输入，微信风格：按住说话，上滑取消，松开发送，静音自动停止）
 class ChatInputBar extends StatefulWidget {
@@ -136,8 +136,8 @@ class _ChatInputBarState extends State<ChatInputBar> {
             bottom: MediaQuery.of(context).padding.bottom + 8,
           ),
           decoration: BoxDecoration(
-            color: AppTheme.bgCard,
-            border: Border(top: BorderSide(color: AppTheme.divider)),
+            color: DS.surfaceContainerLowest,
+            border: Border(top: BorderSide(color: DS.outlineVariant)),
           ),
           child: Row(
             children: [
@@ -150,14 +150,14 @@ class _ChatInputBarState extends State<ChatInputBar> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: _isRecording ? Colors.red : AppTheme.bgPage,
+                    color: _isRecording ? Colors.red : DS.background,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: _isRecording ? Colors.red : AppTheme.border,
+                      color: _isRecording ? Colors.red : DS.outlineVariant,
                     ),
                   ),
                   child: _isRecognizing
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(
@@ -167,19 +167,19 @@ class _ChatInputBarState extends State<ChatInputBar> {
                         )
                       : Icon(
                           _isRecording ? Icons.mic : Icons.mic_none,
-                          color: _isRecording ? Colors.white : AppTheme.textSecondary,
+                          color: _isRecording ? Colors.white : DS.onSurfaceVariant,
                           size: 20,
                         ),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               // 输入框
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: AppTheme.bgPage,
-                    borderRadius: BorderRadius.circular(AppRadius.full),
-                    border: Border.all(color: AppTheme.border),
+                    color: DS.background,
+                    borderRadius: BorderRadius.circular(DS.radiusFull),
+                    border: Border.all(color: DS.outlineVariant),
                   ),
                   child: TextField(
                     controller: _controller,
@@ -193,22 +193,22 @@ class _ChatInputBarState extends State<ChatInputBar> {
                           : '按住说话，上滑取消',
                       hintStyle: TextStyle(
                         color: _isRecognizing
-                            ? AppTheme.primary
-                            : AppTheme.textHint,
+                            ? DS.primary
+                            : DS.outline,
                         fontSize: 14,
                       ),
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(
+                      contentPadding: EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 10,
                       ),
                     ),
-                    style: const TextStyle(fontSize: 15),
+                    style: TextStyle(fontSize: 15),
                     onSubmitted: (_) => _handleSend(),
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               // 发送按钮
               GestureDetector(
                 onTap: _handleSend,
@@ -216,10 +216,10 @@ class _ChatInputBarState extends State<ChatInputBar> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: AppTheme.primary,
+                    color: DS.primary,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.send,
                     color: Colors.white,
                     size: 20,
@@ -243,16 +243,16 @@ class _ChatInputBarState extends State<ChatInputBar> {
                       size: 64,
                       color: _isCancelled ? Colors.white : Colors.red,
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
                     Text(
                       _isCancelled ? '松开取消' : '松开发送，上滑取消',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Text(
                       _isCancelled ? '' : '静音 2 秒自动停止',
                       style: TextStyle(

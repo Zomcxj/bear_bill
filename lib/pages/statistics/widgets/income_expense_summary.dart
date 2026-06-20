@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
 import '../../../utils/utils.dart';
 
@@ -19,18 +20,11 @@ class IncomeExpenseSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.all(AppSpacing.sm),
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      margin: EdgeInsets.all(DS.base),
+      padding: EdgeInsets.symmetric(vertical: DS.gutter),
       decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        gradient: DS.heroGradientBlueCurrent,
+        borderRadius: BorderRadius.all(Radius.circular(DS.radiusMd)),
       ),
       child: Row(
         children: [
@@ -38,22 +32,22 @@ class IncomeExpenseSummary extends StatelessWidget {
           Expanded(
             child: Column(
               children: [
-                const Text('💸', style: TextStyle(fontSize: 22)),
-                const SizedBox(height: 4),
+                Icon(Icons.arrow_downward, size: 22, color: DS.primaryContainer),
+                SizedBox(height: 4),
                 Text(
                   '¥${FormatUtils.formatAmount(expense)}',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryDark,
+                    color: DS.primaryContainer,
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(
                   '支出',
                   style: TextStyle(
                     fontSize: 12,
-                    color: AppTheme.textSecondary,
+                    color: DS.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -65,29 +59,29 @@ class IncomeExpenseSummary extends StatelessWidget {
           Container(
             width: 1,
             height: 50,
-            color: AppTheme.border,
+            color: DS.outlineVariant,
           ),
 
           // 收入
           Expanded(
             child: Column(
               children: [
-                const Text('💰', style: TextStyle(fontSize: 22)),
-                const SizedBox(height: 4),
+                Icon(Icons.arrow_upward, size: 22, color: DS.secondary),
+                SizedBox(height: 4),
                 Text(
                   '¥${FormatUtils.formatAmount(income)}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.success,
+                    color: DS.secondary,
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(
                   '收入',
                   style: TextStyle(
                     fontSize: 12,
-                    color: AppTheme.textSecondary,
+                    color: DS.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -99,15 +93,15 @@ class IncomeExpenseSummary extends StatelessWidget {
           Container(
             width: 1,
             height: 50,
-            color: AppTheme.border,
+            color: DS.outlineVariant,
           ),
 
           // 结余
           Expanded(
             child: Column(
               children: [
-                const Text('🐷', style: TextStyle(fontSize: 22)),
-                const SizedBox(height: 4),
+                Icon(Icons.savings, size: 22, color: DS.secondary),
+                SizedBox(height: 4),
                 Text(
                   '¥${FormatUtils.formatAmount(balance)}',
                   style: TextStyle(
@@ -118,12 +112,12 @@ class IncomeExpenseSummary extends StatelessWidget {
                         : const Color(0xFFD32F2F),
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(
                   '结余',
                   style: TextStyle(
                     fontSize: 12,
-                    color: AppTheme.textSecondary,
+                    color: DS.onSurfaceVariant,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

@@ -1,15 +1,15 @@
-﻿import 'package:fl_chart/fl_chart.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/app_provider.dart';
 import '../../../services/database_service.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/app_design_system.dart';
 import '../../../utils/utils.dart' as utils;
-import '../../../widgets/app_card.dart';
+import '../../../widgets/glass_card.dart';
 import '../../statistics/statistics_page.dart';
 
-/// 本周消费趋势图（对齐小程序 section-card 样式）
+/// 本周消费趋势图 — 玻璃卡片风格
 class WeekTrendChart extends StatefulWidget {
   const WeekTrendChart({super.key});
 
@@ -73,57 +73,41 @@ class _WeekTrendChartState extends State<WeekTrendChart> {
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
-      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+    return GlassCard(
+      margin: EdgeInsets.symmetric(horizontal: DS.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 标题行
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '📊 本周趋势',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: AppTheme.textPrimary,
-                ),
+              Row(
+                children: [
+                  Icon(Icons.insights, size: 18, color: DS.onSurface),
+                  SizedBox(width: DS.xs),
+                  Text('本周趋势', style: DS.headlineSm),
+                ],
               ),
               GestureDetector(
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => const StatisticsPage()),
+                    MaterialPageRoute(builder: (context) => const StatisticsPage()),
                   );
                 },
                 child: Row(
                   children: [
                     Text(
                       '详细统计',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppTheme.primary,
-                      ),
+                      style: DS.labelSm.copyWith(color: DS.secondary),
                     ),
-                    Text(
-                      ' ›',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppTheme.primary,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
+                    Icon(Icons.chevron_right, size: 14, color: DS.secondary),
                   ],
                 ),
               ),
             ],
           ),
-
-          const SizedBox(height: 12),
-
-          // 柱状图
+          SizedBox(height: DS.sm),
           SizedBox(
             height: 110,
             child: BarChart(
@@ -137,10 +121,9 @@ class _WeekTrendChartState extends State<WeekTrendChart> {
                       final data = _weekData[groupIndex];
                       return BarTooltipItem(
                         '¥${utils.FormatUtils.formatAmount(data['amount'])}',
-                        const TextStyle(
+                        TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          letterSpacing: -0.3,
                         ),
                       );
                     },
@@ -156,22 +139,23 @@ class _WeekTrendChartState extends State<WeekTrendChart> {
                         if (index >= 0 && index < _weekData.length) {
                           final data = _weekData[index];
                           return Padding(
-                            padding: const EdgeInsets.only(top: 6),
+                            padding: EdgeInsets.only(top: 6),
                             child: Text(
                               data['day'],
                               style: TextStyle(
+                                fontFamily: DS.fontLabel,
                                 fontSize: 11,
-                                color: data['isToday']
-                                    ? AppTheme.primary
-                                    : AppTheme.textHint,
                                 fontWeight: data['isToday']
                                     ? FontWeight.w700
-                                    : FontWeight.normal,
+                                    : FontWeight.w500,
+                                color: data['isToday']
+                                    ? DS.primary
+                                    : DS.outline,
                               ),
                             ),
                           );
                         }
-                        return const Text('');
+                        return Text('');
                       },
                     ),
                   ),
@@ -195,17 +179,15 @@ class _WeekTrendChartState extends State<WeekTrendChart> {
                     barRods: [
                       BarChartRodData(
                         toY: amount,
-                        color: isToday
-                            ? AppTheme.primaryDark
-                            : AppTheme.primary,
+                        color: isToday ? DS.primary : DS.secondaryContainer,
                         width: 22,
-                        borderRadius: const BorderRadius.vertical(
+                        borderRadius: BorderRadius.vertical(
                           top: Radius.circular(6),
                         ),
                         backDrawRodData: BackgroundBarChartRodData(
                           show: true,
                           toY: _maxAmount * 1.2,
-                          color: AppTheme.bgSection,
+                          color: DS.surfaceContainerHigh,
                         ),
                       ),
                     ],

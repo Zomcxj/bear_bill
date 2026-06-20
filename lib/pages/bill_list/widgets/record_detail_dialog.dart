@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import '../../../models/record_model.dart';
+import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
 import '../../../utils/utils.dart' as utils;
 
@@ -18,7 +19,7 @@ class RecordDetailDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppRadius.lg),
+        borderRadius: BorderRadius.circular(DS.radiusMd),
       ),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 500),
@@ -27,46 +28,44 @@ class RecordDetailDialog extends StatelessWidget {
           children: [
             // 标题栏
             Container(
-              padding: const EdgeInsets.all(AppSpacing.md),
+              padding: EdgeInsets.all(DS.gutter),
               decoration: BoxDecoration(
                 color: record.isExpense
-                    ? AppTheme.primaryDark.withOpacity(0.1)
+                    ? DS.primaryContainer.withOpacity(0.1)
                     : AppTheme.success.withOpacity(0.1),
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(AppRadius.lg),
-                  topRight: Radius.circular(AppRadius.lg),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(DS.radiusMd),
+                  topRight: Radius.circular(DS.radiusMd),
                 ),
               ),
               child: Row(
                 children: [
                   Text(
                     record.categoryIcon,
-                    style: const TextStyle(fontSize: 32),
+                    style: TextStyle(fontSize: 32),
                   ),
-                  const SizedBox(width: AppSpacing.sm),
+                  SizedBox(width: DS.base),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           record.categoryName,
-                          style: const TextStyle(
-                            fontSize: 18,
+                          style: DS.headlineSm.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
                           '${utils.DateUtils.formatDayCN(record.date)} ${record.createdAt.hour.toString().padLeft(2, '0')}:${record.createdAt.minute.toString().padLeft(2, '0')}:${record.createdAt.second.toString().padLeft(2, '0')}',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: AppTheme.textSecondary,
+                          style: DS.labelSm.copyWith(
+                            color: DS.onSurfaceVariant,
                           ),
                         ),
                       ],
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: Icon(Icons.close),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -76,7 +75,7 @@ class RecordDetailDialog extends StatelessWidget {
             // 内容区域
             Flexible(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(AppSpacing.md),
+                padding: EdgeInsets.all(DS.gutter),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -88,7 +87,7 @@ class RecordDetailDialog extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 20,
                           color: record.isExpense
-                              ? AppTheme.primaryDark
+                              ? DS.primaryContainer
                               : AppTheme.success,
                           fontWeight: FontWeight.bold,
                           fontFeatures: const [FontFeature.tabularFigures()],
@@ -96,30 +95,28 @@ class RecordDetailDialog extends StatelessWidget {
                       ),
                     ),
 
-                    const Divider(height: 24),
+                    Divider(height: 24),
 
                     // 类型
                     _buildInfoRow(
                       label: '类型',
                       value: Text(
                         record.isExpense ? '支出' : '收入',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppTheme.textPrimary,
+                        style: DS.bodyMd.copyWith(
+                          color: DS.onSurface,
                         ),
                       ),
                     ),
 
                     // 备注（如果有）
                     if (record.remark != null && record.remark!.isNotEmpty) ...[
-                      const Divider(height: 24),
+                      Divider(height: 24),
                       _buildInfoRow(
                         label: '备注',
                         value: Text(
                           record.remark!,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: AppTheme.textPrimary,
+                          style: DS.bodyMd.copyWith(
+                            color: DS.onSurface,
                           ),
                         ),
                       ),
@@ -127,14 +124,14 @@ class RecordDetailDialog extends StatelessWidget {
 
                     // 心情（如果有）
                     if (record.moodEmoji != null) ...[
-                      const Divider(height: 24),
+                      Divider(height: 24),
                       _buildInfoRow(
                         label: '心情',
                         value: Row(
                           children: [
                             Text(
                               record.moodEmoji!,
-                              style: const TextStyle(fontSize: 22),
+                              style: TextStyle(fontSize: 22),
                             ),
                           ],
                         ),
@@ -144,14 +141,13 @@ class RecordDetailDialog extends StatelessWidget {
                     // 位置（如果有）
                     if (record.location != null &&
                         record.location!.isNotEmpty) ...[
-                      const Divider(height: 24),
+                      Divider(height: 24),
                       _buildInfoRow(
                         label: '位置',
                         value: Text(
                           record.location!,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: AppTheme.textPrimary,
+                          style: DS.bodyMd.copyWith(
+                            color: DS.onSurface,
                           ),
                         ),
                       ),
@@ -159,16 +155,14 @@ class RecordDetailDialog extends StatelessWidget {
 
                     // 图片（如果有）
                     if (record.images.isNotEmpty) ...[
-                      const Divider(height: 24),
+                      Divider(height: 24),
                       Text(
                         '图片',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.textPrimary,
+                        style: DS.labelMd.copyWith(
+                          color: DS.onSurface,
                         ),
                       ),
-                      const SizedBox(height: AppSpacing.sm),
+                      SizedBox(height: DS.base),
                       GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
@@ -183,7 +177,7 @@ class RecordDetailDialog extends StatelessWidget {
                           return GestureDetector(
                             onTap: () => _showImagePreview(context, index),
                             child: ClipRRect(
-                              borderRadius: BorderRadius.circular(AppRadius.sm),
+                              borderRadius: BorderRadius.circular(DS.radiusXs),
                               child: Image.file(
                                 File(record.images[index]),
                                 fit: BoxFit.cover,
@@ -196,34 +190,31 @@ class RecordDetailDialog extends StatelessWidget {
 
                     // 标签（如果有）
                     if (record.tags.isNotEmpty) ...[
-                      const Divider(height: 24),
+                      Divider(height: 24),
                       Text(
                         '标签',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.textPrimary,
+                        style: DS.labelMd.copyWith(
+                          color: DS.onSurface,
                         ),
                       ),
-                      const SizedBox(height: AppSpacing.sm),
+                      SizedBox(height: DS.base),
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
                         children: record.tags.map((tag) {
                           return Container(
-                            padding: const EdgeInsets.symmetric(
+                            padding: EdgeInsets.symmetric(
                               horizontal: 12,
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: AppTheme.primaryLight,
-                              borderRadius: BorderRadius.circular(AppRadius.sm),
+                              color: DS.surfaceContainerHigh,
+                              borderRadius: BorderRadius.circular(DS.radiusXs),
                             ),
                             child: Text(
                               tag,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: AppTheme.primary,
+                              style: DS.labelSm.copyWith(
+                                color: DS.primary,
                               ),
                             ),
                           );
@@ -251,9 +242,8 @@ class RecordDetailDialog extends StatelessWidget {
           width: 60,
           child: Text(
             label,
-            style: TextStyle(
-              fontSize: 14,
-              color: AppTheme.textSecondary,
+            style: DS.bodyMd.copyWith(
+              color: DS.onSurfaceVariant,
             ),
           ),
         ),

@@ -1,7 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 
 import '../../../models/models.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/app_design_system.dart';
 import '../../../utils/utils.dart';
 
 /// 存钱对话框
@@ -49,9 +49,9 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
     return AlertDialog(
       title: Row(
         children: [
-          Text(_getWishEmoji(widget.wish.title), style: const TextStyle(fontSize: 24)),
-          const SizedBox(width: 8),
-          const Expanded(
+          Text(_getWishEmoji(widget.wish.title), style: TextStyle(fontSize: 24)),
+          SizedBox(width: 8),
+          Expanded(
             child: Text(
               '💰 存入心愿',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -66,10 +66,10 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
           // 心愿信息
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(AppSpacing.sm),
+            padding: EdgeInsets.all(DS.base),
             decoration: BoxDecoration(
-              color: AppTheme.bgSection,
-              borderRadius: BorderRadius.circular(AppRadius.md),
+              color: DS.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(DS.radiusSm),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,24 +79,24 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.textPrimary,
+                    color: DS.onSurface,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
-                  '已存 ¥${FormatUtils.formatAmount(widget.wish.currentAmount)} / 目标 ¥${FormatUtils.formatAmount(widget.wish.targetAmount)}',
+                  '已存 ¥${FormatUtils.formatAmount(widget.wish.currentAmount)} / 心愿 ¥${FormatUtils.formatAmount(widget.wish.targetAmount)}',
                   style: TextStyle(
                     fontSize: 13,
-                    color: AppTheme.textSecondary,
+                    color: DS.onSurfaceVariant,
                   ),
                 ),
                 if (remaining > 0) ...[
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2),
                   Text(
                     '还需 ¥${FormatUtils.formatAmount(remaining)}',
                     style: TextStyle(
                       fontSize: 12,
-                      color: AppTheme.primary,
+                      color: DS.primary,
                     ),
                   ),
                 ],
@@ -104,7 +104,7 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
             ),
           ),
           
-          const SizedBox(height: AppSpacing.md),
+          SizedBox(height: DS.gutter),
           
           // 快捷金额
           Text(
@@ -112,10 +112,10 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: AppTheme.textSecondary,
+              color: DS.onSurfaceVariant,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -123,21 +123,21 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
               return GestureDetector(
                 onTap: () => _selectQuickAmount(amount),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
+                  padding: EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryLight,
-                    borderRadius: BorderRadius.circular(AppRadius.full),
-                    border: Border.all(color: AppTheme.primary),
+                    color: DS.surfaceContainerHigh,
+                    borderRadius: BorderRadius.circular(DS.radiusFull),
+                    border: Border.all(color: DS.primary),
                   ),
                   child: Text(
                     '¥$amount',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: AppTheme.primaryDark,
+                      color: DS.primaryContainer,
                     ),
                   ),
                 ),
@@ -145,7 +145,7 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
             }).toList(),
           ),
           
-          const SizedBox(height: AppSpacing.md),
+          SizedBox(height: DS.gutter),
           
           // 自定义金额
           TextField(
@@ -163,17 +163,17 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('取消'),
+          child: Text('取消'),
         ),
         ElevatedButton(
           onPressed: _addMoney,
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppTheme.success,
+            backgroundColor: DS.secondary,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppRadius.full),
+              borderRadius: BorderRadius.circular(DS.radiusFull),
             ),
           ),
-          child: const Text('确认存入'),
+          child: Text('确认存入'),
         ),
       ],
     );

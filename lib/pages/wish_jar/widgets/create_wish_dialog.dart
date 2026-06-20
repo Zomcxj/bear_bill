@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../models/models.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/app_design_system.dart';
 
 /// 创建心愿对话框
 class CreateWishDialog extends StatefulWidget {
@@ -63,7 +63,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('✨ 创建新心愿'),
+      title: Text('✨ 创建新心愿'),
       content: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -77,10 +77,10 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: AppTheme.textSecondary,
+                  color: DS.onSurfaceVariant,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
@@ -88,24 +88,24 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
                   return GestureDetector(
                     onTap: () => _selectTemplate(tpl),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
+                      padding: EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: AppTheme.bgSection,
-                        borderRadius: BorderRadius.circular(AppRadius.full),
-                        border: Border.all(color: AppTheme.border),
+                        color: DS.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(DS.radiusFull),
+                        border: Border.all(color: DS.outlineVariant),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(tpl['emoji'],
-                              style: const TextStyle(fontSize: 16)),
-                          const SizedBox(width: 4),
+                              style: TextStyle(fontSize: 16)),
+                          SizedBox(width: 4),
                           Text(
                             tpl['name'],
-                            style: const TextStyle(fontSize: 12),
+                            style: TextStyle(fontSize: 12),
                           ),
                         ],
                       ),
@@ -114,7 +114,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
                 }).toList(),
               ),
 
-              const SizedBox(height: AppSpacing.md),
+              SizedBox(height: DS.gutter),
 
               // 心愿名称
               TextFormField(
@@ -132,7 +132,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
                 },
               ),
 
-              const SizedBox(height: AppSpacing.sm),
+              SizedBox(height: DS.base),
 
               // 心愿描述（可选）
               TextFormField(
@@ -145,20 +145,20 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
                 maxLines: 2,
               ),
 
-              const SizedBox(height: AppSpacing.sm),
+              SizedBox(height: DS.base),
 
-              // 目标金额
+              // 心愿金额
               TextFormField(
                 controller: _amountController,
                 decoration: const InputDecoration(
-                  labelText: '目标金额',
+                  labelText: '心愿金额',
                   hintText: '例如：5000',
                   prefixIcon: Icon(Icons.attach_money),
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return '请输入目标金额';
+                    return '请输入心愿金额';
                   }
                   final amount = double.tryParse(value);
                   if (amount == null || amount <= 0) {
@@ -168,7 +168,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
                 },
               ),
 
-              const SizedBox(height: AppSpacing.sm),
+              SizedBox(height: DS.base),
 
               // 截止日期
               GestureDetector(
@@ -178,18 +178,18 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
                     context: context,
                     builder: (context) => Container(
                       height: 320,
-                      color: AppTheme.bgCard,
+                      color: DS.surfaceContainerLowest,
                       child: Column(
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               CupertinoButton(
-                                child: const Text('取消'),
+                                child: Text('取消'),
                                 onPressed: () => Navigator.pop(context),
                               ),
                               CupertinoButton(
-                                child: const Text('确定', style: TextStyle(fontWeight: FontWeight.w600)),
+                                child: Text('确定', style: TextStyle(fontWeight: FontWeight.w600)),
                                 onPressed: () => Navigator.pop(context, tempDate),
                               ),
                             ],
@@ -214,20 +214,20 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
                   }
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.md,
-                    vertical: AppSpacing.sm,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: DS.sm,
+                    vertical: DS.base,
                   ),
                   decoration: BoxDecoration(
-                    color: AppTheme.bgSection,
-                    borderRadius: BorderRadius.circular(AppRadius.md),
-                    border: Border.all(color: AppTheme.border),
+                    color: DS.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(DS.radiusSm),
+                    border: Border.all(color: DS.outlineVariant),
                   ),
                   child: Row(
                     children: [
                       Icon(Icons.calendar_today,
-                          size: 18, color: AppTheme.primary),
-                      const SizedBox(width: 8),
+                          size: 18, color: DS.primary),
+                      SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           _deadline != null
@@ -236,8 +236,8 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
                           style: TextStyle(
                             fontSize: 13,
                             color: _deadline != null
-                                ? AppTheme.textPrimary
-                                : AppTheme.textSecondary,
+                                ? DS.onSurface
+                                : DS.onSurfaceVariant,
                           ),
                         ),
                       ),
@@ -249,7 +249,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
                             });
                           },
                           child: Icon(Icons.clear,
-                              size: 18, color: AppTheme.textHint),
+                              size: 18, color: DS.outline),
                         ),
                     ],
                   ),
@@ -262,21 +262,21 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('取消'),
+          child: Text('取消'),
         ),
         ElevatedButton(
           onPressed: _createWish,
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppTheme.primary,
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.lg,
-              vertical: AppSpacing.sm,
+            backgroundColor: DS.primary,
+            padding: EdgeInsets.symmetric(
+              horizontal: DS.md,
+              vertical: DS.base,
             ),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppRadius.full),
+              borderRadius: BorderRadius.circular(DS.radiusFull),
             ),
           ),
-          child: const Text('创建'),
+          child: Text('创建'),
         ),
       ],
     );

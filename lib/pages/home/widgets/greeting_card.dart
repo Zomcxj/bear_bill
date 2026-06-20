@@ -3,14 +3,13 @@ import 'package:provider/provider.dart';
 
 import '../../../providers/app_provider.dart';
 import '../../../services/database_service.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/app_design_system.dart';
 import '../../../utils/utils.dart' as utils;
-import '../../../widgets/app_card.dart';
+import '../../../widgets/glass_card.dart';
 import '../../multi_book/multi_book_page.dart';
 import '../../statistics/statistics_page.dart';
 
-/// 小熊问候卡片 - Hero 区域（对齐小程序版）
-/// 包含装饰气泡、白色文字、毛玻璃 summary 三栏、悬浮动画
+/// Hero 问候卡片 — Luminous Finance 渐变风格
 class GreetingCard extends StatefulWidget {
   const GreetingCard({super.key});
 
@@ -31,12 +30,11 @@ class _GreetingCardState extends State<GreetingCard>
   String _monthLabel = '';
   String _currentBookName = '小熊账本';
   String _currentBookIcon = '🐻';
-  double _monthlyBudget = 0.0; // 月度预算
+  double _monthlyBudget = 0.0;
 
   int _checkInDays = 0;
   bool _todayChecked = false;
 
-  // 悬浮动画控制器
   late final AnimationController _floatController;
   late final Animation<double> _floatAnimation;
 
@@ -49,7 +47,6 @@ class _GreetingCardState extends State<GreetingCard>
       appProvider.addListener(_loadData);
     });
 
-    // 悬浮动画：上下缓慢浮动
     _floatController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2000),
@@ -119,7 +116,7 @@ class _GreetingCardState extends State<GreetingCard>
         _monthLabel = utils.DateUtils.formatMonthCN(currentMonth);
         _currentBookName = book?.name ?? '小熊账本';
         _currentBookIcon = book?.icon ?? '🐻';
-        _monthlyBudget = book?.budget ?? 0.0; // 加载预算
+        _monthlyBudget = book?.budget ?? 0.0;
       });
     }
   }
@@ -128,353 +125,259 @@ class _GreetingCardState extends State<GreetingCard>
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppTheme.primary,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(AppRadius.xl),
-          bottomRight: Radius.circular(AppRadius.xl),
+        gradient: DS.heroGradientBlueCurrent,
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(DS.radiusLg),
+          bottomRight: Radius.circular(DS.radiusLg),
         ),
       ),
       padding: EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        MediaQuery.of(context).padding.top + AppSpacing.lg, // 状态栏高度
-        AppSpacing.lg,
-        AppSpacing.lg,
+        DS.containerMargin,
+        MediaQuery.of(context).padding.top + DS.gutter,
+        DS.containerMargin,
+        DS.base,
       ),
-      child: Stack(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── 装饰气泡 ──
-          Positioned(
-            top: -15,
-            right: 30,
-            child: _buildBubble(60),
-          ),
-          Positioned(
-            top: 30,
-            right: -10,
-            child: _buildBubble(40),
-          ),
-          Positioned(
-            bottom: -30,
-            left: -20,
-            child: _buildBubble(80),
-          ),
-
-          // ── 主内容 ──
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          // 问候行
+          Row(
             children: [
-              // 问候行
-              Row(
-                children: [
-                  // 小熊 Emoji（悬浮动画）
-                  AnimatedBuilder(
-                    animation: _floatAnimation,
-                    builder: (context, child) {
-                      return Transform.translate(
-                        offset: Offset(0, _floatAnimation.value),
-                        child: child,
-                      );
-                    },
-                    child: Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: Text(
-                          _bearEmoji,
-                          style: const TextStyle(fontSize: 26),
-                        ),
-                      ),
-                    ),
+              AnimatedBuilder(
+                animation: _floatAnimation,
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(0, _floatAnimation.value),
+                    child: child,
+                  );
+                },
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.6),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.black.withOpacity(0.08)),
                   ),
-
-                  const SizedBox(width: AppSpacing.sm),
-
-                  // 问候语文本（白色）
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _greeting,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: AppTheme.heroTextMain,
-                            shadows: [
-                              Shadow(
-                                color: Color(0x26000000),
-                                offset: Offset(0, 1),
-                                blurRadius: 2,
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          _bearMood,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.heroTextMuted,
-                          ),
-                        ),
-                      ],
-                    ),
+                  child: Center(
+                    child: Text(_bearEmoji, style: TextStyle(fontSize: 28)),
                   ),
-
-                  // 打卡徽章（半透明白底）
-                  GestureDetector(
-                    onTap: _todayChecked ? null : _handleCheckIn,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.18),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.35),
-                          width: 1,
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            _todayChecked ? '✅' : '🔥',
-                            style: const TextStyle(fontSize: 14),
-                          ),
-                          const SizedBox(height: 1),
-                          Text(
-                            '$_checkInDays天',
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: AppTheme.heroTextMain,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-
-              const SizedBox(height: AppSpacing.md),
-
-              // 月份标签 + 账本切换
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '$_monthLabel 概览',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppTheme.heroTextMain,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.5,
+              SizedBox(width: DS.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _greeting,
+                      style: DS.headlineSm.copyWith(color: DS.onSurface),
                     ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const MultiBookPage()),
-                      );
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(_currentBookIcon,
-                              style: const TextStyle(fontSize: 14)),
-                          const SizedBox(width: 4),
-                          Text(
-                            _currentBookName,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppTheme.heroTextMain,
-                            ),
-                          ),
-                          const SizedBox(width: 2),
-                          Text(
-                            '›',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.white.withOpacity(0.7),
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ],
-                      ),
+                    SizedBox(height: 2),
+                    Text(
+                      _bearMood,
+                      style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              GestureDetector(
+                onTap: _todayChecked ? null : _handleCheckIn,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.6),
+                    borderRadius: BorderRadius.circular(DS.radiusSm),
+                    border: Border.all(color: Colors.black.withOpacity(0.08)),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        _todayChecked ? Icons.check_circle : Icons.local_fire_department,
+                        size: 16,
+                        color: _todayChecked ? DS.secondary : DS.error,
+                      ),
+                      SizedBox(height: 1),
+                      Text(
+                        '$_checkInDays天',
+                        style: TextStyle(
+                          fontFamily: DS.fontLabel,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: DS.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
 
-              const SizedBox(height: AppSpacing.md),
+          SizedBox(height: DS.sm),
 
-              // 三项汇总（毛玻璃背景）
+          // 月份 + 账本
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '$_monthLabel 概览',
+                style: DS.labelMd.copyWith(color: DS.onSurfaceVariant),
+              ),
               GestureDetector(
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => const StatisticsPage()),
+                    MaterialPageRoute(builder: (_) => const MultiBookPage()),
                   );
                 },
                 child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.18),
-                    borderRadius: BorderRadius.circular(16),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: DS.sm,
+                    vertical: DS.xs + 2,
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: IntrinsicHeight(
-                    child: Row(
-                      children: [
-                        _buildSummaryCell(
-                          '¥${utils.FormatUtils.formatAmount(_totalExpense)}',
-                          '本月支出',
-                          AppTheme.heroExpense,
-                        ),
-                        _buildDivider(),
-                        _buildSummaryCell(
-                          '¥${utils.FormatUtils.formatAmount(_totalIncome)}',
-                          '本月收入',
-                          AppTheme.heroIncome,
-                        ),
-                        _buildDivider(),
-                        _buildSummaryCell(
-                          '¥${utils.FormatUtils.formatAmount(_balance.abs())}',
-                          '结余',
-                          _balance >= 0
-                              ? AppTheme.heroBalancePos
-                              : AppTheme.heroBalanceNeg,
-                        ),
-                      ],
-                    ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.6),
+                    borderRadius: BorderRadius.circular(DS.radiusSm),
+                    border: Border.all(color: Colors.black.withOpacity(0.08)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(_currentBookIcon, style: TextStyle(fontSize: 14)),
+                      SizedBox(width: DS.xs),
+                      Text(
+                        _currentBookName,
+                        style: DS.labelSm.copyWith(color: DS.onSurface),
+                      ),
+                      SizedBox(width: 2),
+                      Icon(Icons.chevron_right, size: 14, color: DS.outline),
+                    ],
                   ),
                 ),
               ),
-
-              const SizedBox(height: AppSpacing.md),
-
-              // 月度预算进度条
-              _monthlyBudget > 0
-                  ? GestureDetector(
-                      onTap: _showBudgetSettings,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.18),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        padding: const EdgeInsets.all(14),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  '📊 本月预算',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppTheme.heroTextMain,
-                                  ),
-                                ),
-                                Text(
-                                  '¥${utils.FormatUtils.formatAmount(_totalExpense)} / ¥${utils.FormatUtils.formatAmount(_monthlyBudget)}',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: AppTheme.heroTextSub,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            ClipRRect(
-                              borderRadius:
-                                  BorderRadius.circular(AppRadius.full),
-                              child: LinearProgressIndicator(
-                                value: _totalExpense / _monthlyBudget,
-                                backgroundColor: Colors.white.withOpacity(0.25),
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  _totalExpense > _monthlyBudget
-                                      ? AppTheme.heroBalanceNeg
-                                      : _totalExpense > _monthlyBudget * 0.8
-                                          ? const Color(0xFFFFA726)
-                                          : AppTheme.heroIncome,
-                                ),
-                                minHeight: 8,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  '${((_totalExpense / _monthlyBudget) * 100).toStringAsFixed(1)}% 已使用',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: _totalExpense > _monthlyBudget
-                                        ? AppTheme.heroBalanceNeg
-                                        : AppTheme.heroTextSub,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                Text(
-                                  _totalExpense > _monthlyBudget
-                                      ? '已超支 ¥${utils.FormatUtils.formatAmount(_totalExpense - _monthlyBudget)}'
-                                      : '剩余 ¥${utils.FormatUtils.formatAmount(_monthlyBudget - _totalExpense)}',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: _totalExpense > _monthlyBudget
-                                        ? AppTheme.heroBalanceNeg
-                                        : AppTheme.heroIncome,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
-                  : const SizedBox.shrink(),
             ],
           ),
+
+          SizedBox(height: DS.sm),
+
+          // 三项汇总 — 毛玻璃卡片
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const StatisticsPage()),
+              );
+            },
+            child: GlassCard(
+              padding: EdgeInsets.symmetric(vertical: DS.gutter),
+              child: IntrinsicHeight(
+                child: Row(
+                  children: [
+                    _buildSummaryCell(
+                      '¥${utils.FormatUtils.formatAmount(_totalExpense)}',
+                      '本月支出',
+                      DS.error,
+                    ),
+                    _buildDivider(),
+                    _buildSummaryCell(
+                      '¥${utils.FormatUtils.formatAmount(_totalIncome)}',
+                      '本月收入',
+                      DS.secondary,
+                    ),
+                    _buildDivider(),
+                    _buildSummaryCell(
+                      '¥${utils.FormatUtils.formatAmount(_balance.abs())}',
+                      '结余',
+                      _balance >= 0 ? DS.secondary : DS.error,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          SizedBox(height: DS.sm),
+
+          // 预算进度
+          if (_monthlyBudget > 0)
+            GestureDetector(
+              onTap: _showBudgetSettings,
+              child: GlassCard(
+                padding: EdgeInsets.all(DS.gutter),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.pie_chart_outline, size: 16, color: DS.onSurface),
+                            SizedBox(width: DS.xs),
+                            Text('本月预算', style: DS.labelMd),
+                          ],
+                        ),
+                        Text(
+                          '¥${utils.FormatUtils.formatAmount(_totalExpense)} / ¥${utils.FormatUtils.formatAmount(_monthlyBudget)}',
+                          style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: DS.sm),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(DS.radiusFull),
+                      child: LinearProgressIndicator(
+                        value: (_totalExpense / _monthlyBudget).clamp(0, 1),
+                        backgroundColor: DS.surfaceContainerHigh,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          _totalExpense > _monthlyBudget
+                              ? DS.error
+                              : _totalExpense > _monthlyBudget * 0.8
+                                  ? DS.secondaryContainer
+                                  : DS.secondary,
+                        ),
+                        minHeight: 8,
+                      ),
+                    ),
+                    SizedBox(height: DS.xs),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '${((_totalExpense / _monthlyBudget) * 100).toStringAsFixed(1)}% 已使用',
+                          style: DS.labelSm.copyWith(
+                            color: _totalExpense > _monthlyBudget
+                                ? DS.error
+                                : DS.onSurfaceVariant,
+                          ),
+                        ),
+                        Text(
+                          _totalExpense > _monthlyBudget
+                              ? '已超支 ¥${utils.FormatUtils.formatAmount(_totalExpense - _monthlyBudget)}'
+                              : '剩余 ¥${utils.FormatUtils.formatAmount(_monthlyBudget - _totalExpense)}',
+                          style: DS.labelSm.copyWith(
+                            color: _totalExpense > _monthlyBudget
+                                ? DS.error
+                                : DS.secondary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
     );
   }
 
-  /// 装饰气泡
-  Widget _buildBubble(double size) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white.withOpacity(0.12),
-      ),
-    );
-  }
-
-  /// 汇总单元格
   Widget _buildSummaryCell(String value, String label, Color valueColor) {
     return Expanded(
       child: Column(
@@ -483,37 +386,31 @@ class _GreetingCardState extends State<GreetingCard>
           Text(
             value,
             style: TextStyle(
-              fontSize: 17,
+              fontFamily: DS.fontDisplay,
+              fontSize: 18,
               fontWeight: FontWeight.w800,
               color: valueColor,
               height: 1.2,
               letterSpacing: -0.5,
-              fontFeatures: const [FontFeature.tabularFigures()],
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: DS.xs),
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 11,
-              color: AppTheme.heroTextMain,
-              fontWeight: FontWeight.w600,
-              height: 1.2,
-            ),
+            style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
           ),
         ],
       ),
     );
   }
 
-  /// 分隔线
   Widget _buildDivider() {
     return Container(
       width: 1,
-      color: Colors.white.withOpacity(0.25),
-      margin: const EdgeInsets.symmetric(vertical: 4),
+      color: DS.outlineVariant,
+      margin: EdgeInsets.symmetric(vertical: 4),
     );
   }
 
@@ -531,7 +428,6 @@ class _GreetingCardState extends State<GreetingCard>
     }
   }
 
-  /// 成就解锁弹窗（对齐小程序的 achievement-toast）
   void _showAchievementToast(List<dynamic> achievements) {
     final first = achievements.first;
     showDialog(
@@ -540,37 +436,22 @@ class _GreetingCardState extends State<GreetingCard>
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        child: AppCard(
-          margin: const EdgeInsets.only(top: 60),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          showShadow: true,
+        child: GlassCard(
+          padding: EdgeInsets.symmetric(horizontal: DS.md, vertical: DS.gutter),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                first.emoji ?? '🏆',
-                style: const TextStyle(fontSize: 40),
-              ),
-              const SizedBox(width: 16),
+              Icon(Icons.emoji_events, size: 40, color: DS.secondaryContainer),
+              SizedBox(width: DS.gutter),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    '成就解锁！',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppTheme.textHint,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
+                  Text('成就解锁！', style: DS.labelSm.copyWith(color: DS.outline)),
+                  SizedBox(height: 2),
                   Text(
                     first.title ?? '新成就',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.textPrimary,
-                    ),
+                    style: DS.headlineSm.copyWith(color: DS.onSurface),
                   ),
                 ],
               ),
@@ -584,7 +465,6 @@ class _GreetingCardState extends State<GreetingCard>
     });
   }
 
-  /// 显示预算设置对话框
   void _showBudgetSettings() {
     final controller = TextEditingController(
       text: _monthlyBudget > 0 ? _monthlyBudget.toStringAsFixed(0) : '',
@@ -593,7 +473,13 @@ class _GreetingCardState extends State<GreetingCard>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('💰 设置月度预算'),
+        title: Row(
+          children: [
+            Icon(Icons.savings_outlined, size: 20),
+            SizedBox(width: DS.xs),
+            Text('设置月度预算'),
+          ],
+        ),
         content: TextField(
           controller: controller,
           keyboardType: TextInputType.number,
@@ -606,7 +492,7 @@ class _GreetingCardState extends State<GreetingCard>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
+            child: Text('取消'),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -624,7 +510,6 @@ class _GreetingCardState extends State<GreetingCard>
                 return;
               }
 
-              // 更新当前账本的预算
               final appProvider = context.read<AppProvider>();
               final book = await appProvider.getCurrentBook();
               if (book != null) {
@@ -632,26 +517,19 @@ class _GreetingCardState extends State<GreetingCard>
                 await DatabaseService.instance.updateBook(updatedBook);
                 if (!mounted) return;
 
-                // 刷新数据
                 _loadData();
 
                 if (!context.mounted) return;
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
+                  SnackBar(
                     content: Text('预算已更新'),
-                    backgroundColor: AppTheme.success,
+                    backgroundColor: DS.secondary,
                   ),
                 );
               }
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRadius.full),
-              ),
-            ),
-            child: const Text('保存'),
+            child: Text('保存'),
           ),
         ],
       ),

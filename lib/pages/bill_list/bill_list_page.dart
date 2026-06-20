@@ -1,19 +1,16 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/models.dart';
 import '../../providers/app_provider.dart';
-import '../../providers/theme_provider.dart';
 import '../../services/database_service.dart';
 import '../../services/notification_service.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/app_design_system.dart';
 import '../../utils/utils.dart' as utils;
-import 'widgets/bill_search_bar.dart';
-import 'widgets/month_selector.dart';
 import 'widgets/record_detail_dialog.dart';
 import 'widgets/record_group_list.dart';
 
-/// 账单列表页 - 搜索、筛选、分组展示、左滑删除
+/// 账单列表页 — Luminous Finance 风格
 class BillListPage extends StatefulWidget {
   final String? initialCategoryId;
   final String? initialType;
@@ -31,9 +28,8 @@ class _BillListPageState extends State<BillListPage> {
   double _totalIncome = 0.0;
   bool _loading = true;
 
-  // 搜索和筛选状态
   String _keyword = '';
-  String _filterType = 'all'; // all, expense, income
+  String _filterType = 'all';
   final List<String> _filterCategories = [];
   double? _minAmount;
   double? _maxAmount;
@@ -43,7 +39,6 @@ class _BillListPageState extends State<BillListPage> {
   void initState() {
     super.initState();
     _currentMonth = utils.DateUtils.getCurrentMonth();
-    // 应用初始筛选条件（从统计页下钻传入）
     if (widget.initialCategoryId != null) {
       _filterCategories.add(widget.initialCategoryId!);
     }
@@ -51,7 +46,6 @@ class _BillListPageState extends State<BillListPage> {
       _filterType = widget.initialType!;
     }
     _loadRecords();
-    // 监听全局 Provider 变化，自动刷新列表（如新增/删除记录、切换账本）
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final appProvider = Provider.of<AppProvider>(context, listen: false);
       appProvider.addListener(_onAppProviderChange);
@@ -71,10 +65,7 @@ class _BillListPageState extends State<BillListPage> {
       bookId: appProvider.currentBookId,
     );
 
-    // 应用筛选
     final filteredRecords = _applyFilter(records);
-
-    // 按日期分组
     final grouped = _groupByDate(filteredRecords);
 
     setState(() {
@@ -85,7 +76,6 @@ class _BillListPageState extends State<BillListPage> {
 
   List<RecordModel> _applyFilter(List<RecordModel> records) {
     return records.where((record) {
-      // 关键词筛选
       if (_keyword.isNotEmpty) {
         final keywordLower = _keyword.toLowerCase();
         final matchCategory =
@@ -93,38 +83,19 @@ class _BillListPageState extends State<BillListPage> {
         final matchNote =
             (record.remark ?? '').toLowerCase().contains(keywordLower);
         final matchAmount = record.amount.toString().contains(_keyword);
-        if (!matchCategory && !matchNote && !matchAmount) {
-          return false;
-        }
+        if (!matchCategory && !matchNote && !matchAmount) return false;
       }
-
-      // 类型筛选
-      if (_filterType != 'all' && record.type != _filterType) {
-        return false;
-      }
-
-      // 分类筛选
+      if (_filterType != 'all' && record.type != _filterType) return false;
       if (_filterCategories.isNotEmpty &&
-          !_filterCategories.contains(record.categoryId)) {
-        return false;
-      }
-
-      // 金额范围筛选
-      if (_minAmount != null && record.amount < _minAmount!) {
-        return false;
-      }
-      if (_maxAmount != null && record.amount > _maxAmount!) {
-        return false;
-      }
-
-      // 位置筛选
+          !_filterCategories.contains(record.categoryId)) return false;
+      if (_minAmount != null && record.amount < _minAmount!) return false;
+      if (_maxAmount != null && record.amount > _maxAmount!) return false;
       if (_filterLocation.isNotEmpty) {
         final location = record.location ?? '';
         if (!location.toLowerCase().contains(_filterLocation.toLowerCase())) {
           return false;
         }
       }
-
       return true;
     }).toList();
   }
@@ -134,13 +105,11 @@ class _BillListPageState extends State<BillListPage> {
     double totalExpense = 0.0;
     double totalIncome = 0.0;
 
-    // 获取今天和昨天的日期
     final today = utils.DateUtils.getToday();
     final yesterday = utils.DateUtils.getYesterday();
 
     for (final record in records) {
       if (!dateMap.containsKey(record.date)) {
-        // 判断是否为今天或昨天
         String label;
         if (record.date == today) {
           label = '今天';
@@ -171,7 +140,6 @@ class _BillListPageState extends State<BillListPage> {
       }
     }
 
-    // 转换为列表并按日期降序排序
     final grouped = dateMap.values.toList();
     grouped.sort((a, b) => b['date'].compareTo(a['date']));
 
@@ -185,16 +153,9 @@ class _BillListPageState extends State<BillListPage> {
     final parts = _currentMonth.split('-');
     int year = int.parse(parts[0]);
     int month = int.parse(parts[1]);
-
     month--;
-    if (month < 1) {
-      month = 12;
-      year--;
-    }
-
-    setState(() {
-      _currentMonth = '$year-${month.toString().padLeft(2, '0')}';
-    });
+    if (month < 1) { month = 12; year--; }
+    setState(() => _currentMonth = '$year-${month.toString().padLeft(2, '0')}');
     _loadRecords();
   }
 
@@ -202,21 +163,13 @@ class _BillListPageState extends State<BillListPage> {
     final parts = _currentMonth.split('-');
     int year = int.parse(parts[0]);
     int month = int.parse(parts[1]);
-
     month++;
-    if (month > 12) {
-      month = 1;
-      year++;
-    }
-
-    setState(() {
-      _currentMonth = '$year-${month.toString().padLeft(2, '0')}';
-    });
+    if (month > 12) { month = 1; year++; }
+    setState(() => _currentMonth = '$year-${month.toString().padLeft(2, '0')}');
     _loadRecords();
   }
 
   void _showFilterDialog() {
-    // 临时变量用于对话框内的金额范围
     final minController = TextEditingController(
         text: _minAmount != null ? _minAmount.toString() : '');
     final maxController = TextEditingController(
@@ -228,162 +181,90 @@ class _BillListPageState extends State<BillListPage> {
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) {
           return AlertDialog(
-            title: const Text('筛选条件'),
+            title: Row(
+              children: [
+                Icon(Icons.tune, size: 20),
+                SizedBox(width: DS.xs),
+                Text('筛选条件'),
+              ],
+            ),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 类型筛选
-                  const Text(
-                    '收支类型',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
+                  Text('收支类型', style: DS.labelMd),
+                  SizedBox(height: DS.sm),
                   Wrap(
-                    spacing: 8,
+                    spacing: DS.sm,
                     children: [
-                      _buildFilterChip(
-                        label: '全部',
-                        selected: _filterType == 'all',
-                        onTap: () {
-                          setDialogState(() {
-                            _filterType = 'all';
-                          });
-                        },
-                      ),
-                      _buildFilterChip(
-                        label: '支出',
-                        selected: _filterType == 'expense',
-                        onTap: () {
-                          setDialogState(() {
-                            _filterType = 'expense';
-                          });
-                        },
-                      ),
-                      _buildFilterChip(
-                        label: '收入',
-                        selected: _filterType == 'income',
-                        onTap: () {
-                          setDialogState(() {
-                            _filterType = 'income';
-                          });
-                        },
-                      ),
+                      _buildFilterChip(label: '全部', selected: _filterType == 'all', onTap: () => setDialogState(() => _filterType = 'all')),
+                      _buildFilterChip(label: '支出', selected: _filterType == 'expense', onTap: () => setDialogState(() => _filterType = 'expense')),
+                      _buildFilterChip(label: '收入', selected: _filterType == 'income', onTap: () => setDialogState(() => _filterType = 'income')),
                     ],
                   ),
-                  const SizedBox(height: 16),
-
-                  // 分类筛选
-                  const Text(
-                    '分类',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: DS.gutter),
+                  Text('分类', style: DS.labelMd),
+                  SizedBox(height: DS.sm),
                   Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
+                    spacing: DS.sm,
+                    runSpacing: DS.sm,
                     children: [
-                      _buildFilterChip(
-                        label: '清除分类',
-                        selected: false,
-                        onTap: () {
-                          setDialogState(() {
-                            _filterCategories.clear();
-                          });
-                        },
-                      ),
+                      _buildFilterChip(label: '清除分类', selected: false, onTap: () => setDialogState(() => _filterCategories.clear())),
                       ..._getAllCategories().map((category) {
-                        final isSelected =
-                            _filterCategories.contains(category['id']);
+                        final isSelected = _filterCategories.contains(category['id']);
                         return _buildFilterChip(
                           label: '${category['emoji']} ${category['name']}',
                           selected: isSelected,
-                          onTap: () {
-                            setDialogState(() {
-                              if (isSelected) {
-                                _filterCategories.remove(category['id']);
-                              } else {
-                                _filterCategories.add(category['id']);
-                              }
-                            });
-                          },
+                          onTap: () => setDialogState(() {
+                            if (isSelected) {
+                              _filterCategories.remove(category['id']);
+                            } else {
+                              _filterCategories.add(category['id']);
+                            }
+                          }),
                         );
                       }),
                     ],
                   ),
-                  const SizedBox(height: 16),
-
-                  // 金额范围
-                  const Text(
-                    '金额范围',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: DS.gutter),
+                  Text('金额范围', style: DS.labelMd),
+                  SizedBox(height: DS.sm),
                   Row(
                     children: [
                       Expanded(
                         child: TextField(
                           controller: minController,
                           keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            hintText: '最低金额',
-                            isDense: true,
-                            contentPadding: EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 10),
-                          ),
-                          style: const TextStyle(fontSize: 14),
+                          decoration: const InputDecoration(hintText: '最低金额', isDense: true),
+                          style: DS.bodyMd,
                         ),
                       ),
                       const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8),
-                        child: Text('~', style: TextStyle(fontSize: 16)),
+                        padding: EdgeInsets.symmetric(horizontal: DS.sm),
+                        child: Text('~', style: DS.bodyMd),
                       ),
                       Expanded(
                         child: TextField(
                           controller: maxController,
                           keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            hintText: '最高金额',
-                            isDense: true,
-                            contentPadding: EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 10),
-                          ),
-                          style: const TextStyle(fontSize: 14),
+                          decoration: const InputDecoration(hintText: '最高金额', isDense: true),
+                          style: DS.bodyMd,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-
-                  // 位置筛选
-                  const Text(
-                    '位置',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: DS.gutter),
+                  Text('位置', style: DS.labelMd),
+                  SizedBox(height: DS.sm),
                   TextField(
                     controller: locationController,
                     decoration: const InputDecoration(
                       hintText: '按位置关键词筛选',
                       isDense: true,
                       prefixIcon: Icon(Icons.place, size: 18),
-                      contentPadding: EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 10),
                     ),
-                    style: const TextStyle(fontSize: 14),
+                    style: DS.bodyMd,
                   ),
                 ],
               ),
@@ -401,11 +282,10 @@ class _BillListPageState extends State<BillListPage> {
                   Navigator.pop(context);
                   _loadRecords();
                 },
-                child: const Text('清除'),
+                child: Text('清除'),
               ),
-              TextButton(
+              ElevatedButton(
                 onPressed: () {
-                  // 读取金额范围
                   final min = double.tryParse(minController.text.trim());
                   final max = double.tryParse(maxController.text.trim());
                   setState(() {
@@ -416,10 +296,7 @@ class _BillListPageState extends State<BillListPage> {
                   Navigator.pop(context);
                   _loadRecords();
                 },
-                child: const Text(
-                  '确定',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
+                child: Text('确定'),
               ),
             ],
           );
@@ -436,19 +313,21 @@ class _BillListPageState extends State<BillListPage> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: 6),
         decoration: BoxDecoration(
-          color: selected ? AppTheme.primary : AppTheme.bgCard,
-          borderRadius: BorderRadius.circular(AppRadius.full),
+          color: selected ? DS.primary : DS.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(DS.radiusFull),
           border: Border.all(
-            color: selected ? AppTheme.primary : AppTheme.border,
+            color: selected ? DS.primary : DS.outlineVariant,
           ),
         ),
         child: Text(
           label,
           style: TextStyle(
+            fontFamily: DS.fontLabel,
             fontSize: 13,
-            color: selected ? Colors.white : AppTheme.textPrimary,
+            fontWeight: FontWeight.w600,
+            color: selected ? DS.onPrimary : DS.onSurface,
           ),
         ),
       ),
@@ -456,86 +335,191 @@ class _BillListPageState extends State<BillListPage> {
   }
 
   List<Map<String, dynamic>> _getAllCategories() {
-    // 获取所有分类（支出 + 收入）
     final allCategories = <Map<String, dynamic>>[];
-
-    // 支出分类
     for (final cat in expenseCategories) {
-      allCategories.add({
-        'id': cat.id,
-        'name': cat.name,
-        'emoji': cat.icon,
-      });
+      allCategories.add({'id': cat.id, 'name': cat.name, 'emoji': cat.icon});
     }
-
-    // 收入分类
     for (final cat in incomeCategories) {
-      allCategories.add({
-        'id': cat.id,
-        'name': cat.name,
-        'emoji': cat.icon,
-      });
+      allCategories.add({'id': cat.id, 'name': cat.name, 'emoji': cat.icon});
     }
-
     return allCategories;
   }
 
   @override
   Widget build(BuildContext context) {
-    context.watch<ThemeProvider>(); // listen to theme changes
     return Scaffold(
-      backgroundColor: AppTheme.bgPage,
-      appBar: AppBar(
-        title: const Row(
-          mainAxisSize: MainAxisSize.min,
+      backgroundColor: DS.background,
+      body: SafeArea(
+        top: false,
+        child: Column(
           children: [
-            Text('📔', style: TextStyle(fontSize: 20)),
-            SizedBox(width: 8),
-            Text(
-              '我的账单',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+            // 渐变 Hero 头部
+            Container(
+              padding: EdgeInsets.fromLTRB(DS.containerMargin, MediaQuery.of(context).padding.top + DS.gutter, DS.containerMargin, DS.base),
+              decoration: BoxDecoration(
+                gradient: DS.heroGradientBlueCurrent,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(DS.radiusLg),
+                  bottomRight: Radius.circular(DS.radiusLg),
+                ),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.receipt_long, size: 22, color: DS.onSurface),
+                      SizedBox(width: DS.sm),
+                      Text('我的账单', style: DS.headlineMd),
+                    ],
+                  ),
+                  SizedBox(height: DS.sm),
+                  // 收支汇总卡片
+                  Container(
+                    padding: EdgeInsets.symmetric(vertical: DS.gutter),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.6),
+                      borderRadius: BorderRadius.circular(DS.radiusMd),
+                      border: Border.all(color: Colors.black.withOpacity(0.08)),
+                    ),
+                    child: IntrinsicHeight(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              children: [
+                                Text('本月支出', style: DS.labelSm),
+                                SizedBox(height: DS.xs),
+                                Text(
+                                  '¥${utils.FormatUtils.formatAmount(_totalExpense)}',
+                                  style: TextStyle(
+                                    fontFamily: DS.fontDisplay,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w800,
+                                    color: DS.error,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(width: 1, color: DS.outlineVariant),
+                          Expanded(
+                            child: Column(
+                              children: [
+                                Text('本月收入', style: DS.labelSm),
+                                SizedBox(height: DS.xs),
+                                Text(
+                                  '¥${utils.FormatUtils.formatAmount(_totalIncome)}',
+                                  style: TextStyle(
+                                    fontFamily: DS.fontDisplay,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w800,
+                                    color: DS.secondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: DS.sm),
+                  // 月份切换 + 搜索筛选
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: _prevMonth,
+                        child: Container(
+                          width: 32, height: 32,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.6),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(Icons.chevron_left, size: 18, color: DS.onSurface),
+                        ),
+                      ),
+                      SizedBox(width: DS.xs),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => _pickYearMonth(context),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.xs + 2),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.6),
+                              borderRadius: BorderRadius.circular(DS.radiusFull),
+                              border: Border.all(color: Colors.black.withOpacity(0.08)),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  utils.DateUtils.formatMonthCN(_currentMonth),
+                                  style: DS.labelMd.copyWith(color: DS.onSurface),
+                                ),
+                                SizedBox(width: DS.xs),
+                                Icon(Icons.unfold_more, size: 14, color: DS.outline),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: DS.xs),
+                      GestureDetector(
+                        onTap: _nextMonth,
+                        child: Container(
+                          width: 32, height: 32,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.6),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(Icons.chevron_right, size: 18, color: DS.onSurface),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: DS.sm),
+                  // 搜索栏
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: DS.sm),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.6),
+                      borderRadius: BorderRadius.circular(DS.radiusFull),
+                      border: Border.all(color: Colors.black.withOpacity(0.08)),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.search, size: 18, color: DS.outline),
+                        SizedBox(width: DS.sm),
+                        Expanded(
+                          child: TextField(
+                            decoration: const InputDecoration(
+                              hintText: '搜索分类、备注...',
+                              border: InputBorder.none,
+                              isDense: true,
+                              contentPadding: EdgeInsets.symmetric(vertical: 10),
+                            ),
+                            style: DS.labelMd,
+                            onChanged: (value) {
+                              setState(() => _keyword = value);
+                              _loadRecords();
+                            },
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: _showFilterDialog,
+                          child: Icon(Icons.tune, size: 18, color: DS.onSurface),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-        backgroundColor: AppTheme.primary,
-        centerTitle: true,
-      ),
-      body: Column(
-        children: [
-          // 月份切换条
-          MonthSelector(
-            currentMonth: _currentMonth,
-            totalExpense: _totalExpense,
-            totalIncome: _totalIncome,
-            onPrevMonth: _prevMonth,
-            onNextMonth: _nextMonth,
-            onMonthPicked: (month) {
-              setState(() => _currentMonth = month);
-              _loadRecords();
-            },
-          ),
 
-          // 搜索筛选栏
-          BillSearchBar(
-            keyword: _keyword,
-            filterType: _filterType,
-            filterCategories: _filterCategories,
-            onKeywordChanged: (value) {
-              setState(() {
-                _keyword = value;
-              });
-              _loadRecords();
-            },
-            onFilterTap: _showFilterDialog,
-          ),
-
-          // 账单列表
+          SizedBox(height: DS.base),
           Expanded(
             child: _loading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator(color: DS.secondaryContainer))
                 : _groupedRecords.isEmpty
                     ? _buildEmptyState()
                     : RecordGroupList(
@@ -545,6 +529,7 @@ class _BillListPageState extends State<BillListPage> {
                       ),
           ),
         ],
+        ),
       ),
     );
   }
@@ -554,24 +539,90 @@ class _BillListPageState extends State<BillListPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('🔍', style: TextStyle(fontSize: 64)),
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            '本月还没有账单',
-            style: TextStyle(
-              fontSize: 16,
-              color: AppTheme.textSecondary,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '快去记第一笔吧 🐻',
-            style: TextStyle(
-              fontSize: 13,
-              color: AppTheme.textHint,
-            ),
-          ),
+          Icon(Icons.search_off, size: 64, color: DS.outlineVariant),
+          SizedBox(height: DS.md),
+          Text('本月还没有账单', style: DS.bodyMd.copyWith(color: DS.onSurfaceVariant)),
+          SizedBox(height: DS.sm),
+          Text('快去记第一笔吧', style: DS.labelSm.copyWith(color: DS.outline)),
         ],
+      ),
+    );
+  }
+
+  void _pickYearMonth(BuildContext context) {
+    final parts = _currentMonth.split('-');
+    int selectedYear = int.parse(parts[0]);
+    int selectedMonth = int.parse(parts[1]);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setState) {
+          return AlertDialog(
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.chevron_left),
+                  onPressed: () => setState(() => selectedYear--),
+                ),
+                Text('$selectedYear 年', style: DS.headlineSm),
+                IconButton(
+                  icon: Icon(Icons.chevron_right),
+                  onPressed: selectedYear < DateTime.now().year
+                      ? () => setState(() => selectedYear++)
+                      : null,
+                ),
+              ],
+            ),
+            content: SizedBox(
+              width: 280,
+              child: GridView.builder(
+                shrinkWrap: true,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  mainAxisSpacing: DS.sm,
+                  crossAxisSpacing: DS.sm,
+                  childAspectRatio: 1.4,
+                ),
+                itemCount: 12,
+                itemBuilder: (_, i) {
+                  final month = i + 1;
+                  final isCurrent = month == selectedMonth;
+                  final isFuture = selectedYear == DateTime.now().year &&
+                      month > DateTime.now().month;
+                  return GestureDetector(
+                    onTap: isFuture
+                        ? null
+                        : () {
+                            final m = month.toString().padLeft(2, '0');
+                            setState(() => _currentMonth = '$selectedYear-$m');
+                            Navigator.pop(ctx);
+                            _loadRecords();
+                          },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: isCurrent ? DS.primary : DS.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(DS.radiusSm),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        '$month 月',
+                        style: DS.labelMd.copyWith(
+                          color: isFuture
+                              ? DS.outline
+                              : isCurrent
+                                  ? Colors.white
+                                  : DS.onSurface,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -580,17 +631,23 @@ class _BillListPageState extends State<BillListPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('确认删除'),
-        content: const Text('确定要删除这条账单吗？'),
+        title: Row(
+          children: [
+            Icon(Icons.delete_outline, size: 20, color: DS.error),
+            SizedBox(width: DS.xs),
+            Text('确认删除'),
+          ],
+        ),
+        content: Text('确定要删除这条账单吗？'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+            child: Text('取消'),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child:
-                Text('删除', style: TextStyle(color: AppTheme.primaryDark)),
+            style: ElevatedButton.styleFrom(backgroundColor: DS.error),
+            child: Text('删除'),
           ),
         ],
       ),
@@ -605,10 +662,7 @@ class _BillListPageState extends State<BillListPage> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('已删除'),
-            duration: Duration(seconds: 1),
-          ),
+          const SnackBar(content: Text('已删除'), duration: Duration(seconds: 1)),
         );
       }
     }

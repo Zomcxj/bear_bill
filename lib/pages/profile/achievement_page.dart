@@ -3,9 +3,9 @@ import 'package:provider/provider.dart';
 
 import '../../models/achievement_model.dart';
 import '../../providers/app_provider.dart';
-import '../../providers/theme_provider.dart';
 import '../../services/storage_service.dart';
 import '../../services/database_service.dart';
+import '../../theme/app_design_system.dart';
 import '../../theme/app_theme.dart';
 
 class AchievementPage extends StatefulWidget {
@@ -48,7 +48,6 @@ class _AchievementPageState extends State<AchievementPage> {
 
   @override
   Widget build(BuildContext context) {
-    context.watch<ThemeProvider>();
     return Consumer<AppProvider>(
       builder: (context, appProvider, child) {
         final unlockedIds = appProvider.unlockedAchievements;
@@ -64,24 +63,24 @@ class _AchievementPageState extends State<AchievementPage> {
             double.parse(budgetStr) > 0;
 
         return Scaffold(
-          backgroundColor: AppTheme.bgPage,
+          backgroundColor: DS.background,
           appBar: AppBar(
             title: Text(
               '成就徽章  ${unlockedIds.length}/${AchievementDefinitions.all.length}',
             ),
-            backgroundColor: AppTheme.bgCard,
-            foregroundColor: AppTheme.textPrimary,
+            backgroundColor: DS.surfaceContainerLowest,
+            foregroundColor: DS.onSurface,
             elevation: 0,
           ),
           body: _loading
               ? const Center(child: CircularProgressIndicator())
               : GridView.builder(
-                  padding: const EdgeInsets.all(AppSpacing.md),
+                  padding: EdgeInsets.all(DS.gutter),
                   gridDelegate:
                       const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 4,
-                    crossAxisSpacing: AppSpacing.sm,
-                    mainAxisSpacing: AppSpacing.sm,
+                    crossAxisSpacing: DS.base,
+                    mainAxisSpacing: DS.base,
                     childAspectRatio: 0.75,
                   ),
                   itemCount: AchievementDefinitions.all.length,
@@ -187,12 +186,12 @@ class _AchievementCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => _showDetail(context),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 4, vertical: 8),
         decoration: BoxDecoration(
-          color: AppTheme.bgCard,
-          borderRadius: BorderRadius.circular(AppRadius.md),
+          color: DS.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(DS.radiusSm),
           border: Border.all(
-            color: isUnlocked ? AppTheme.primary : AppTheme.border,
+            color: isUnlocked ? DS.primary : DS.outlineVariant,
             width: isUnlocked ? 1.5 : 1,
           ),
         ),
@@ -204,12 +203,11 @@ class _AchievementCard extends StatelessWidget {
               height: 36,
               decoration: BoxDecoration(
                 color: isUnlocked
-                    ? AppTheme.primaryLight
-                    : AppTheme.bgSection,
-                borderRadius: BorderRadius.circular(AppRadius.full),
+                    ? DS.surfaceContainerHigh
+                    : DS.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(DS.radiusFull),
                 border: Border.all(
-                  color:
-                      isUnlocked ? AppTheme.primary : AppTheme.border,
+                  color: isUnlocked ? DS.primary : DS.outlineVariant,
                   width: 1.5,
                 ),
               ),
@@ -225,7 +223,7 @@ class _AchievementCard extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(
               achievement.title,
               maxLines: 1,
@@ -234,27 +232,27 @@ class _AchievementCard extends StatelessWidget {
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
                 color: isUnlocked
-                    ? AppTheme.textPrimary
-                    : AppTheme.textHint,
+                    ? DS.onSurface
+                    : DS.outline,
               ),
             ),
-            const SizedBox(height: 2),
+            SizedBox(height: 2),
             // 进度条
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
+              padding: EdgeInsets.symmetric(horizontal: 4),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(AppRadius.full),
+                borderRadius: BorderRadius.circular(DS.radiusFull),
                 child: LinearProgressIndicator(
                   value: progress,
                   minHeight: 4,
-                  backgroundColor: AppTheme.bgSection,
+                  backgroundColor: DS.surfaceContainerLow,
                   valueColor: AlwaysStoppedAnimation<Color>(
-                    isUnlocked ? AppTheme.success : AppTheme.primary,
+                    isUnlocked ? AppTheme.success : DS.primary,
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 2),
+            SizedBox(height: 2),
             Text(
               isUnlocked ? '已完成' : '$percent%',
               style: TextStyle(
@@ -262,7 +260,7 @@ class _AchievementCard extends StatelessWidget {
                 fontWeight: FontWeight.w600,
                 color: isUnlocked
                     ? AppTheme.success
-                    : AppTheme.textSecondary,
+                    : DS.onSurfaceVariant,
               ),
             ),
           ],
@@ -279,15 +277,15 @@ class _AchievementCard extends StatelessWidget {
         title: Row(
           children: [
             Text(achievement.emoji,
-                style: const TextStyle(fontSize: 28)),
-            const SizedBox(width: 12),
+                style: TextStyle(fontSize: 28)),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     achievement.title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -298,7 +296,7 @@ class _AchievementCard extends StatelessWidget {
                       fontSize: 13,
                       color: isUnlocked
                           ? AppTheme.success
-                          : AppTheme.textHint,
+                          : DS.outline,
                     ),
                   ),
                 ],
@@ -310,61 +308,57 @@ class _AchievementCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               '达成条件：',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               achievement.description,
-              style: const TextStyle(fontSize: 14),
+              style: TextStyle(fontSize: 14),
             ),
             if (!isUnlocked) ...[
-              const SizedBox(height: 16),
-              const Text(
+              SizedBox(height: 16),
+              Text(
                 '当前进度：',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               ClipRRect(
-                borderRadius: BorderRadius.circular(AppRadius.full),
+                borderRadius: BorderRadius.circular(DS.radiusFull),
                 child: LinearProgressIndicator(
                   value: progress,
                   minHeight: 8,
-                  backgroundColor: AppTheme.bgSection,
+                  backgroundColor: DS.surfaceContainerLow,
                   valueColor:
-                      AlwaysStoppedAnimation<Color>(AppTheme.primary),
+                      AlwaysStoppedAnimation<Color>(DS.primary),
                 ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text(
                 '$percent%',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppTheme.textSecondary,
-                ),
+                style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
               ),
             ],
             if (isUnlocked && achievement.unlockedAt != null) ...[
-              const SizedBox(height: 16),
-              const Text(
+              SizedBox(height: 16),
+              Text(
                 '解锁时间：',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text(
                 '${achievement.unlockedAt!.year}年${achievement.unlockedAt!.month}月${achievement.unlockedAt!.day}日',
-                style: TextStyle(
-                    fontSize: 14, color: AppTheme.textSecondary),
+                style: DS.labelMd.copyWith(color: DS.onSurfaceVariant),
               ),
             ],
           ],
@@ -372,7 +366,7 @@ class _AchievementCard extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('知道了'),
+            child: Text('知道了'),
           ),
         ],
       ),

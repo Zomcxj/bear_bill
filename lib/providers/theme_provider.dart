@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/storage_service.dart';
+import '../theme/app_design_system.dart';
 
 /// 主题颜色管理 - 从单一主色自动生成完整主题
 class ThemeProvider extends ChangeNotifier {
@@ -24,6 +25,7 @@ class ThemeProvider extends ChangeNotifier {
     }
     final darkSaved = StorageService.instance.getInt(_darkModeKey);
     _isDarkMode = darkSaved == 1;
+    DS.setDarkMode(_isDarkMode);
   }
 
   void setPrimaryColor(Color color) {
@@ -34,6 +36,7 @@ class ThemeProvider extends ChangeNotifier {
 
   void toggleDarkMode() {
     _isDarkMode = !_isDarkMode;
+    DS.setDarkMode(_isDarkMode);
     StorageService.instance.setInt(_darkModeKey, _isDarkMode ? 1 : 0);
     notifyListeners();
   }

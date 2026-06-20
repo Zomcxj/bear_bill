@@ -13,14 +13,12 @@ import '../../services/amap_location_service.dart';
 import '../../services/database_service.dart';
 import '../../services/image_service.dart';
 import '../../services/notification_service.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/app_design_system.dart';
 import '../../utils/utils.dart' as utils;
-import 'widgets/amount_date_section.dart';
 import 'widgets/bottom_info_card.dart';
 import 'widgets/category_selector.dart';
 import 'widgets/custom_keyboard.dart';
 import 'widgets/map_picker_page.dart';
-import 'widgets/type_switcher.dart';
 
 /// �记账页 - 支出/收入切换、分类选择、心情标签、自定义键盘
 class AddRecordPage extends StatefulWidget {
@@ -261,7 +259,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
             SnackBar(
               content: Text(
                   '记账成功！${_type == 'expense' ? '-' : '+'}¥${utils.FormatUtils.formatAmount(amount)}'),
-              backgroundColor: AppTheme.success,
+              backgroundColor: DS.secondary,
               duration: const Duration(seconds: 1),
             ),
           );
@@ -284,7 +282,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('修改成功！'),
-            backgroundColor: AppTheme.success,
+            backgroundColor: DS.secondary,
             duration: Duration(seconds: 1),
           ),
         );
@@ -303,12 +301,12 @@ class _AddRecordPageState extends State<AddRecordPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('🎉 解锁新成就！'),
+        title: Text('🎉 解锁新成就！'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: achievements.map((a) {
             return ListTile(
-              leading: Text(a.emoji, style: const TextStyle(fontSize: 32)),
+              leading: Text(a.emoji, style: TextStyle(fontSize: 32)),
               title: Text(a.title),
               subtitle: Text(a.description),
             );
@@ -320,7 +318,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
               context.read<AppProvider>().clearNewAchievements();
               Navigator.pop(context);
             },
-            child: const Text('太棒了！'),
+            child: Text('太棒了！'),
           ),
         ],
       ),
@@ -332,63 +330,111 @@ class _AddRecordPageState extends State<AddRecordPage> {
     final categories =
         _type == 'expense' ? expenseCategories : incomeCategories;
     return Scaffold(
-      backgroundColor: AppTheme.bgPage,
-      appBar: AppBar(
-        title: const Row(
-          mainAxisSize: MainAxisSize.min,
+      backgroundColor: DS.background,
+      body: SafeArea(
+        top: false,
+        bottom: false,
+        child: Column(
           children: [
-            Text('✏️', style: TextStyle(fontSize: 20)),
-            SizedBox(width: 8),
-            Text(
-              '记一笔',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
+            // 渐变 Hero 区域：标题 + 类型切换 + 金额 + 日期 + 分类
+            Container(
+              padding: EdgeInsets.fromLTRB(
+                DS.containerMargin,
+                MediaQuery.of(context).padding.top + DS.gutter,
+                DS.containerMargin,
+                DS.base,
+              ),
+              decoration: BoxDecoration(
+                gradient: DS.heroGradientBlueCurrent,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(DS.radiusLg),
+                  bottomRight: Radius.circular(DS.radiusLg),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 标题 + 返回
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Icon(Icons.arrow_back_ios, size: 20, color: DS.onSurface),
+                      ),
+                      SizedBox(width: DS.sm),
+                      Icon(Icons.edit, size: 20, color: DS.onSurface),
+                      SizedBox(width: DS.xs),
+                      Text('记一笔', style: DS.headlineMd),
+                    ],
+                  ),
+                  SizedBox(height: DS.base),
+                  // 支出/收入切换
+                  Container(
+                    padding: EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.6),
+                      borderRadius: BorderRadius.circular(DS.radiusFull),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => _switchType('expense'),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(vertical: DS.sm),
+                              decoration: BoxDecoration(
+                                color: _type == 'expense' ? DS.primary : Colors.transparent,
+                                borderRadius: BorderRadius.circular(DS.radiusFull),
+                              ),
+                              child: Center(
+                                child: Text('支出', style: DS.labelMd.copyWith(
+                                  color: _type == 'expense' ? DS.onPrimary : DS.onSurface,
+                                )),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => _switchType('income'),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(vertical: DS.sm),
+                              decoration: BoxDecoration(
+                                color: _type == 'income' ? DS.primary : Colors.transparent,
+                                borderRadius: BorderRadius.circular(DS.radiusFull),
+                              ),
+                              child: Center(
+                                child: Text('收入', style: DS.labelMd.copyWith(
+                                  color: _type == 'income' ? DS.onPrimary : DS.onSurface,
+                                )),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: DS.base),
+                  // 金额 + 日期
+                  _buildAmountRow(),
+                  SizedBox(height: DS.base),
+                  // 分类选择器
+                  CategorySelector(
+                    categories: categories,
+                    selectedCategory: _selectedCategory,
+                    onSelect: _selectCategory,
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-        backgroundColor: AppTheme.primary,
-        elevation: 0,
-      ),
-      body: Column(
-        children: [
+
+          // 底部信息模块
           Expanded(
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 1. 类型切换 - 支出/收入
-                  TypeSwitcher(
-                    type: _type,
-                    onTypeChanged: _switchType,
-                  ),
-
-                  // 2. 金额区域（粉色背景）
-                  AmountDateSection(
-                    amount: _amount,
-                    type: _type,
-                    selectedCategory: _selectedCategory,
-                    selectedDate: _selectedDate,
-                    onAmountChanged: (v) => setState(() => _amount = v),
-                    onDateSelect: _selectDate,
-                  ),
-
-                  // 3. 分类选择器
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.md,
-                      vertical: AppSpacing.sm,
-                    ),
-                    child: CategorySelector(
-                      categories: categories,
-                      selectedCategory: _selectedCategory,
-                      onSelect: _selectCategory,
-                    ),
-                  ),
-
-                  // 4. 底部信息模块
+                  SizedBox(height: DS.base),
                   BottomInfoCard(
                     selectedMood: _selectedMood,
                     onMoodChanged: (mood) => setState(() => _selectedMood = mood),
@@ -410,15 +456,93 @@ class _AddRecordPageState extends State<AddRecordPage> {
                     onLocationDialog: _showLocationDialog,
                   ),
 
-                  const SizedBox(height: AppSpacing.md),
+                  SizedBox(height: DS.gutter),
                 ],
               ),
             ),
           ),
         ],
       ),
+      ),
       bottomNavigationBar: SafeArea(
         child: CustomKeyboard(onKeyTap: _handleKeyInput),
+      ),
+    );
+  }
+
+  Widget _buildAmountRow() {
+    final accentColor = _type == 'expense' ? DS.error : DS.secondary;
+    return Container(
+      padding: EdgeInsets.all(DS.gutter),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.6),
+        borderRadius: BorderRadius.circular(DS.radiusMd),
+        border: Border.all(color: Colors.black.withOpacity(0.08)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 分类 + 日期标签
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.xs + 2),
+                decoration: BoxDecoration(
+                  color: DS.primary,
+                  borderRadius: BorderRadius.circular(DS.radiusFull),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(_selectedCategory?.icon ?? '🍜', style: TextStyle(fontSize: 14)),
+                    SizedBox(width: DS.xs),
+                    Text(
+                      _selectedCategory?.name ?? '餐饮',
+                      style: DS.labelSm.copyWith(color: DS.onPrimary),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(width: DS.sm),
+              GestureDetector(
+                onTap: _selectDate,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.xs + 2),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.6),
+                    borderRadius: BorderRadius.circular(DS.radiusFull),
+                    border: Border.all(color: Colors.black.withOpacity(0.08)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.calendar_today, size: 14, color: DS.onSurface),
+                      SizedBox(width: DS.xs),
+                      Text(
+                        '${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}',
+                        style: DS.labelSm.copyWith(color: DS.onSurface),
+                      ),
+                      SizedBox(width: 2),
+                      Icon(Icons.chevron_right, size: 14, color: DS.outline),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: DS.sm),
+          // 金额
+          Text(
+            _amount.isEmpty ? '¥0' : '¥$_amount',
+            style: TextStyle(
+              fontFamily: DS.fontDisplay,
+              fontSize: 36,
+              fontWeight: FontWeight.w800,
+              color: DS.onSurface,
+              letterSpacing: -1.5,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -429,18 +553,18 @@ class _AddRecordPageState extends State<AddRecordPage> {
       context: context,
       builder: (context) => Container(
         height: 320,
-        color: AppTheme.bgCard,
+        color: DS.surfaceContainerLowest,
         child: Column(
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 CupertinoButton(
-                  child: const Text('取消'),
+                  child: Text('取消'),
                   onPressed: () => Navigator.pop(context),
                 ),
                 CupertinoButton(
-                  child: const Text('确定', style: TextStyle(fontWeight: FontWeight.w600)),
+                  child: Text('确定', style: TextStyle(fontWeight: FontWeight.w600)),
                   onPressed: () => Navigator.pop(context, tempDate),
                 ),
               ],
@@ -621,37 +745,37 @@ class _AddRecordPageState extends State<AddRecordPage> {
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('📍 添加位置'),
+        title: Text('📍 添加位置'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             // 手动输入
             ListTile(
-              leading: Icon(Icons.edit_location, color: AppTheme.primary),
-              title: const Text('手动输入'),
-              subtitle: const Text('直接输入地点名称'),
+              leading: Icon(Icons.edit_location, color: DS.primary),
+              title: Text('手动输入'),
+              subtitle: Text('直接输入地点名称'),
               onTap: () {
                 Navigator.pop(context);
                 _showManualInputDialog();
               },
             ),
-            const Divider(height: 1),
+            Divider(height: 1),
             // GPS定位
             ListTile(
-              leading: const Icon(Icons.my_location, color: AppTheme.info),
-              title: const Text('GPS定位'),
-              subtitle: const Text('获取当前设备位置'),
+              leading: Icon(Icons.my_location, color: DS.secondaryContainer),
+              title: Text('GPS定位'),
+              subtitle: Text('获取当前设备位置'),
               onTap: () {
                 Navigator.pop(context);
                 _fetchDeviceLocation();
               },
             ),
-            const Divider(height: 1),
+            Divider(height: 1),
             // 地图选点
             ListTile(
-              leading: const Icon(Icons.map, color: AppTheme.success),
-              title: const Text('地图选点'),
-              subtitle: const Text('打开地图搜索和选择位置'),
+              leading: Icon(Icons.map, color: DS.secondary),
+              title: Text('地图选点'),
+              subtitle: Text('打开地图搜索和选择位置'),
               onTap: () {
                 Navigator.pop(context);
                 _openMapPicker();
@@ -662,7 +786,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
+            child: Text('取消'),
           ),
         ],
       ),
@@ -675,7 +799,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('输入位置'),
+        title: Text('输入位置'),
         content: TextField(
           controller: controller,
           autofocus: true,
@@ -686,7 +810,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
+            child: Text('取消'),
           ),
           TextButton(
             onPressed: () {
@@ -699,7 +823,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
               }
               Navigator.pop(context);
             },
-            child: Text('保存', style: TextStyle(color: AppTheme.primary)),
+            child: Text('保存', style: TextStyle(color: DS.primary)),
           ),
         ],
       ),
