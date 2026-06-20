@@ -60,12 +60,12 @@ class _TrendLineChartState extends State<TrendLineChart> {
     context.watch<ThemeProvider>(); // 确保深色模式切换时重建
 
     if (_loading) {
-      return AppCard(
-        margin: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-        padding: const EdgeInsets.all(AppSpacing.md),
+      return const AppCard(
+        margin: EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+        padding: EdgeInsets.all(AppSpacing.md),
         borderRadius: AppRadius.md,
         showShadow: false,
-        child: const SizedBox(
+        child: SizedBox(
           height: 260,
           child: Center(child: CircularProgressIndicator()),
         ),
@@ -159,7 +159,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
         Container(
           width: 10,
           height: 10,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: AppTheme.success,
             shape: BoxShape.circle,
           ),
@@ -191,11 +191,11 @@ class _TrendPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (data.isEmpty) return;
 
-    final padLeft = 16.0; // 左右留白防止圆点超出
-    final padRight = 16.0;
+    const padLeft = 16.0; // 左右留白防止圆点超出
+    const padRight = 16.0;
     final chartWidth = size.width - padLeft - padRight;
     final chartHeight = size.height - 30; // 留出顶部空间给数值标签
-    final chartTop = 20.0;
+    const chartTop = 20.0;
     final stepX = chartWidth / (data.length - 1).clamp(1, 999);
 
     // 画网格线

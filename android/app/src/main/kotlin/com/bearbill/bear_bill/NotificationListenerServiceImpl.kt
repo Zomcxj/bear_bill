@@ -55,19 +55,8 @@ class NotificationListenerServiceImpl : NotificationListenerService() {
 
         Log.d(TAG, "捕获支付通知: [$title] $text")
 
-        // 将通知内容传递给 Flutter 处理
-        try {
-            val intent = Intent("com.bearbill.AUTO_RECORD_RECEIVED")
-            intent.setPackage(packageName)
-            intent.putExtra("title", title)
-            intent.putExtra("text", text)
-            intent.putExtra("source", if (packageName.contains("tencent")) "wechat" else "alipay")
-            sendBroadcast(intent)
-        } catch (e: Exception) {
-            Log.e(TAG, "发送广播失败", e)
-        }
-
         // 通过 SharedPreferences 存储，Flutter 端轮询读取
+        // 使用与 MainActivity 相同的 prefs 文件
         try {
             val json = JSONObject().apply {
                 put("title", title)
@@ -76,6 +65,7 @@ class NotificationListenerServiceImpl : NotificationListenerService() {
                 put("timestamp", System.currentTimeMillis())
             }
             prefs.edit().putString("pending_notification", json.toString()).apply()
+            Log.d(TAG, "通知已存储到 SharedPreferences")
         } catch (e: Exception) {
             Log.e(TAG, "存储通知失败", e)
         }

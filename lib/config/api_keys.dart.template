@@ -1,4 +1,24 @@
 // API 密钥配置模板
 // 复制此文件为 api_keys.dart 并填入你的密钥
+// 此文件已加入 .gitignore，不会被提交到版本库
 
+// ===== 高德地图 =====
+// 申请地址: https://console.amap.com/
 const String amapApiKey = 'YOUR_AMAP_API_KEY';
+
+// ===== 大模型配置 =====
+// 切换厂商只需修改下面 3 个值：
+const String aiBaseUrl = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
+const String aiApiKey = 'YOUR_AI_API_KEY';
+const String aiModel = 'glm-4-flash';
+
+// 其他厂商示例：
+// 阿里通义千问: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions + qwen-turbo
+// 百度文心一言: https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/ernie-speed-128k
+// DeepSeek:    https://api.deepseek.com/v1/chat/completions + deepseek-chat
+
+// ===== 百度语音识别 =====
+// 申请地址: https://console.bce.baidu.com/ → 语音技术
+const String baiduSpeechAppId = 'YOUR_BAIDU_SPEECH_APP_ID';
+const String baiduSpeechApiKey = 'YOUR_BAIDU_SPEECH_API_KEY';
+const String baiduSpeechSecretKey = 'YOUR_BAIDU_SPEECH_SECRET_KEY';

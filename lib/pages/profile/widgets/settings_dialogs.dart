@@ -219,7 +219,6 @@ Future<void> showFontSizeDialog(BuildContext context) async {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: sizeOptions.map((size) {
-            final isSelected = currentSize == size;
             return RadioListTile<String>(
               value: size,
               groupValue: currentSize,
@@ -376,7 +375,7 @@ Future<void> showBudgetDialog(BuildContext context) async {
             onPressed: () async {
               final updated = book!.copyWith(budget: 0);
               await DatabaseService.instance.updateBook(updated);
-              appProvider.notifyListeners();
+              appProvider.refreshCurrentBook();
               if (context.mounted) {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -404,7 +403,7 @@ Future<void> showBudgetDialog(BuildContext context) async {
             }
             final updated = book!.copyWith(budget: value);
             await DatabaseService.instance.updateBook(updated);
-            appProvider.notifyListeners();
+            appProvider.refreshCurrentBook();
             if (context.mounted) {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(

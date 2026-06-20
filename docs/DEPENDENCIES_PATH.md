@@ -83,7 +83,7 @@
 - **路径**: `<YOUR_PUB_CACHE>`（例如：`D:/Softwaredata/PubCache`）
 - **配置方式**: 
   - 系统环境变量: `PUB_CACHE`
-  - 或 `build-apk.cmd` 中设置
+  - 或终端中临时设置
 - **结构**:
   ```
   PubCache/
@@ -163,14 +163,6 @@ kotlin.compiler.execution.strategy=in-process
 android.useAndroidX=true
 android.enableJetifier=true
 android.nonTransitiveRClass=true
-```
-
-### build-apk.cmd
-```cmd
-@echo off
-set PUB_CACHE=<YOUR_PUB_CACHE>
-set GRADLE_USER_HOME=<YOUR_GRADLE_CACHE>
-flutter build apk --release
 ```
 
 ---

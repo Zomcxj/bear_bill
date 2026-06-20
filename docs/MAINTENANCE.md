@@ -35,10 +35,10 @@ kotlin.incremental=false
 kotlin.compiler.execution.strategy=in-process
 ```
 
-#### build-apk.cmd
-```cmd
-set PUB_CACHE=<YOUR_PUB_CACHE>
-set GRADLE_USER_HOME=<YOUR_GRADLE_CACHE>
+#### 终端临时设置
+```bash
+export PUB_CACHE=<YOUR_PUB_CACHE>
+export GRADLE_USER_HOME=<YOUR_GRADLE_CACHE>
 ```
 
 ### 环境变量（可选）
@@ -141,12 +141,7 @@ ClassNotFoundException: org.gradle.instrumentation.agent.Agent
 **原因**: 用户路径包含中文字符
 
 **解决方案**:
-已在 `build-apk.cmd` 中自动设置环境变量，直接运行即可：
-```cmd
-.\build-apk.cmd
-```
-
-或手动设置：
+设置环境变量后重新构建：
 ```powershell
 $env:GRADLE_USER_HOME="<YOUR_GRADLE_CACHE>"
 $env:PUB_CACHE="<YOUR_PUB_CACHE>"

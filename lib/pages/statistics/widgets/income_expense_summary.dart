@@ -76,7 +76,7 @@ class IncomeExpenseSummary extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   '¥${FormatUtils.formatAmount(income)}',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppTheme.success,

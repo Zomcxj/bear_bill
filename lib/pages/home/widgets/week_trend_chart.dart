@@ -108,9 +108,9 @@ class _WeekTrendChartState extends State<WeekTrendChart> {
                       ),
                     ),
                     Text(
-                      '›',
+                      ' ›',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 13,
                         color: AppTheme.primary,
                         fontWeight: FontWeight.w700,
                       ),

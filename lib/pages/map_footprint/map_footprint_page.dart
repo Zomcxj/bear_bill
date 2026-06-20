@@ -5,9 +5,10 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
+import '../../services/amap_location_service.dart';
+
 import '../../models/models.dart';
 import '../../providers/app_provider.dart';
-import '../../services/amap_location_service.dart';
 import '../../services/database_service.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/utils.dart' as utils;
@@ -83,12 +84,15 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
         }
       }
 
-      // 计算聚类中心
+      // 计算聚类中心（WGS84）
       final avgLat = clusterRecords.map((r) => r.latitude!).reduce((a, b) => a + b) / clusterRecords.length;
       final avgLng = clusterRecords.map((r) => r.longitude!).reduce((a, b) => a + b) / clusterRecords.length;
 
+      // 转换为 GCJ-02 用于地图显示（Amap 瓦片使用 GCJ-02）
+      final gcj = AmapLocationService.wgs84ToGcj02(avgLat, avgLng);
+
       clusters.add(_MapCluster(
-        center: LatLng(avgLat, avgLng),
+        center: LatLng(gcj.$1, gcj.$2),
         records: clusterRecords,
       ));
     }
@@ -162,7 +166,7 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
                       TileLayer(
                         urlTemplate:
                             'https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',
-                        subdomains: ['1', '2', '3', '4'],
+                        subdomains: const ['1', '2', '3', '4'],
                         userAgentPackageName: 'com.bearbill.bear_bill',
                         maxZoom: 18,
                       ),

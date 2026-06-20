@@ -44,7 +44,8 @@ class _ExportPageState extends State<ExportPage> {
         _selectedMonth,
         bookId: appProvider.currentBookId,
       );
-      
+      if (!mounted) return;
+
       if (records.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('该月份没有账单记录')),
@@ -216,10 +217,10 @@ class _ExportPageState extends State<ExportPage> {
         borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(color: AppTheme.border),
       ),
-      child: const Row(
+      child: Row(
         children: [
           Icon(Icons.download, size: 40, color: AppTheme.primary),
-          SizedBox(width: AppSpacing.md),
+          const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -232,7 +233,7 @@ class _ExportPageState extends State<ExportPage> {
                     color: AppTheme.textPrimary,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   '将账单导出为 CSV 格式，方便在 Excel 中查看和分析',
                   style: TextStyle(
@@ -358,13 +359,13 @@ class _ExportPageState extends State<ExportPage> {
         borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(color: AppTheme.info.withOpacity(0.3)),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.lightbulb_outline, color: AppTheme.info, size: 20),
-              SizedBox(width: 8),
+              const Icon(Icons.lightbulb_outline, color: AppTheme.info, size: 20),
+              const SizedBox(width: 8),
               Text(
                 '温馨提示',
                 style: TextStyle(
@@ -375,7 +376,7 @@ class _ExportPageState extends State<ExportPage> {
               ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             '• 导出时可自行选择保存位置\n'
             '• 文件格式为 CSV，可用 Excel 打开\n'

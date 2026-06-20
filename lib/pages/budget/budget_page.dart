@@ -58,7 +58,8 @@ class _BudgetPageState extends State<BudgetPage> {
     
     final appProvider = context.read<AppProvider>();
     final book = await appProvider.getCurrentBook();
-    
+    if (!mounted) return;
+
     if (book == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('请先选择账本')),
@@ -106,7 +107,8 @@ class _BudgetPageState extends State<BudgetPage> {
         ],
       ),
     );
-    
+    if (!mounted) return;
+
     if (confirmed == true) {
       final appProvider = context.read<AppProvider>();
       final book = await appProvider.getCurrentBook();
@@ -253,7 +255,7 @@ class _BudgetPageState extends State<BudgetPage> {
                 ),
                 child: Text(
                   '¥${amount.toInt()}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: AppTheme.primaryDark,
@@ -354,13 +356,13 @@ class _BudgetPageState extends State<BudgetPage> {
         borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(color: AppTheme.info.withOpacity(0.3)),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.lightbulb_outline, color: AppTheme.info, size: 20),
-              SizedBox(width: 8),
+              const Icon(Icons.lightbulb_outline, color: AppTheme.info, size: 20),
+              const SizedBox(width: 8),
               Text(
                 '温馨提示',
                 style: TextStyle(
@@ -371,7 +373,7 @@ class _BudgetPageState extends State<BudgetPage> {
               ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             '• 建议根据月收入设置合理预算\n'
             '• 一般建议支出不超过收入的 80%\n'

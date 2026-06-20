@@ -91,6 +91,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
 
     if (confirmed == true) {
       await DatabaseService.instance.deleteRecord(_record!.id);
+      if (!mounted) return;
       context.read<AppProvider>().onRecordDeleted();
       NotificationService.instance.refreshTodaySummary();
 

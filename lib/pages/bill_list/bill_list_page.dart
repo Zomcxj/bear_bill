@@ -35,7 +35,6 @@ class _BillListPageState extends State<BillListPage> {
   String _keyword = '';
   String _filterType = 'all'; // all, expense, income
   final List<String> _filterCategories = [];
-  final bool _showFilter = false;
   double? _minAmount;
   double? _maxAmount;
   String _filterLocation = '';
@@ -599,6 +598,7 @@ class _BillListPageState extends State<BillListPage> {
 
     if (confirmed == true) {
       await DatabaseService.instance.deleteRecord(recordId);
+      if (!mounted) return;
       context.read<AppProvider>().onRecordDeleted();
       NotificationService.instance.refreshTodaySummary();
       _loadRecords();

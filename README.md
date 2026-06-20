@@ -8,6 +8,7 @@
 
 ### 📊 核心功能
 - **账单管理** - 支持支出/收入记录，分类选择，心情标签，图片附件
+- **AI 对话记账** - 自然语言输入，智能识别分类/金额/备注/日期，支持语音输入
 - **多账本管理** - 创建/切换/删除账本，数据隔离，独立统计
 - **统计分析** - 甜甜圈图分类统计、周趋势图、月度对比、热力日历
 - **年度总结** - 年度收支总览、12 个月趋势柱状图、年度分类 Top 5
@@ -18,7 +19,18 @@
 - **等级系统** - 6级小熊形态变化，经验值累积，自动升级
 - **打卡功能** - 连续记账天数统计，断签重置，已记账自动跳过提醒
 - **主题颜色** - 8 种预设主题色 + 自定义调色盘（HSV 滑块），全应用同步
+- **消费地图** - 地图标注消费位置，足迹可视化
+- **自动记账** - 监听微信/支付宝通知，自动解析并记录
 - **本地存储** - SQLite 数据库，数据安全，离线可用
+
+### 🤖 AI 记账功能
+- **自然语言解析** - 输入"午餐25"自动识别分类、金额、备注、日期
+- **语音输入** - 百度语音识别，按住说话，上滑取消，静音自动停止
+- **首页话筒** - 首页按住话筒直接说话，说完自动进入 AI 对话
+- **智能追问** - 只说"交通"会追问金额，补上后自动记账
+- **多维查询** - 按分类/心情/位置/日期范围查询账单
+- **心情选择** - 确认前可选心情 emoji
+- **GPS 定位** - 自动获取位置，支持地图选点
 
 ### 🎨 UI/UX 特色
 - **主题色系统** - 支持 8 种预设颜色（粉/蓝/绿/橙/黄/红/紫/黑）+ 自定义调色盘
@@ -30,13 +42,6 @@
 
 ## 🚀 快速开始
 
-### 支持平台
-
-| 平台 | 状态 |
-|------|------|
-| 📱 Android | ✅ 已支持 |
-| 🍎 iOS | ✅ 已支持 |
-
 ### 环境要求
 
 - Flutter SDK 3.24.0+
@@ -44,143 +49,61 @@
 - Android SDK (API 21-36)
 - JDK 17+
 - Gradle 8.2+
-- Xcode 15+ (仅 iOS 构建需要)
 
 > 📖 详细环境配置请查看 [docs/CONFIGURATION.md](docs/CONFIGURATION.md)
 
 ### 配置 API 密钥
 
+本项目使用三个第三方 API 服务，所有密钥统一配置在 `lib/config/api_keys.dart` 中：
+
 ```bash
 cp lib/config/api_keys.dart.template lib/config/api_keys.dart
-# 编辑 api_keys.dart，填入你的高德地图 API Key
-# 申请地址: https://lbs.amap.com
+# 编辑 api_keys.dart，填入以下密钥
 ```
+
+| 服务 | 用途 | 申请地址 |
+|------|------|---------|
+| **高德地图** | 地图定位、反向地理编码 | https://console.amap.com/ |
+| **大模型** (GLM/通义/DeepSeek) | AI 智能记账解析 | 见 api_keys.dart.template |
+| **百度语音** | 语音输入识别 | https://console.bce.baidu.com/ |
 
 > 📖 详见 [docs/CONFIGURATION.md](docs/CONFIGURATION.md#api-密钥配置)
 
 ### 构建应用
 
-#### Android APK
-
 ```bash
-# Windows
-./build-apk.cmd
-
-# 或手动执行
 flutter build apk --release
 ```
 
-> ⚠️ **注意**: 如果 Windows 用户名包含中文，需要先配置环境变量。详见 [docs/CONFIGURATION.md](docs/CONFIGURATION.md#中文路径问题)
+APK 输出位置：`build/app/outputs/flutter-apk/app-release.apk`
 
-#### iOS IPA
-
-> ⚠️ **iOS 构建必须在 macOS 环境下进行**，Windows/Linux 无法本地构建 iOS。如需 iOS 安装包，请通过 GitHub Actions 自动构建（推送 tag 后自动生成未签名 IPA）。
-
-```bash
-# macOS 环境下构建未签名 IPA
-flutter build ios --release --no-codesign
-
-# 使用 AltStore 或 Sideloadly 签名后安装到设备
-```
-
-> 📖 iOS 应用需要签名后才能安装到设备。详见 [docs/CONFIGURATION.md](docs/CONFIGURATION.md#ios-签名)
+> ⚠️ Windows 用户名包含中文时需先配置环境变量。详见 [docs/CONFIGURATION.md](docs/CONFIGURATION.md#中文路径问题)
 
 ### 运行调试
 
 ```bash
-# 获取依赖
 flutter pub get
-
-# 运行到设备/模拟器
 flutter run
 ```
-
-### GitHub Actions 自动构建
-
-本项目使用 GitHub Actions 实现自动化构建：
-
-- ✅ **自动触发**：推送到 `main` 分支或创建 `v*` tag 时自动构建
-- ✅ **并行构建**：Android 和 iOS 同时构建，节省时间
-- ✅ **自动发布**：推送 tag 时自动创建 Release 页面（含 APK 和未签名 IPA）
-
-#### 使用方法
-
-1. **查看构建状态**：在 GitHub 仓库页面点击 **Actions** 标签
-2. **发布新版本**：
-   ```bash
-   git tag v*.*.*
-   git push origin v*.*.*
-   ```
-
-#### 开关控制
-
-如需**临时禁用** Actions 自动构建（例如本地构建 APK、不想触发 CI），将 workflow 文件重命名即可：
-
-```bash
-# 禁用
-mv .github/workflows/build.yml .github/workflows/build.yml.bak
-
-# 恢复
-mv .github/workflows/build.yml.bak .github/workflows/build.yml
-```
-
-> ⚠️ 重命名后需提交并推送才会生效。`.bak` 后缀的文件不会被 GitHub Actions 识别为 workflow。
 
 ## 📚 文档导航
 
 | 文档 | 说明 |
 |------|------|
-| [📖 完整配置指南](docs/CONFIGURATION.md) | 环境配置、依赖路径、构建详解 |
+| [📖 完整配置指南](docs/CONFIGURATION.md) | 环境配置、API 密钥、依赖路径、构建详解 |
 | [🔧 维护指南](docs/MAINTENANCE.md) | 缓存管理、清理命令、常见问题 |
 | [📍 依赖路径速查](docs/DEPENDENCIES_PATH.md) | 所有外部依赖的详细路径和引用位置 |
 
 ## 🛠️ 技术栈
 
-- **框架**: [Flutter](https://flutter.dev) 3.24.0 / [Dart](https://dart.dev) 3.5.0
-- **状态管理**: [Provider](https://pub.dev/packages/provider) ^6.1.1
-- **本地数据库**: [sqflite](https://pub.dev/packages/sqflite) ^2.3.0
-- **图表组件**: [fl_chart](https://pub.dev/packages/fl_chart) ^0.66.0
-- **UI 组件**: 
-  - [flutter_slidable](https://pub.dev/packages/flutter_slidable) ^3.0.1 - 滑动删除
-  - [share_plus](https://pub.dev/packages/share_plus) ^7.2.1 - 分享功能
-  - [path_provider](https://pub.dev/packages/path_provider) ^2.1.3 - 路径提供者
-  - [uuid](https://pub.dev/packages/uuid) ^4.2.1 - UUID 生成
-  - [intl](https://pub.dev/packages/intl) ^0.18.1 - 国际化/日期格式化
-
-## 📦 主要依赖
-
-```yaml
-dependencies:
-  # 核心框架
-  flutter:
-    sdk: flutter
-  
-  # 本地存储
-  sqflite: ^2.3.0              # SQLite 数据库
-  path: ^1.8.3                 # 路径处理
-  path_provider: ^2.1.3        # 路径提供者
-  
-  # 状态管理
-  provider: ^6.1.1             # 状态管理
-  
-  # UI 组件
-  fl_chart: ^0.66.0            # 图表库
-  flutter_slidable: ^3.0.1     # 滑动组件
-  share_plus: ^7.2.1           # 分享功能
-  intl: ^0.18.1                # 国际化/日期格式化
-  
-  # 工具类
-  uuid: ^4.2.1                 # UUID 生成
-  collection: ^1.18.0          # 集合工具
-```
-
-> 📍 所有依赖的详细说明和路径请参考 [docs/DEPENDENCIES_PATH.md](docs/DEPENDENCIES_PATH.md)
-
-## 🔗 相关链接
-
-- [Flutter 官方文档](https://flutter.dev/docs)
-- [Dart 语言指南](https://dart.dev/guides)
-- [Android 开发文档](https://developer.android.com/docs)
+- **框架**: Flutter 3.24.0 / Dart 3.5.0
+- **状态管理**: Provider ^6.1.1
+- **本地数据库**: sqflite ^2.3.0
+- **图表组件**: fl_chart ^0.66.0
+- **地图**: flutter_map + latlong2
+- **AI 大模型**: GLM-4-Flash（可切换通义/DeepSeek）
+- **语音识别**: 百度语音 REST API + Android 原生 AudioRecord
+- **定位**: geolocator + 高德地图
 
 ## 📄 许可证
 

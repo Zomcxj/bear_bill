@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../models/category_model.dart';
 import '../../../theme/app_theme.dart';
 
 /// 聊天消息类型
@@ -27,12 +28,22 @@ class ChatBubble extends StatelessWidget {
   final ChatMessage message;
   final VoidCallback? onConfirm;
   final VoidCallback? onModify;
+  final MoodModel? selectedMood;
+  final Function(MoodModel?)? onMoodChanged;
+  final String? location;
+  final bool locationLoading;
+  final VoidCallback? onLocationTap;
 
   const ChatBubble({
     super.key,
     required this.message,
     this.onConfirm,
     this.onModify,
+    this.selectedMood,
+    this.onMoodChanged,
+    this.location,
+    this.locationLoading = false,
+    this.onLocationTap,
   });
 
   @override
@@ -76,7 +87,7 @@ class ChatBubble extends StatelessWidget {
         color: AppTheme.info.withOpacity(0.2),
         borderRadius: BorderRadius.circular(18),
       ),
-      child: Center(
+      child: const Center(
         child: Icon(Icons.person, size: 20, color: AppTheme.info),
       ),
     );
@@ -132,6 +143,7 @@ class ChatBubble extends StatelessWidget {
     final categoryName = data['categoryName'] as String? ?? '';
     final categoryIcon = data['categoryIcon'] as String? ?? '';
     final remark = data['remark'] as String?;
+    final dateStr = data['date'] as String?;
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -173,6 +185,13 @@ class ChatBubble extends StatelessWidget {
           ),
           if (remark != null && remark.isNotEmpty)
             _buildDetailRow('备注', remark),
+          _buildDetailRow('日期', _formatDateLabel(dateStr)),
+          const SizedBox(height: 10),
+          // 心情选择
+          _buildMoodRow(),
+          const SizedBox(height: 8),
+          // 定位信息
+          _buildLocationRow(),
           const SizedBox(height: 12),
           // 按钮
           Row(
@@ -218,15 +237,9 @@ class ChatBubble extends StatelessWidget {
     final totalExpense = data['totalExpense'] as double? ?? 0;
     final totalIncome = data['totalIncome'] as double? ?? 0;
     final count = data['count'] as int? ?? 0;
-    final period = data['period'] as String? ?? '';
+    final periodLabel = data['period'] as String? ?? '';
+    final filterDesc = data['filterDesc'] as String? ?? '';
     final categoryBreakdown = data['categoryBreakdown'] as Map<String, dynamic>?;
-
-    final periodLabel = {
-      'today': '今日',
-      'week': '本周',
-      'month': '本月',
-      'year': '今年',
-    }[period] ?? period;
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -244,7 +257,7 @@ class ChatBubble extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '$periodLabel账单汇总',
+            '${periodLabel}账单汇总${filterDesc.isNotEmpty ? ' · $filterDesc' : ''}',
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w600,
@@ -303,6 +316,93 @@ class ChatBubble extends StatelessWidget {
     );
   }
 
+  Widget _buildMoodRow() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        children: [
+          Text(
+            '心情',
+            style: TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+          ),
+          const SizedBox(width: 8),
+          ...moods.map((mood) {
+            final isSelected = selectedMood?.id == mood.id;
+            return GestureDetector(
+              onTap: () {
+                if (onMoodChanged == null) return;
+                onMoodChanged!(isSelected ? null : mood);
+              },
+              child: Container(
+                margin: const EdgeInsets.only(right: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: isSelected ? AppTheme.primaryLight : AppTheme.bgPage,
+                  borderRadius: BorderRadius.circular(AppRadius.full),
+                  border: Border.all(
+                    color: isSelected ? AppTheme.primary : AppTheme.border,
+                    width: isSelected ? 1.5 : 1,
+                  ),
+                ),
+                child: Text(
+                  '${mood.emoji}${isSelected ? " ${mood.label}" : ""}',
+                  style: TextStyle(fontSize: isSelected ? 12 : 16),
+                ),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLocationRow() {
+    final hasLocation = location != null && location!.isNotEmpty;
+    return GestureDetector(
+      onTap: onLocationTap,
+      child: Row(
+        children: [
+          Icon(Icons.location_on, size: 14, color: AppTheme.textSecondary),
+          const SizedBox(width: 4),
+          Expanded(
+            child: locationLoading
+                ? Row(
+                    children: [
+                      SizedBox(
+                        width: 12,
+                        height: 12,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 1.5,
+                          color: AppTheme.textHint,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        '定位中...',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppTheme.textHint,
+                        ),
+                      ),
+                    ],
+                  )
+                : Text(
+                    hasLocation ? location! : '点击获取位置',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: hasLocation
+                          ? AppTheme.textSecondary
+                          : AppTheme.textHint,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildDetailRow(String label, String value, {Color? valueColor}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
@@ -324,5 +424,23 @@ class ChatBubble extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _formatDateLabel(String? dateStr) {
+    if (dateStr == null || dateStr.length != 10) {
+      final now = DateTime.now();
+      return '${now.month}月${now.day}日';
+    }
+    try {
+      final date = DateTime.parse(dateStr);
+      final now = DateTime.now();
+      // 同年省略年份
+      if (date.year == now.year) {
+        return '${date.month}月${date.day}日';
+      }
+      return '${date.year}年${date.month}月${date.day}日';
+    } catch (_) {
+      return dateStr;
+    }
   }
 }

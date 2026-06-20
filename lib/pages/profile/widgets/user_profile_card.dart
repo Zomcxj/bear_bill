@@ -426,6 +426,7 @@ class UserProfileCard extends StatelessWidget {
         ),
       ),
     ).then((_) {
+      if (!context.mounted) return;
       context.read<AppProvider>().clearNewAchievements();
     });
   }

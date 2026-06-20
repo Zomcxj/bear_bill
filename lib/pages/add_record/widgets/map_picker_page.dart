@@ -223,7 +223,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
         }
       }
 
-      // 回退: Android 原生 Geocoder
+      // 回退: Android 原生 Geocoder（返回 WGS84，需转 GCJ-02）
       if (results.isEmpty && Platform.isAndroid) {
         try {
           final List<dynamic>? addresses = await _locationChannel.invokeMethod(
@@ -232,18 +232,21 @@ class _MapPickerPageState extends State<MapPickerPage> {
           );
           if (addresses != null && addresses.isNotEmpty) {
             for (final addr in addresses) {
+              final wgsLat = (addr['latitude'] as num).toDouble();
+              final wgsLon = (addr['longitude'] as num).toDouble();
+              final gcj = AmapLocationService.wgs84ToGcj02(wgsLat, wgsLon);
               results.add({
                 'name': addr['featureName'] ?? addr['addressLine'] ?? query,
                 'address': addr['addressLine'] ?? '',
-                'lat': (addr['latitude'] as num).toDouble(),
-                'lon': (addr['longitude'] as num).toDouble(),
+                'lat': gcj.$1,
+                'lon': gcj.$2,
               });
             }
           }
         } catch (_) {}
       }
 
-      // 回退: Nominatim
+      // 回退: Nominatim（返回 WGS84，需转 GCJ-02）
       if (results.isEmpty) {
         final url = Uri.parse(
           'https://nominatim.openstreetmap.org/search'
@@ -256,11 +259,14 @@ class _MapPickerPageState extends State<MapPickerPage> {
         if (resp.statusCode == 200) {
           final List<dynamic> data = json.decode(resp.body);
           for (final item in data) {
+            final wgsLat = double.tryParse(item['lat']?.toString() ?? '') ?? 0;
+            final wgsLon = double.tryParse(item['lon']?.toString() ?? '') ?? 0;
+            final gcj = AmapLocationService.wgs84ToGcj02(wgsLat, wgsLon);
             results.add({
               'name': item['display_name']?.split(',')?.first ?? query,
               'address': item['display_name'] ?? '',
-              'lat': double.tryParse(item['lat']?.toString() ?? '') ?? 0,
-              'lon': double.tryParse(item['lon']?.toString() ?? '') ?? 0,
+              'lat': gcj.$1,
+              'lon': gcj.$2,
             });
           }
         }
@@ -346,7 +352,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
             children: [
               TileLayer(
                 urlTemplate: 'https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',
-                subdomains: ['1', '2', '3', '4'],
+                subdomains: const ['1', '2', '3', '4'],
                 userAgentPackageName: 'com.bearbill.bear_bill',
                 maxZoom: 18,
               ),
@@ -389,7 +395,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                   Icons.location_on,
                   color: AppTheme.primary,
                   size: 40,
-                  shadows: [
+                  shadows: const [
                     Shadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
                   ],
                 ),
@@ -645,13 +651,13 @@ class _MapPickerPageState extends State<MapPickerPage> {
               child: Center(
                 child: Card(
                   child: Padding(
-                    padding: EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(20),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         CircularProgressIndicator(color: AppTheme.primary),
-                        SizedBox(height: 12),
-                        Text('正在定位...', style: TextStyle(fontSize: 14)),
+                        const SizedBox(height: 12),
+                        const Text('正在定位...', style: TextStyle(fontSize: 14)),
                       ],
                     ),
                   ),

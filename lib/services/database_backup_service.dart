@@ -24,10 +24,12 @@ class DatabaseBackupService {
       final dbFile = File(dbPath);
 
       if (!await dbFile.exists()) {
+        if (!context.mounted) return false;
         _showSnackBar(context, '数据库文件不存在', isError: true);
         return false;
       }
 
+      if (!context.mounted) return false;
       _showSnackBar(context, '正在打包数据...');
 
       // 创建临时目录
@@ -133,9 +135,11 @@ class DatabaseBackupService {
 
       if (targetPath == null || targetPath.isEmpty) return false;
 
+      if (!context.mounted) return false;
       _showSnackBar(context, '备份成功！\n文件位置：$targetPath');
       return true;
     } catch (e) {
+      if (!context.mounted) return false;
       _showSnackBar(context, '备份失败：$e', isError: true);
       return false;
     }
@@ -145,6 +149,7 @@ class DatabaseBackupService {
   Future<bool> importDatabase(BuildContext context) async {
     try {
       final sourcePath = await _pickImportFile();
+      if (!context.mounted) return false;
       if (sourcePath == null || sourcePath.isEmpty) {
         _showSnackBar(context, '未选择文件', isError: true);
         return false;
@@ -152,10 +157,12 @@ class DatabaseBackupService {
 
       final sourceFile = File(sourcePath);
       if (!await sourceFile.exists()) {
+        if (!context.mounted) return false;
         _showSnackBar(context, '所选文件不存在', isError: true);
         return false;
       }
 
+      if (!context.mounted) return false;
       final fileName = path.basename(sourcePath).toLowerCase();
       final isZip = fileName.endsWith('.zip');
       final isDb = fileName.endsWith('.db') ||
@@ -175,6 +182,7 @@ class DatabaseBackupService {
       // 新版 .zip 文件完整导入
       return await _importZip(context, sourceFile);
     } catch (e) {
+      if (!context.mounted) return false;
       _showSnackBar(context, '导入失败：${e.toString()}', isError: true);
       return false;
     }
@@ -183,11 +191,13 @@ class DatabaseBackupService {
   /// 导入旧版 .db 文件（兼容）
   Future<bool> _importLegacyDb(BuildContext context, File sourceFile) async {
     final fileSize = await sourceFile.length();
+    if (!context.mounted) return false;
     if (fileSize == 0) {
       _showSnackBar(context, '所选文件为空', isError: true);
       return false;
     }
 
+    if (!context.mounted) return false;
     final confirmed = await _confirmImport(context, sourceFile, isLegacy: true);
     if (confirmed != true) return false;
 
@@ -208,6 +218,7 @@ class DatabaseBackupService {
     await dbFile.writeAsBytes(await sourceFile.readAsBytes(), flush: true);
     DatabaseService.instance.resetConnection();
 
+    if (!context.mounted) return true;
     _showSnackBar(context, '导入成功！请重启应用以生效。', duration: const Duration(seconds: 3));
     return true;
   }
@@ -345,12 +356,14 @@ class DatabaseBackupService {
       await extractDir.delete(recursive: true);
     } catch (_) {}
 
+    if (!context.mounted) return true;
     _showSnackBar(context, '导入成功！请重启应用以生效。', duration: const Duration(seconds: 3));
     return true;
   }
 
   Future<bool?> _confirmImport(BuildContext context, File file, {bool isLegacy = false}) async {
     final fileSize = await file.length();
+    if (!context.mounted) return null;
     final fileName = path.basename(file.path);
     final desc = isLegacy ? '导入数据库将覆盖当前所有数据' : '导入将恢复数据库、图片和头像数据';
 

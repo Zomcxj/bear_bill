@@ -14,7 +14,11 @@ import androidx.work.WorkManager
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import android.media.AudioFormat
+import android.media.AudioRecord
+import android.media.MediaRecorder
 import java.io.File
+import java.io.FileOutputStream
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
@@ -301,6 +305,161 @@ class MainActivity : FlutterFragmentActivity() {
                         result.success(true)
                     } catch (e: Exception) {
                         result.error("open_failed", e.message, null)
+                    }
+                }
+
+                // 读取自动记账开关状态（与 NotificationListenerServiceImpl 使用相同 prefs 文件）
+                "getAutoRecordEnabled" -> {
+                    val prefs = getSharedPreferences("auto_record_prefs", MODE_PRIVATE)
+                    result.success(prefs.getBoolean("enabled", false))
+                }
+
+                // 设置自动记账开关状态
+                "setAutoRecordEnabled" -> {
+                    val enabled = call.argument<Boolean>("enabled") ?: false
+                    val prefs = getSharedPreferences("auto_record_prefs", MODE_PRIVATE)
+                    prefs.edit().putBoolean("enabled", enabled).apply()
+                    result.success(true)
+                }
+
+                // 读取并清除待处理的通知（Flutter 轮询调用）
+                "pollPendingNotification" -> {
+                    val prefs = getSharedPreferences("auto_record_prefs", MODE_PRIVATE)
+                    val jsonStr = prefs.getString("pending_notification", null)
+                    if (jsonStr != null) {
+                        prefs.edit().remove("pending_notification").apply()
+                        result.success(jsonStr)
+                    } else {
+                        result.success(null)
+                    }
+                }
+
+                else -> result.notImplemented()
+            }
+        }
+
+        // 语音录音 MethodChannel（使用 Android 原生 AudioRecord 录制 PCM，支持静音自动停止）
+        var audioRecord: AudioRecord? = null
+        var recordingThread: Thread? = null
+        var isRecording = false
+        var recordingFilePath: String? = null
+        var autoStoppedBySilence = false
+        val speechChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "bear_bill/speech")
+
+        speechChannel.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "startRecording" -> {
+                    try {
+                        val sampleRate = 16000
+                        val channelConfig = AudioFormat.CHANNEL_IN_MONO
+                        val audioFormat = AudioFormat.ENCODING_PCM_16BIT
+                        val bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)
+
+                        audioRecord = AudioRecord(
+                            MediaRecorder.AudioSource.MIC,
+                            sampleRate,
+                            channelConfig,
+                            audioFormat,
+                            bufferSize * 2
+                        )
+
+                        if (audioRecord?.state != AudioRecord.STATE_INITIALIZED) {
+                            result.error("init_failed", "AudioRecord 初始化失败", null)
+                            return@setMethodCallHandler
+                        }
+
+                        val tempFile = File(cacheDir, "speech_${System.currentTimeMillis()}.pcm")
+                        recordingFilePath = tempFile.absolutePath
+                        isRecording = true
+                        autoStoppedBySilence = false
+
+                        audioRecord?.startRecording()
+
+                        // 后台线程写入 PCM 数据 + 静音检测
+                        recordingThread = Thread {
+                            val buffer = ByteArray(bufferSize)
+                            val outputStream = FileOutputStream(tempFile)
+                            var silenceStart = 0L
+                            val silenceThreshold = 500  // PCM 16-bit 振幅阈值
+                            val silenceTimeout = 2000L  // 静音 2 秒自动停止
+                            var hasVoice = false  // 是否检测到过语音
+
+                            try {
+                                while (isRecording) {
+                                    val read = audioRecord?.read(buffer, 0, buffer.size) ?: 0
+                                    if (read > 0) {
+                                        outputStream.write(buffer, 0, read)
+
+                                        // 计算振幅
+                                        var sum = 0
+                                        for (i in 0 until read step 2) {
+                                            val sample = (buffer[i].toInt() and 0xFF) or (buffer[i + 1].toInt() shl 8)
+                                            sum += kotlin.math.abs(sample.toShort().toInt())
+                                        }
+                                        val avgAmplitude = if (read > 1) sum / (read / 2) else 0
+
+                                        if (avgAmplitude > silenceThreshold) {
+                                            silenceStart = 0
+                                            hasVoice = true
+                                        } else if (hasVoice) {
+                                            // 检测到语音后才开始计算静音
+                                            if (silenceStart == 0L) {
+                                                silenceStart = System.currentTimeMillis()
+                                            } else if (System.currentTimeMillis() - silenceStart > silenceTimeout) {
+                                                // 静音超时，自动停止
+                                                autoStoppedBySilence = true
+                                                isRecording = false
+                                            }
+                                        }
+                                    }
+                                }
+                            } catch (_: Exception) {
+                            } finally {
+                                outputStream.close()
+                            }
+                        }
+                        recordingThread?.start()
+
+                        result.success(true)
+                    } catch (e: Exception) {
+                        result.error("start_failed", e.message, null)
+                    }
+                }
+
+                "stopRecording" -> {
+                    try {
+                        isRecording = false
+                        Thread.sleep(200)
+                        audioRecord?.stop()
+                        audioRecord?.release()
+                        audioRecord = null
+                        recordingThread = null
+                        val response = mapOf(
+                            "path" to recordingFilePath,
+                            "autoStopped" to autoStoppedBySilence
+                        )
+                        result.success(response)
+                    } catch (e: Exception) {
+                        result.error("stop_failed", e.message, null)
+                    }
+                }
+
+                "isRecording" -> {
+                    result.success(isRecording)
+                }
+
+                "cancelRecording" -> {
+                    try {
+                        isRecording = false
+                        audioRecord?.stop()
+                        audioRecord?.release()
+                        audioRecord = null
+                        recordingThread = null
+                        recordingFilePath?.let { File(it).delete() }
+                        recordingFilePath = null
+                        result.success(true)
+                    } catch (e: Exception) {
+                        result.error("cancel_failed", e.message, null)
                     }
                 }
 

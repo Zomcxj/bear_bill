@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -241,7 +240,7 @@ class NotificationService {
 
     await _notifications.show(
       888,
-      '📊 ${monthLabel}财务简报',
+      '📊 $monthLabel财务简报',
       content,
       const NotificationDetails(
         android: AndroidNotificationDetails(

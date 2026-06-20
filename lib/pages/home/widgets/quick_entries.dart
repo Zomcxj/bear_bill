@@ -15,77 +15,77 @@ class QuickEntries extends StatelessWidget {
       'id': '__ai__',
       'icon': '🤖',
       'label': 'AI记账',
-      'color': Color(0xFF74B9FF),
+      'color': const Color(0xFF74B9FF),
       'type': '__ai__',
     },
     {
       'id': 'food',
       'icon': '🍜',
       'label': '餐饮',
-      'color': AppTheme.primaryLight,
+      'color': const Color(0xFFFFD6E0),
       'type': 'expense'
     },
     {
       'id': 'transport',
       'icon': '🚗',
       'label': '交通',
-      'color': Color(0xFFB2F2BB),
+      'color': const Color(0xFFB2F2BB),
       'type': 'expense'
     },
     {
       'id': 'shopping',
       'icon': '🛍️',
       'label': '购物',
-      'color': Color(0xFFA5D8FF),
+      'color': const Color(0xFFA5D8FF),
       'type': 'expense'
     },
     {
       'id': 'milk_tea',
       'icon': '🧋',
       'label': '奶茶',
-      'color': Color(0xFFFFE066),
+      'color': const Color(0xFFFFE066),
       'type': 'expense'
     },
     {
       'id': 'snack',
       'icon': '🍿',
       'label': '零食',
-      'color': Color(0xFFFFD8A8),
+      'color': const Color(0xFFFFD8A8),
       'type': 'expense'
     },
     {
       'id': 'housing',
       'icon': '🏠',
       'label': '居住',
-      'color': Color(0xFFE5DBFF),
+      'color': const Color(0xFFE5DBFF),
       'type': 'expense'
     },
     {
       'id': 'entertainment',
       'icon': '🎮',
       'label': '娱乐',
-      'color': Color(0xFFD0BFFF),
+      'color': const Color(0xFFD0BFFF),
       'type': 'expense'
     },
     {
       'id': 'salary',
       'icon': '💰',
       'label': '工资',
-      'color': Color(0xFFB2F2BB),
+      'color': const Color(0xFFB2F2BB),
       'type': 'income'
     },
     {
       'id': 'bonus',
       'icon': '🎁',
       'label': '奖金',
-      'color': Color(0xFFFFE066),
+      'color': const Color(0xFFFFE066),
       'type': 'income'
     },
     {
       'id': 'transfer',
       'icon': '💸',
       'label': '转账',
-      'color': Color(0xFFFFC9A9),
+      'color': const Color(0xFFFFC9A9),
       'type': 'income'
     },
   ];

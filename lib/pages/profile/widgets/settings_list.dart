@@ -34,6 +34,18 @@ class SettingsList extends StatelessWidget {
           ),
           _buildDivider(),
           _buildMenuItem(
+            emoji: '🗺️',
+            title: '消费地图',
+            trailing: '足迹',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const MapFootprintPage()),
+              );
+            },
+          ),
+          _buildDivider(),
+          _buildMenuItem(
             emoji: '🤖',
             title: '自动记账',
             trailing: '微信/支付宝',
@@ -72,18 +84,6 @@ class SettingsList extends StatelessWidget {
           ),
           _buildDivider(),
           _buildMenuItem(
-            emoji: '🗺️',
-            title: '消费地图',
-            trailing: '足迹',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const MapFootprintPage()),
-              );
-            },
-          ),
-          _buildDivider(),
-          _buildMenuItem(
             emoji: '📖',
             title: '使用帮助',
             onTap: () => showHelpDialog(context),
@@ -92,12 +92,12 @@ class SettingsList extends StatelessWidget {
           _buildMenuItem(
             emoji: 'ℹ️',
             title: '关于',
-            trailing: 'v1.2.1',
+            trailing: 'v1.3.0',
             onTap: () {
               showAboutDialog(
                 context: context,
                 applicationName: '小熊记账本',
-                applicationVersion: 'v1.2.1',
+                applicationVersion: 'v1.3.0',
                 applicationIcon:
                     const Text('🐻', style: TextStyle(fontSize: 48)),
                 children: [
