@@ -1,8 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
-import '../../../theme/app_theme.dart';
+import '../../../theme/app_design_system.dart';
 
-/// 自定义数字键盘
+/// 自定义数字键盘 — Luminous Finance 风格
 class CustomKeyboard extends StatelessWidget {
   final Function(String) onKeyTap;
 
@@ -17,29 +17,33 @@ class CustomKeyboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
     return Container(
+      padding: EdgeInsets.fromLTRB(DS.xs, DS.xs, DS.xs, bottomPadding + DS.xs),
       decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
+        color: DS.surfaceContainerLow.withOpacity(0.95),
+        border: Border(
+          top: BorderSide(color: DS.outlineVariant, width: 0.5),
+        ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: _keys.map((row) {
-          return Row(
-            children: row.map((key) {
-              return Expanded(
-                child: _KeyButton(
-                  label: key,
-                  onTap: () => onKeyTap(key),
-                ),
-              );
-            }).toList(),
+          return Padding(
+            padding: EdgeInsets.only(bottom: 3),
+            child: Row(
+              children: row.map((key) {
+                return Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: DS.xs / 2),
+                    child: _KeyButton(
+                      label: key,
+                      onTap: () => onKeyTap(key),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
           );
         }).toList(),
       ),
@@ -58,40 +62,56 @@ class _KeyButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isAction = label == '⌫' || label == '备注' || label == '完成';
+    final isBackspace = label == '⌫';
+    final isNote = label == '备注';
     final isComplete = label == '完成';
-    
+    final isAction = isBackspace || isNote;
+
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        height: 60,
-        margin: const EdgeInsets.all(2),
+        height: 44,
         decoration: BoxDecoration(
-          color: isComplete 
-              ? AppTheme.primary 
-              : isAction 
-                  ? AppTheme.bgSection 
-                  : AppTheme.bgCard,
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-          border: Border.all(
-            color: AppTheme.border,
-            width: 1,
-          ),
+          color: isComplete
+              ? DS.primary
+              : isAction
+                  ? DS.surfaceContainerHigh
+                  : DS.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(isComplete ? DS.radiusFull : DS.radiusSm),
+          border: isComplete
+              ? null
+              : Border.all(color: DS.outlineVariant, width: 0.5),
+          boxShadow: isComplete ? DS.shadowSm : null,
         ),
         child: Center(
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: isAction ? 16 : 22,
-              fontWeight: FontWeight.w600,
-              color: isComplete 
-                  ? Colors.white 
-                  : isAction 
-                      ? AppTheme.textSecondary 
-                      : AppTheme.textPrimary,
-            ),
-          ),
+          child: isComplete
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.check, size: 18, color: DS.onPrimary),
+                    SizedBox(width: DS.xs),
+                    Text(
+                      '完成',
+                      style: TextStyle(
+                        fontFamily: DS.fontLabel,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: DS.onPrimary,
+                      ),
+                    ),
+                  ],
+                )
+              : Text(
+                  label,
+                  style: TextStyle(
+                    fontFamily: isAction ? DS.fontLabel : DS.fontDisplay,
+                    fontSize: isAction ? 14 : 22,
+                    fontWeight: isAction ? FontWeight.w600 : FontWeight.w500,
+                    color: isBackspace ? DS.error : isNote ? DS.secondary : DS.onSurface,
+                  ),
+                ),
         ),
       ),
     );

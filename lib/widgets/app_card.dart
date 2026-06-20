@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
+import '../theme/app_design_system.dart';
 
-/// 通用卡片容器 - 统一圆角、边框、阴影样式
+/// 通用卡片容器 - 毛玻璃风格
 class AppCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? margin;
@@ -12,17 +12,17 @@ class AppCard extends StatelessWidget {
   final bool showShadow;
   final VoidCallback? onTap;
 
-  const AppCard({
+  AppCard({
     super.key,
     required this.child,
     this.margin,
-    this.padding = const EdgeInsets.all(AppSpacing.md),
-    this.borderRadius = AppRadius.lg,
+    EdgeInsetsGeometry? padding,
+    this.borderRadius = DS.radiusMd,
     this.color,
     this.showBorder = true,
     this.showShadow = true,
     this.onTap,
-  });
+  }) : padding = padding ?? const EdgeInsets.all(16);
 
   @override
   Widget build(BuildContext context) {
@@ -30,10 +30,12 @@ class AppCard extends StatelessWidget {
       margin: margin,
       padding: padding,
       decoration: BoxDecoration(
-        color: color ?? AppTheme.bgCard,
+        color: color ?? Colors.white.withOpacity(0.7),
         borderRadius: BorderRadius.circular(borderRadius),
-        border: showBorder ? Border.all(color: AppTheme.border, width: 1) : null,
-        boxShadow: showShadow ? AppShadow.card : null,
+        border: showBorder
+            ? Border.all(color: Colors.black.withOpacity(0.08))
+            : null,
+        boxShadow: showShadow ? DS.shadowSm : null,
       ),
       child: child,
     );

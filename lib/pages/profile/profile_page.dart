@@ -3,14 +3,14 @@ import 'package:provider/provider.dart';
 
 import '../../main.dart';
 import '../../providers/app_provider.dart';
-import '../../providers/theme_provider.dart';
 import '../../services/database_service.dart';
+import '../../theme/app_design_system.dart';
 import '../../theme/app_theme.dart';
 import 'widgets/achievement_grid.dart';
 import 'widgets/settings_list.dart';
 import 'widgets/user_profile_card.dart';
 
-/// 个人中心页 - 等级系统、连续打卡、成就徽章、账本管理
+/// 个人中心页 — Luminous Finance 风格
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -29,29 +29,22 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _loadStats() async {
     final books = await DatabaseService.instance.getAllBooks();
-
-    setState(() {
-      _totalBooks = books.length;
-    });
+    setState(() => _totalBooks = books.length);
   }
 
   @override
   Widget build(BuildContext context) {
-    context.watch<ThemeProvider>(); // listen to theme changes
     return Scaffold(
-      backgroundColor: AppTheme.bgPage,
-      appBar: AppBar(
-        title: const Text('我的'),
-        backgroundColor: AppTheme.primary,
-      ),
-      body: RefreshIndicator(
+      backgroundColor: DS.background,
+      body: SafeArea(
+        top: false,
+        child: RefreshIndicator(
         onRefresh: _loadStats,
-        color: AppTheme.primary,
+        color: DS.secondaryContainer,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
             children: [
-              // 1. 用户信息卡片
               Consumer<AppProvider>(
                 builder: (context, appProvider, child) {
                   return UserProfileCard(
@@ -64,18 +57,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   );
                 },
               ),
-
-              const SizedBox(height: AppSpacing.sm),
-
-              // 2. 成就徽章
+              SizedBox(height: DS.base),
               const AchievementGrid(),
-
-              const SizedBox(height: AppSpacing.sm),
-
-              // 3. 设置列表
+              SizedBox(height: DS.base),
               SettingsList(onClearData: _clearAllData),
             ],
           ),
+        ),
         ),
       ),
     );
@@ -85,17 +73,23 @@ class _ProfilePageState extends State<ProfilePage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('⚠️ 警告'),
-        content: const Text('确定要清空所有账单数据吗？此操作不可恢复！'),
+        title: Row(
+          children: [
+            Icon(Icons.warning_amber, size: 20, color: DS.error),
+            SizedBox(width: DS.xs),
+            Text('警告'),
+          ],
+        ),
+        content: Text('确定要清空所有账单数据吗？此操作不可恢复！'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+            child: Text('取消'),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text('确认清空',
-                style: TextStyle(color: AppTheme.primaryDark)),
+            style: ElevatedButton.styleFrom(backgroundColor: DS.error),
+            child: Text('确认清空'),
           ),
         ],
       ),
@@ -105,11 +99,9 @@ class _ProfilePageState extends State<ProfilePage> {
     if (confirmed == true) {
       final appProvider = context.read<AppProvider>();
 
-      // 清空当前账本的记录
       await DatabaseService.instance
           .clearRecordsByBook(appProvider.currentBookId);
 
-      // 重新计算所有账本的总记录数
       final allBooks = await DatabaseService.instance.getAllBooks();
       int totalRecords = 0;
       for (final book in allBooks) {
@@ -119,7 +111,6 @@ class _ProfilePageState extends State<ProfilePage> {
         totalRecords += count;
       }
 
-      // 更新用户统计数据
       if (appProvider.user != null) {
         final updatedUser = appProvider.user!.copyWith(
           totalRecords: totalRecords,
@@ -133,7 +124,7 @@ class _ProfilePageState extends State<ProfilePage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('已清空当前账本的账单数据'),
-            backgroundColor: AppTheme.success,
+            backgroundColor: DS.secondary,
           ),
         );
       }

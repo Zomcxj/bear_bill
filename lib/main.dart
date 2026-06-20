@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -12,6 +13,7 @@ import 'services/auto_record_service.dart';
 import 'services/database_service.dart';
 import 'services/notification_service.dart';
 import 'services/storage_service.dart';
+import 'theme/app_design_system.dart';
 import 'theme/app_theme.dart';
 
 // 全局路由观察者（用于页面返回时刷新数据）
@@ -118,7 +120,8 @@ class _BearBillAppState extends State<BearBillApp> {
         ChangeNotifierProvider.value(value: widget.themeProvider),
         ChangeNotifierProvider(create: (_) => AppProvider()),
       ],
-      child: MaterialApp(
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, _) => MaterialApp(
         title: '🐻 小熊记账本',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.currentTheme,
@@ -132,6 +135,7 @@ class _BearBillAppState extends State<BearBillApp> {
         },
         navigatorObservers: [routeObserver], // 注册全局路由观察者
         home: MainTabPage(onFontSizeChanged: _loadFontSize),
+      ),
       ),
     );
   }
@@ -187,38 +191,67 @@ class _MainTabPageState extends State<MainTabPage> {
         index: _currentIndex,
         children: _pages,
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: AppTheme.bgCard,
-          boxShadow: AppShadow.navbar,
-          border: Border(
-            top: BorderSide(color: AppTheme.border, width: 0.5),
+      bottomNavigationBar: ClipRRect(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(DS.radiusMd)),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.85),
+              border: Border(
+                top: BorderSide(color: DS.outlineVariant, width: 0.5),
+              ),
+            ),
+            padding: EdgeInsets.only(bottom: 8, top: 4),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildNavItem(0, Icons.home_rounded, '首页'),
+                _buildNavItem(1, Icons.receipt_long_rounded, '账单'),
+                _buildNavItem(2, Icons.leaderboard_rounded, '统计'),
+                _buildNavItem(3, Icons.track_changes_rounded, '心愿'),
+                _buildNavItem(4, Icons.person_rounded, '我的'),
+              ],
+            ),
           ),
         ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) => setState(() => _currentIndex = index),
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor: AppTheme.primary,
-          unselectedItemColor: AppTheme.textHint,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          selectedFontSize: 11,
-          unselectedFontSize: 11,
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
-          items: const [
-            BottomNavigationBarItem(
-                icon: Icon(Icons.home_rounded, size: 22), label: '首页'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.receipt_long_rounded, size: 22), label: '账单'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.pie_chart_rounded, size: 22), label: '统计'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.auto_awesome_rounded, size: 22), label: '心愿'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.person_rounded, size: 22), label: '我的'),
-          ],
-        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem(int index, IconData icon, String label) {
+    final isActive = _currentIndex == index;
+    return GestureDetector(
+      onTap: () => setState(() => _currentIndex = index),
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        child: isActive
+            ? Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: DS.primary,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: DS.onPrimary, size: 24),
+              )
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, color: DS.outline, size: 24),
+                  SizedBox(height: 2),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontFamily: DS.fontLabel,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: DS.outline,
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }

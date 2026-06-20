@@ -1,5 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
+import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
 import '../../../utils/utils.dart';
 
@@ -23,37 +24,37 @@ class MonthlySummary extends StatelessWidget {
     final lines = _generateSummary();
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppTheme.bgPage,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppTheme.border, width: 2),
+        color: DS.background,
+        borderRadius: BorderRadius.circular(DS.radiusLg),
+        border: Border.all(color: DS.outlineVariant, width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Text('🐻', style: TextStyle(fontSize: 20)),
-              const SizedBox(width: 6),
+              Icon(Icons.auto_awesome, size: 20, color: DS.primary),
+              SizedBox(width: 6),
               Text(
                 '小熊助手报告',
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
-                  color: AppTheme.primaryDark,
+                  color: DS.primaryContainer,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           ...lines.map((line) => Padding(
-                padding: const EdgeInsets.only(bottom: 6),
+                padding: EdgeInsets.only(bottom: 6),
                 child: Text(
                   line,
                   style: TextStyle(
                     fontSize: 13,
-                    color: AppTheme.textPrimary,
+                    color: DS.onSurface,
                     height: 1.5,
                   ),
                 ),

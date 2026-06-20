@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../services/auto_record_service.dart';
+import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
 
 /// 自动记账设置对话框
@@ -81,29 +82,35 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('🤖 自动记账'),
+      title: Row(
+        children: [
+          Icon(Icons.smart_toy, color: DS.primary, size: 24),
+          SizedBox(width: 8),
+          Text('自动记账'),
+        ],
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             '监听微信/支付宝支付通知，自动识别并记录账单',
-            style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+            style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
 
           // 通知监听权限状态
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: _listenerEnabled
                   ? AppTheme.success.withOpacity(0.1)
-                  : AppTheme.primaryDark.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(AppRadius.md),
+                  : DS.primaryContainer.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(DS.radiusSm),
               border: Border.all(
                 color: _listenerEnabled
                     ? AppTheme.success.withOpacity(0.3)
-                    : AppTheme.primaryDark.withOpacity(0.3),
+                    : DS.primaryContainer.withOpacity(0.3),
               ),
             ),
             child: Row(
@@ -111,15 +118,15 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
                 Icon(
                   _listenerEnabled ? Icons.check_circle : Icons.warning,
                   size: 20,
-                  color: _listenerEnabled ? AppTheme.success : AppTheme.primaryDark,
+                  color: _listenerEnabled ? AppTheme.success : DS.primaryContainer,
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     _listenerEnabled ? '通知监听权限已开启' : '需要开启通知读取权限',
                     style: TextStyle(
                       fontSize: 13,
-                      color: _listenerEnabled ? AppTheme.success : AppTheme.primaryDark,
+                      color: _listenerEnabled ? AppTheme.success : DS.primaryContainer,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -131,12 +138,12 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
                           .openNotificationListenerSettings();
                       // 返回后由 didChangeAppLifecycleState 重新检查
                     },
-                    child: const Text('去开启'),
+                    child: Text('去开启'),
                   ),
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
 
           // 自动记账开关
           Row(
@@ -144,57 +151,54 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
             children: [
               Text(
                 '启用自动记账',
-                style: TextStyle(
-                  fontSize: 15,
+                style: DS.bodyMd.copyWith(
                   fontWeight: FontWeight.w500,
-                  color: AppTheme.textPrimary,
+                  color: DS.onSurface,
                 ),
               ),
               Switch(
                 value: _enabled,
                 onChanged: _toggleEnabled,
-                activeColor: AppTheme.primary,
+                activeColor: DS.primary,
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
 
           // 提示
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppTheme.bgPage,
-              borderRadius: BorderRadius.circular(AppRadius.sm),
+              color: DS.background,
+              borderRadius: BorderRadius.circular(DS.radiusXs),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   '支持的应用',
-                  style: TextStyle(
-                    fontSize: 12,
+                  style: DS.labelSm.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.textSecondary,
+                    color: DS.onSurfaceVariant,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   '• 微信支付\n• 支付宝',
-                  style: TextStyle(fontSize: 12, color: AppTheme.textHint),
+                  style: DS.labelSm.copyWith(color: DS.outline),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Text(
                   '识别的内容',
-                  style: TextStyle(
-                    fontSize: 12,
+                  style: DS.labelSm.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.textSecondary,
+                    color: DS.onSurfaceVariant,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   '• 支付成功通知\n• 转账/红包通知',
-                  style: TextStyle(fontSize: 12, color: AppTheme.textHint),
+                  style: DS.labelSm.copyWith(color: DS.outline),
                 ),
               ],
             ),
@@ -204,7 +208,7 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('关闭'),
+          child: Text('关闭'),
         ),
       ],
     );

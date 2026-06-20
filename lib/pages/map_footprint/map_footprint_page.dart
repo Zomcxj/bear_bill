@@ -10,6 +10,7 @@ import '../../services/amap_location_service.dart';
 import '../../models/models.dart';
 import '../../providers/app_provider.dart';
 import '../../services/database_service.dart';
+import '../../theme/app_design_system.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/utils.dart' as utils;
 import 'widgets/category_filter_bar.dart';
@@ -130,9 +131,9 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.bgPage,
+      backgroundColor: DS.background,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           '消费地图',
           style: TextStyle(
             fontSize: 18,
@@ -140,7 +141,7 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
             color: Colors.white,
           ),
         ),
-        backgroundColor: AppTheme.primary,
+        backgroundColor: DS.primary,
         elevation: 0,
       ),
       body: _isLoading
@@ -182,8 +183,8 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: isSingle
-                                      ? AppTheme.primary
-                                      : AppTheme.primaryDark,
+                                      ? DS.primary
+                                      : DS.primaryContainer,
                                   shape: BoxShape.circle,
                                   border: Border.all(
                                     color: Colors.white,
@@ -201,11 +202,11 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
                                   child: isSingle
                                       ? Text(
                                           cluster.records.first.categoryIcon,
-                                          style: const TextStyle(fontSize: 18),
+                                          style: TextStyle(fontSize: 18),
                                         )
                                       : Text(
                                           '${cluster.records.length}',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 14,
                                             fontWeight: FontWeight.bold,
@@ -241,8 +242,8 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
         MediaQuery.of(context).padding.bottom + 12,
       ),
       decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        border: Border(top: BorderSide(color: AppTheme.divider)),
+        color: DS.surfaceContainerLowest,
+        border: Border(top: BorderSide(color: DS.outlineVariant)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -264,13 +265,13 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: AppTheme.primaryDark,
+            color: DS.primaryContainer,
           ),
         ),
-        const SizedBox(height: 2),
+        SizedBox(height: 2),
         Text(
           label,
-          style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+          style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
         ),
       ],
     );
@@ -304,49 +305,47 @@ class _ClusterDetailSheet extends StatelessWidget {
         maxHeight: MediaQuery.of(context).size.height * 0.6,
       ),
       decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        color: DS.surfaceContainerLowest,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           // 拖拽指示器
           Container(
-            margin: const EdgeInsets.only(top: 8),
+            margin: EdgeInsets.only(top: 8),
             width: 36,
             height: 4,
             decoration: BoxDecoration(
-              color: AppTheme.textHint.withOpacity(0.3),
+              color: DS.outline.withOpacity(0.3),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             child: Row(
               children: [
-                Icon(Icons.place, color: AppTheme.primary, size: 20),
-                const SizedBox(width: 8),
+                Icon(Icons.place, color: DS.primary, size: 20),
+                SizedBox(width: 8),
                 Text(
                   '${cluster.records.length} 条记录',
-                  style: TextStyle(
-                    fontSize: 16,
+                  style: DS.bodyMd.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.textPrimary,
+                    color: DS.onSurface,
                   ),
                 ),
-                const Spacer(),
+                Spacer(),
                 Text(
                   '¥${cluster.records.fold<double>(0, (s, r) => s + r.amount).toStringAsFixed(2)}',
-                  style: TextStyle(
-                    fontSize: 16,
+                  style: DS.bodyMd.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryDark,
+                    color: DS.primaryContainer,
                   ),
                 ),
               ],
             ),
           ),
-          Divider(height: 1, color: AppTheme.divider),
+          Divider(height: 1, color: DS.outlineVariant),
           Flexible(
             child: ListView.builder(
               shrinkWrap: true,
@@ -358,33 +357,27 @@ class _ClusterDetailSheet extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryLight,
-                      borderRadius: BorderRadius.circular(10),
+                      color: DS.surfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(DS.radiusXs),
                     ),
                     child: Center(
-                      child: Text(r.categoryIcon, style: const TextStyle(fontSize: 20)),
+                      child: Text(r.categoryIcon, style: TextStyle(fontSize: 20)),
                     ),
                   ),
                   title: Text(
                     r.categoryName,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: AppTheme.textPrimary,
-                    ),
+                    style: DS.labelMd.copyWith(color: DS.onSurface),
                   ),
                   subtitle: Text(
                     '${r.date}${r.remark != null && r.remark!.isNotEmpty ? ' · ${r.remark}' : ''}',
-                    style: TextStyle(fontSize: 12, color: AppTheme.textHint),
+                    style: DS.labelSm.copyWith(color: DS.outline),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   trailing: Text(
                     '${r.type == 'expense' ? '-' : '+'}¥${r.amount.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: r.type == 'expense' ? AppTheme.primaryDark : AppTheme.success,
+                    style: DS.labelMd.copyWith(
+                      color: r.type == 'expense' ? DS.primaryContainer : AppTheme.success,
                     ),
                   ),
                 );

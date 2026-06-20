@@ -1,5 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
+import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
 import '../../../utils/utils.dart' as utils;
 
@@ -25,10 +26,10 @@ class MonthSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 12),
+      padding: EdgeInsets.symmetric(horizontal: DS.base, vertical: 12),
       decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        border: Border(bottom: BorderSide(color: AppTheme.border)),
+        color: DS.surfaceContainerLowest,
+        border: Border(bottom: BorderSide(color: DS.outlineVariant)),
       ),
       child: Row(
         children: [
@@ -39,15 +40,15 @@ class MonthSelector extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: AppTheme.bgSection,
-                borderRadius: BorderRadius.circular(AppRadius.full),
+                color: DS.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(DS.radiusFull),
               ),
-              child: Icon(Icons.chevron_left, color: AppTheme.textSecondary),
+              child: Icon(Icons.chevron_left, color: DS.onSurfaceVariant),
             ),
           ),
-          
-          const SizedBox(width: AppSpacing.sm),
-          
+
+          SizedBox(width: DS.base),
+
           // 月份和统计信息
           Expanded(
             child: Column(
@@ -62,36 +63,33 @@ class MonthSelector extends StatelessWidget {
                     children: [
                       Text(
                         utils.DateUtils.formatMonthCN(currentMonth),
-                        style: TextStyle(
-                          fontSize: 16,
+                        style: DS.bodyMd.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: AppTheme.textPrimary,
+                          color: DS.onSurface,
                         ),
                       ),
                       if (onMonthPicked != null)
-                        Icon(Icons.unfold_more, size: 18, color: AppTheme.textHint),
+                        Icon(Icons.unfold_more, size: 18, color: DS.outline),
                     ],
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       '支 ¥${utils.FormatUtils.formatAmount(totalExpense)}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.primaryDark,
+                      style: DS.labelSm.copyWith(
+                        color: DS.primaryContainer,
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Text('|', style: TextStyle(color: AppTheme.textHint)),
+                      padding: EdgeInsets.symmetric(horizontal: 8),
+                      child: Text('|', style: TextStyle(color: DS.outline)),
                     ),
                     Text(
                       '收 ¥${utils.FormatUtils.formatAmount(totalIncome)}',
-                      style: const TextStyle(
-                        fontSize: 12,
+                      style: DS.labelSm.copyWith(
                         color: AppTheme.success,
                       ),
                     ),
@@ -100,9 +98,9 @@ class MonthSelector extends StatelessWidget {
               ],
             ),
           ),
-          
-          const SizedBox(width: AppSpacing.sm),
-          
+
+          SizedBox(width: DS.base),
+
           // 下一月按钮
           GestureDetector(
             onTap: onNextMonth,
@@ -110,10 +108,10 @@ class MonthSelector extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: AppTheme.bgSection,
-                borderRadius: BorderRadius.circular(AppRadius.full),
+                color: DS.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(DS.radiusFull),
               ),
-              child: Icon(Icons.chevron_right, color: AppTheme.textSecondary),
+              child: Icon(Icons.chevron_right, color: DS.onSurfaceVariant),
             ),
           ),
         ],
@@ -135,15 +133,15 @@ class MonthSelector extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.chevron_left),
+                  icon: Icon(Icons.chevron_left),
                   onPressed: () => setState(() => selectedYear--),
                 ),
                 Text(
                   '$selectedYear 年',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  style: DS.headlineSm,
                 ),
                 IconButton(
-                  icon: const Icon(Icons.chevron_right),
+                  icon: Icon(Icons.chevron_right),
                   onPressed: selectedYear < DateTime.now().year
                       ? () => setState(() => selectedYear++)
                       : null,
@@ -176,20 +174,18 @@ class MonthSelector extends StatelessWidget {
                           },
                     child: Container(
                       decoration: BoxDecoration(
-                        color: isCurrent ? AppTheme.primary : AppTheme.bgSection,
-                        borderRadius: BorderRadius.circular(AppRadius.md),
+                        color: isCurrent ? DS.primary : DS.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(DS.radiusSm),
                       ),
                       alignment: Alignment.center,
                       child: Text(
                         '$month 月',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: isCurrent ? FontWeight.w600 : FontWeight.normal,
+                        style: DS.labelMd.copyWith(
                           color: isFuture
-                              ? AppTheme.textHint
+                              ? DS.outline
                               : isCurrent
                                   ? Colors.white
-                                  : AppTheme.textPrimary,
+                                  : DS.onSurface,
                         ),
                       ),
                     ),
