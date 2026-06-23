@@ -1,15 +1,10 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:io';
-import 'package:flutter/services.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:latlong2/latlong.dart';
 
 import '../../models/models.dart';
 import '../../providers/app_provider.dart';
-import '../../services/amap_location_service.dart';
+import '../../providers/theme_provider.dart';
 import '../../services/database_service.dart';
 import '../../services/image_service.dart';
 import '../../services/notification_service.dart';
@@ -18,8 +13,7 @@ import '../../utils/utils.dart' as utils;
 import 'widgets/bottom_info_card.dart';
 import 'widgets/category_selector.dart';
 import 'widgets/custom_keyboard.dart';
-import 'widgets/map_picker_page.dart';
-import '../../providers/theme_provider.dart';
+import 'widgets/location_helper.dart';
 
 /// �记账页 - 支出/收入切换、分类选择、心情标签、自定义键盘
 class AddRecordPage extends StatefulWidget {
@@ -34,9 +28,7 @@ class AddRecordPage extends StatefulWidget {
   State<AddRecordPage> createState() => _AddRecordPageState();
 }
 
-class _AddRecordPageState extends State<AddRecordPage> {
-  static const MethodChannel _locationChannel =
-      MethodChannel('bear_bill/location');
+class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
 
   String _type = 'expense'; // expense | income
   String _amount = '';
@@ -456,7 +448,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
                       });
                     },
                     locationController: _locationController,
-                    onLocationDialog: _showLocationDialog,
+                    onLocationDialog: _handleLocationDialog,
                   ),
 
                   SizedBox(height: DS.gutter),
@@ -601,235 +593,17 @@ class _AddRecordPageState extends State<AddRecordPage> {
     super.dispose();
   }
 
-  Future<void> _fetchDeviceLocation() async {
-    try {
-      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        await Geolocator.openLocationSettings();
-        _showSnackBar('请先开启系统定位服务，再重新尝试定位');
-        return;
-      }
-
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-
-      if (permission == LocationPermission.denied ||
-          permission == LocationPermission.deniedForever) {
-        if (permission == LocationPermission.deniedForever) {
-          await Geolocator.openAppSettings();
-        }
-        _showSnackBar('请允许位置权限以获取定位');
-        return;
-      }
-
-      _showSnackBar('正在定位...');
-
-      // 优先使用上次已知位置（快速返回）
-      Position? position = await Geolocator.getLastKnownPosition();
-
-      // 如果没有缓存位置，再请求实时定位（多次尝试，精度递减）
-      // forceAndroidLocationManager=true 避免依赖 Google Play Services（国产手机兼容性更好）
-      if (position == null) {
-        final accuracies = [
-          LocationAccuracy.high,
-          LocationAccuracy.medium,
-          LocationAccuracy.low,
-        ];
-        for (final acc in accuracies) {
-          try {
-            position = await Geolocator.getCurrentPosition(
-              desiredAccuracy: acc,
-              timeLimit: const Duration(seconds: 15),
-              forceAndroidLocationManager: true,
-            );
-            break;
-          } catch (_) {}
-        }
-      }
-
-      if (position == null) {
-        _showSnackBar('未获取到定位结果，请尝试地图选点');
-        return;
-      }
-
-      // 反向地理编码（优先高德 API → 原生 Geocoder → 坐标）
-      final coordStr = '${position.latitude.toStringAsFixed(5)}, ${position.longitude.toStringAsFixed(5)}';
-      String address = coordStr;
-      try {
-        final amap = AmapLocationService.instance;
-        if (amap.isConfigured) {
-          final result = await amap.reverseGeocode(position.latitude, position.longitude);
-          if (result != null && result.fullAddress.isNotEmpty) {
-            address = result.fullAddress;
-          }
-        }
-        // 如果高德未返回有效地址，回退到原生 Geocoder
-        if (address == coordStr && Platform.isAndroid) {
-          final nativeResult = await _locationChannel.invokeMethod<String>(
-            'reverseGeocode',
-            {'latitude': position.latitude, 'longitude': position.longitude},
-          );
-          if (nativeResult != null && nativeResult.trim().isNotEmpty) {
-            address = nativeResult.trim();
-          }
-        }
-      } catch (e) {
-        if (kDebugMode) print('反向编码异常: $e');
-      }
-
-      setState(() {
-        _location = address;
-        _locationController.text = address;
-        _latitude = position?.latitude;
-        _longitude = position?.longitude;
-      });
-
-      _showSnackBar('定位成功');
-    } catch (e) {
-      _showSnackBar('定位失败，请尝试地图选点');
-    }
-  }
-
-  void _showSnackBar(String msg) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg), duration: const Duration(seconds: 2)),
-      );
-    }
-  }
-
-  /// 打开应用内地图选点（类似微信位置选择）
-  Future<void> _openMapPicker() async {
-    LatLng? initialCenter;
-
-    // 尝试获取当前位置作为地图初始中心
-    try {
-      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (serviceEnabled) {
-        var permission = await Geolocator.checkPermission();
-        if (permission == LocationPermission.always ||
-            permission == LocationPermission.whileInUse) {
-          final position = await Geolocator.getLastKnownPosition();
-          if (position != null) {
-            initialCenter = LatLng(position.latitude, position.longitude);
-          }
-        }
-      }
-    } catch (_) {}
-
-    if (!mounted) return;
-
-    final result = await Navigator.push<Map<String, dynamic>>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MapPickerPage(
-          initialCenter: initialCenter,
-          initialName: _location,
-        ),
-      ),
-    );
-
+  Future<void> _handleLocationDialog() async {
+    final result = await showLocationDialog();
     if (result != null && mounted) {
-      final name = result['name'] as String? ?? '';
-      final lat = result['latitude'] as double?;
-      final lng = result['longitude'] as double?;
       setState(() {
-        _location = name.isNotEmpty ? name : _location;
-        _locationController.text = _location ?? '';
-        _latitude = lat;
-        _longitude = lng;
+        if (result!.name != null) {
+          _location = result!.name;
+          _locationController.text = _location ?? '';
+        }
+        if (result!.latitude != null) _latitude = result!.latitude;
+        if (result!.longitude != null) _longitude = result!.longitude;
       });
     }
-  }
-
-  Future<void> _showLocationDialog() async {
-    await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('📍 添加位置'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // 手动输入
-            ListTile(
-              leading: Icon(Icons.edit_location, color: DS.primary),
-              title: Text('手动输入'),
-              subtitle: Text('直接输入地点名称'),
-              onTap: () {
-                Navigator.pop(context);
-                _showManualInputDialog();
-              },
-            ),
-            Divider(height: 1),
-            // GPS定位
-            ListTile(
-              leading: Icon(Icons.my_location, color: DS.secondaryContainer),
-              title: Text('GPS定位'),
-              subtitle: Text('获取当前设备位置'),
-              onTap: () {
-                Navigator.pop(context);
-                _fetchDeviceLocation();
-              },
-            ),
-            Divider(height: 1),
-            // 地图选点
-            ListTile(
-              leading: Icon(Icons.map, color: DS.secondary),
-              title: Text('地图选点'),
-              subtitle: Text('打开地图搜索和选择位置'),
-              onTap: () {
-                Navigator.pop(context);
-                _openMapPicker();
-              },
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('取消'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 手动输入位置对话框
-  Future<void> _showManualInputDialog() async {
-    final controller = TextEditingController(text: _location ?? '');
-    await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('输入位置'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(
-            hintText: '输入地点、地址或门店名',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('取消'),
-          ),
-          TextButton(
-            onPressed: () {
-              final value = controller.text.trim();
-              if (value.isNotEmpty) {
-                setState(() {
-                  _location = value;
-                  _locationController.text = value;
-                });
-              }
-              Navigator.pop(context);
-            },
-            child: Text('保存', style: TextStyle(color: DS.primary)),
-          ),
-        ],
-      ),
-    );
   }
 }
