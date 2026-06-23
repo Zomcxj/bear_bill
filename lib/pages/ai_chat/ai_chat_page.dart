@@ -15,6 +15,7 @@ import '../add_record/add_record_page.dart';
 import '../add_record/widgets/map_picker_page.dart';
 import 'widgets/chat_bubble.dart';
 import 'widgets/chat_input_bar.dart';
+import '../../providers/theme_provider.dart';
 
 /// AI 对话式记账页面
 class AiChatPage extends StatefulWidget {
@@ -491,6 +492,12 @@ class _AiChatPageState extends State<AiChatPage> {
     final data = msg.data;
     if (data == null) return;
 
+    // 读取心情和定位（保存后再清理）
+    final location = _msgLocations[msg.id];
+    final lat = _msgLat[msg.id];
+    final lng = _msgLng[msg.id];
+    final mood = _msgMoods[msg.id];
+
     // 清理心情和定位状态
     _msgMoods.remove(msg.id);
     _msgLocations.remove(msg.id);
@@ -503,15 +510,57 @@ class _AiChatPageState extends State<AiChatPage> {
       _messages.remove(msg);
     });
 
-    // 跳转到记账页，预填类型
+    // 构建临时 RecordModel，带入所有已填信息（含定位）
+    final type = data['type'] as String? ?? 'expense';
+    final amount = data['amount'] as double? ?? 0;
+    final categoryId = data['categoryId'] as String? ?? 'other';
+    final categoryName = data['categoryName'] as String? ?? '其他';
+    final categoryIcon = data['categoryIcon'] as String? ?? '📦';
+    final remark = data['remark'] as String?;
+    final dateStr = data['date'] as String?;
+
+    final now = DateTime.now();
+    final date = dateStr != null && dateStr.length == 10
+        ? DateTime.tryParse(dateStr) ?? now
+        : now;
+    final finalDateStr =
+        '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+
+    final category = getCategoryById(categoryId, isExpense: type == 'expense');
+
+    final tempRecord = RecordModel(
+      id: 'temp_edit',
+      bookId: 'default',
+      type: type,
+      amount: amount,
+      categoryId: categoryId,
+      categoryName: categoryName,
+      categoryIcon: categoryIcon,
+      categoryColor: category?.color,
+      remark: remark,
+      date: finalDateStr,
+      month: finalDateStr.substring(0, 7),
+      dateTs: date.millisecondsSinceEpoch,
+      createdAt: now,
+      mood: mood?.id,
+      moodEmoji: mood?.emoji,
+      location: location,
+      latitude: lat,
+      longitude: lng,
+    );
+
+    // 跳转到记账页，带入预填数据；保存后回到首页
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => AddRecordPage(
-          initialType: data['type'] as String?,
-        ),
+        builder: (_) => AddRecordPage(prefillRecord: tempRecord),
       ),
-    );
+    ).then((saved) {
+      if (saved == true && mounted) {
+        // 保存成功，回到首页
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
+    });
   }
 
   void _showLocationOptions(String msgId) {
@@ -588,6 +637,7 @@ class _AiChatPageState extends State<AiChatPage> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Scaffold(
       backgroundColor: DS.background,
       appBar: AppBar(
@@ -606,7 +656,12 @@ class _AiChatPageState extends State<AiChatPage> {
             ),
           ],
         ),
-        backgroundColor: DS.primary,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: DS.heroGradientBlueCurrent,
+          ),
+        ),
+        backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: Column(

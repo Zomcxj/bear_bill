@@ -7,6 +7,7 @@ import '../../services/storage_service.dart';
 import '../../services/database_service.dart';
 import '../../theme/app_design_system.dart';
 import '../../theme/app_theme.dart';
+import '../../../providers/theme_provider.dart';
 
 class AchievementPage extends StatefulWidget {
   const AchievementPage({super.key});
@@ -48,6 +49,7 @@ class _AchievementPageState extends State<AchievementPage> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Consumer<AppProvider>(
       builder: (context, appProvider, child) {
         final unlockedIds = appProvider.unlockedAchievements;
@@ -182,6 +184,7 @@ class _AchievementCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     final percent = (progress * 100).toInt();
     return GestureDetector(
       onTap: () => _showDetail(context),

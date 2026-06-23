@@ -19,14 +19,16 @@ import 'widgets/bottom_info_card.dart';
 import 'widgets/category_selector.dart';
 import 'widgets/custom_keyboard.dart';
 import 'widgets/map_picker_page.dart';
+import '../../providers/theme_provider.dart';
 
 /// �记账页 - 支出/收入切换、分类选择、心情标签、自定义键盘
 class AddRecordPage extends StatefulWidget {
   final String? preselectedCategory; // 从首页快捷入口传入的分类ID
   final String? initialType; // 初始类型：expense | income
   final RecordModel? editRecord; // 编辑模式：传入已有记录
+  final RecordModel? prefillRecord; // 预填模式：从AI记账传入，新建但预填数据
 
-  const AddRecordPage({super.key, this.preselectedCategory, this.initialType, this.editRecord});
+  const AddRecordPage({super.key, this.preselectedCategory, this.initialType, this.editRecord, this.prefillRecord});
 
   @override
   State<AddRecordPage> createState() => _AddRecordPageState();
@@ -60,31 +62,31 @@ class _AddRecordPageState extends State<AddRecordPage> {
       _type = widget.initialType!;
     }
 
-    // 编辑模式：用已有记录填充表单
-    if (widget.editRecord != null) {
-      final r = widget.editRecord!;
-      _type = r.type;
-      _amount = r.amount.toString();
-      _note = r.remark ?? '';
+    // 编辑模式或预填模式：用记录填充表单
+    final prefill = widget.editRecord ?? widget.prefillRecord;
+    if (prefill != null) {
+      _type = prefill.type;
+      _amount = prefill.amount.toString();
+      _note = prefill.remark ?? '';
       _noteController.text = _note;
-      _selectedDate = DateTime.parse(r.date);
-      _images = List.from(r.images);
-      _location = r.location;
-      _latitude = r.latitude;
-      _longitude = r.longitude;
+      _selectedDate = DateTime.parse(prefill.date);
+      _images = List.from(prefill.images);
+      _location = prefill.location;
+      _latitude = prefill.latitude;
+      _longitude = prefill.longitude;
       if (_location != null) _locationController.text = _location!;
-      if (r.mood != null) {
-        _selectedMood = getMoodById(r.mood!);
+      if (prefill.mood != null) {
+        _selectedMood = getMoodById(prefill.mood!);
       }
     }
 
     _initCategories();
 
-    // 编辑模式下，覆盖分类为记录的分类
-    if (widget.editRecord != null) {
+    // 编辑模式或预填模式下，覆盖分类为记录的分类
+    if (prefill != null) {
       final categories = _type == 'expense' ? expenseCategories : incomeCategories;
       _selectedCategory = categories.firstWhere(
-        (c) => c.id == widget.editRecord!.categoryId,
+        (c) => c.id == prefill.categoryId,
         orElse: () => categories.first,
       );
     }
@@ -327,6 +329,7 @@ class _AddRecordPageState extends State<AddRecordPage> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     final categories =
         _type == 'expense' ? expenseCategories : incomeCategories;
     return Scaffold(

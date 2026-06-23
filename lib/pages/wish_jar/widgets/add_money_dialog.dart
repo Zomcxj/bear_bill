@@ -3,6 +3,8 @@
 import '../../../models/models.dart';
 import '../../../theme/app_design_system.dart';
 import '../../../utils/utils.dart';
+import '../../../providers/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 /// 存钱对话框
 class AddMoneyDialog extends StatefulWidget {
@@ -44,6 +46,7 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     final remaining = widget.wish.targetAmount - widget.wish.currentAmount;
     
     return AlertDialog(

@@ -11,6 +11,7 @@ import '../../theme/app_design_system.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/utils.dart' as utils;
 import '../add_record/add_record_page.dart';
+import '../../providers/theme_provider.dart';
 
 Color _hexToColor(String hex) {
   final buffer = StringBuffer();
@@ -116,6 +117,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     if (_loading) {
       return Scaffold(
         appBar: AppBar(title: Text('账单详情')),
@@ -430,6 +432,7 @@ class _FullImageViewerState extends State<_FullImageViewer> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(

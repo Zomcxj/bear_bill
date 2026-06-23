@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../models/category_model.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../providers/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 /// 聊天消息类型
 enum ChatMessageType { text, recordConfirm, queryResult, error }
@@ -48,6 +50,7 @@ class ChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 4, horizontal: 12),
       child: Row(

@@ -11,6 +11,8 @@ import 'package:latlong2/latlong.dart';
 
 import '../../../services/amap_location_service.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../providers/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 /// 地图选点页面 - 类似微信位置选择
 class MapPickerPage extends StatefulWidget {
@@ -318,6 +320,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Scaffold(
       body: Stack(
         children: [

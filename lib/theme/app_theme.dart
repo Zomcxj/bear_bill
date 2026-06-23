@@ -9,8 +9,8 @@ class AppTheme {
   // ── 主色 ──
   static const Color primary = DS.primary;
   static const Color primaryDark = DS.primaryContainer;
-  static const Color primaryLight = DS.surfaceContainerHigh;
-  static const Color primaryBg = DS.background;
+  static Color get primaryLight => DS.surfaceContainerHigh;
+  static Color get primaryBg => DS.background;
 
   // ── 辅色 ──
   static const Color accent = DS.secondaryContainer;
@@ -26,28 +26,28 @@ class AppTheme {
   static const Color warningLight = Color(0xFFFFF3E0);
 
   // ── 文字色 ──
-  static const Color textPrimary = DS.onSurface;
-  static const Color textSecondary = DS.onSurfaceVariant;
-  static const Color textHint = DS.outline;
+  static Color get textPrimary => DS.onSurface;
+  static Color get textSecondary => DS.onSurfaceVariant;
+  static Color get textHint => DS.outline;
   static const Color textWhite = DS.onPrimary;
 
   // ── Hero 区域 ──
-  static const Color heroTextMain = DS.onSurface;
-  static const Color heroTextSub = Color(0xCC191C1E);
-  static const Color heroTextMuted = Color(0x99191C1E);
+  static Color get heroTextMain => DS.onSurface;
+  static Color get heroTextSub => DS.onSurface.withOpacity(0.8);
+  static Color get heroTextMuted => DS.onSurface.withOpacity(0.6);
   static const Color heroExpense = DS.error;
   static const Color heroIncome = DS.secondary;
   static const Color heroBalancePos = DS.secondary;
   static const Color heroBalanceNeg = DS.error;
 
   // ── 背景 ──
-  static const Color bgPage = DS.background;
-  static const Color bgCard = DS.surfaceContainerLowest;
-  static const Color bgSection = DS.surfaceContainerLow;
+  static Color get bgPage => DS.background;
+  static Color get bgCard => DS.surfaceContainerLowest;
+  static Color get bgSection => DS.surfaceContainerLow;
 
   // ── 边框/分割线 ──
-  static const Color border = DS.outlineVariant;
-  static const Color divider = DS.outlineVariant;
+  static Color get border => DS.outlineVariant;
+  static Color get divider => DS.outlineVariant;
 
   // ── 心情色 ──
   static const Map<String, Color> moodColors = {
@@ -69,31 +69,49 @@ class AppTheme {
   // ── ThemeData ──
   static ThemeData get currentTheme => DS.isDark ? darkTheme : lightTheme;
 
-  static ThemeData get lightTheme {
+  /// 构建主题（参数化，避免读取 DS 动态 getter 导致两个主题颜色相同）
+  static ThemeData _buildTheme({
+    required Brightness brightness,
+    required Color scaffoldBg,
+    required Color onSurface,
+    required Color surfaceContainerLowest,
+    required Color outlineVariant,
+    required Color surfaceContainerLow,
+    required Color outline,
+    required Color textButtonColor,
+  }) {
+    final isLight = brightness == Brightness.light;
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.light,
+      brightness: brightness,
       primaryColor: DS.primary,
-      scaffoldBackgroundColor: DS.background,
+      scaffoldBackgroundColor: scaffoldBg,
       fontFamily: DS.fontDisplay,
-      colorScheme: const ColorScheme.light(
-        primary: DS.primary,
-        secondary: DS.secondaryContainer,
-        surface: DS.surface,
-        error: DS.error,
-      ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: DS.background,
-        foregroundColor: DS.onSurface,
+      colorScheme: isLight
+          ? ColorScheme.light(
+              primary: DS.primary,
+              secondary: DS.secondaryContainer,
+              surface: scaffoldBg,
+              error: DS.error,
+            )
+          : ColorScheme.dark(
+              primary: DS.primary,
+              secondary: DS.secondaryContainer,
+              surface: scaffoldBg,
+              error: DS.error,
+            ),
+      appBarTheme: AppBarTheme(
+        backgroundColor: scaffoldBg,
+        foregroundColor: onSurface,
         elevation: 0,
         centerTitle: true,
       ),
       cardTheme: CardTheme(
-        color: DS.surfaceContainerLowest,
+        color: surfaceContainerLowest,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(DS.radiusMd),
-          side: const BorderSide(color: DS.outlineVariant, width: 1),
+          side: BorderSide(color: outlineVariant, width: 1),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -108,11 +126,11 @@ class AppTheme {
         ),
       ),
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(foregroundColor: DS.primary),
+        style: TextButton.styleFrom(foregroundColor: textButtonColor),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: DS.surfaceContainerLow,
+        fillColor: surfaceContainerLow,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(DS.radiusFull),
           borderSide: BorderSide.none,
@@ -126,78 +144,35 @@ class AppTheme {
           borderSide: const BorderSide(color: DS.secondaryContainer, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: DS.md, vertical: DS.sm + 2),
-        hintStyle: const TextStyle(
+        hintStyle: TextStyle(
           fontFamily: DS.fontLabel, fontSize: 14, fontWeight: FontWeight.w600,
-          color: DS.outline,
+          color: outline,
         ),
       ),
     );
   }
 
-  static ThemeData get darkTheme {
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      primaryColor: DS.primary,
-      scaffoldBackgroundColor: DS.darkBackground,
-      fontFamily: DS.fontDisplay,
-      colorScheme: const ColorScheme.dark(
-        primary: DS.primary,
-        secondary: DS.secondaryContainer,
-        surface: DS.darkSurface,
-        error: DS.error,
-      ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: DS.darkBackground,
-        foregroundColor: DS.darkOnSurface,
-        elevation: 0,
-        centerTitle: true,
-      ),
-      cardTheme: CardTheme(
-        color: DS.darkSurfaceContainerLowest,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(DS.radiusMd),
-          side: const BorderSide(color: DS.darkOutlineVariant, width: 1),
-        ),
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: DS.primary,
-          foregroundColor: DS.onPrimary,
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(horizontal: DS.md, vertical: DS.sm),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(DS.radiusFull),
-          ),
-        ),
-      ),
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(foregroundColor: DS.secondaryContainer),
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: DS.darkSurfaceContainerLow,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(DS.radiusFull),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(DS.radiusFull),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(DS.radiusFull),
-          borderSide: const BorderSide(color: DS.secondaryContainer, width: 2),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: DS.md, vertical: DS.sm + 2),
-        hintStyle: const TextStyle(
-          fontFamily: DS.fontLabel, fontSize: 14, fontWeight: FontWeight.w600,
-          color: DS.darkOutline,
-        ),
-      ),
-    );
-  }
+  static ThemeData get lightTheme => _buildTheme(
+    brightness: Brightness.light,
+    scaffoldBg: const Color(0xFFF7F9FB),
+    onSurface: const Color(0xFF191C1E),
+    surfaceContainerLowest: const Color(0xFFFFFFFF),
+    outlineVariant: const Color(0xFFCFC4C5),
+    surfaceContainerLow: const Color(0xFFF2F4F6),
+    outline: const Color(0xFF7E7576),
+    textButtonColor: DS.primary,
+  );
+
+  static ThemeData get darkTheme => _buildTheme(
+    brightness: Brightness.dark,
+    scaffoldBg: const Color(0xFF121218),
+    onSurface: const Color(0xFFE8E8EC),
+    surfaceContainerLowest: const Color(0xFF141418),
+    outlineVariant: const Color(0xFF3A3A44),
+    surfaceContainerLow: const Color(0xFF181820),
+    outline: const Color(0xFF6A6A72),
+    textButtonColor: DS.secondaryContainer,
+  );
 }
 
 class AppRadius {

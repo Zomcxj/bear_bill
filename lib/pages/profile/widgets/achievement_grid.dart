@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../models/achievement_model.dart';
 import '../../../providers/app_provider.dart';
+import '../../../providers/theme_provider.dart';
 import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
 import '../achievement_page.dart';
@@ -13,6 +14,7 @@ class AchievementGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // 主题变更时触发重建
     return Consumer<AppProvider>(
       builder: (context, appProvider, child) {
         final unlockedIds = appProvider.unlockedAchievements;

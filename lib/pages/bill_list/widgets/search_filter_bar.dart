@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../models/category_model.dart';
 import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
+import '../../../providers/theme_provider.dart';
 
 /// 将 hex 颜色字符串转换为 Color
 Color _hexToColor(String hex) {
@@ -56,6 +57,7 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Column(
       children: [
         // 搜索栏

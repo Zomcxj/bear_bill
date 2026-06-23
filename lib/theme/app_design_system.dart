@@ -28,35 +28,23 @@ class DS {
   static const Color error = Color(0xFFBA1A1A);
   static const Color errorContainer = Color(0xFFFFDAD6);
 
-  // ── 表面色（亮色模式） ──
-  static const Color background = Color(0xFFF7F9FB);
-  static const Color surface = Color(0xFFF7F9FB);
-  static const Color surfaceBright = Color(0xFFF7F9FB);
-  static const Color surfaceDim = Color(0xFFD8DADC);
-  static const Color surfaceContainer = Color(0xFFECEEF0);
-  static const Color surfaceContainerLow = Color(0xFFF2F4F6);
-  static const Color surfaceContainerLowest = Color(0xFFFFFFFF);
-  static const Color surfaceContainerHigh = Color(0xFFE6E8EA);
-  static const Color surfaceContainerHighest = Color(0xFFE0E3E5);
-  static const Color surfaceVariant = Color(0xFFE0E3E5);
+  // ── 表面色（动态，随深色模式切换） ──
+  static Color get background => _isDark ? const Color(0xFF121218) : const Color(0xFFF7F9FB);
+  static Color get surface => _isDark ? const Color(0xFF121218) : const Color(0xFFF7F9FB);
+  static Color get surfaceBright => _isDark ? const Color(0xFF121218) : const Color(0xFFF7F9FB);
+  static Color get surfaceDim => _isDark ? const Color(0xFF181820) : const Color(0xFFD8DADC);
+  static Color get surfaceContainer => _isDark ? const Color(0xFF1E1E28) : const Color(0xFFECEEF0);
+  static Color get surfaceContainerLow => _isDark ? const Color(0xFF181820) : const Color(0xFFF2F4F6);
+  static Color get surfaceContainerLowest => _isDark ? const Color(0xFF141418) : const Color(0xFFFFFFFF);
+  static Color get surfaceContainerHigh => _isDark ? const Color(0xFF242430) : const Color(0xFFE6E8EA);
+  static Color get surfaceContainerHighest => _isDark ? const Color(0xFF2A2A36) : const Color(0xFFE0E3E5);
+  static Color get surfaceVariant => _isDark ? const Color(0xFF2A2A36) : const Color(0xFFE0E3E5);
 
-  // ── 文字色（亮色模式） ──
-  static const Color onSurface = Color(0xFF191C1E);
-  static const Color onSurfaceVariant = Color(0xFF4C4546);
-  static const Color outline = Color(0xFF7E7576);
-  static const Color outlineVariant = Color(0xFFCFC4C5);
-
-  // ── 深色模式色板 ──
-  static const Color darkBackground = Color(0xFF121218);
-  static const Color darkSurface = Color(0xFF121218);
-  static const Color darkSurfaceContainer = Color(0xFF1E1E28);
-  static const Color darkSurfaceContainerLow = Color(0xFF181820);
-  static const Color darkSurfaceContainerLowest = Color(0xFF141418);
-  static const Color darkSurfaceContainerHigh = Color(0xFF242430);
-  static const Color darkOnSurface = Color(0xFFE8E8EC);
-  static const Color darkOnSurfaceVariant = Color(0xFF9A9AA0);
-  static const Color darkOutline = Color(0xFF6A6A72);
-  static const Color darkOutlineVariant = Color(0xFF3A3A44);
+  // ── 文字色（动态，随深色模式切换） ──
+  static Color get onSurface => _isDark ? const Color(0xFFE8E8EC) : const Color(0xFF191C1E);
+  static Color get onSurfaceVariant => _isDark ? const Color(0xFF9A9AA0) : const Color(0xFF4C4546);
+  static Color get outline => _isDark ? const Color(0xFF6A6A72) : const Color(0xFF7E7576);
+  static Color get outlineVariant => _isDark ? const Color(0xFF3A3A44) : const Color(0xFFCFC4C5);
 
   // ── 辅助 ──
   static const Color inverseSurface = Color(0xFF2D3133);

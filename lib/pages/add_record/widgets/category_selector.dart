@@ -2,6 +2,8 @@
 
 import '../../../models/models.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../providers/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 /// 将 hex 颜色字符串转换为 Color
 Color _hexToColor(String hex) {
@@ -26,6 +28,7 @@ class CategorySelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Container(
       padding: EdgeInsets.symmetric(
           horizontal: DS.base, vertical: DS.xs),

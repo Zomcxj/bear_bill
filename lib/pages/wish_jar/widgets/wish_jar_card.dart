@@ -4,6 +4,8 @@ import '../../../models/models.dart';
 import '../../../theme/app_design_system.dart';
 import '../../../utils/utils.dart';
 import '../../../widgets/glass_card.dart';
+import '../../../providers/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 /// 心愿罐卡片 — 玻璃风格 + Material Icons
 class WishJarCard extends StatelessWidget {
@@ -20,6 +22,7 @@ class WishJarCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     final progress = wish.progress * 100;
     final themeColor = _getThemeColor(wish.id);
     final icon = _getWishIcon(wish.title);

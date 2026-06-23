@@ -13,6 +13,7 @@ import '../../services/database_service.dart';
 import '../../theme/app_design_system.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/utils.dart';
+import '../../providers/theme_provider.dart';
 
 /// 账单导出页 - CSV导出、文件保存
 class ExportPage extends StatefulWidget {
@@ -182,6 +183,7 @@ class _ExportPageState extends State<ExportPage> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Scaffold(
       backgroundColor: DS.background,
       appBar: AppBar(

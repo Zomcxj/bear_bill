@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../../../models/models.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../providers/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 /// 底部信息卡片：心情选择、备注输入、照片上传、位置输入
 class BottomInfoCard extends StatelessWidget {
@@ -40,6 +42,7 @@ class BottomInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Container(
       margin: EdgeInsets.symmetric(horizontal: DS.sm),
       decoration: BoxDecoration(

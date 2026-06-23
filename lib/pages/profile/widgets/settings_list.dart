@@ -3,17 +3,23 @@ import 'package:provider/provider.dart';
 
 import '../../../providers/theme_provider.dart';
 import '../../../services/database_backup_service.dart';
+import '../../../services/storage_service.dart';
 import '../../../theme/app_design_system.dart';
 import '../../map_footprint/map_footprint_page.dart';
 import 'auto_record_settings.dart';
 import 'settings_dialogs.dart';
 
 /// 设置列表
-class SettingsList extends StatelessWidget {
+class SettingsList extends StatefulWidget {
   final VoidCallback onClearData;
 
   const SettingsList({super.key, required this.onClearData});
 
+  @override
+  State<SettingsList> createState() => _SettingsListState();
+}
+
+class _SettingsListState extends State<SettingsList> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -31,7 +37,11 @@ class SettingsList extends StatelessWidget {
           _buildMenuItem(
             icon: Icons.notifications,
             title: '记账提醒',
-            onTap: () => showReminderDialog(context),
+            trailing: _getReminderTimeText(),
+            onTap: () async {
+              await showReminderDialog(context);
+              if (mounted) setState(() {});
+            },
           ),
           _buildDivider(),
           _buildMenuItem(
@@ -112,7 +122,7 @@ class SettingsList extends StatelessWidget {
             icon: Icons.delete_outline,
             title: '清空账单',
             isDanger: true,
-            onTap: onClearData,
+            onTap: widget.onClearData,
           ),
         ],
       ),
@@ -168,5 +178,15 @@ class SettingsList extends StatelessWidget {
 
   Widget _buildDivider() {
     return Divider(height: 1, color: DS.outlineVariant);
+  }
+
+  String _getReminderTimeText() {
+    final storage = StorageService.instance;
+    final hour = storage.getString('reminderHour');
+    final minute = storage.getString('reminderMinute');
+    if (hour == null || hour.isEmpty || minute == null || minute.isEmpty) {
+      return '未开启';
+    }
+    return '${hour.padLeft(2, '0')}:${minute.padLeft(2, '0')}';
   }
 }

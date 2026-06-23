@@ -5,6 +5,8 @@ import '../../../models/models.dart';
 import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
 import '../../../utils/utils.dart' as utils;
+import '../../../providers/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 /// 将 hex 颜色字符串转换为 Color
 Color _hexToColor(String hex) {
@@ -29,6 +31,7 @@ class RecordGroupList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return ListView.builder(
       padding: EdgeInsets.only(left: DS.sm, right: DS.sm, bottom: DS.sm),
       itemCount: groupedRecords.length,

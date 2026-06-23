@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
+import '../../../providers/theme_provider.dart';
 
 /// 账单搜索筛选栏
 class BillSearchBar extends StatelessWidget {
@@ -22,6 +23,7 @@ class BillSearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Container(
       padding:
           EdgeInsets.symmetric(horizontal: DS.base, vertical: 8),

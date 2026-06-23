@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
 import '../../../utils/utils.dart';
+import '../../../providers/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 /// 月度总结 - 小熊助手文案
 class MonthlySummary extends StatelessWidget {
@@ -21,6 +23,7 @@ class MonthlySummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     final lines = _generateSummary();
 
     return Container(

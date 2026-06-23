@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/models.dart';
 import '../../providers/app_provider.dart';
+import '../../providers/theme_provider.dart';
 import '../../services/database_service.dart';
 import '../../theme/app_design_system.dart';
 import '../../theme/app_theme.dart';
@@ -177,6 +178,7 @@ class _WishJarPageState extends State<WishJarPage>
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // 主题变更时触发重建
     final ongoingWishes = _wishes.where((w) => !w.isCompleted).toList();
     final completedWishes = _wishes.where((w) => w.isCompleted).toList();
 

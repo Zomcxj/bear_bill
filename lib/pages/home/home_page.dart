@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../main.dart';
+import '../../providers/theme_provider.dart';
 import '../../services/baidu_speech_service.dart';
 import '../../theme/app_design_system.dart';
 import '../add_record/add_record_page.dart';
@@ -146,6 +148,7 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // 主题变更时触发重建
     return Scaffold(
       backgroundColor: DS.background,
       body: SafeArea(

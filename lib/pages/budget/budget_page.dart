@@ -7,6 +7,7 @@ import '../../services/storage_service.dart';
 import '../../theme/app_design_system.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/utils.dart';
+import '../../providers/theme_provider.dart';
 
 /// 预算设置页 - 月度预算设置、进度监控
 class BudgetPage extends StatefulWidget {
@@ -134,6 +135,7 @@ class _BudgetPageState extends State<BudgetPage> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Scaffold(
       backgroundColor: DS.background,
       appBar: AppBar(

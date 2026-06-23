@@ -2,6 +2,7 @@
 
 import '../../../models/category_model.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../providers/theme_provider.dart';
 
 /// 心情选择器
 class MoodSelector extends StatelessWidget {
@@ -16,6 +17,7 @@ class MoodSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: DS.base),
       child: Row(
