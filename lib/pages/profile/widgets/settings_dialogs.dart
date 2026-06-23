@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../main.dart'; // FontSizeNotifier
@@ -138,13 +139,21 @@ Future<void> showReminderDialog(BuildContext context) async {
           // 提示
           Padding(
             padding: EdgeInsets.all(DS.sm),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.info_outline, size: 14, color: DS.outline),
-                SizedBox(width: DS.xs),
-                Text('提醒不生效？请允许本App后台耗电', style: DS.labelSm.copyWith(color: DS.outline)),
-              ],
+            child: GestureDetector(
+              onTap: () async {
+                try {
+                  const channel = MethodChannel('bear_bill/alarm');
+                  await channel.invokeMethod('openBatterySettings');
+                } catch (_) {}
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.battery_alert, size: 14, color: DS.primaryContainer),
+                  SizedBox(width: DS.xs),
+                  Text('提醒不生效？点击关闭电池优化', style: DS.labelSm.copyWith(color: DS.primaryContainer)),
+                ],
+              ),
             ),
           ),
         ],
@@ -580,6 +589,7 @@ class _ColorPickerDialogState extends State<ColorPickerDialog> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     final selectedColor = _hsv.toColor();
     return AlertDialog(
       title: Row(

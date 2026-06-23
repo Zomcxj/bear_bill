@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
+import '../../../providers/theme_provider.dart';
 
 /// 甜甜圈图组件
 class DonutChartWidget extends StatelessWidget {
@@ -30,6 +31,7 @@ class DonutChartWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     if (categories.isEmpty || total == 0) {
       return Container(
         height: 200,

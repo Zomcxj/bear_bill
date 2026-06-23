@@ -17,7 +17,7 @@ import 'theme/app_design_system.dart';
 import 'theme/app_theme.dart';
 
 // 全局路由观察者（用于页面返回时刷新数据）
-final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
 
 // 字号变更通知器
 class FontSizeNotifier extends ChangeNotifier {
@@ -197,7 +197,7 @@ class _MainTabPageState extends State<MainTabPage> {
           filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.85),
+              color: DS.surfaceContainerLowest.withOpacity(0.85),
               border: Border(
                 top: BorderSide(color: DS.outlineVariant, width: 0.5),
               ),

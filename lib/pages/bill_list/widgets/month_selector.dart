@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
 import '../../../utils/utils.dart' as utils;
+import '../../../providers/theme_provider.dart';
 
 /// 月份选择器 - 顶部切换条
 class MonthSelector extends StatelessWidget {
@@ -25,6 +26,7 @@ class MonthSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Container(
       padding: EdgeInsets.symmetric(horizontal: DS.base, vertical: 12),
       decoration: BoxDecoration(

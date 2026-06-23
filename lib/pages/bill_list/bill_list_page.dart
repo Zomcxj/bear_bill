@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/models.dart';
 import '../../providers/app_provider.dart';
+import '../../providers/theme_provider.dart';
 import '../../services/database_service.dart';
 import '../../services/notification_service.dart';
 import '../../theme/app_design_system.dart';
@@ -347,6 +348,7 @@ class _BillListPageState extends State<BillListPage> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // 主题变更时触发重建
     return Scaffold(
       backgroundColor: DS.background,
       body: SafeArea(

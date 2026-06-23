@@ -6,6 +6,7 @@ import '../../../services/database_service.dart';
 import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
 import '../../../utils/utils.dart' as utils;
+import '../../../providers/theme_provider.dart';
 
 /// 月度预算进度条卡片（Luminous Finance 风格）
 class BudgetProgressCard extends StatefulWidget {
@@ -75,6 +76,7 @@ class _BudgetProgressCardState extends State<BudgetProgressCard> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     if (_budget <= 0) return const SizedBox.shrink();
 
     return Container(

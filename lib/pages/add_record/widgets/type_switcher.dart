@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/app_design_system.dart';
+import '../../../providers/theme_provider.dart';
 
 /// 支出/收入类型切换器
 class TypeSwitcher extends StatelessWidget {
@@ -15,6 +16,7 @@ class TypeSwitcher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Container(
       margin: EdgeInsets.all(DS.base),
       padding: EdgeInsets.all(4),

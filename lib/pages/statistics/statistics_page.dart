@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/app_provider.dart';
+import '../../providers/theme_provider.dart';
 import '../../services/database_service.dart';
 import '../../theme/app_design_system.dart';
 import '../../theme/app_theme.dart';
@@ -87,6 +88,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // 主题变更时触发重建
     final monthTitle = '${_selectedMonth.year}年${_selectedMonth.month}月';
 
     return Scaffold(

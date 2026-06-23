@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/app_provider.dart';
+import '../../../providers/theme_provider.dart';
 import '../../../services/database_service.dart';
 import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
@@ -56,6 +57,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // 主题变更时触发重建
     if (_loading) {
       return Container(
         margin: EdgeInsets.symmetric(horizontal: DS.sm),

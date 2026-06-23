@@ -39,6 +39,12 @@ class StorageService {
         final parsed = int.tryParse(darkMode);
         if (parsed != null) _cache['themeDarkMode'] = parsed;
       }
+
+      final reminderHour = await _loadFromFile('reminderHour');
+      if (reminderHour != null) _cache['reminderHour'] = reminderHour;
+
+      final reminderMinute = await _loadFromFile('reminderMinute');
+      if (reminderMinute != null) _cache['reminderMinute'] = reminderMinute;
     } catch (e) {
       // 忽略加载错误，保持运行
     }

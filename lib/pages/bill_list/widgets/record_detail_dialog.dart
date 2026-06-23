@@ -5,6 +5,8 @@ import '../../../models/record_model.dart';
 import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
 import '../../../utils/utils.dart' as utils;
+import '../../../providers/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 /// 账单详情对话框 - 显示记录的完整信息
 class RecordDetailDialog extends StatelessWidget {
@@ -17,6 +19,7 @@ class RecordDetailDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(DS.radiusMd),

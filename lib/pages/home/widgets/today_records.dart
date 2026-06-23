@@ -9,6 +9,7 @@ import '../../../utils/utils.dart' as utils;
 import '../../../widgets/glass_card.dart';
 import '../../../main.dart';
 import '../../record_detail/record_detail_page.dart';
+import '../../../providers/theme_provider.dart';
 
 /// 将 hex 颜色字符串转换为 Color
 Color _hexToColor(String hex) {
@@ -72,6 +73,7 @@ class _TodayRecordsState extends State<TodayRecords> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return GlassCard(
       margin: EdgeInsets.symmetric(horizontal: DS.sm),
       child: Column(

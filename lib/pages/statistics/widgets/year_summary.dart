@@ -7,6 +7,7 @@ import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
 import '../../../utils/utils.dart';
 import 'income_expense_summary.dart';
+import '../../../providers/theme_provider.dart';
 
 /// 年度总结组件
 class YearSummary extends StatefulWidget {
@@ -54,6 +55,7 @@ class _YearSummaryState extends State<YearSummary> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return _loading
         ? const Center(child: CircularProgressIndicator())
         : SingleChildScrollView(

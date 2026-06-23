@@ -8,6 +8,7 @@ import '../../../providers/app_provider.dart';
 import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
 import '../../multi_book/multi_book_page.dart';
+import '../../../providers/theme_provider.dart';
 
 /// 用户信息卡片 - 等级、经验、打卡（Luminous Finance 风格）
 class UserProfileCard extends StatelessWidget {
@@ -24,6 +25,7 @@ class UserProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Consumer<AppProvider>(
       builder: (context, appProvider, child) {
         final user = appProvider.user;

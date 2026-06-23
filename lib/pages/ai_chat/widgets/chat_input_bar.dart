@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../../../services/baidu_speech_service.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../providers/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 /// 聊天输入栏（支持百度语音输入，微信风格：按住说话，上滑取消，松开发送，静音自动停止）
 class ChatInputBar extends StatefulWidget {
@@ -126,6 +128,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Stack(
       children: [
         Container(

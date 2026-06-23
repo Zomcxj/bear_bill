@@ -14,6 +14,7 @@ import '../../theme/app_design_system.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/utils.dart' as utils;
 import 'widgets/category_filter_bar.dart';
+import '../../../providers/theme_provider.dart';
 
 /// 消费地图足迹页面
 class MapFootprintPage extends StatefulWidget {
@@ -130,6 +131,7 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Scaffold(
       backgroundColor: DS.background,
       appBar: AppBar(
@@ -300,6 +302,7 @@ class _ClusterDetailSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Container(
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.6,

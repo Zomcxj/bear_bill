@@ -7,6 +7,7 @@ import '../../providers/app_provider.dart';
 import '../../services/database_service.dart';
 import '../../theme/app_design_system.dart';
 import '../../theme/app_theme.dart';
+import '../../../providers/theme_provider.dart';
 
 /// 将 hex 颜色字符串转换为 Color
 Color _hexToColor(String hex) {
@@ -24,14 +25,36 @@ class MultiBookPage extends StatefulWidget {
   State<MultiBookPage> createState() => _MultiBookPageState();
 }
 
-class _MultiBookPageState extends State<MultiBookPage> {
+class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
   List<BookModel> _books = [];
   Map<String, int> _bookRecordCounts = {};
   bool _loading = true;
+  RouteObserver<ModalRoute<void>>? _routeObserver;
 
   @override
   void initState() {
     super.initState();
+    _loadBooks();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _routeObserver ??= Navigator.of(context).widget.observers
+        .whereType<RouteObserver<ModalRoute<void>>>()
+        .firstOrNull;
+    _routeObserver?.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void dispose() {
+    _routeObserver?.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    // 从其他页面返回时刷新数据
     _loadBooks();
   }
 
@@ -272,6 +295,7 @@ class _MultiBookPageState extends State<MultiBookPage> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Scaffold(
       backgroundColor: DS.background,
       body: SafeArea(
@@ -448,6 +472,7 @@ class _BookCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Container(
       margin: EdgeInsets.only(bottom: DS.base),
       padding: EdgeInsets.all(DS.gutter),

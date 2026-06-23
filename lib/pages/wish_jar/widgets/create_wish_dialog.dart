@@ -4,6 +4,8 @@ import 'package:uuid/uuid.dart';
 
 import '../../../models/models.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../providers/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 /// 创建心愿对话框
 class CreateWishDialog extends StatefulWidget {
@@ -62,6 +64,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return AlertDialog(
       title: Text('✨ 创建新心愿'),
       content: SingleChildScrollView(

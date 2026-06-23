@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../models/models.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../providers/theme_provider.dart';
 
 /// 金额展示 + 日期选择 + 快捷金额标签
 class AmountDateSection extends StatelessWidget {
@@ -24,6 +25,7 @@ class AmountDateSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     final accentColor =
         type == 'expense' ? DS.error : DS.secondary;
 

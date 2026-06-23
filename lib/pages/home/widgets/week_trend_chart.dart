@@ -8,6 +8,7 @@ import '../../../theme/app_design_system.dart';
 import '../../../utils/utils.dart' as utils;
 import '../../../widgets/glass_card.dart';
 import '../../statistics/statistics_page.dart';
+import '../../../providers/theme_provider.dart';
 
 /// 本周消费趋势图 — 玻璃卡片风格
 class WeekTrendChart extends StatefulWidget {
@@ -73,6 +74,7 @@ class _WeekTrendChartState extends State<WeekTrendChart> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return GlassCard(
       margin: EdgeInsets.symmetric(horizontal: DS.sm),
       child: Column(

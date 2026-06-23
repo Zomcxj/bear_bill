@@ -4,6 +4,8 @@ import '../../../theme/app_design_system.dart';
 import '../../../widgets/glass_card.dart';
 import '../../add_record/add_record_page.dart';
 import '../../ai_chat/ai_chat_page.dart';
+import '../../../providers/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 /// 快捷记账入口 — 水平滑动 + 圆形分类图标
 class QuickEntries extends StatelessWidget {
@@ -91,6 +93,7 @@ class QuickEntries extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return GlassCard(
       margin: EdgeInsets.symmetric(horizontal: DS.sm),
       child: Column(
@@ -153,6 +156,7 @@ class _QuickEntryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return GestureDetector(
       onTap: () {
         if (recordType == '__ai__') {

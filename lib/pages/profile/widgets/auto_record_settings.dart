@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../services/auto_record_service.dart';
 import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
+import '../../../providers/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 /// 自动记账设置对话框
 Future<void> showAutoRecordDialog(BuildContext context) async {
@@ -30,6 +32,7 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
     with WidgetsBindingObserver {
   late bool _enabled;
   bool _listenerEnabled = false;
+  bool _accessibilityEnabled = false;
 
   @override
   void initState() {
@@ -54,10 +57,15 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
   }
 
   Future<void> _checkListenerStatus() async {
-    final enabled =
+    final listenerEnabled =
         await AutoRecordService.instance.isNotificationListenerEnabled();
+    final accessibilityEnabled =
+        await AutoRecordService.instance.isAccessibilityEnabled();
     if (mounted) {
-      setState(() => _listenerEnabled = enabled);
+      setState(() {
+        _listenerEnabled = listenerEnabled;
+        _accessibilityEnabled = accessibilityEnabled;
+      });
     }
   }
 
@@ -71,16 +79,11 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
 
     setState(() => _enabled = value);
     await AutoRecordService.instance.setAutoRecordEnabled(value);
-
-    if (value) {
-      AutoRecordService.instance.startPolling();
-    } else {
-      AutoRecordService.instance.stopPolling();
-    }
   }
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return AlertDialog(
       title: Row(
         children: [
@@ -136,7 +139,64 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
                     onPressed: () async {
                       await AutoRecordService.instance
                           .openNotificationListenerSettings();
-                      // 返回后由 didChangeAppLifecycleState 重新检查
+                    },
+                    child: Text('去开启'),
+                  ),
+              ],
+            ),
+          ),
+          SizedBox(height: 12),
+
+          // 无障碍服务状态
+          Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: _accessibilityEnabled
+                  ? AppTheme.success.withOpacity(0.1)
+                  : AppTheme.warning.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(DS.radiusSm),
+              border: Border.all(
+                color: _accessibilityEnabled
+                    ? AppTheme.success.withOpacity(0.3)
+                    : AppTheme.warning.withOpacity(0.3),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  _accessibilityEnabled ? Icons.check_circle : Icons.accessibility_new,
+                  size: 20,
+                  color: _accessibilityEnabled ? AppTheme.success : AppTheme.warning,
+                ),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _accessibilityEnabled ? '无障碍服务已开启' : '无障碍服务未开启',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: _accessibilityEnabled ? AppTheme.success : AppTheme.warning,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        '读取支付成功页面，实时捕获',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: DS.outline,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (!_accessibilityEnabled)
+                  TextButton(
+                    onPressed: () async {
+                      await AutoRecordService.instance
+                          .openAccessibilitySettings();
                     },
                     child: Text('去开启'),
                   ),

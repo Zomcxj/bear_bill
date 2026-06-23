@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
 import '../../../utils/utils.dart';
+import '../../../providers/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 /// 统计页 Tab 切换器
 class StatTabs extends StatelessWidget {
@@ -21,6 +23,7 @@ class StatTabs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Container(
       padding: EdgeInsets.all(DS.base),
       decoration: BoxDecoration(
