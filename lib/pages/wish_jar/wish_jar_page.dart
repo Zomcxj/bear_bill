@@ -5,7 +5,6 @@ import '../../providers/app_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../services/database_service.dart';
 import '../../theme/app_design_system.dart';
-import '../../theme/app_theme.dart';
 import '../../utils/utils.dart';
 import '../../widgets/glass_card.dart';
 import 'widgets/add_money_dialog.dart';
@@ -283,7 +282,7 @@ class _WishJarPageState extends State<WishJarPage>
           Container(
             padding: EdgeInsets.all(3),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.6),
+              color: DS.heroCardBg,
               borderRadius: BorderRadius.circular(DS.radiusFull),
             ),
             child: Row(

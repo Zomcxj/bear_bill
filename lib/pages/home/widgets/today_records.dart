@@ -257,7 +257,7 @@ class _TodayRecordsState extends State<TodayRecords> {
               height: 40,
               decoration: BoxDecoration(
                 color: catColor.withOpacity(0.15),
-                shape: BoxShape.circle,
+                borderRadius: BorderRadius.circular(DS.radiusSm),
               ),
               child: Center(
                 child: Text(

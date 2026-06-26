@@ -3,9 +3,6 @@ import 'app_design_system.dart';
 
 /// 小熊记账本 — Luminous Finance 主题
 class AppTheme {
-  static dynamic _themeProvider;
-  static set themeProvider(dynamic tp) => _themeProvider = tp;
-
   // ── 主色 ──
   static const Color primary = DS.primary;
   static const Color primaryDark = DS.primaryContainer;

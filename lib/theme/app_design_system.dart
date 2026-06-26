@@ -122,6 +122,19 @@ class DS {
 
   static LinearGradient get heroGradientBlueCurrent => _isDark ? heroGradientBlueDark : heroGradientBlue;
 
+  // ── Hero 卡片色（动态） ──
+  static Color get heroCardBg => _isDark
+      ? Colors.white.withOpacity(0.08)
+      : Colors.white.withOpacity(0.6);
+  static Color get heroCardBorder => _isDark
+      ? Colors.white.withOpacity(0.08)
+      : Colors.black.withOpacity(0.08);
+
+  // ── 动态语义色 ──
+  static Color get errorDynamic => _isDark
+      ? const Color(0xFFFFB4AB)
+      : const Color(0xFFBA1A1A);
+
   // ── 毛玻璃装饰 ──
   static BoxDecoration get glassDecoration => BoxDecoration(
     color: _isDark ? Colors.white.withOpacity(0.06) : Colors.white.withOpacity(0.7),

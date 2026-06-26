@@ -284,12 +284,12 @@ class _HomePageState extends State<HomePage>
                         height: 22,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: DS.primary,
+                          color: DS.onSurface,
                         ),
                       )
                     : Icon(
                         _isRecording ? Icons.mic : Icons.mic_none,
-                        color: _isRecording ? Colors.white : DS.primary,
+                        color: _isRecording ? Colors.white : DS.onSurface,
                         size: 24,
                       ),
               ),
@@ -307,8 +307,8 @@ class _HomePageState extends State<HomePage>
                   ),
                 );
               },
-              backgroundColor: DS.primary,
-              foregroundColor: DS.onPrimary,
+              backgroundColor: DS.onSurface,
+              foregroundColor: DS.background,
               icon: Icon(Icons.edit, size: 20),
               label: Text(
                 '记一笔',

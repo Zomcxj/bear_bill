@@ -367,7 +367,7 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
                   Container(
                     padding: EdgeInsets.all(3),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.6),
+                      color: DS.heroCardBg,
                       borderRadius: BorderRadius.circular(DS.radiusFull),
                     ),
                     child: Row(
@@ -466,13 +466,12 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
   }
 
   Widget _buildAmountRow() {
-    final accentColor = _type == 'expense' ? DS.error : DS.secondary;
     return Container(
       padding: EdgeInsets.all(DS.gutter),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.6),
+        color: DS.heroCardBg,
         borderRadius: BorderRadius.circular(DS.radiusMd),
-        border: Border.all(color: Colors.black.withOpacity(0.08)),
+        border: Border.all(color: DS.heroCardBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -504,9 +503,9 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.xs + 2),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.6),
+                    color: DS.heroCardBg,
                     borderRadius: BorderRadius.circular(DS.radiusFull),
-                    border: Border.all(color: Colors.black.withOpacity(0.08)),
+                    border: Border.all(color: DS.heroCardBorder),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -597,12 +596,12 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
     final result = await showLocationDialog();
     if (result != null && mounted) {
       setState(() {
-        if (result!.name != null) {
-          _location = result!.name;
+        if (result.name != null) {
+          _location = result.name;
           _locationController.text = _location ?? '';
         }
-        if (result!.latitude != null) _latitude = result!.latitude;
-        if (result!.longitude != null) _longitude = result!.longitude;
+        if (result.latitude != null) _latitude = result.latitude;
+        if (result.longitude != null) _longitude = result.longitude;
       });
     }
   }

@@ -4,9 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../providers/app_provider.dart';
 import '../../../services/database_service.dart';
 import '../../../theme/app_design_system.dart';
-import '../../../theme/app_theme.dart';
 import '../../../utils/utils.dart';
-import 'income_expense_summary.dart';
 import '../../../providers/theme_provider.dart';
 
 /// 年度总结组件
@@ -19,8 +17,6 @@ class YearSummary extends StatefulWidget {
 
 class _YearSummaryState extends State<YearSummary> {
   int _selectedYear = DateTime.now().year;
-  double _totalExpense = 0;
-  double _totalIncome = 0;
   List<Map<String, dynamic>> _monthlyData = [];
   List<Map<String, dynamic>> _expenseCategories = [];
   bool _loading = true;
@@ -41,8 +37,6 @@ class _YearSummaryState extends State<YearSummary> {
 
     if (mounted) {
       setState(() {
-        _totalExpense = data['totalExpense'] as double;
-        _totalIncome = data['totalIncome'] as double;
         _monthlyData = (data['monthlyData'] as List).cast<Map<String, dynamic>>();
         _expenseCategories = (data['categories'] as List)
             .cast<Map<String, dynamic>>()

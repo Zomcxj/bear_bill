@@ -5,14 +5,12 @@ import '../../providers/app_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../services/database_service.dart';
 import '../../theme/app_design_system.dart';
-import '../../theme/app_theme.dart';
 import '../../utils/format_utils.dart';
 import '../bill_list/bill_list_page.dart';
 import 'widgets/category_breakdown.dart';
 import 'widgets/monthly_summary.dart';
 import 'widgets/trend_line_chart.dart';
 import 'widgets/stat_tabs.dart';
-import 'widgets/income_expense_summary.dart';
 import 'widgets/year_summary.dart';
 
 /// 统计页 — Luminous Finance 风格
@@ -123,9 +121,9 @@ class _StatisticsPageState extends State<StatisticsPage> {
                       Container(
                         padding: EdgeInsets.symmetric(vertical: DS.gutter),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.6),
+                          color: DS.heroCardBg,
                           borderRadius: BorderRadius.circular(DS.radiusMd),
-                          border: Border.all(color: Colors.black.withOpacity(0.08)),
+                          border: Border.all(color: DS.heroCardBorder),
                         ),
                         child: IntrinsicHeight(
                           child: Row(
@@ -205,7 +203,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                             child: Container(
                               width: 32, height: 32,
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.6),
+                                color: DS.heroCardBg,
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(Icons.chevron_left, size: 18, color: DS.onSurface),
@@ -218,9 +216,9 @@ class _StatisticsPageState extends State<StatisticsPage> {
                               child: Container(
                                 padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.xs + 2),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.6),
+                                  color: DS.heroCardBg,
                                   borderRadius: BorderRadius.circular(DS.radiusFull),
-                                  border: Border.all(color: Colors.black.withOpacity(0.08)),
+                                  border: Border.all(color: DS.heroCardBorder),
                                 ),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -251,7 +249,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                             child: Container(
                               width: 32, height: 32,
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.6),
+                                color: DS.heroCardBg,
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(Icons.chevron_right, size: 18, color: DS.onSurface),
@@ -264,7 +262,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                       Container(
                         padding: EdgeInsets.all(3),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.6),
+                          color: DS.heroCardBg,
                           borderRadius: BorderRadius.circular(DS.radiusFull),
                         ),
                         child: Row(

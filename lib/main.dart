@@ -51,7 +51,6 @@ void main() async {
 
   // 初始化主题（从缓存加载用户选择的颜色）
   final themeProvider = ThemeProvider();
-  AppTheme.themeProvider = themeProvider;
 
   // 初始化通知服务
   await NotificationService.instance.init();
