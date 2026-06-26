@@ -25,13 +25,14 @@ void main() {
       }
     });
 
-    test('分类 ID 唯一', () {
-      final allIds = [
-        ...expenseCategories.map((c) => c.id),
-        ...incomeCategories.map((c) => c.id),
-      ];
-      final uniqueIds = allIds.toSet();
-      expect(allIds.length, uniqueIds.length, reason: '分类ID存在重复');
+    test('支出分类 ID 唯一', () {
+      final ids = expenseCategories.map((c) => c.id).toList();
+      expect(ids.toSet().length, ids.length, reason: '支出分类ID存在重复');
+    });
+
+    test('收入分类 ID 唯一', () {
+      final ids = incomeCategories.map((c) => c.id).toList();
+      expect(ids.toSet().length, ids.length, reason: '收入分类ID存在重复');
     });
   });
 
