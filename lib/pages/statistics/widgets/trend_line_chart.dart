@@ -4,8 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../providers/app_provider.dart';
 import '../../../providers/theme_provider.dart';
 import '../../../services/database_service.dart';
-import '../../../theme/app_theme.dart';
-import '../../../widgets/app_card.dart';
+import '../../../theme/app_design_system.dart';
 
 /// 近6个月收支趋势折线图
 class TrendLineChart extends StatefulWidget {
@@ -57,14 +56,12 @@ class _TrendLineChartState extends State<TrendLineChart> {
 
   @override
   Widget build(BuildContext context) {
-    context.watch<ThemeProvider>(); // 确保深色模式切换时重建
-
+    context.watch<ThemeProvider>(); // 主题变更时触发重建
     if (_loading) {
-      return const AppCard(
-        margin: EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-        padding: EdgeInsets.all(AppSpacing.md),
-        borderRadius: AppRadius.md,
-        showShadow: false,
+      return Container(
+        margin: EdgeInsets.symmetric(horizontal: DS.sm),
+        padding: EdgeInsets.all(DS.gutter),
+        decoration: DS.glassDecoration,
         child: SizedBox(
           height: 260,
           child: Center(child: CircularProgressIndicator()),
@@ -84,46 +81,48 @@ class _TrendLineChartState extends State<TrendLineChart> {
     }
     if (maxVal == 0) maxVal = 1; // 避免除零
 
-    return AppCard(
-      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-      borderRadius: AppRadius.md,
-      showShadow: false,
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: DS.sm),
+      padding: EdgeInsets.all(DS.gutter),
+      decoration: DS.glassDecoration,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
+              Icon(Icons.show_chart, size: 18, color: DS.primary),
+              SizedBox(width: 6),
               Text(
-                '📈 收支趋势',
+                '收支趋势',
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
-                  color: AppTheme.textPrimary,
+                  color: DS.onSurface,
                 ),
               ),
-              const Spacer(),
+              Spacer(),
               _buildLegend(),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadius.sm),
+            borderRadius: BorderRadius.circular(DS.radiusSm),
             child: Container(
               height: 160,
-              color: AppTheme.bgPage,
+              color: DS.background,
               child: CustomPaint(
                 size: const Size(double.infinity, 160),
                 painter: _TrendPainter(
                   data: _data,
                   maxVal: maxVal,
-                  expenseColor: AppTheme.primary,
-                  incomeColor: AppTheme.success,
-                  gridColor: AppTheme.border,
+                  expenseColor: DS.primary,
+                  incomeColor: DS.secondary,
+                  gridColor: DS.outlineVariant,
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           // 月份标签
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -132,7 +131,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
                       d['label'] as String,
                       style: TextStyle(
                         fontSize: 11,
-                        color: AppTheme.textHint,
+                        color: DS.outline,
                       ),
                     ))
                 .toList(),
@@ -149,23 +148,23 @@ class _TrendLineChartState extends State<TrendLineChart> {
           width: 10,
           height: 10,
           decoration: BoxDecoration(
-            color: AppTheme.primary,
+            color: DS.primary,
             shape: BoxShape.circle,
           ),
         ),
-        const SizedBox(width: 4),
-        Text('支出', style: TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
-        const SizedBox(width: 12),
+        SizedBox(width: 4),
+        Text('支出', style: TextStyle(fontSize: 11, color: DS.onSurfaceVariant)),
+        SizedBox(width: 12),
         Container(
           width: 10,
           height: 10,
-          decoration: const BoxDecoration(
-            color: AppTheme.success,
+          decoration: BoxDecoration(
+            color: DS.secondary,
             shape: BoxShape.circle,
           ),
         ),
-        const SizedBox(width: 4),
-        Text('收入', style: TextStyle(fontSize: 11, color: AppTheme.textSecondary)),
+        SizedBox(width: 4),
+        Text('收入', style: TextStyle(fontSize: 11, color: DS.onSurfaceVariant)),
       ],
     );
   }

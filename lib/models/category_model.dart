@@ -72,6 +72,10 @@ const List<CategoryModel> expenseCategories = [
   CategoryModel(
       id: 'social', name: '社交', icon: '🎉', color: '#E17055', isExpense: true),
   CategoryModel(
+      id: 'transfer', name: '转账', icon: '💸', color: '#E67E22', isExpense: true),
+  CategoryModel(
+      id: 'red_packet', name: '红包', icon: '🧧', color: '#FF4757', isExpense: true),
+  CategoryModel(
       id: 'other', name: '其他', icon: '📦', color: '#B0B0B0', isExpense: true),
 ];
 
@@ -96,6 +100,12 @@ const List<CategoryModel> incomeCategories = [
       name: '转账',
       icon: '💸',
       color: '#E67E22',
+      isExpense: false),
+  CategoryModel(
+      id: 'red_packet',
+      name: '红包',
+      icon: '🧧',
+      color: '#FF4757',
       isExpense: false),
   CategoryModel(
       id: 'other_in',

@@ -5,12 +5,12 @@ import '../../main.dart';
 import '../../providers/app_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../services/database_service.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/app_design_system.dart';
 import 'widgets/achievement_grid.dart';
 import 'widgets/settings_list.dart';
 import 'widgets/user_profile_card.dart';
 
-/// 个人中心页 - 等级系统、连续打卡、成就徽章、账本管理
+/// 个人中心页 — Luminous Finance 风格
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -29,29 +29,23 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _loadStats() async {
     final books = await DatabaseService.instance.getAllBooks();
-
-    setState(() {
-      _totalBooks = books.length;
-    });
+    setState(() => _totalBooks = books.length);
   }
 
   @override
   Widget build(BuildContext context) {
-    context.watch<ThemeProvider>(); // listen to theme changes
+    context.watch<ThemeProvider>(); // 主题变更时触发重建
     return Scaffold(
-      backgroundColor: AppTheme.bgPage,
-      appBar: AppBar(
-        title: const Text('我的'),
-        backgroundColor: AppTheme.primary,
-      ),
-      body: RefreshIndicator(
+      backgroundColor: DS.background,
+      body: SafeArea(
+        top: false,
+        child: RefreshIndicator(
         onRefresh: _loadStats,
-        color: AppTheme.primary,
+        color: DS.secondaryContainer,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
             children: [
-              // 1. 用户信息卡片
               Consumer<AppProvider>(
                 builder: (context, appProvider, child) {
                   return UserProfileCard(
@@ -64,40 +58,24 @@ class _ProfilePageState extends State<ProfilePage> {
                   );
                 },
               ),
-
-              const SizedBox(height: AppSpacing.sm),
-
-              // 2. 成就徽章
+              SizedBox(height: DS.base),
               const AchievementGrid(),
-
-              const SizedBox(height: AppSpacing.sm),
-
-              // 3. 设置列表
+              SizedBox(height: DS.base),
               SettingsList(onClearData: _clearAllData),
             ],
           ),
+        ),
         ),
       ),
     );
   }
 
   Future<void> _clearAllData() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('⚠️ 警告'),
-        content: const Text('确定要清空所有账单数据吗？此操作不可恢复！'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text('确认清空',
-                style: TextStyle(color: AppTheme.primaryDark)),
-          ),
-        ],
+    final confirmed = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => _ClearDataConfirmPage(),
       ),
     );
     if (!mounted) return;
@@ -105,11 +83,9 @@ class _ProfilePageState extends State<ProfilePage> {
     if (confirmed == true) {
       final appProvider = context.read<AppProvider>();
 
-      // 清空当前账本的记录
       await DatabaseService.instance
           .clearRecordsByBook(appProvider.currentBookId);
 
-      // 重新计算所有账本的总记录数
       final allBooks = await DatabaseService.instance.getAllBooks();
       int totalRecords = 0;
       for (final book in allBooks) {
@@ -119,7 +95,6 @@ class _ProfilePageState extends State<ProfilePage> {
         totalRecords += count;
       }
 
-      // 更新用户统计数据
       if (appProvider.user != null) {
         final updatedUser = appProvider.user!.copyWith(
           totalRecords: totalRecords,
@@ -131,12 +106,66 @@ class _ProfilePageState extends State<ProfilePage> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('已清空当前账本的账单数据'),
-            backgroundColor: AppTheme.success,
+          SnackBar(
+            content: const Text('已清空当前账本的账单数据'),
+            backgroundColor: DS.inverseSurface,
           ),
         );
       }
     }
+  }
+}
+
+/// 清空账单确认页（独立页面，不使用对话框）
+class _ClearDataConfirmPage extends StatelessWidget {
+  const _ClearDataConfirmPage();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: DS.background,
+      appBar: AppBar(
+        backgroundColor: DS.background,
+        foregroundColor: DS.onSurface,
+        title: Text('确认操作'),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(DS.gutter),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: DS.md),
+            Icon(Icons.warning_amber, size: 48, color: DS.error),
+            SizedBox(height: DS.gutter),
+            Text('清空账单', style: DS.headlineMd.copyWith(color: DS.onSurface)),
+            SizedBox(height: DS.sm),
+            Text(
+              '确定要清空当前账本的所有账单数据吗？此操作不可恢复！',
+              style: DS.bodyMd.copyWith(color: DS.onSurfaceVariant),
+            ),
+            Spacer(),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: Text('取消'),
+                  ),
+                ),
+                SizedBox(width: DS.sm),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    style: ElevatedButton.styleFrom(backgroundColor: DS.error),
+                    child: Text('确认清空', style: TextStyle(color: Colors.white)),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: DS.md),
+          ],
+        ),
+      ),
+    );
   }
 }

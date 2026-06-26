@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/models.dart';
 import '../../providers/app_provider.dart';
-import '../../services/amap_location_service.dart';
+import '../../providers/theme_provider.dart';
 import '../../services/database_service.dart';
 import '../../services/glm_service.dart';
 import '../../services/notification_service.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/app_design_system.dart';
 import '../add_record/add_record_page.dart';
-import '../add_record/widgets/map_picker_page.dart';
+import 'ai_chat_location_mixin.dart';
+import 'ai_chat_query_mixin.dart';
 import 'widgets/chat_bubble.dart';
 import 'widgets/chat_input_bar.dart';
 
@@ -26,17 +24,16 @@ class AiChatPage extends StatefulWidget {
   State<AiChatPage> createState() => _AiChatPageState();
 }
 
-class _AiChatPageState extends State<AiChatPage> {
+class _AiChatPageState extends State<AiChatPage>
+    with AiChatLocationMixin, AiChatQueryMixin {
   final List<ChatMessage> _messages = [];
   final ScrollController _scrollController = ScrollController();
   bool _isLoading = false;
 
-  // 每条确认消息的心情和定位状态
   final Map<String, MoodModel?> _msgMoods = {};
-  final Map<String, String?> _msgLocations = {};
-  final Map<String, double?> _msgLat = {};
-  final Map<String, double?> _msgLng = {};
-  final Map<String, bool> _msgLocationLoading = {};
+
+  @override
+  List<ChatMessage> get messages => _messages;
 
   @override
   void initState() {
@@ -172,210 +169,15 @@ class _AiChatPageState extends State<AiChatPage> {
           'date': result.date,
         },
       ));
-      _msgLocationLoading[msgId] = true;
+      msgLocationLoading[msgId] = true;
     });
 
     // 自动获取 GPS 定位
-    _fetchLocationForMsg(msgId);
-  }
-
-  Future<void> _fetchLocationForMsg(String msgId) async {
-    try {
-      // 检查定位服务
-      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        if (mounted) setState(() => _msgLocationLoading[msgId] = false);
-        return;
-      }
-
-      // 检查权限
-      var permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-      }
-      if (permission == LocationPermission.denied ||
-          permission == LocationPermission.deniedForever) {
-        if (mounted) setState(() => _msgLocationLoading[msgId] = false);
-        return;
-      }
-
-      // 获取位置
-      Position? position = await Geolocator.getLastKnownPosition();
-      try {
-        position ??= await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.medium,
-        ).timeout(const Duration(seconds: 12));
-      } catch (_) {
-        // 定位超时或失败
-      }
-
-      if (!mounted || position == null) {
-        if (mounted) setState(() => _msgLocationLoading[msgId] = false);
-        return;
-      }
-
-      _msgLat[msgId] = position.latitude;
-      _msgLng[msgId] = position.longitude;
-
-      // 反向地理编码
-      String? address;
-      try {
-        final amapResult = await AmapLocationService.instance
-            .reverseGeocode(position.latitude, position.longitude)
-            .timeout(const Duration(seconds: 5), onTimeout: () => null);
-        address = amapResult?.shortAddress;
-      } catch (_) {}
-
-      // 降级：Android 原生 Geocoder
-      if (address == null || address.isEmpty) {
-        try {
-          final result = await const MethodChannel('bear_bill/location')
-              .invokeMethod<String>('reverseGeocode', {
-            'latitude': position.latitude,
-            'longitude': position.longitude,
-          });
-          address = result;
-        } catch (_) {}
-      }
-
-      if (mounted) {
-        setState(() {
-          _msgLocations[msgId] = address;
-          _msgLocationLoading[msgId] = false;
-        });
-      }
-    } catch (_) {
-      if (mounted) setState(() => _msgLocationLoading[msgId] = false);
-    }
+    fetchLocationForMsg(msgId);
   }
 
   Future<void> _handleQueryResult(AiParseResult result) async {
-    final appProvider = context.read<AppProvider>();
-    final bookId = appProvider.currentBookId;
-    final now = DateTime.now();
-    final period = result.queryPeriod ?? 'month';
-
-    // 根据时间段计算日期范围
-    String? startDate;
-    String? endDate;
-    String periodLabel;
-
-    // 自定义日期范围优先
-    if (result.queryStartDate != null || result.queryEndDate != null) {
-      startDate = result.queryStartDate;
-      endDate = result.queryEndDate;
-      periodLabel = _formatDateRangeLabel(startDate, endDate);
-    } else {
-      switch (period) {
-        case 'today':
-          startDate = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-          endDate = startDate;
-          periodLabel = '今日';
-          break;
-        case 'week':
-          final weekStart = now.subtract(Duration(days: now.weekday - 1));
-          startDate = '${weekStart.year}-${weekStart.month.toString().padLeft(2, '0')}-${weekStart.day.toString().padLeft(2, '0')}';
-          endDate = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-          periodLabel = '本周';
-          break;
-        case 'year':
-          startDate = '${now.year}-01-01';
-          endDate = '${now.year}-12-31';
-          periodLabel = '${now.year}年';
-          break;
-        case 'month':
-        default:
-          startDate = '${now.year}-${now.month.toString().padLeft(2, '0')}-01';
-          endDate = '${now.year}-${now.month.toString().padLeft(2, '0')}-31';
-          periodLabel = '${now.month}月';
-      }
-    }
-
-    // 使用灵活查询
-    List<RecordModel> records = await DatabaseService.instance.queryRecords(
-      startDate: startDate,
-      endDate: endDate,
-      categoryId: result.queryCategoryId,
-      mood: result.queryMood,
-      locationKeyword: result.queryLocation,
-      bookId: bookId,
-    );
-
-    double totalExpense = 0;
-    double totalIncome = 0;
-    final Map<String, Map<String, dynamic>> categoryBreakdown = {};
-
-    for (final r in records) {
-      if (r.type == 'expense') {
-        totalExpense += r.amount;
-        final key = r.categoryId;
-        if (!categoryBreakdown.containsKey(key)) {
-          categoryBreakdown[key] = {
-            'name': r.categoryName,
-            'icon': r.categoryIcon,
-            'amount': 0.0,
-          };
-        }
-        categoryBreakdown[key]!['amount'] =
-            (categoryBreakdown[key]!['amount'] as double) + r.amount;
-      } else {
-        totalIncome += r.amount;
-      }
-    }
-
-    // 构建筛选描述
-    String filterDesc = '';
-    if (result.queryCategoryId != null) {
-      final cat = getCategoryById(result.queryCategoryId!, isExpense: true);
-      filterDesc += '${cat?.icon ?? ''} ${cat?.name ?? result.queryCategoryId} ';
-    }
-    if (result.queryMood != null) {
-      final mood = moods.where((m) => m.id == result.queryMood).firstOrNull;
-      filterDesc += '${mood?.emoji ?? ''} ${mood?.label ?? result.queryMood}心情 ';
-    }
-    if (result.queryLocation != null) {
-      filterDesc += '📍${result.queryLocation} ';
-    }
-
-    final msgId = DateTime.now().millisecondsSinceEpoch.toString();
-    setState(() {
-      _messages.add(ChatMessage(
-        id: msgId,
-        text: '',
-        isUser: false,
-        type: ChatMessageType.queryResult,
-        data: {
-          'period': periodLabel,
-          'filterDesc': filterDesc.trim(),
-          'totalExpense': totalExpense,
-          'totalIncome': totalIncome,
-          'count': records.length,
-          'categoryBreakdown': categoryBreakdown,
-        },
-      ));
-    });
-  }
-
-  String _formatDateRangeLabel(String? start, String? end) {
-    if (start == null && end == null) return '';
-    String label = '';
-    if (start != null) {
-      try {
-        final d = DateTime.parse(start);
-        label = '${d.month}月${d.day}日';
-      } catch (_) {
-        label = start;
-      }
-    }
-    if (end != null && end != start) {
-      try {
-        final d = DateTime.parse(end);
-        label += '~${d.month}月${d.day}日';
-      } catch (_) {
-        label += '~$end';
-      }
-    }
-    return label;
+    await handleQueryResult(result);
   }
 
   void _addBotMessage(String text, {ChatMessageType type = ChatMessageType.text}) {
@@ -411,9 +213,9 @@ class _AiChatPageState extends State<AiChatPage> {
 
     // 读取心情和定位
     final mood = _msgMoods[msg.id];
-    final location = _msgLocations[msg.id];
-    final lat = _msgLat[msg.id];
-    final lng = _msgLng[msg.id];
+    final location = msgLocations[msg.id];
+    final lat = msgLat[msg.id];
+    final lng = msgLng[msg.id];
 
     final record = RecordModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -451,10 +253,10 @@ class _AiChatPageState extends State<AiChatPage> {
 
     // 清理状态
     _msgMoods.remove(msg.id);
-    _msgLocations.remove(msg.id);
-    _msgLat.remove(msg.id);
-    _msgLng.remove(msg.id);
-    _msgLocationLoading.remove(msg.id);
+    msgLocations.remove(msg.id);
+    msgLat.remove(msg.id);
+    msgLng.remove(msg.id);
+    msgLocationLoading.remove(msg.id);
 
     final achievements = await appProvider.onRecordAdded(
       type: type,
@@ -491,107 +293,84 @@ class _AiChatPageState extends State<AiChatPage> {
     final data = msg.data;
     if (data == null) return;
 
+    // 读取心情和定位（保存后再清理）
+    final location = msgLocations[msg.id];
+    final lat = msgLat[msg.id];
+    final lng = msgLng[msg.id];
+    final mood = _msgMoods[msg.id];
+
     // 清理心情和定位状态
     _msgMoods.remove(msg.id);
-    _msgLocations.remove(msg.id);
-    _msgLat.remove(msg.id);
-    _msgLng.remove(msg.id);
-    _msgLocationLoading.remove(msg.id);
+    msgLocations.remove(msg.id);
+    msgLat.remove(msg.id);
+    msgLng.remove(msg.id);
+    msgLocationLoading.remove(msg.id);
 
     // 删除确认消息
     setState(() {
       _messages.remove(msg);
     });
 
-    // 跳转到记账页，预填类型
+    // 构建临时 RecordModel，带入所有已填信息（含定位）
+    final type = data['type'] as String? ?? 'expense';
+    final amount = data['amount'] as double? ?? 0;
+    final categoryId = data['categoryId'] as String? ?? 'other';
+    final categoryName = data['categoryName'] as String? ?? '其他';
+    final categoryIcon = data['categoryIcon'] as String? ?? '📦';
+    final remark = data['remark'] as String?;
+    final dateStr = data['date'] as String?;
+
+    final now = DateTime.now();
+    final date = dateStr != null && dateStr.length == 10
+        ? DateTime.tryParse(dateStr) ?? now
+        : now;
+    final finalDateStr =
+        '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+
+    final category = getCategoryById(categoryId, isExpense: type == 'expense');
+
+    final tempRecord = RecordModel(
+      id: 'temp_edit',
+      bookId: 'default',
+      type: type,
+      amount: amount,
+      categoryId: categoryId,
+      categoryName: categoryName,
+      categoryIcon: categoryIcon,
+      categoryColor: category?.color,
+      remark: remark,
+      date: finalDateStr,
+      month: finalDateStr.substring(0, 7),
+      dateTs: date.millisecondsSinceEpoch,
+      createdAt: now,
+      mood: mood?.id,
+      moodEmoji: mood?.emoji,
+      location: location,
+      latitude: lat,
+      longitude: lng,
+    );
+
+    // 跳转到记账页，带入预填数据；保存后回到首页
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => AddRecordPage(
-          initialType: data['type'] as String?,
-        ),
+        builder: (_) => AddRecordPage(prefillRecord: tempRecord),
       ),
-    );
-  }
-
-  void _showLocationOptions(String msgId) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: Icon(Icons.my_location, color: AppTheme.primary),
-              title: const Text('重新获取 GPS 定位'),
-              onTap: () {
-                Navigator.pop(ctx);
-                setState(() {
-                  _msgLocationLoading[msgId] = true;
-                  _msgLocations[msgId] = null;
-                });
-                _fetchLocationForMsg(msgId);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.map, color: AppTheme.primary),
-              title: const Text('地图选点'),
-              onTap: () {
-                Navigator.pop(ctx);
-                _openMapPicker(msgId);
-              },
-            ),
-            if (_msgLocations[msgId] != null)
-              ListTile(
-                leading: Icon(Icons.clear, color: AppTheme.textHint),
-                title: const Text('清除位置'),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  setState(() {
-                    _msgLocations[msgId] = null;
-                    _msgLat[msgId] = null;
-                    _msgLng[msgId] = null;
-                  });
-                },
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _openMapPicker(String msgId) async {
-    LatLng? initialCenter;
-    if (_msgLat[msgId] != null && _msgLng[msgId] != null) {
-      initialCenter = LatLng(_msgLat[msgId]!, _msgLng[msgId]!);
-    }
-
-    final result = await Navigator.push<Map<String, dynamic>>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => MapPickerPage(initialCenter: initialCenter),
-      ),
-    );
-
-    if (result != null && mounted) {
-      setState(() {
-        _msgLocations[msgId] = result['address'] as String?;
-        _msgLat[msgId] = result['latitude'] as double?;
-        _msgLng[msgId] = result['longitude'] as double?;
-        _msgLocationLoading[msgId] = false;
-      });
-    }
+    ).then((saved) {
+      if (saved == true && mounted) {
+        // 保存成功，回到首页
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Scaffold(
-      backgroundColor: AppTheme.bgPage,
+      backgroundColor: DS.background,
       appBar: AppBar(
-        title: const Row(
+        title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text('🐻', style: TextStyle(fontSize: 20)),
@@ -606,7 +385,12 @@ class _AiChatPageState extends State<AiChatPage> {
             ),
           ],
         ),
-        backgroundColor: AppTheme.primary,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: DS.heroGradientBlueCurrent,
+          ),
+        ),
+        backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: Column(
@@ -615,18 +399,18 @@ class _AiChatPageState extends State<AiChatPage> {
           if (!GlmService.instance.isConfigured)
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              color: AppTheme.primaryLight,
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              color: DS.surfaceContainerHigh,
               child: Row(
                 children: [
-                  Icon(Icons.info_outline, size: 14, color: AppTheme.primaryDark),
-                  const SizedBox(width: 6),
+                  Icon(Icons.info_outline, size: 14, color: DS.primaryContainer),
+                  SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       '未配置 GLM API Key，使用本地关键词解析（精度较低）',
                       style: TextStyle(
                         fontSize: 11,
-                        color: AppTheme.primaryDark,
+                        color: DS.primaryContainer,
                       ),
                     ),
                   ),
@@ -637,13 +421,13 @@ class _AiChatPageState extends State<AiChatPage> {
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              padding: EdgeInsets.symmetric(vertical: 12),
               itemCount: _messages.length + (_isLoading ? 1 : 0),
               itemBuilder: (context, index) {
                 if (index == _messages.length) {
                   // 加载指示器
                   return Padding(
-                    padding: const EdgeInsets.symmetric(
+                    padding: EdgeInsets.symmetric(
                         horizontal: 16, vertical: 8),
                     child: Row(
                       children: [
@@ -651,22 +435,22 @@ class _AiChatPageState extends State<AiChatPage> {
                           width: 36,
                           height: 36,
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryLight,
+                            color: DS.surfaceContainerHigh,
                             borderRadius: BorderRadius.circular(18),
                           ),
                           child: const Center(
                             child: Text('🐻', style: TextStyle(fontSize: 20)),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(
+                          padding: EdgeInsets.symmetric(
                               horizontal: 14, vertical: 10),
                           decoration: BoxDecoration(
-                            color: AppTheme.bgCard,
+                            color: DS.surfaceContainerLowest,
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                                color: AppTheme.border.withOpacity(0.5)),
+                                color: DS.outlineVariant.withOpacity(0.5)),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -676,15 +460,15 @@ class _AiChatPageState extends State<AiChatPage> {
                                 height: 16,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: AppTheme.primary,
+                                  color: DS.primary,
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              SizedBox(width: 8),
                               Text(
                                 '思考中...',
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: AppTheme.textSecondary,
+                                  color: DS.onSurfaceVariant,
                                 ),
                               ),
                             ],
@@ -708,10 +492,10 @@ class _AiChatPageState extends State<AiChatPage> {
                   onMoodChanged: msg.type == ChatMessageType.recordConfirm
                       ? (mood) => setState(() => _msgMoods[msg.id] = mood)
                       : null,
-                  location: _msgLocations[msg.id],
-                  locationLoading: _msgLocationLoading[msg.id] ?? false,
+                  location: msgLocations[msg.id],
+                  locationLoading: msgLocationLoading[msg.id] ?? false,
                   onLocationTap: msg.type == ChatMessageType.recordConfirm
-                      ? () => _showLocationOptions(msg.id)
+                      ? () => showLocationOptions(msg.id, () => setState(() {}))
                       : null,
                 );
               },

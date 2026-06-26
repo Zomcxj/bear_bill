@@ -10,8 +10,10 @@ import 'package:provider/provider.dart';
 
 import '../../providers/app_provider.dart';
 import '../../services/database_service.dart';
+import '../../theme/app_design_system.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/utils.dart';
+import '../../providers/theme_provider.dart';
 
 /// 账单导出页 - CSV导出、文件保存
 class ExportPage extends StatefulWidget {
@@ -37,7 +39,7 @@ class _ExportPageState extends State<ExportPage> {
 
   Future<void> _doExport() async {
     setState(() => _exporting = true);
-    
+
     try {
       final appProvider = context.read<AppProvider>();
       final records = await DatabaseService.instance.getMonthRecords(
@@ -53,7 +55,7 @@ class _ExportPageState extends State<ExportPage> {
         setState(() => _exporting = false);
         return;
       }
-      
+
       // 生成 CSV 内容
       final csvContent = _generateCSV(records);
 
@@ -63,30 +65,36 @@ class _ExportPageState extends State<ExportPage> {
         setState(() => _exporting = false);
         return;
       }
-      
+
       setState(() => _exporting = false);
-      
+
       if (mounted) {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('✅ 导出成功'),
+            title: Row(
+              children: [
+                Icon(Icons.check_circle, color: AppTheme.success, size: 24),
+                SizedBox(width: 8),
+                Text('导出成功'),
+              ],
+            ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('共导出 ${records.length} 条记录'),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Text(
                   '文件位置：\n$targetPath',
-                  style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                  style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
                 ),
               ],
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('确定'),
+                child: Text('确定'),
               ),
             ],
           ),
@@ -94,7 +102,7 @@ class _ExportPageState extends State<ExportPage> {
       }
     } catch (e) {
       setState(() => _exporting = false);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('导出失败：$e')),
@@ -175,32 +183,33 @@ class _ExportPageState extends State<ExportPage> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Scaffold(
-      backgroundColor: AppTheme.bgPage,
+      backgroundColor: DS.background,
       appBar: AppBar(
-        title: const Text('账单导出'),
-        backgroundColor: AppTheme.primary,
+        title: Text('账单导出'),
+        backgroundColor: DS.primary,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
+        padding: EdgeInsets.all(DS.gutter),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // 说明卡片
             _buildInfoCard(),
-            
-            const SizedBox(height: AppSpacing.lg),
-            
+
+            SizedBox(height: DS.md),
+
             // 月份选择
             _buildMonthSelector(),
-            
-            const SizedBox(height: AppSpacing.lg),
-            
+
+            SizedBox(height: DS.md),
+
             // 导出按钮
             _buildExportButton(),
-            
-            const Spacer(),
-            
+
+            Spacer(),
+
             // 温馨提示
             _buildTips(),
           ],
@@ -211,35 +220,28 @@ class _ExportPageState extends State<ExportPage> {
 
   Widget _buildInfoCard() {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: EdgeInsets.all(DS.gutter),
       decoration: BoxDecoration(
-        color: AppTheme.primaryLight,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppTheme.border),
+        color: DS.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(DS.radiusMd),
+        border: Border.all(color: DS.outlineVariant),
       ),
       child: Row(
         children: [
-          Icon(Icons.download, size: 40, color: AppTheme.primary),
-          const SizedBox(width: AppSpacing.md),
+          Icon(Icons.download, size: 40, color: DS.primary),
+          SizedBox(width: DS.gutter),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   '导出账单数据',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary,
-                  ),
+                  style: DS.headlineSm.copyWith(color: DS.onSurface),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   '将账单导出为 CSV 格式，方便在 Excel 中查看和分析',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: AppTheme.textSecondary,
-                  ),
+                  style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
                 ),
               ],
             ),
@@ -255,13 +257,9 @@ class _ExportPageState extends State<ExportPage> {
       children: [
         Text(
           '选择月份：',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: AppTheme.textPrimary,
-          ),
+          style: DS.labelMd.copyWith(color: DS.onSurface),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         TextField(
           controller: TextEditingController(text: _selectedMonth),
           readOnly: true,
@@ -271,18 +269,18 @@ class _ExportPageState extends State<ExportPage> {
               context: context,
               builder: (context) => Container(
                 height: 320,
-                color: AppTheme.bgCard,
+                color: DS.surfaceContainerLowest,
                 child: Column(
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         CupertinoButton(
-                          child: const Text('取消'),
+                          child: Text('取消'),
                           onPressed: () => Navigator.pop(context),
                         ),
                         CupertinoButton(
-                          child: const Text('确定', style: TextStyle(fontWeight: FontWeight.w600)),
+                          child: Text('确定', style: TextStyle(fontWeight: FontWeight.w600)),
                           onPressed: () => Navigator.pop(context, tempDate),
                         ),
                       ],
@@ -309,12 +307,12 @@ class _ExportPageState extends State<ExportPage> {
           },
           decoration: InputDecoration(
             hintText: '点击选择月份',
-            prefixIcon: Icon(Icons.calendar_today, color: AppTheme.primary),
-            suffixIcon: const Icon(Icons.arrow_drop_down),
+            prefixIcon: Icon(Icons.calendar_today, color: DS.primary),
+            suffixIcon: Icon(Icons.arrow_drop_down),
             filled: true,
-            fillColor: AppTheme.bgCard,
+            fillColor: DS.surfaceContainerLowest,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.md),
+              borderRadius: BorderRadius.circular(DS.radiusSm),
               borderSide: BorderSide.none,
             ),
           ),
@@ -330,7 +328,7 @@ class _ExportPageState extends State<ExportPage> {
       child: ElevatedButton.icon(
         onPressed: _exporting ? null : _doExport,
         icon: _exporting
-            ? const SizedBox(
+            ? SizedBox(
                 width: 20,
                 height: 20,
                 child: CircularProgressIndicator(
@@ -338,13 +336,13 @@ class _ExportPageState extends State<ExportPage> {
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
               )
-            : const Icon(Icons.file_download),
+            : Icon(Icons.file_download),
         label: Text(_exporting ? '导出中...' : '开始导出'),
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppTheme.primary,
+          backgroundColor: DS.primary,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.full),
+            borderRadius: BorderRadius.circular(DS.radiusFull),
           ),
         ),
       ),
@@ -353,10 +351,10 @@ class _ExportPageState extends State<ExportPage> {
 
   Widget _buildTips() {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: EdgeInsets.all(DS.gutter),
       decoration: BoxDecoration(
         color: AppTheme.infoLight,
-        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderRadius: BorderRadius.circular(DS.radiusSm),
         border: Border.all(color: AppTheme.info.withOpacity(0.3)),
       ),
       child: Column(
@@ -364,27 +362,22 @@ class _ExportPageState extends State<ExportPage> {
         children: [
           Row(
             children: [
-              const Icon(Icons.lightbulb_outline, color: AppTheme.info, size: 20),
-              const SizedBox(width: 8),
+              Icon(Icons.lightbulb_outline, color: AppTheme.info, size: 20),
+              SizedBox(width: 8),
               Text(
                 '温馨提示',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textPrimary,
-                ),
+                style: DS.labelMd.copyWith(color: DS.onSurface),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
             '• 导出时可自行选择保存位置\n'
             '• 文件格式为 CSV，可用 Excel 打开\n'
             '• 包含日期、金额、分类、备注等完整信息\n'
             '• 建议定期备份重要账单数据',
-            style: TextStyle(
-              fontSize: 13,
-              color: AppTheme.textSecondary,
+            style: DS.labelSm.copyWith(
+              color: DS.onSurfaceVariant,
               height: 1.6,
             ),
           ),

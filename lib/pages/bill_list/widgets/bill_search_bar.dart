@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../../../theme/app_theme.dart';
+import '../../../theme/app_design_system.dart';
+import '../../../providers/theme_provider.dart';
 
 /// 账单搜索筛选栏
 class BillSearchBar extends StatelessWidget {
@@ -21,12 +23,13 @@ class BillSearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Container(
       padding:
-          const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 8),
+          EdgeInsets.symmetric(horizontal: DS.base, vertical: 8),
       decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        border: Border(bottom: BorderSide(color: AppTheme.border)),
+        color: DS.surfaceContainerLowest,
+        border: Border(bottom: BorderSide(color: DS.outlineVariant)),
       ),
       child: Row(
         children: [
@@ -35,51 +38,50 @@ class BillSearchBar extends StatelessWidget {
             child: Container(
               height: 40,
               decoration: BoxDecoration(
-                color: AppTheme.bgPage,
-                borderRadius: BorderRadius.circular(AppRadius.md),
-                border: Border.all(color: AppTheme.border),
+                color: DS.background,
+                borderRadius: BorderRadius.circular(DS.radiusSm),
+                border: Border.all(color: DS.outlineVariant),
               ),
               child: TextField(
                 onChanged: onKeywordChanged,
                 decoration: InputDecoration(
                   hintText: '搜索分类、备注、金额...',
-                  hintStyle: TextStyle(
-                    fontSize: 13,
-                    color: AppTheme.textHint,
+                  hintStyle: DS.labelSm.copyWith(
+                    color: DS.outline,
                   ),
                   prefixIcon: Icon(
                     Icons.search,
                     size: 20,
-                    color: AppTheme.textSecondary,
+                    color: DS.onSurfaceVariant,
                   ),
-                  contentPadding: const EdgeInsets.symmetric(
+                  contentPadding: EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 10,
                   ),
                   border: InputBorder.none,
                 ),
-                style: const TextStyle(fontSize: 14),
+                style: DS.labelMd,
               ),
             ),
           ),
 
-          const SizedBox(width: AppSpacing.sm),
+          SizedBox(width: DS.base),
 
           // 筛选按钮
           GestureDetector(
             onTap: onFilterTap,
             child: Container(
               height: 40,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
                 color: filterType != 'all' || filterCategories.isNotEmpty
-                    ? AppTheme.primaryLight
-                    : AppTheme.bgPage,
-                borderRadius: BorderRadius.circular(AppRadius.md),
+                    ? DS.surfaceContainerHigh
+                    : DS.background,
+                borderRadius: BorderRadius.circular(DS.radiusSm),
                 border: Border.all(
                   color: filterType != 'all' || filterCategories.isNotEmpty
-                      ? AppTheme.primary
-                      : AppTheme.border,
+                      ? DS.primary
+                      : DS.outlineVariant,
                 ),
               ),
               child: Row(
@@ -89,18 +91,16 @@ class BillSearchBar extends StatelessWidget {
                     Icons.filter_list,
                     size: 18,
                     color: filterType != 'all' || filterCategories.isNotEmpty
-                        ? AppTheme.primary
-                        : AppTheme.textSecondary,
+                        ? DS.primary
+                        : DS.onSurfaceVariant,
                   ),
-                  const SizedBox(width: 4),
+                  SizedBox(width: 4),
                   Text(
                     '筛选',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
+                    style: DS.labelMd.copyWith(
                       color: filterType != 'all' || filterCategories.isNotEmpty
-                          ? AppTheme.primary
-                          : AppTheme.textSecondary,
+                          ? DS.primary
+                          : DS.onSurfaceVariant,
                     ),
                   ),
                 ],

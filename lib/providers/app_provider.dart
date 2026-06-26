@@ -55,8 +55,19 @@ class AppProvider extends ChangeNotifier {
     final hasCreatedWish = wishes.isNotEmpty;
     final completedWishes = wishes.where((w) => w.isCompleted).length;
 
-    final budgetStr = StorageService.instance.getString('monthlyBudget');
-    final hasBudget = budgetStr != null && budgetStr.isNotEmpty && double.tryParse(budgetStr) != null && double.parse(budgetStr) > 0;
+    final book = await getCurrentBook();
+    final budget = book?.budget ?? 0.0;
+    final hasBudget = budget > 0;
+
+    // 计算本月支出占比
+    double expenseRatio = 0.0;
+    if (hasBudget) {
+      final now = DateTime.now();
+      final monthStr = '${now.year}-${now.month.toString().padLeft(2, '0')}';
+      final stats = await _db.getMonthStatistics(monthStr, bookId: _currentBookId);
+      final expense = (stats['expense'] ?? 0.0) as double;
+      expenseRatio = (expense / budget) * 100;
+    }
 
     final totalImages = await _db.getTotalImagesCount();
     final locationCount = await _db.getRecordsWithLocationCount();
@@ -67,7 +78,7 @@ class AppProvider extends ChangeNotifier {
       checkInDays: _checkInDays,
       totalRecords: _user!.totalRecords,
       hasBudget: hasBudget,
-      expenseRatio: 0,
+      expenseRatio: expenseRatio,
       completedWishes: completedWishes,
       hasCreatedWish: hasCreatedWish,
       totalImages: totalImages,
@@ -302,12 +313,23 @@ class AppProvider extends ChangeNotifier {
   Future<void> checkBudgetAchievements() async {
     if (_user == null) return;
 
-    final budgetStr = StorageService.instance.getString('monthlyBudget');
-    final hasBudget = budgetStr != null && budgetStr.isNotEmpty && double.tryParse(budgetStr) != null && double.parse(budgetStr) > 0;
+    final book = await getCurrentBook();
+    final budget = book?.budget ?? 0.0;
+    final hasBudget = budget > 0;
+
+    // 计算本月支出占比
+    double expenseRatio = 0.0;
+    if (hasBudget) {
+      final now = DateTime.now();
+      final monthStr = '${now.year}-${now.month.toString().padLeft(2, '0')}';
+      final stats = await _db.getMonthStatistics(monthStr, bookId: _currentBookId);
+      final expense = (stats['expense'] ?? 0.0) as double;
+      expenseRatio = (expense / budget) * 100;
+    }
 
     final newAchievements = AchievementChecker.checkBudgetAchievements(
       hasBudget: hasBudget,
-      expenseRatio: 0, // 暂不计算比例，只检查是否设置预算
+      expenseRatio: expenseRatio,
       unlockedIds: _unlockedAchievements,
     );
 

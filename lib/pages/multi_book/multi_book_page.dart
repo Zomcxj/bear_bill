@@ -5,7 +5,9 @@ import 'package:uuid/uuid.dart';
 import '../../models/models.dart';
 import '../../providers/app_provider.dart';
 import '../../services/database_service.dart';
+import '../../theme/app_design_system.dart';
 import '../../theme/app_theme.dart';
+import '../../../providers/theme_provider.dart';
 
 /// 将 hex 颜色字符串转换为 Color
 Color _hexToColor(String hex) {
@@ -23,14 +25,36 @@ class MultiBookPage extends StatefulWidget {
   State<MultiBookPage> createState() => _MultiBookPageState();
 }
 
-class _MultiBookPageState extends State<MultiBookPage> {
+class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
   List<BookModel> _books = [];
   Map<String, int> _bookRecordCounts = {};
   bool _loading = true;
+  RouteObserver<ModalRoute<void>>? _routeObserver;
 
   @override
   void initState() {
     super.initState();
+    _loadBooks();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _routeObserver ??= Navigator.of(context).widget.observers
+        .whereType<RouteObserver<ModalRoute<void>>>()
+        .firstOrNull;
+    _routeObserver?.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void dispose() {
+    _routeObserver?.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    // 从其他页面返回时刷新数据
     _loadBooks();
   }
 
@@ -93,16 +117,16 @@ class _MultiBookPageState extends State<MultiBookPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('切换账本'),
-        content: const Text('切换后首页将显示新账本的数据'),
+        title: Text('切换账本'),
+        content: Text('切换后首页将显示新账本的数据'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+            child: Text('取消'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text('切换', style: TextStyle(color: AppTheme.primary)),
+            child: Text('切换', style: TextStyle(color: DS.primary)),
           ),
         ],
       ),
@@ -131,49 +155,90 @@ class _MultiBookPageState extends State<MultiBookPage> {
 
   Future<void> _editBook(BookModel book) async {
     final controller = TextEditingController(text: book.name);
+    String selectedIcon = book.icon;
 
-    final newName = await showDialog<String>(
+    const bookEmojis = [
+      '📒', '📕', '📗', '📘', '📙', '📓', '📔', '💰', '🏦', '💳',
+      '🏠', '✈️', '🎓', '💼', '🛒', '🎮', '🍳', '🚗', '❤️', '⭐',
+    ];
+
+    final result = await showDialog<Map<String, String>>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('✏️ 编辑账本'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: '账本名称',
-            prefixIcon: Icon(Icons.book),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.edit, color: DS.primary, size: 24),
+              SizedBox(width: 8),
+              Text('编辑账本'),
+            ],
           ),
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final name = controller.text.trim();
-              if (name.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('请输入账本名称')),
-                );
-                return;
-              }
-              Navigator.pop(context, name);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRadius.full),
-              ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('账本图标', style: DS.labelMd),
+                SizedBox(height: DS.sm),
+                Wrap(
+                  spacing: DS.sm,
+                  runSpacing: DS.sm,
+                  children: bookEmojis.map((emoji) {
+                    final isSelected = selectedIcon == emoji;
+                    return GestureDetector(
+                      onTap: () => setDialogState(() => selectedIcon = emoji),
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: isSelected ? DS.secondaryContainer : DS.surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(DS.radiusSm),
+                          border: Border.all(
+                            color: isSelected ? DS.secondary : DS.outlineVariant,
+                            width: isSelected ? 2 : 1,
+                          ),
+                        ),
+                        child: Center(child: Text(emoji, style: TextStyle(fontSize: 20))),
+                      ),
+                    );
+                  }).toList(),
+                ),
+                SizedBox(height: DS.gutter),
+                Text('账本名称', style: DS.labelMd),
+                SizedBox(height: DS.sm),
+                TextField(
+                  controller: controller,
+                  decoration: const InputDecoration(hintText: '输入账本名称'),
+                  autofocus: true,
+                ),
+              ],
             ),
-            child: const Text('保存'),
           ),
-        ],
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('取消'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final name = controller.text.trim();
+                if (name.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('请输入账本名称')),
+                  );
+                  return;
+                }
+                Navigator.pop(context, {'name': name, 'icon': selectedIcon});
+              },
+              child: Text('保存'),
+            ),
+          ],
+        ),
       ),
     );
 
-    if (newName != null && newName != book.name) {
-      final updatedBook = book.copyWith(name: newName);
+    if (result != null) {
+      final updatedBook = book.copyWith(name: result['name'], icon: result['icon']);
       await DatabaseService.instance.updateBook(updatedBook);
       if (!mounted) return;
       _loadBooks();
@@ -197,17 +262,17 @@ class _MultiBookPageState extends State<MultiBookPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('确认删除'),
+        title: Text('确认删除'),
         content: Text('确定要删除「${book.name}」吗？\n该账本下的所有账单也将被删除！'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+            child: Text('取消'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             child:
-                Text('删除', style: TextStyle(color: AppTheme.primaryDark)),
+                Text('删除', style: TextStyle(color: DS.primaryContainer)),
           ),
         ],
       ),
@@ -230,24 +295,64 @@ class _MultiBookPageState extends State<MultiBookPage> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Scaffold(
-      backgroundColor: AppTheme.bgPage,
-      appBar: AppBar(
-        title: const Text('多账本管理'),
-        backgroundColor: AppTheme.primary,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _showCreateDialog(),
-          ),
-        ],
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _books.isEmpty
-              ? _buildEmptyState()
-              : ListView.builder(
-                  padding: const EdgeInsets.all(AppSpacing.sm),
+      backgroundColor: DS.background,
+      body: SafeArea(
+        top: false,
+        bottom: false,
+        child: Column(
+          children: [
+            // 渐变 Hero 头部
+            Container(
+              padding: EdgeInsets.fromLTRB(DS.containerMargin, MediaQuery.of(context).padding.top + DS.gutter, DS.containerMargin, DS.base),
+              decoration: BoxDecoration(
+                gradient: DS.heroGradientBlueCurrent,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(DS.radiusLg),
+                  bottomRight: Radius.circular(DS.radiusLg),
+                ),
+              ),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Icon(Icons.arrow_back_ios, size: 20, color: DS.onSurface),
+                  ),
+                  SizedBox(width: DS.sm),
+                  Icon(Icons.book, size: 22, color: DS.onSurface),
+                  SizedBox(width: DS.sm),
+                  Text('账本管理', style: DS.headlineMd),
+                  Spacer(),
+                  GestureDetector(
+                    onTap: _showCreateDialog,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.xs + 2),
+                      decoration: BoxDecoration(
+                        color: DS.heroCardBg,
+                        borderRadius: BorderRadius.circular(DS.radiusFull),
+                        border: Border.all(color: DS.heroCardBorder),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.add, size: 16, color: DS.onSurface),
+                          SizedBox(width: DS.xs),
+                          Text('新建', style: DS.labelSm),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: DS.base),
+            Expanded(
+              child: _loading
+                  ? const Center(child: CircularProgressIndicator(color: DS.secondaryContainer))
+                  : _books.isEmpty
+                      ? _buildEmptyState()
+                      : ListView.builder(
+                  padding: EdgeInsets.only(left: DS.base, right: DS.base, bottom: DS.base),
                   itemCount: _books.length,
                   itemBuilder: (context, index) {
                     final book = _books[index];
@@ -266,6 +371,10 @@ class _MultiBookPageState extends State<MultiBookPage> {
                     );
                   },
                 ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -274,23 +383,16 @@ class _MultiBookPageState extends State<MultiBookPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('📒', style: TextStyle(fontSize: 80)),
-          const SizedBox(height: AppSpacing.md),
+          Icon(Icons.menu_book, size: 64, color: DS.outlineVariant),
+          SizedBox(height: DS.gutter),
           Text(
             '还没有其他账本',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.textPrimary,
-            ),
+            style: DS.headlineSm.copyWith(color: DS.onSurface),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
             '点击右上角 + 创建新账本',
-            style: TextStyle(
-              fontSize: 14,
-              color: AppTheme.textSecondary,
-            ),
+            style: DS.bodyMd.copyWith(color: DS.onSurfaceVariant),
           ),
         ],
       ),
@@ -303,7 +405,13 @@ class _MultiBookPageState extends State<MultiBookPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('✨ 创建新账本'),
+        title: Row(
+          children: [
+            Icon(Icons.add_circle_outline, color: DS.primary, size: 24),
+            SizedBox(width: 8),
+            Text('创建新账本'),
+          ],
+        ),
         content: TextField(
           controller: controller,
           decoration: const InputDecoration(
@@ -316,7 +424,7 @@ class _MultiBookPageState extends State<MultiBookPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
+            child: Text('取消'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -331,12 +439,12 @@ class _MultiBookPageState extends State<MultiBookPage> {
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primary,
+              backgroundColor: DS.primary,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRadius.full),
+                borderRadius: BorderRadius.circular(DS.radiusFull),
               ),
             ),
-            child: const Text('创建'),
+            child: Text('创建'),
           ),
         ],
       ),
@@ -364,15 +472,16 @@ class _BookCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-      padding: const EdgeInsets.all(AppSpacing.md),
+      margin: EdgeInsets.only(bottom: DS.base),
+      padding: EdgeInsets.all(DS.gutter),
       decoration: BoxDecoration(
         color:
-            isCurrent ? _hexToColor(book.color).withOpacity(0.1) : AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(AppRadius.md),
+            isCurrent ? _hexToColor(book.color).withOpacity(0.1) : DS.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(DS.radiusSm),
         border: Border.all(
-          color: isCurrent ? _hexToColor(book.color) : AppTheme.border,
+          color: isCurrent ? _hexToColor(book.color) : DS.outlineVariant,
           width: isCurrent ? 2 : 1,
         ),
       ),
@@ -386,17 +495,17 @@ class _BookCard extends StatelessWidget {
                 height: 56,
                 decoration: BoxDecoration(
                   color: _hexToColor(book.color).withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  borderRadius: BorderRadius.circular(DS.radiusSm),
                 ),
                 child: Center(
                   child: Text(
                     book.icon,
-                    style: const TextStyle(fontSize: 28),
+                    style: TextStyle(fontSize: 28),
                   ),
                 ),
               ),
 
-              const SizedBox(width: AppSpacing.md),
+              SizedBox(width: DS.gutter),
 
               // 账本信息
               Expanded(
@@ -407,25 +516,24 @@ class _BookCard extends StatelessWidget {
                       children: [
                         Text(
                           book.name,
-                          style: TextStyle(
-                            fontSize: 16,
+                          style: DS.bodyMd.copyWith(
                             fontWeight: FontWeight.w600,
-                            color: AppTheme.textPrimary,
+                            color: DS.onSurface,
                           ),
                         ),
                         if (isCurrent) ...[
-                          const SizedBox(width: 8),
+                          SizedBox(width: 8),
                           Container(
-                            padding: const EdgeInsets.symmetric(
+                            padding: EdgeInsets.symmetric(
                               horizontal: 8,
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
                               color: AppTheme.success,
                               borderRadius:
-                                  BorderRadius.circular(AppRadius.full),
+                                  BorderRadius.circular(DS.radiusFull),
                             ),
-                            child: const Text(
+                            child: Text(
                               '当前',
                               style: TextStyle(
                                 fontSize: 11,
@@ -437,13 +545,10 @@ class _BookCard extends StatelessWidget {
                         ],
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       '$recordCount 条记录',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppTheme.textSecondary,
-                      ),
+                      style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -459,28 +564,28 @@ class _BookCard extends StatelessWidget {
                       width: 32,
                       height: 32,
                       decoration: BoxDecoration(
-                        color: AppTheme.bgSection,
-                        borderRadius: BorderRadius.circular(AppRadius.full),
-                        border: Border.all(color: AppTheme.border),
+                        color: DS.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(DS.radiusFull),
+                        border: Border.all(color: DS.outlineVariant),
                       ),
                       child: Icon(Icons.edit,
-                          size: 16, color: AppTheme.primary),
+                          size: 16, color: DS.primary),
                     ),
                   ),
                   if (!isCurrent) ...[
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     GestureDetector(
                       onTap: onDelete,
                       child: Container(
                         width: 32,
                         height: 32,
                         decoration: BoxDecoration(
-                          color: AppTheme.bgSection,
-                          borderRadius: BorderRadius.circular(AppRadius.full),
-                          border: Border.all(color: AppTheme.border),
+                          color: DS.surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(DS.radiusFull),
+                          border: Border.all(color: DS.outlineVariant),
                         ),
                         child: Icon(Icons.close,
-                            size: 16, color: AppTheme.textHint),
+                            size: 16, color: DS.outline),
                       ),
                     ),
                   ],
@@ -489,18 +594,18 @@ class _BookCard extends StatelessWidget {
             ],
           ),
           if (!isCurrent) ...[
-            const SizedBox(height: AppSpacing.md),
+            SizedBox(height: DS.gutter),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: onSwitch,
-                icon: const Icon(Icons.swap_horiz, size: 18),
-                label: const Text('切换到此账本'),
+                icon: Icon(Icons.swap_horiz, size: 18),
+                label: Text('切换到此账本'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: _hexToColor(book.color),
                   side: BorderSide(color: _hexToColor(book.color)),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppRadius.md),
+                    borderRadius: BorderRadius.circular(DS.radiusSm),
                   ),
                 ),
               ),

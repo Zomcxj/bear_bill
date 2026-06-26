@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../models/models.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/app_design_system.dart';
+import '../../../providers/theme_provider.dart';
 
 /// 金额展示 + 日期选择 + 快捷金额标签
 class AmountDateSection extends StatelessWidget {
@@ -24,22 +26,24 @@ class AmountDateSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final panelColor = AppTheme.primaryLight;
+    context.watch<ThemeProvider>(); // theme rebuild
     final accentColor =
-        type == 'expense' ? AppTheme.primaryDark : AppTheme.primary;
+        type == 'expense' ? DS.error : DS.secondary;
 
     return Container(
-      color: panelColor,
-      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        gradient: DS.heroGradientBlueCurrent,
+      ),
+      padding: EdgeInsets.all(DS.gutter),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: EdgeInsets.all(DS.gutter),
             decoration: BoxDecoration(
-              color: AppTheme.bgCard,
-              borderRadius: BorderRadius.circular(AppRadius.lg),
+              color: DS.surfaceContainerLowest,
+              borderRadius: BorderRadius.circular(DS.radiusMd),
               border: Border.all(color: accentColor.withOpacity(0.12)),
               boxShadow: [
                 BoxShadow(
@@ -57,59 +61,74 @@ class AmountDateSection extends StatelessWidget {
                     _buildInfoPill(
                       icon: selectedCategory?.icon ?? '🍜',
                       label: selectedCategory?.name ?? '餐饮',
-                      backgroundColor: AppTheme.primary,
+                      backgroundColor: DS.primary,
                       textColor: Colors.white,
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: DS.sm),
                     GestureDetector(
                       onTap: onDateSelect,
-                      child: _buildInfoPill(
-                        icon: '📅',
-                        label:
-                            '${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}',
-                        backgroundColor: AppTheme.bgSection,
-                        textColor: AppTheme.textPrimary,
-                        trailing: Icon(
-                          Icons.chevron_right,
-                          size: 16,
-                          color: AppTheme.textHint,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: 7),
+                        decoration: BoxDecoration(
+                          color: DS.heroCardBg,
+                          borderRadius: BorderRadius.circular(DS.radiusFull),
+                          border: Border.all(color: DS.heroCardBorder),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.calendar_today, size: 14, color: DS.onSurface),
+                            SizedBox(width: DS.xs),
+                            Text(
+                              '${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}',
+                              style: TextStyle(
+                                fontFamily: DS.fontLabel,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: DS.onSurface,
+                              ),
+                            ),
+                            SizedBox(width: 2),
+                            Icon(Icons.chevron_right, size: 14, color: DS.outline),
+                          ],
                         ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.md),
+                SizedBox(height: DS.gutter),
                 Text(
                   amount.isEmpty ? '¥0' : '¥$amount',
                   style: TextStyle(
-                    fontSize: 34,
+                    fontFamily: DS.fontDisplay,
+                    fontSize: 36,
                     height: 1,
                     fontWeight: FontWeight.w800,
-                    color: accentColor,
+                    color: DS.onSurface,
                     letterSpacing: -1.5,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: AppSpacing.sm),
+          SizedBox(height: DS.base),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
               children: ['10', '20', '50', '100', '200', '500'].map((quickAmount) {
                 final isSelected = amount == quickAmount;
                 return Padding(
-                  padding: const EdgeInsets.only(right: 8),
+                  padding: EdgeInsets.only(right: 8),
                   child: GestureDetector(
                     onTap: () => onAmountChanged(quickAmount),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
+                      padding: EdgeInsets.symmetric(
                         horizontal: 14,
                         vertical: 7,
                       ),
                       decoration: BoxDecoration(
-                        color: isSelected ? accentColor : AppTheme.bgCard,
-                        borderRadius: BorderRadius.circular(AppRadius.full),
+                        color: isSelected ? accentColor : DS.surfaceContainerLowest,
+                        borderRadius: BorderRadius.circular(DS.radiusFull),
                         border: Border.all(
                           color: isSelected
                               ? accentColor
@@ -145,16 +164,16 @@ Widget _buildInfoPill({
   Widget? trailing,
 }) {
   return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 9),
     decoration: BoxDecoration(
       color: backgroundColor,
-      borderRadius: BorderRadius.circular(AppRadius.full),
+      borderRadius: BorderRadius.circular(DS.radiusFull),
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(icon, style: const TextStyle(fontSize: 16)),
-        const SizedBox(width: 6),
+        Text(icon, style: TextStyle(fontSize: 16)),
+        SizedBox(width: 6),
         Text(
           label,
           style: TextStyle(
@@ -164,7 +183,7 @@ Widget _buildInfoPill({
           ),
         ),
         if (trailing != null) ...[
-          const SizedBox(width: 2),
+          SizedBox(width: 2),
           trailing,
         ],
       ],

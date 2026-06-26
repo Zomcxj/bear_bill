@@ -7,9 +7,11 @@ import '../../models/models.dart';
 import '../../providers/app_provider.dart';
 import '../../services/database_service.dart';
 import '../../services/notification_service.dart';
+import '../../theme/app_design_system.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/utils.dart' as utils;
 import '../add_record/add_record_page.dart';
+import '../../providers/theme_provider.dart';
 
 Color _hexToColor(String hex) {
   final buffer = StringBuffer();
@@ -69,20 +71,20 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('确认删除'),
+        title: Text('确认删除'),
         content: Text(
           '确定要删除「${_record!.categoryName}」¥${utils.FormatUtils.formatAmount(_record!.amount)} 吗？',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+            child: Text('取消'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             child: Text(
               '删除',
-              style: TextStyle(color: AppTheme.primaryDark),
+              style: TextStyle(color: DS.primaryContainer),
             ),
           ),
         ],
@@ -97,9 +99,15 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('已删除 🗑️'),
-            duration: Duration(seconds: 1),
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.delete_outline, size: 18, color: Colors.white),
+                SizedBox(width: 6),
+                Text('已删除'),
+              ],
+            ),
+            duration: const Duration(seconds: 1),
           ),
         );
         Navigator.pop(context, true);
@@ -109,16 +117,17 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     if (_loading) {
       return Scaffold(
-        appBar: AppBar(title: const Text('账单详情')),
+        appBar: AppBar(title: Text('账单详情')),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_record == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('账单详情')),
+        appBar: AppBar(title: Text('账单详情')),
         body: const Center(child: Text('账单不存在')),
       );
     }
@@ -130,18 +139,18 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
     final mood = _record!.mood != null ? getMoodById(_record!.mood!) : null;
 
     return Scaffold(
-      backgroundColor: AppTheme.bgPage,
+      backgroundColor: DS.background,
       appBar: AppBar(
         title: Text(_record!.type == 'income' ? '收入详情' : '支出详情'),
         backgroundColor:
-            _record!.type == 'income' ? AppTheme.success : AppTheme.primary,
+            _record!.type == 'income' ? AppTheme.success : DS.primary,
       ),
       body: Column(
         children: [
           _buildAmountHero(category),
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.sm),
+              padding: EdgeInsets.all(DS.base),
               child: Column(
                 children: [
                   if (mood != null)
@@ -150,14 +159,11 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(mood.emoji, style: const TextStyle(fontSize: 22)),
-                          const SizedBox(width: 6),
+                          Text(mood.emoji, style: TextStyle(fontSize: 22)),
+                          SizedBox(width: 6),
                           Text(
                             mood.label,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: AppTheme.textPrimary,
-                            ),
+                            style: DS.bodyMd.copyWith(color: DS.onSurface),
                           ),
                         ],
                       ),
@@ -168,20 +174,14 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
                       _record!.remark != null && _record!.remark!.isNotEmpty
                           ? _record!.remark!
                           : '无备注',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: AppTheme.textPrimary,
-                      ),
+                      style: DS.bodyMd.copyWith(color: DS.onSurface),
                     ),
                   ),
                   _buildDetailRow(
                     '记录时间',
                     Text(
                       '${utils.DateUtils.formatDate(_record!.createdAt)} ${_record!.createdAt.hour.toString().padLeft(2, '0')}:${_record!.createdAt.minute.toString().padLeft(2, '0')}',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppTheme.textSecondary,
-                      ),
+                      style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
                     ),
                   ),
                   if (_record!.location != null && _record!.location!.isNotEmpty)
@@ -189,10 +189,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
                       '位置',
                       Text(
                         _record!.location!,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppTheme.textPrimary,
-                        ),
+                        style: DS.bodyMd.copyWith(color: DS.onSurface),
                       ),
                     ),
                   if (_record!.images.isNotEmpty) _buildImageSection(),
@@ -209,11 +206,11 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
   Widget _buildAmountHero(CategoryModel? category) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.xl),
+      padding: EdgeInsets.all(DS.md),
       decoration: BoxDecoration(
         color: _record!.type == 'income'
             ? AppTheme.successLight
-            : AppTheme.primaryLight,
+            : DS.surfaceContainerHigh,
       ),
       child: Column(
         children: [
@@ -221,8 +218,8 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: AppTheme.bgCard,
-              borderRadius: BorderRadius.circular(AppRadius.full),
+              color: DS.surfaceContainerLowest,
+              borderRadius: BorderRadius.circular(DS.radiusFull),
               border: Border.all(
                 color: _hexToColor(category?.color ?? '#B0B0B0'),
                 width: 2,
@@ -231,20 +228,19 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
             child: Center(
               child: Text(
                 category?.icon ?? '📦',
-                style: const TextStyle(fontSize: 32),
+                style: TextStyle(fontSize: 32),
               ),
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          SizedBox(height: DS.gutter),
           Text(
             category?.name ?? '未分类',
-            style: TextStyle(
-              fontSize: 16,
+            style: DS.bodyMd.copyWith(
               fontWeight: FontWeight.w600,
-              color: AppTheme.textPrimary,
+              color: DS.onSurface,
             ),
           ),
-          const SizedBox(height: AppSpacing.sm),
+          SizedBox(height: DS.base),
           Text(
             '${_record!.type == 'income' ? '+' : '-'}¥${utils.FormatUtils.formatAmount(_record!.amount)}',
             style: TextStyle(
@@ -252,39 +248,29 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
               fontWeight: FontWeight.bold,
               color: _record!.type == 'income'
                   ? AppTheme.success
-                  : AppTheme.primaryDark,
+                  : DS.primaryContainer,
               fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          SizedBox(height: DS.gutter),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
                 utils.DateUtils.formatDayCN(_record!.date),
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textPrimary,
-                ),
+                style: DS.labelMd.copyWith(color: DS.onSurface),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(
                 utils.DateUtils.getWeekday(DateTime.parse(_record!.date)),
-                style: TextStyle(
-                  fontSize: 13,
-                  color: AppTheme.textSecondary,
-                ),
+                style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Text(
             _record!.date,
-            style: TextStyle(
-              fontSize: 12,
-              color: AppTheme.textHint,
-            ),
+            style: DS.labelSm.copyWith(color: DS.outline),
           ),
         ],
       ),
@@ -293,13 +279,9 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
 
   Widget _buildDetailRow(String label, Widget value) {
     return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: AppTheme.border),
-      ),
+      margin: EdgeInsets.only(bottom: DS.base),
+      padding: EdgeInsets.all(DS.gutter),
+      decoration: DS.glassDecoration,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -307,10 +289,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
             width: 80,
             child: Text(
               label,
-              style: TextStyle(
-                fontSize: 14,
-                color: AppTheme.textSecondary,
-              ),
+              style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
             ),
           ),
           Expanded(child: value),
@@ -321,24 +300,17 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
 
   Widget _buildImageSection() {
     return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.sm),
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: AppTheme.border),
-      ),
+      margin: EdgeInsets.only(bottom: DS.base),
+      padding: EdgeInsets.all(DS.gutter),
+      decoration: DS.glassDecoration,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             '图片',
-            style: TextStyle(
-              fontSize: 14,
-              color: AppTheme.textSecondary,
-            ),
+            style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
           SizedBox(
             height: 76,
             child: ListView.builder(
@@ -348,11 +320,11 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
                 return GestureDetector(
                   onTap: () => _showFullImage(index),
                   child: Container(
-                    margin: const EdgeInsets.only(right: 8),
+                    margin: EdgeInsets.only(right: 8),
                     width: 76,
                     height: 76,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                      borderRadius: BorderRadius.circular(DS.radiusXs),
                       image: DecorationImage(
                         image: FileImage(File(_record!.images[index])),
                         fit: BoxFit.cover,
@@ -380,9 +352,9 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
 
   Widget _buildActionBar() {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.sm),
+      padding: EdgeInsets.all(DS.base),
       decoration: BoxDecoration(
-        color: AppTheme.bgCard,
+        color: DS.surfaceContainerLowest,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -396,30 +368,30 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
           Expanded(
             child: ElevatedButton.icon(
               onPressed: _editRecord,
-              icon: const Icon(Icons.edit),
-              label: const Text('编辑'),
+              icon: Icon(Icons.edit),
+              label: Text('编辑'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.info,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
+                padding: EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  borderRadius: BorderRadius.circular(DS.radiusSm),
                 ),
               ),
             ),
           ),
-          const SizedBox(width: AppSpacing.sm),
+          SizedBox(width: DS.base),
           Expanded(
             child: ElevatedButton.icon(
               onPressed: _deleteRecord,
-              icon: const Icon(Icons.delete),
-              label: const Text('删除'),
+              icon: Icon(Icons.delete),
+              label: Text('删除'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryDark,
+                backgroundColor: DS.primaryContainer,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
+                padding: EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  borderRadius: BorderRadius.circular(DS.radiusSm),
                 ),
               ),
             ),
@@ -460,6 +432,7 @@ class _FullImageViewerState extends State<_FullImageViewer> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -467,7 +440,7 @@ class _FullImageViewerState extends State<_FullImageViewer> {
         iconTheme: const IconThemeData(color: Colors.white),
         title: Text(
           '${_currentIndex + 1} / ${widget.images.length}',
-          style: const TextStyle(color: Colors.white, fontSize: 16),
+          style: TextStyle(color: Colors.white, fontSize: 16),
         ),
         centerTitle: true,
       ),
@@ -488,7 +461,7 @@ class _FullImageViewerState extends State<_FullImageViewer> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.broken_image, size: 64, color: Colors.grey[600]),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12),
                       Text(
                         '图片加载失败',
                         style: TextStyle(color: Colors.grey[400], fontSize: 14),

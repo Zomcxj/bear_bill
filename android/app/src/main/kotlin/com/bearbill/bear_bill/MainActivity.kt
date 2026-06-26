@@ -23,6 +23,13 @@ import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 class MainActivity : FlutterFragmentActivity() {
+
+    companion object {
+        // 供 NotificationListenerService 调用，实现反向 MethodChannel 推送
+        var flutterEngine: FlutterEngine? = null
+            private set
+    }
+
     private var pendingExportResult: MethodChannel.Result? = null
     private var pendingImportResult: MethodChannel.Result? = null
     private var pendingExportSourcePath: String? = null
@@ -32,6 +39,9 @@ class MainActivity : FlutterFragmentActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+
+        // 暴露 FlutterEngine 引用，供 NotificationListenerService 反向推送
+        MainActivity.flutterEngine = flutterEngine
 
         // 启动时检查并恢复闹钟（防止被系统杀掉后丢失）
         AlarmScheduler.ensureScheduled(this)
@@ -227,6 +237,18 @@ class MainActivity : FlutterFragmentActivity() {
                     result.success(true)
                 }
 
+                "openBatterySettings" -> {
+                    try {
+                        // 跳转到电池优化设置页，让用户关闭本 App 的电池优化
+                        val intent = Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        startActivity(intent)
+                        result.success(true)
+                    } catch (e: Exception) {
+                        result.error("open_failed", e.message, null)
+                    }
+                }
+
                 "updateTodaySummary" -> {
                     val count = call.argument<Int>("count") ?: 0
                     val expense = call.argument<Double>("expense") ?: 0.0
@@ -308,6 +330,35 @@ class MainActivity : FlutterFragmentActivity() {
                     }
                 }
 
+                "isAccessibilityEnabled" -> {
+                    try {
+                        val enabledServices = Settings.Secure.getString(
+                            contentResolver,
+                            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+                        ) ?: ""
+                        // 兼容两种格式：完整 ComponentName 和缩写格式
+                        val fullComponentName = ComponentName(this, PaymentAccessibilityService::class.java).flattenToString()
+                        val shortComponentName = ComponentName(this, PaymentAccessibilityService::class.java).flattenToShortString()
+                        val isEnabled = enabledServices.contains(fullComponentName) || enabledServices.contains(shortComponentName)
+                        android.util.Log.d("AutoRecord_A11y", "无障碍检测: enabledServices=$enabledServices, full=$fullComponentName, short=$shortComponentName, result=$isEnabled")
+                        result.success(isEnabled)
+                    } catch (e: Exception) {
+                        android.util.Log.e("AutoRecord_A11y", "检测无障碍状态失败", e)
+                        result.success(false)
+                    }
+                }
+
+                "openAccessibilitySettings" -> {
+                    try {
+                        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        startActivity(intent)
+                        result.success(true)
+                    } catch (e: Exception) {
+                        result.error("open_failed", e.message, null)
+                    }
+                }
+
                 // 读取自动记账开关状态（与 NotificationListenerServiceImpl 使用相同 prefs 文件）
                 "getAutoRecordEnabled" -> {
                     val prefs = getSharedPreferences("auto_record_prefs", MODE_PRIVATE)
@@ -320,18 +371,6 @@ class MainActivity : FlutterFragmentActivity() {
                     val prefs = getSharedPreferences("auto_record_prefs", MODE_PRIVATE)
                     prefs.edit().putBoolean("enabled", enabled).apply()
                     result.success(true)
-                }
-
-                // 读取并清除待处理的通知（Flutter 轮询调用）
-                "pollPendingNotification" -> {
-                    val prefs = getSharedPreferences("auto_record_prefs", MODE_PRIVATE)
-                    val jsonStr = prefs.getString("pending_notification", null)
-                    if (jsonStr != null) {
-                        prefs.edit().remove("pending_notification").apply()
-                        result.success(jsonStr)
-                    } else {
-                        result.success(null)
-                    }
                 }
 
                 else -> result.notImplemented()

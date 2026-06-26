@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../../../theme/app_theme.dart';
+import '../../../theme/app_design_system.dart';
+import '../../../providers/theme_provider.dart';
 
 /// 支出/收入类型切换器
 class TypeSwitcher extends StatelessWidget {
@@ -15,13 +17,14 @@ class TypeSwitcher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Container(
-      margin: const EdgeInsets.all(AppSpacing.sm),
-      padding: const EdgeInsets.all(4),
+      margin: EdgeInsets.all(DS.base),
+      padding: EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(AppRadius.full),
-        border: Border.all(color: AppTheme.border),
+        color: DS.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(DS.radiusFull),
+        border: Border.all(color: DS.outlineVariant),
       ),
       child: Row(
         children: [
@@ -29,12 +32,12 @@ class TypeSwitcher extends StatelessWidget {
             child: GestureDetector(
               onTap: () => onTypeChanged('expense'),
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 8),
+                padding: EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
                   color: type == 'expense'
-                      ? AppTheme.primary
+                      ? DS.primary
                       : Colors.transparent,
-                  borderRadius: BorderRadius.circular(AppRadius.full),
+                  borderRadius: BorderRadius.circular(DS.radiusFull),
                 ),
                 child: Center(
                   child: Text(
@@ -44,7 +47,7 @@ class TypeSwitcher extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                       color: type == 'expense'
                           ? Colors.white
-                          : AppTheme.textSecondary,
+                          : DS.onSurfaceVariant,
                     ),
                   ),
                 ),
@@ -55,11 +58,11 @@ class TypeSwitcher extends StatelessWidget {
             child: GestureDetector(
               onTap: () => onTypeChanged('income'),
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 8),
+                padding: EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
                   color:
-                      type == 'income' ? AppTheme.primary : Colors.transparent,
-                  borderRadius: BorderRadius.circular(AppRadius.full),
+                      type == 'income' ? DS.primary : Colors.transparent,
+                  borderRadius: BorderRadius.circular(DS.radiusFull),
                 ),
                 child: Center(
                   child: Text(
@@ -69,7 +72,7 @@ class TypeSwitcher extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                       color: type == 'income'
                           ? Colors.white
-                          : AppTheme.textSecondary,
+                          : DS.onSurfaceVariant,
                     ),
                   ),
                 ),
