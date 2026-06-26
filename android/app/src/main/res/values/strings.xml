@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="accessibility_service_description">监听微信/支付宝支付成功页面，自动识别金额并记录账单。仅在检测到支付成功页面时读取屏幕内容，不会收集其他信息。</string>
+</resources>

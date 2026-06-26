@@ -10,7 +10,7 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import org.json.JSONObject
+import io.flutter.plugin.common.MethodChannel
 
 /**
  * 通知监听服务 - 监听微信/支付宝支付通知，自动记账
@@ -23,8 +23,26 @@ class NotificationListenerServiceImpl : NotificationListenerService() {
 
         // 监听的包名
         private val TARGET_PACKAGES = setOf(
-            "com.tencent.mm",          // 微信
-            "com.eg.android.AlipayGphone" // 支付宝
+            "com.tencent.mm",              // 微信
+            "com.eg.android.AlipayGphone", // 支付宝
+            // 主流银行 app
+            "cmb.pb",                      // 招商银行
+            "com.icbc",                    // 工商银行
+            "com.ccb.start",               // 建设银行
+            "com.abchina.phone",           // 农业银行
+            "com.chinamworld.bocmbci",     // 中国银行
+            "com.bankcomm.Bankcomm",       // 交通银行
+            "com.spdb.mobilebank.nfc",     // 浦发银行
+            "com.pingan.paces.ccms",       // 平安银行
+            "com.yitong.mbank.psbc",       // 邮储银行
+            "com.cebbank.mobile.cemb",     // 光大银行
+            "com.cmbc.cc.mbank",           // 民生银行
+            "com.cib.cibmb",               // 兴业银行
+            "com.ecitic.bank.mobile",      // 中信银行
+            "com.hua.xia",                 // 华夏银行
+            "com.eg.android.GJBWebBankingService", // 广发银行
+            "com.bochk.com",               // 华商银行
+            "com.unionpay"                 // 云闪付
         )
     }
 
@@ -39,10 +57,8 @@ class NotificationListenerServiceImpl : NotificationListenerService() {
         val packageName = sbn.packageName ?: return
         if (packageName !in TARGET_PACKAGES) return
 
-        // 检查是否启用了自动记账
-        val prefs = getSharedPreferences("auto_record_prefs", MODE_PRIVATE)
-        val enabled = prefs.getBoolean("enabled", false)
-        if (!enabled) return
+        // 不在这里检查 auto_record_prefs 开关（跨进程 SharedPreferences 隔离，读不到）
+        // 始终处理支付通知，由 Flutter 端决定是否记录
 
         val notification = sbn.notification ?: return
         val extras = notification.extras ?: return
@@ -55,19 +71,33 @@ class NotificationListenerServiceImpl : NotificationListenerService() {
 
         Log.d(TAG, "捕获支付通知: [$title] $text")
 
-        // 通过 SharedPreferences 存储，Flutter 端轮询读取
-        // 使用与 MainActivity 相同的 prefs 文件
+        // 通过 MethodChannel 直接推送给 Flutter（解决跨进程 SharedPreferences 隔离问题）
         try {
-            val json = JSONObject().apply {
-                put("title", title)
-                put("text", text)
-                put("source", if (packageName.contains("tencent")) "wechat" else "alipay")
-                put("timestamp", System.currentTimeMillis())
+            val engine = MainActivity.flutterEngine
+            if (engine == null) {
+                Log.w(TAG, "FlutterEngine 不可用，通知丢弃")
+                return
             }
-            prefs.edit().putString("pending_notification", json.toString()).apply()
-            Log.d(TAG, "通知已存储到 SharedPreferences")
+
+            val source = when {
+                packageName.contains("tencent") -> "wechat"
+                packageName.contains("Alipay") -> "alipay"
+                else -> "bank"
+            }
+
+            val data = mapOf(
+                "title" to title,
+                "text" to text,
+                "source" to source,
+                "timestamp" to System.currentTimeMillis()
+            )
+
+            MethodChannel(engine.dartExecutor.binaryMessenger, "bear_bill/auto_record")
+                .invokeMethod("onPaymentNotification", data, null)
+
+            Log.d(TAG, "通知已通过 MethodChannel 推送给 Flutter")
         } catch (e: Exception) {
-            Log.e(TAG, "存储通知失败", e)
+            Log.e(TAG, "MethodChannel 推送失败", e)
         }
     }
 
@@ -92,7 +122,13 @@ class NotificationListenerServiceImpl : NotificationListenerService() {
             return alipayKeywords.any { content.contains(it) }
         }
 
-        return false
+        // 银行 app 关键词
+        val bankKeywords = listOf(
+            "支出", "消费", "转出", "扣款", "付款",
+            "取现", "转账", "缴费", "支付", "人民币",
+            "收入", "转入", "到账", "收款", "存入"
+        )
+        return bankKeywords.any { content.contains(it) }
     }
 
     private fun createNotificationChannel() {

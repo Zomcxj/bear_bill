@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -19,9 +18,8 @@ class AutoRecordService {
   final FlutterLocalNotificationsPlugin _notifications =
       FlutterLocalNotificationsPlugin();
 
-  bool _isPolling = false;
   bool _initialized = false;
-  Timer? _pollTimer;
+  bool _handlerSet = false;
 
   /// 初始化自动记账服务（App 启动时调用）
   Future<void> init() async {
@@ -48,12 +46,35 @@ class AutoRecordService {
       );
     }
 
-    // 恢复轮询状态（如果用户之前启用了自动记账）
-    final enabled = await isAutoRecordEnabled();
-    if (enabled) {
-      startPolling();
-      if (kDebugMode) print('自动记账: 已恢复轮询');
-    }
+    // 注册 MethodChannel 回调，接收原生 NotificationListenerService 推送
+    _setupMethodCallHandler();
+  }
+
+  /// 注册 MethodChannel 回调（只注册一次）
+  void _setupMethodCallHandler() {
+    if (_handlerSet) return;
+    _handlerSet = true;
+
+    _channel.setMethodCallHandler((call) async {
+      if (call.method == 'onPaymentNotification') {
+        // 检查自动记账开关（原生端因跨进程无法读取，由 Flutter 端判断）
+        final enabled = await isAutoRecordEnabled();
+        if (!enabled) {
+          if (kDebugMode) print('自动记账: 开关未开启，忽略通知');
+          return;
+        }
+
+        final data = Map<String, dynamic>.from(call.arguments);
+        final title = data['title'] as String? ?? '';
+        final text = data['text'] as String? ?? '';
+        final source = data['source'] as String? ?? '';
+
+        if (kDebugMode) print('自动记账: 收到推送通知 [$title] $text');
+        await _processPaymentNotification(title, text, source);
+      }
+    });
+
+    if (kDebugMode) print('自动记账: MethodChannel 回调已注册');
   }
 
   /// 检查自动记账是否已启用（通过 MethodChannel 读取原生 SharedPreferences）
@@ -71,44 +92,6 @@ class AutoRecordService {
     try {
       await _channel.invokeMethod('setAutoRecordEnabled', {'enabled': enabled});
     } catch (_) {}
-  }
-
-  /// 开始轮询通知
-  void startPolling() {
-    if (_isPolling) return;
-    _isPolling = true;
-    _pollTimer = Timer.periodic(
-      const Duration(seconds: 3),
-      (_) => _checkPendingNotification(),
-    );
-  }
-
-  /// 停止轮询
-  void stopPolling() {
-    _isPolling = false;
-    _pollTimer?.cancel();
-    _pollTimer = null;
-  }
-
-  /// 通过 MethodChannel 读取并清除待处理的通知
-  Future<void> _checkPendingNotification() async {
-    try {
-      final jsonStr = await _channel.invokeMethod<String?>('pollPendingNotification');
-      if (jsonStr == null) return;
-
-      final data = jsonDecode(jsonStr);
-      final title = data['title'] as String? ?? '';
-      final text = data['text'] as String? ?? '';
-      final source = data['source'] as String? ?? '';
-      final timestamp = data['timestamp'] as int? ?? 0;
-
-      // 忽略超过 60 秒的通知
-      if (DateTime.now().millisecondsSinceEpoch - timestamp > 60000) return;
-
-      await _processPaymentNotification(title, text, source);
-    } catch (e) {
-      if (kDebugMode) print('检查通知失败: $e');
-    }
   }
 
   /// 处理支付通知
@@ -168,7 +151,7 @@ class AutoRecordService {
     RecordModel record,
     String source,
   ) async {
-    final sourceLabel = source == 'wechat' ? '微信' : '支付宝';
+    final sourceLabel = source == 'wechat' ? '微信' : source == 'alipay' ? '支付宝' : '银行';
     final sign = record.type == 'expense' ? '-' : '+';
 
     await _notifications.show(
@@ -203,6 +186,25 @@ class AutoRecordService {
   Future<void> openNotificationListenerSettings() async {
     try {
       await _channel.invokeMethod('openListenerSettings');
+    } catch (_) {
+      // ignore
+    }
+  }
+
+  /// 检查无障碍服务是否已授予
+  Future<bool> isAccessibilityEnabled() async {
+    try {
+      final result = await _channel.invokeMethod<bool>('isAccessibilityEnabled');
+      return result ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// 打开无障碍设置页面
+  Future<void> openAccessibilitySettings() async {
+    try {
+      await _channel.invokeMethod('openAccessibilitySettings');
     } catch (_) {
       // ignore
     }

@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import '../../main.dart';
 import '../../providers/theme_provider.dart';
 import '../../services/baidu_speech_service.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/app_design_system.dart';
 import '../add_record/add_record_page.dart';
 import '../ai_chat/ai_chat_page.dart';
 import 'widgets/greeting_card.dart';
@@ -14,7 +14,7 @@ import 'widgets/quick_entries.dart';
 import 'widgets/today_records.dart';
 import 'widgets/week_trend_chart.dart';
 
-/// 首页 - 沉浸式 Hero 卡片布局（对齐小程序版）
+/// 首页 — Luminous Finance 风格
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -34,7 +34,6 @@ class _HomePageState extends State<HomePage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _loadData();
   }
 
   @override
@@ -47,16 +46,10 @@ class _HomePageState extends State<HomePage>
   }
 
   @override
-  void didPopNext() {
-    _loadData();
-  }
+  void didPopNext() {}
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _loadData();
-    }
-  }
+  void didChangeAppLifecycleState(AppLifecycleState state) {}
 
   @override
   void dispose() {
@@ -65,8 +58,6 @@ class _HomePageState extends State<HomePage>
     _pollTimer?.cancel();
     super.dispose();
   }
-
-  Future<void> _loadData() async {}
 
   // ---- 语音录制 ----
 
@@ -157,27 +148,27 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
-    context.watch<ThemeProvider>();
+    context.watch<ThemeProvider>(); // 主题变更时触发重建
     return Scaffold(
-      backgroundColor: AppTheme.bgPage,
+      backgroundColor: DS.background,
       body: SafeArea(
         top: false,
         child: Stack(
           children: [
             RefreshIndicator(
-              onRefresh: _loadData,
-              color: AppTheme.primary,
+              onRefresh: () async {},
+              color: DS.secondaryContainer,
               child: const SingleChildScrollView(
                 physics: AlwaysScrollableScrollPhysics(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     GreetingCard(),
-                    SizedBox(height: AppSpacing.md),
+                    SizedBox(height: DS.base),
                     WeekTrendChart(),
-                    SizedBox(height: AppSpacing.md),
+                    SizedBox(height: DS.base),
                     QuickEntries(),
-                    SizedBox(height: AppSpacing.md),
+                    SizedBox(height: DS.base),
                     TodayRecords(),
                     SizedBox(height: 100),
                   ],
@@ -199,25 +190,25 @@ class _HomePageState extends State<HomePage>
                           decoration: BoxDecoration(
                             color: _isCancelled
                                 ? Colors.grey.withOpacity(0.3)
-                                : Colors.red.withOpacity(0.2),
+                                : DS.error.withOpacity(0.2),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
                             _isCancelled ? Icons.cancel : Icons.mic,
                             size: 40,
-                            color: _isCancelled ? Colors.white : Colors.red,
+                            color: _isCancelled ? Colors.white : DS.error,
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        SizedBox(height: 20),
                         Text(
                           _isCancelled ? '松开取消' : '松开发送，上滑取消',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.white,
                             fontSize: 17,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8),
                         Text(
                           _isCancelled ? '' : '静音 2 秒自动停止',
                           style: TextStyle(
@@ -235,7 +226,7 @@ class _HomePageState extends State<HomePage>
               Positioned.fill(
                 child: Container(
                   color: Colors.black.withOpacity(0.45),
-                  child: Center(
+                  child: const Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -247,8 +238,8 @@ class _HomePageState extends State<HomePage>
                             color: Colors.white,
                           ),
                         ),
-                        const SizedBox(height: 20),
-                        const Text(
+                        SizedBox(height: 20),
+                        Text(
                           '正在识别...',
                           style: TextStyle(
                             color: Colors.white,
@@ -264,12 +255,11 @@ class _HomePageState extends State<HomePage>
           ],
         ),
       ),
-      // 悬浮按钮：话筒 + 记一笔（同一行）
+      // 悬浮按钮：话筒 + 记一笔
       floatingActionButton: Row(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          // 话筒按钮（按住说话）
           GestureDetector(
             onPanStart: _onVoicePanStart,
             onPanUpdate: _onVoicePanUpdate,
@@ -278,43 +268,34 @@ class _HomePageState extends State<HomePage>
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: _isRecording ? Colors.red : AppTheme.bgCard,
+                color: _isRecording ? DS.error : DS.surfaceContainerLowest,
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: _isRecording
-                      ? Colors.red
-                      : AppTheme.primary.withOpacity(0.3),
+                      ? DS.error
+                      : DS.outlineVariant,
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+                boxShadow: DS.shadowSm,
               ),
               child: Center(
                 child: _isRecognizing
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 22,
                         height: 22,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Colors.white,
+                          color: DS.onSurface,
                         ),
                       )
                     : Icon(
                         _isRecording ? Icons.mic : Icons.mic_none,
-                        color: _isRecording
-                            ? Colors.white
-                            : AppTheme.primary,
+                        color: _isRecording ? Colors.white : DS.onSurface,
                         size: 24,
                       ),
               ),
             ),
           ),
-          const SizedBox(width: 12),
-          // 记一笔按钮
+          SizedBox(width: 12),
           SizedBox(
             height: 56,
             child: FloatingActionButton.extended(
@@ -326,19 +307,20 @@ class _HomePageState extends State<HomePage>
                   ),
                 );
               },
-              backgroundColor: AppTheme.primary,
-              foregroundColor: Colors.white,
-              icon: const Text('✏️', style: TextStyle(fontSize: 20)),
-              label: const Text(
+              backgroundColor: DS.onSurface,
+              foregroundColor: DS.background,
+              icon: Icon(Icons.edit, size: 20),
+              label: Text(
                 '记一笔',
                 style: TextStyle(
+                  fontFamily: DS.fontLabel,
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               elevation: 4,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRadius.full),
+                borderRadius: BorderRadius.circular(DS.radiusFull),
               ),
             ),
           ),

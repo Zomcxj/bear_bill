@@ -1,7 +1,9 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../models/category_model.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/app_design_system.dart';
+import '../../../providers/theme_provider.dart';
 
 /// 心情选择器
 class MoodSelector extends StatelessWidget {
@@ -16,18 +18,19 @@ class MoodSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+      padding: EdgeInsets.symmetric(horizontal: DS.base),
       child: Row(
         children: [
           Text(
             '心情：',
             style: TextStyle(
               fontSize: 13,
-              color: AppTheme.textSecondary,
+              color: DS.onSurfaceVariant,
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           ...moods.map((mood) {
             final isSelected = selectedMood?.id == mood.id;
             return GestureDetector(
@@ -39,34 +42,34 @@ class MoodSelector extends StatelessWidget {
                 }
               },
               child: Container(
-                margin: const EdgeInsets.only(right: 8),
-                padding: const EdgeInsets.symmetric(
+                margin: EdgeInsets.only(right: 8),
+                padding: EdgeInsets.symmetric(
                   horizontal: 10,
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
                   color: isSelected 
-                      ? AppTheme.primaryLight 
-                      : AppTheme.bgCard,
-                  borderRadius: BorderRadius.circular(AppRadius.full),
+                      ? DS.surfaceContainerHigh 
+                      : DS.surfaceContainerLowest,
+                  borderRadius: BorderRadius.circular(DS.radiusFull),
                   border: Border.all(
                     color: isSelected 
-                        ? AppTheme.primary 
-                        : AppTheme.border,
+                        ? DS.primary 
+                        : DS.outlineVariant,
                     width: isSelected ? 2 : 1,
                   ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(mood.emoji, style: const TextStyle(fontSize: 18)),
+                    Text(mood.emoji, style: TextStyle(fontSize: 18)),
                     if (isSelected) ...[
-                      const SizedBox(width: 4),
+                      SizedBox(width: 4),
                       Text(
                         mood.label,
                         style: TextStyle(
                           fontSize: 12,
-                          color: AppTheme.primaryDark,
+                          color: DS.primaryContainer,
                         ),
                       ),
                     ],

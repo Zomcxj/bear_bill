@@ -1,12 +1,14 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/app_provider.dart';
 import '../../../services/database_service.dart';
+import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
 import '../../../utils/utils.dart' as utils;
+import '../../../providers/theme_provider.dart';
 
-/// 月度预算进度条卡片（对齐小程序 section-card 样式）
+/// 月度预算进度条卡片（Luminous Finance 风格）
 class BudgetProgressCard extends StatefulWidget {
   const BudgetProgressCard({super.key});
 
@@ -74,19 +76,17 @@ class _BudgetProgressCardState extends State<BudgetProgressCard> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     if (_budget <= 0) return const SizedBox.shrink();
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
+      margin: EdgeInsets.symmetric(horizontal: DS.sm),
+      padding: EdgeInsets.symmetric(
+        horizontal: DS.sm,
         vertical: 14,
       ),
-      decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppTheme.border, width: 1),
-        boxShadow: AppShadow.card,
+      decoration: DS.glassDecoration.copyWith(
+        boxShadow: DS.shadowSm,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,14 +97,12 @@ class _BudgetProgressCardState extends State<BudgetProgressCard> {
             children: [
               Row(
                 children: [
-                  const Text('🎯', style: TextStyle(fontSize: 16)),
-                  const SizedBox(width: 6),
+                  Icon(Icons.flag, size: 16, color: DS.onSurfaceVariant),
+                  SizedBox(width: 6),
                   Text(
                     '月预算',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: AppTheme.textSecondary,
+                    style: DS.labelSm.copyWith(
+                      color: DS.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -113,18 +111,15 @@ class _BudgetProgressCardState extends State<BudgetProgressCard> {
                 children: [
                   Text(
                     '¥${utils.FormatUtils.formatAmountWithComma(_totalExpense)}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.textPrimary,
+                    style: DS.labelMd.copyWith(
+                      color: DS.onSurface,
                       letterSpacing: -0.3,
                     ),
                   ),
                   Text(
                     ' / ¥${utils.FormatUtils.formatAmountWithComma(_budget)}',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppTheme.textHint,
+                    style: DS.labelSm.copyWith(
+                      color: DS.outline,
                       letterSpacing: -0.3,
                     ),
                   ),
@@ -133,17 +128,17 @@ class _BudgetProgressCardState extends State<BudgetProgressCard> {
             ],
           ),
 
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
 
           // 进度条轨道
           Container(
             height: 8,
             decoration: BoxDecoration(
-              color: AppTheme.bgSection,
-              borderRadius: BorderRadius.circular(AppRadius.full),
+              color: DS.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(DS.radiusFull),
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(AppRadius.full),
+              borderRadius: BorderRadius.circular(DS.radiusFull),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 600),
                 curve: Curves.easeOut,
@@ -153,21 +148,20 @@ class _BudgetProgressCardState extends State<BudgetProgressCard> {
                 decoration: BoxDecoration(
                   color: _budgetOver
                       ? const Color(0xFFFF4444)
-                      : AppTheme.primary,
+                      : DS.primary,
                 ),
               ),
             ),
           ),
 
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
 
           // 剩余金额
           Align(
             alignment: Alignment.centerRight,
             child: Text(
               _budgetRemain,
-              style: TextStyle(
-                fontSize: 12,
+              style: DS.labelSm.copyWith(
                 fontWeight: _budgetOver ? FontWeight.w600 : FontWeight.w500,
                 color: _budgetOver ? const Color(0xFFFF4444) : AppTheme.success,
               ),

@@ -1,17 +1,17 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/models.dart';
 import '../../providers/app_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../services/database_service.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/app_design_system.dart';
 import '../../utils/utils.dart';
-import '../../widgets/app_card.dart';
+import '../../widgets/glass_card.dart';
 import 'widgets/add_money_dialog.dart';
 import 'widgets/create_wish_dialog.dart';
 import 'widgets/wish_jar_card.dart';
 
-/// 心愿罐页 - 创建心愿、存钱进度、完成庆祝
+/// 心愿罐页 — Luminous Finance 渐变风格
 class WishJarPage extends StatefulWidget {
   const WishJarPage({super.key});
 
@@ -31,9 +31,7 @@ class _WishJarPageState extends State<WishJarPage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _tabController.addListener(() {
-      setState(() {});
-    });
+    _tabController.addListener(() => setState(() {}));
     _loadWishes();
   }
 
@@ -45,18 +43,13 @@ class _WishJarPageState extends State<WishJarPage>
 
   Future<void> _loadWishes() async {
     setState(() => _loading = true);
-
     final wishes = await DatabaseService.instance.getAllWishes();
 
-    // 计算统计数据
     double totalSaved = 0.0;
     int completedCount = 0;
-
     for (final wish in wishes) {
       totalSaved += wish.currentAmount;
-      if (wish.isCompleted) {
-        completedCount++;
-      }
+      if (wish.isCompleted) completedCount++;
     }
 
     setState(() {
@@ -70,15 +63,10 @@ class _WishJarPageState extends State<WishJarPage>
   Future<void> _createWish(WishModel wish) async {
     await DatabaseService.instance.insertWish(wish);
     _loadWishes();
-
-    // 检查心愿成就
     if (mounted) {
       context.read<AppProvider>().checkWishAchievements();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('心愿创建成功！🎉'),
-          backgroundColor: AppTheme.success,
-        ),
+        const SnackBar(content: Text('心愿创建成功！'), backgroundColor: DS.secondary),
       );
     }
   }
@@ -97,7 +85,6 @@ class _WishJarPageState extends State<WishJarPage>
     await DatabaseService.instance.updateWish(updatedWish);
     _loadWishes();
 
-    // 检查心愿成就（完成心愿时）
     if (isCompleted && mounted) {
       context.read<AppProvider>().checkWishAchievements();
     }
@@ -108,8 +95,8 @@ class _WishJarPageState extends State<WishJarPage>
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('已存入 ¥${FormatUtils.formatAmount(amount)} 💰'),
-            backgroundColor: AppTheme.success,
+            content: Text('已存入 ¥${FormatUtils.formatAmount(amount)}'),
+            backgroundColor: DS.secondary,
             duration: const Duration(seconds: 1),
           ),
         );
@@ -121,17 +108,20 @@ class _WishJarPageState extends State<WishJarPage>
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('确认删除'),
-        content: const Text('确定要删除这个心愿吗？'),
+        title: Row(
+          children: [
+            Icon(Icons.delete_outline, size: 20, color: DS.error),
+            SizedBox(width: DS.xs),
+            Text('确认删除'),
+          ],
+        ),
+        content: Text('确定要删除这个心愿吗？'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
-          ),
-          TextButton(
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text('取消')),
+          ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child:
-                Text('删除', style: TextStyle(color: AppTheme.primaryDark)),
+            style: ElevatedButton.styleFrom(backgroundColor: DS.error),
+            child: Text('删除'),
           ),
         ],
       ),
@@ -140,13 +130,9 @@ class _WishJarPageState extends State<WishJarPage>
     if (confirmed == true) {
       await DatabaseService.instance.deleteWish(wishId);
       _loadWishes();
-
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('已删除'),
-            duration: Duration(seconds: 1),
-          ),
+          const SnackBar(content: Text('已删除'), duration: Duration(seconds: 1)),
         );
       }
     }
@@ -158,10 +144,8 @@ class _WishJarPageState extends State<WishJarPage>
       barrierDismissible: false,
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
-        child: AppCard(
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          showBorder: false,
-          showShadow: false,
+        child: GlassCard(
+          padding: EdgeInsets.all(DS.xl),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -171,37 +155,18 @@ class _WishJarPageState extends State<WishJarPage>
                 builder: (context, value, child) {
                   return Transform.scale(
                     scale: 0.5 + (value * 0.5),
-                    child: const Text('🎉', style: TextStyle(fontSize: 80)),
+                    child: Icon(Icons.celebration, size: 80, color: DS.secondaryContainer),
                   );
                 },
               ),
-              const SizedBox(height: AppSpacing.md),
-              Text(
-                '恭喜达成心愿！',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                wish.title,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: AppTheme.textSecondary,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
+              SizedBox(height: DS.md),
+              Text('恭喜达成心愿！', style: DS.headlineMd),
+              SizedBox(height: DS.sm),
+              Text(wish.title, style: DS.bodyMd.copyWith(color: DS.onSurfaceVariant)),
+              SizedBox(height: DS.md),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppRadius.full),
-                  ),
-                ),
-                child: const Text('太棒了！'),
+                child: Text('太棒了！'),
               ),
             ],
           ),
@@ -212,85 +177,40 @@ class _WishJarPageState extends State<WishJarPage>
 
   @override
   Widget build(BuildContext context) {
-    context.watch<ThemeProvider>(); // listen to theme changes
+    context.watch<ThemeProvider>(); // 主题变更时触发重建
     final ongoingWishes = _wishes.where((w) => !w.isCompleted).toList();
     final completedWishes = _wishes.where((w) => w.isCompleted).toList();
 
     return Scaffold(
-      backgroundColor: AppTheme.bgPage,
-      appBar: AppBar(
-        title: const Text('心愿储蓄罐'),
-        backgroundColor: AppTheme.primary,
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
+      backgroundColor: DS.background,
+      body: SafeArea(
+        top: false,
+        bottom: false,
+        child: _loading
+          ? const Center(child: CircularProgressIndicator(color: DS.secondaryContainer))
           : ongoingWishes.isEmpty && completedWishes.isEmpty
               ? _buildEmptyState()
               : Column(
                   children: [
-                    // 顶部统计横幅
                     _buildHeroBanner(),
-
-                    // Tab切换
-                    Container(
-                      color: AppTheme.bgCard,
-                      child: TabBar(
-                        controller: _tabController,
-                        indicatorColor: AppTheme.primary,
-                        labelColor: AppTheme.primary,
-                        unselectedLabelColor: AppTheme.textSecondary,
-                        labelStyle: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        unselectedLabelStyle: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.normal,
-                        ),
-                        tabs: const [
-                          Tab(text: '进行中'),
-                          Tab(text: '已实现'),
-                        ],
-                      ),
-                    ),
-
-                    // 心愿列表
+                    SizedBox(height: DS.base),
                     Expanded(
-                      child: TabBarView(
-                        controller: _tabController,
-                        children: [
-                          _buildWishList(
-                            ongoingWishes,
-                            emptyText: '暂无进行中的心愿',
-                          ),
-                          _buildWishList(
-                            completedWishes,
-                            emptyText: '暂无已实现的心愿',
-                          ),
-                        ],
-                      ),
+                      child: _tabController.index == 0
+                          ? _buildWishList(ongoingWishes, emptyText: '暂无进行中的心愿')
+                          : _buildWishList(completedWishes, emptyText: '暂无已实现的心愿'),
                     ),
                   ],
                 ),
-      // 悬浮按钮：创建心愿
-      floatingActionButton: SizedBox(
-        width: 100,
-        child: FloatingActionButton.extended(
-          onPressed: _showCreateDialog,
-          backgroundColor: AppTheme.primary,
-          foregroundColor: Colors.white,
-          icon: const Text('✨', style: TextStyle(fontSize: 20)),
-          label: const Text(
-            '创建心愿',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.full),
-          ),
+        ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _showCreateDialog,
+        backgroundColor: DS.secondaryContainer,
+        foregroundColor: DS.primary,
+        icon: Icon(Icons.auto_awesome, size: 20),
+        label: Text('创建心愿', style: DS.labelMd),
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(DS.radiusFull),
         ),
       ),
     );
@@ -302,22 +222,16 @@ class _WishJarPageState extends State<WishJarPage>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('🎉', style: TextStyle(fontSize: 64)),
-            const SizedBox(height: AppSpacing.md),
-            Text(
-              emptyText,
-              style: TextStyle(
-                fontSize: 16,
-                color: AppTheme.textSecondary,
-              ),
-            ),
+            Icon(Icons.savings_outlined, size: 64, color: DS.outlineVariant),
+            SizedBox(height: DS.md),
+            Text(emptyText, style: DS.bodyMd.copyWith(color: DS.onSurfaceVariant)),
           ],
         ),
       );
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(AppSpacing.sm),
+      padding: EdgeInsets.only(left: DS.sm, right: DS.sm, bottom: DS.sm),
       itemCount: wishes.length,
       itemBuilder: (context, index) {
         final wish = wishes[index];
@@ -332,64 +246,83 @@ class _WishJarPageState extends State<WishJarPage>
 
   Widget _buildHeroBanner() {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: EdgeInsets.fromLTRB(DS.containerMargin, MediaQuery.of(context).padding.top + DS.gutter, DS.containerMargin, DS.base),
       decoration: BoxDecoration(
-        color: AppTheme.primaryLight,
+        gradient: DS.heroGradientBlueCurrent,
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(DS.radiusLg),
+          bottomRight: Radius.circular(DS.radiusLg),
+        ),
       ),
       child: Column(
         children: [
           Row(
             children: [
-              TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0.0, end: 1.0),
-                duration: const Duration(seconds: 2),
-                builder: (context, value, child) {
-                  return Transform.translate(
-                    offset: Offset(0, -5 * value),
-                    child: const Text('🫙', style: TextStyle(fontSize: 48)),
-                  );
-                },
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '心愿储蓄罐',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.primaryDark,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '把梦想装进罐子，一点点填满它',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppTheme.textPrimary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              Icon(Icons.savings, size: 22, color: DS.onSurface),
+              SizedBox(width: DS.sm),
+              Text('心愿储蓄罐', style: DS.headlineMd),
             ],
           ),
-
-          const SizedBox(height: AppSpacing.md),
-
-          // 统计数据
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildStatItem(
-                  '¥${FormatUtils.formatAmount(_totalSaved)}', '已存入'),
-              Container(height: 30, width: 1, color: AppTheme.border),
-              _buildStatItem('$_completedCount', '已实现'),
-              Container(height: 30, width: 1, color: AppTheme.border),
-              _buildStatItem('${_wishes.length}', '总心愿'),
-            ],
+          SizedBox(height: DS.sm),
+          GlassCard(
+            padding: EdgeInsets.symmetric(vertical: DS.sm),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildStatItem('¥${FormatUtils.formatAmount(_totalSaved)}', '已存入'),
+                Container(height: 30, width: 1, color: DS.outlineVariant),
+                _buildStatItem('$_completedCount', '已实现'),
+                Container(height: 30, width: 1, color: DS.outlineVariant),
+                _buildStatItem('${_wishes.length}', '总心愿'),
+              ],
+            ),
+          ),
+          SizedBox(height: DS.sm),
+          // Tab 切换
+          Container(
+            padding: EdgeInsets.all(3),
+            decoration: BoxDecoration(
+              color: DS.heroCardBg,
+              borderRadius: BorderRadius.circular(DS.radiusFull),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => _tabController.animateTo(0),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: DS.sm),
+                      decoration: BoxDecoration(
+                        color: _tabController.index == 0 ? DS.primary : Colors.transparent,
+                        borderRadius: BorderRadius.circular(DS.radiusFull),
+                      ),
+                      child: Center(
+                        child: Text('进行中', style: DS.labelMd.copyWith(
+                          color: _tabController.index == 0 ? DS.onPrimary : DS.onSurface,
+                        )),
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => _tabController.animateTo(1),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: DS.sm),
+                      decoration: BoxDecoration(
+                        color: _tabController.index == 1 ? DS.primary : Colors.transparent,
+                        borderRadius: BorderRadius.circular(DS.radiusFull),
+                      ),
+                      child: Center(
+                        child: Text('已实现', style: DS.labelMd.copyWith(
+                          color: _tabController.index == 1 ? DS.onPrimary : DS.onSurface,
+                        )),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -399,22 +332,9 @@ class _WishJarPageState extends State<WishJarPage>
   Widget _buildStatItem(String value, String label) {
     return Column(
       children: [
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: AppTheme.primaryDark,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: AppTheme.textPrimary,
-          ),
-        ),
+        Text(value, style: DS.headlineSm.copyWith(color: DS.onSurface)),
+        SizedBox(height: DS.xs),
+        Text(label, style: DS.labelSm.copyWith(color: DS.onSurfaceVariant)),
       ],
     );
   }
@@ -424,48 +344,16 @@ class _WishJarPageState extends State<WishJarPage>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0.0, end: 1.0),
-            duration: const Duration(seconds: 2),
-            builder: (context, value, child) {
-              return Transform.scale(
-                scale: 1.0 + (value * 0.1),
-                child: const Text('🫙', style: TextStyle(fontSize: 80)),
-              );
-            },
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            '还没有心愿罐',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '许下你的第一个心愿吧！',
-            style: TextStyle(
-              fontSize: 14,
-              color: AppTheme.textSecondary,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
+          Icon(Icons.savings_outlined, size: 80, color: DS.outlineVariant),
+          SizedBox(height: DS.md),
+          Text('还没有心愿罐', style: DS.headlineSm),
+          SizedBox(height: DS.sm),
+          Text('许下你的第一个心愿吧！', style: DS.bodyMd.copyWith(color: DS.onSurfaceVariant)),
+          SizedBox(height: DS.lg),
           ElevatedButton.icon(
             onPressed: () => _showCreateDialog(),
-            icon: const Icon(Icons.add),
-            label: const Text('创建第一个心愿'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primary,
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.lg,
-                vertical: AppSpacing.md,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRadius.full),
-              ),
-            ),
+            icon: Icon(Icons.add),
+            label: Text('创建第一个心愿'),
           ),
         ],
       ),

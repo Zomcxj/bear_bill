@@ -1,89 +1,90 @@
 import 'package:flutter/material.dart';
 
-import '../../../theme/app_theme.dart';
-import '../../../widgets/app_card.dart';
+import '../../../theme/app_design_system.dart';
+import '../../../widgets/glass_card.dart';
 import '../../add_record/add_record_page.dart';
 import '../../ai_chat/ai_chat_page.dart';
+import '../../../providers/theme_provider.dart';
+import 'package:provider/provider.dart';
 
-/// 快捷记账入口（对齐小程序 6列 Grid 布局）
+/// 快捷记账入口 — 水平滑动 + 圆形分类图标
 class QuickEntries extends StatelessWidget {
   const QuickEntries({super.key});
 
-  // 常用高频分类
   static final List<Map<String, dynamic>> _entries = [
     {
       'id': '__ai__',
-      'icon': '🤖',
+      'icon': Icons.auto_awesome,
       'label': 'AI记账',
-      'color': const Color(0xFF74B9FF),
+      'color': DS.secondaryContainer,
       'type': '__ai__',
     },
     {
       'id': 'food',
-      'icon': '🍜',
+      'icon': Icons.restaurant,
       'label': '餐饮',
       'color': const Color(0xFFFFD6E0),
       'type': 'expense'
     },
     {
       'id': 'transport',
-      'icon': '🚗',
+      'icon': Icons.directions_car,
       'label': '交通',
       'color': const Color(0xFFB2F2BB),
       'type': 'expense'
     },
     {
       'id': 'shopping',
-      'icon': '🛍️',
+      'icon': Icons.shopping_bag,
       'label': '购物',
       'color': const Color(0xFFA5D8FF),
       'type': 'expense'
     },
     {
       'id': 'milk_tea',
-      'icon': '🧋',
+      'icon': Icons.coffee,
       'label': '奶茶',
       'color': const Color(0xFFFFE066),
       'type': 'expense'
     },
     {
       'id': 'snack',
-      'icon': '🍿',
+      'icon': Icons.cookie,
       'label': '零食',
       'color': const Color(0xFFFFD8A8),
       'type': 'expense'
     },
     {
       'id': 'housing',
-      'icon': '🏠',
+      'icon': Icons.home,
       'label': '居住',
       'color': const Color(0xFFE5DBFF),
       'type': 'expense'
     },
     {
       'id': 'entertainment',
-      'icon': '🎮',
+      'icon': Icons.sports_esports,
       'label': '娱乐',
       'color': const Color(0xFFD0BFFF),
       'type': 'expense'
     },
     {
       'id': 'salary',
-      'icon': '💰',
+      'icon': Icons.account_balance_wallet,
       'label': '工资',
       'color': const Color(0xFFB2F2BB),
       'type': 'income'
     },
     {
       'id': 'bonus',
-      'icon': '🎁',
+      'icon': Icons.card_giftcard,
       'label': '奖金',
       'color': const Color(0xFFFFE066),
       'type': 'income'
     },
     {
       'id': 'transfer',
-      'icon': '💸',
+      'icon': Icons.swap_horiz,
       'label': '转账',
       'color': const Color(0xFFFFC9A9),
       'type': 'income'
@@ -92,41 +93,40 @@ class QuickEntries extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
-      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+    context.watch<ThemeProvider>(); // theme rebuild
+    return GlassCard(
+      margin: EdgeInsets.symmetric(horizontal: DS.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '⚡ 快捷记账',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: AppTheme.textPrimary,
-            ),
+          Row(
+            children: [
+              Icon(Icons.bolt, size: 18, color: DS.secondaryContainer),
+              SizedBox(width: DS.xs),
+              Text('快捷记账', style: DS.headlineSm),
+            ],
           ),
-          const SizedBox(height: 12),
-          // 水平滑动列表（更紧凑，无垂直空白）
+          SizedBox(height: DS.sm),
           SizedBox(
             height: 70,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(), // 弹性滚动效果
+              physics: const BouncingScrollPhysics(),
               itemCount: _entries.length,
               itemBuilder: (context, index) {
                 final entry = _entries[index];
                 return Padding(
                   padding: EdgeInsets.only(
-                    right: index < _entries.length - 1 ? 12 : 0,
+                    right: index < _entries.length - 1 ? DS.sm : 0,
                   ),
                   child: SizedBox(
                     width: 52,
                     child: _QuickEntryItem(
-                      icon: entry['icon'],
-                      label: entry['label'],
-                      color: entry['color'],
-                      categoryId: entry['id'],
-                      recordType: entry['type'] ?? 'expense',
+                      icon: entry['icon'] as IconData,
+                      label: entry['label'] as String,
+                      color: entry['color'] as Color,
+                      categoryId: entry['id'] as String,
+                      recordType: entry['type'] as String,
                     ),
                   ),
                 );
@@ -140,11 +140,11 @@ class QuickEntries extends StatelessWidget {
 }
 
 class _QuickEntryItem extends StatelessWidget {
-  final String icon;
+  final IconData icon;
   final String label;
   final Color color;
   final String categoryId;
-  final String recordType; // expense | income
+  final String recordType;
 
   const _QuickEntryItem({
     required this.icon,
@@ -156,6 +156,7 @@ class _QuickEntryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return GestureDetector(
       onTap: () {
         if (recordType == '__ai__') {
@@ -179,24 +180,21 @@ class _QuickEntryItem extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 42,
+            height: 42,
             decoration: BoxDecoration(
               color: color.withOpacity(0.15),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: color.withOpacity(0.3), width: 1),
             ),
-            child: Center(
-              child: Text(icon, style: const TextStyle(fontSize: 20)),
-            ),
+            child: Icon(icon, size: 20, color: DS.onSurface),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: 4),
           Text(
             label,
             style: TextStyle(
               fontSize: 11,
-              color: AppTheme.textSecondary,
-              fontWeight: FontWeight.w500,
+              color: DS.onSurfaceVariant,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

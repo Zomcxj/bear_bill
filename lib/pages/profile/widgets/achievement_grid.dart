@@ -1,11 +1,11 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../models/achievement_model.dart';
 import '../../../providers/app_provider.dart';
 import '../../../providers/theme_provider.dart';
+import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
-import '../../../widgets/app_card.dart';
 import '../achievement_page.dart';
 
 /// 成就徽章网格
@@ -14,27 +14,30 @@ class AchievementGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context.watch<ThemeProvider>(); // listen to theme changes
+    context.watch<ThemeProvider>(); // 主题变更时触发重建
     return Consumer<AppProvider>(
       builder: (context, appProvider, child) {
         final unlockedIds = appProvider.unlockedAchievements;
 
-        return AppCard(
-          margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-          showShadow: false,
+        return Container(
+          margin: EdgeInsets.symmetric(horizontal: DS.sm),
+          padding: EdgeInsets.all(DS.gutter),
+          decoration: DS.glassDecorationLight,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    '🏆 成就徽章',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.textPrimary,
-                    ),
+                  Row(
+                    children: [
+                      Icon(Icons.emoji_events, size: 18, color: DS.onSurface),
+                      SizedBox(width: 6),
+                      Text(
+                        '成就徽章',
+                        style: DS.labelMd.copyWith(color: DS.onSurface),
+                      ),
+                    ],
                   ),
                   GestureDetector(
                     onTap: () {
@@ -49,37 +52,34 @@ class AchievementGrid extends StatelessWidget {
                       children: [
                         Text(
                           '${unlockedIds.length}/${AchievementDefinitions.all.length}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.textSecondary,
-                          ),
+                          style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
                         ),
-                        const SizedBox(width: 2),
+                        SizedBox(width: 2),
                         Icon(
                           Icons.chevron_right,
                           size: 16,
-                          color: AppTheme.textSecondary,
+                          color: DS.onSurfaceVariant,
                         ),
                       ],
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               SizedBox(
-                height: 64,
+                height: 76,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
                   itemCount: AchievementDefinitions.all.length,
                   separatorBuilder: (context, index) =>
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                   itemBuilder: (context, index) {
                     final achievement = AchievementDefinitions.all[index];
                     final isUnlocked = unlockedIds.contains(achievement.id);
 
                     return SizedBox(
-                      width: 42,
+                      width: 52,
                       child: _AchievementBadge(
                         achievement: achievement,
                         isUnlocked: isUnlocked,
@@ -113,13 +113,13 @@ class _AchievementBadge extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 28,
-            height: 28,
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
-              color: isUnlocked ? AppTheme.primaryLight : AppTheme.bgSection,
-              borderRadius: BorderRadius.circular(AppRadius.full),
+              color: isUnlocked ? DS.surfaceContainerHigh : DS.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(DS.radiusFull),
               border: Border.all(
-                color: isUnlocked ? AppTheme.primary : AppTheme.border,
+                color: isUnlocked ? DS.primary : DS.outlineVariant,
                 width: 1.5,
               ),
             ),
@@ -127,21 +127,21 @@ class _AchievementBadge extends StatelessWidget {
               child: Text(
                 achievement.emoji,
                 style: TextStyle(
-                  fontSize: 14,
-                  color: isUnlocked ? AppTheme.textPrimary : Colors.grey.shade400,
+                  fontSize: 18,
+                  color: isUnlocked ? DS.onSurface : Colors.grey.shade400,
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 1),
+          SizedBox(height: 2),
           Text(
             achievement.title,
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontSize: 7.5,
-              color: isUnlocked ? AppTheme.textPrimary : AppTheme.textHint,
+              fontSize: 10,
+              color: isUnlocked ? DS.onSurface : DS.outline,
               fontWeight: isUnlocked ? FontWeight.w600 : FontWeight.normal,
             ),
           ),
@@ -156,15 +156,15 @@ class _AchievementBadge extends StatelessWidget {
       builder: (context) => AlertDialog(
         title: Row(
           children: [
-            Text(achievement.emoji, style: const TextStyle(fontSize: 28)),
-            const SizedBox(width: 12),
+            Text(achievement.emoji, style: TextStyle(fontSize: 28)),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     achievement.title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -173,7 +173,7 @@ class _AchievementBadge extends StatelessWidget {
                     isUnlocked ? '✅ 已解锁' : '🔒 未解锁',
                     style: TextStyle(
                       fontSize: 13,
-                      color: isUnlocked ? AppTheme.success : AppTheme.textHint,
+                      color: isUnlocked ? AppTheme.success : DS.outline,
                     ),
                   ),
                 ],
@@ -185,32 +185,31 @@ class _AchievementBadge extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               '达成条件：',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               achievement.description,
-              style: const TextStyle(fontSize: 14),
+              style: TextStyle(fontSize: 14),
             ),
             if (isUnlocked && achievement.unlockedAt != null) ...[
-              const SizedBox(height: 16),
-              const Text(
+              SizedBox(height: 16),
+              Text(
                 '解锁时间：',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text(
                 '${achievement.unlockedAt!.year}年${achievement.unlockedAt!.month}月${achievement.unlockedAt!.day}日',
-                style: TextStyle(
-                    fontSize: 14, color: AppTheme.textSecondary),
+                style: DS.labelMd.copyWith(color: DS.onSurfaceVariant),
               ),
             ],
           ],
@@ -218,7 +217,7 @@ class _AchievementBadge extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('知道了'),
+            child: Text('知道了'),
           ),
         ],
       ),
