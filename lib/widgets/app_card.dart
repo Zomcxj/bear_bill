@@ -30,10 +30,10 @@ class AppCard extends StatelessWidget {
       margin: margin,
       padding: padding,
       decoration: BoxDecoration(
-        color: color ?? Colors.white.withOpacity(0.7),
+        color: color ?? DS.heroCardBg,
         borderRadius: BorderRadius.circular(borderRadius),
         border: showBorder
-            ? Border.all(color: Colors.black.withOpacity(0.08))
+            ? Border.all(color: DS.heroCardBorder)
             : null,
         boxShadow: showShadow ? DS.shadowSm : null,
       ),

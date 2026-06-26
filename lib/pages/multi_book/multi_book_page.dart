@@ -329,9 +329,9 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
                     child: Container(
                       padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.xs + 2),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.6),
+                        color: DS.heroCardBg,
                         borderRadius: BorderRadius.circular(DS.radiusFull),
-                        border: Border.all(color: Colors.black.withOpacity(0.08)),
+                        border: Border.all(color: DS.heroCardBorder),
                       ),
                       child: Row(
                         children: [

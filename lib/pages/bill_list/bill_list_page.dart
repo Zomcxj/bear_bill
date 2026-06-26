@@ -8,6 +8,7 @@ import '../../services/database_service.dart';
 import '../../services/notification_service.dart';
 import '../../theme/app_design_system.dart';
 import '../../utils/utils.dart' as utils;
+import 'widgets/bill_filter_mixin.dart';
 import 'widgets/record_detail_dialog.dart';
 import 'widgets/record_group_list.dart';
 
@@ -22,29 +23,22 @@ class BillListPage extends StatefulWidget {
   State<BillListPage> createState() => _BillListPageState();
 }
 
-class _BillListPageState extends State<BillListPage> {
+class _BillListPageState extends State<BillListPage> with BillFilterMixin {
   String _currentMonth = '';
   List<Map<String, dynamic>> _groupedRecords = [];
   double _totalExpense = 0.0;
   double _totalIncome = 0.0;
   bool _loading = true;
 
-  String _keyword = '';
-  String _filterType = 'all';
-  final List<String> _filterCategories = [];
-  double? _minAmount;
-  double? _maxAmount;
-  String _filterLocation = '';
-
   @override
   void initState() {
     super.initState();
     _currentMonth = utils.DateUtils.getCurrentMonth();
     if (widget.initialCategoryId != null) {
-      _filterCategories.add(widget.initialCategoryId!);
+      filterCategories.add(widget.initialCategoryId!);
     }
     if (widget.initialType != null) {
-      _filterType = widget.initialType!;
+      filterType = widget.initialType!;
     }
     _loadRecords();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -66,39 +60,13 @@ class _BillListPageState extends State<BillListPage> {
       bookId: appProvider.currentBookId,
     );
 
-    final filteredRecords = _applyFilter(records);
+    final filteredRecords = records.where((r) => matchesFilter(r)).toList();
     final grouped = _groupByDate(filteredRecords);
 
     setState(() {
       _groupedRecords = grouped;
       _loading = false;
     });
-  }
-
-  List<RecordModel> _applyFilter(List<RecordModel> records) {
-    return records.where((record) {
-      if (_keyword.isNotEmpty) {
-        final keywordLower = _keyword.toLowerCase();
-        final matchCategory =
-            record.categoryName.toLowerCase().contains(keywordLower);
-        final matchNote =
-            (record.remark ?? '').toLowerCase().contains(keywordLower);
-        final matchAmount = record.amount.toString().contains(_keyword);
-        if (!matchCategory && !matchNote && !matchAmount) return false;
-      }
-      if (_filterType != 'all' && record.type != _filterType) return false;
-      if (_filterCategories.isNotEmpty &&
-          !_filterCategories.contains(record.categoryId)) return false;
-      if (_minAmount != null && record.amount < _minAmount!) return false;
-      if (_maxAmount != null && record.amount > _maxAmount!) return false;
-      if (_filterLocation.isNotEmpty) {
-        final location = record.location ?? '';
-        if (!location.toLowerCase().contains(_filterLocation.toLowerCase())) {
-          return false;
-        }
-      }
-      return true;
-    }).toList();
   }
 
   List<Map<String, dynamic>> _groupByDate(List<RecordModel> records) {
@@ -170,171 +138,6 @@ class _BillListPageState extends State<BillListPage> {
     _loadRecords();
   }
 
-  void _showFilterDialog() {
-    final minController = TextEditingController(
-        text: _minAmount != null ? _minAmount.toString() : '');
-    final maxController = TextEditingController(
-        text: _maxAmount != null ? _maxAmount.toString() : '');
-    final locationController = TextEditingController(text: _filterLocation);
-
-    showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) {
-          return AlertDialog(
-            title: Row(
-              children: [
-                Icon(Icons.tune, size: 20),
-                SizedBox(width: DS.xs),
-                Text('筛选条件'),
-              ],
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('收支类型', style: DS.labelMd),
-                  SizedBox(height: DS.sm),
-                  Wrap(
-                    spacing: DS.sm,
-                    children: [
-                      _buildFilterChip(label: '全部', selected: _filterType == 'all', onTap: () => setDialogState(() => _filterType = 'all')),
-                      _buildFilterChip(label: '支出', selected: _filterType == 'expense', onTap: () => setDialogState(() => _filterType = 'expense')),
-                      _buildFilterChip(label: '收入', selected: _filterType == 'income', onTap: () => setDialogState(() => _filterType = 'income')),
-                    ],
-                  ),
-                  SizedBox(height: DS.gutter),
-                  Text('分类', style: DS.labelMd),
-                  SizedBox(height: DS.sm),
-                  Wrap(
-                    spacing: DS.sm,
-                    runSpacing: DS.sm,
-                    children: [
-                      _buildFilterChip(label: '清除分类', selected: false, onTap: () => setDialogState(() => _filterCategories.clear())),
-                      ..._getAllCategories().map((category) {
-                        final isSelected = _filterCategories.contains(category['id']);
-                        return _buildFilterChip(
-                          label: '${category['emoji']} ${category['name']}',
-                          selected: isSelected,
-                          onTap: () => setDialogState(() {
-                            if (isSelected) {
-                              _filterCategories.remove(category['id']);
-                            } else {
-                              _filterCategories.add(category['id']);
-                            }
-                          }),
-                        );
-                      }),
-                    ],
-                  ),
-                  SizedBox(height: DS.gutter),
-                  Text('金额范围', style: DS.labelMd),
-                  SizedBox(height: DS.sm),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: minController,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(hintText: '最低金额', isDense: true),
-                          style: DS.bodyMd,
-                        ),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: DS.sm),
-                        child: Text('~', style: DS.bodyMd),
-                      ),
-                      Expanded(
-                        child: TextField(
-                          controller: maxController,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(hintText: '最高金额', isDense: true),
-                          style: DS.bodyMd,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: DS.gutter),
-                  Text('位置', style: DS.labelMd),
-                  SizedBox(height: DS.sm),
-                  TextField(
-                    controller: locationController,
-                    decoration: const InputDecoration(
-                      hintText: '按位置关键词筛选',
-                      isDense: true,
-                      prefixIcon: Icon(Icons.place, size: 18),
-                    ),
-                    style: DS.bodyMd,
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    _filterType = 'all';
-                    _filterCategories.clear();
-                    _minAmount = null;
-                    _maxAmount = null;
-                    _filterLocation = '';
-                  });
-                  Navigator.pop(context);
-                  _loadRecords();
-                },
-                child: Text('清除'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  final min = double.tryParse(minController.text.trim());
-                  final max = double.tryParse(maxController.text.trim());
-                  setState(() {
-                    _minAmount = min;
-                    _maxAmount = max;
-                    _filterLocation = locationController.text.trim();
-                  });
-                  Navigator.pop(context);
-                  _loadRecords();
-                },
-                child: Text('确定'),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildFilterChip({
-    required String label,
-    required bool selected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: 6),
-        decoration: BoxDecoration(
-          color: selected ? DS.primary : DS.surfaceContainerLowest,
-          borderRadius: BorderRadius.circular(DS.radiusFull),
-          border: Border.all(
-            color: selected ? DS.primary : DS.outlineVariant,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontFamily: DS.fontLabel,
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: selected ? DS.onPrimary : DS.onSurface,
-          ),
-        ),
-      ),
-    );
-  }
-
   List<Map<String, dynamic>> _getAllCategories() {
     final allCategories = <Map<String, dynamic>>[];
     for (final cat in expenseCategories) {
@@ -348,14 +151,13 @@ class _BillListPageState extends State<BillListPage> {
 
   @override
   Widget build(BuildContext context) {
-    context.watch<ThemeProvider>(); // 主题变更时触发重建
+    context.watch<ThemeProvider>();
     return Scaffold(
       backgroundColor: DS.background,
       body: SafeArea(
         top: false,
         child: Column(
           children: [
-            // 渐变 Hero 头部
             Container(
               padding: EdgeInsets.fromLTRB(DS.containerMargin, MediaQuery.of(context).padding.top + DS.gutter, DS.containerMargin, DS.base),
               decoration: BoxDecoration(
@@ -375,13 +177,12 @@ class _BillListPageState extends State<BillListPage> {
                     ],
                   ),
                   SizedBox(height: DS.sm),
-                  // 收支汇总卡片
                   Container(
                     padding: EdgeInsets.symmetric(vertical: DS.gutter),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.6),
+                      color: DS.heroCardBg,
                       borderRadius: BorderRadius.circular(DS.radiusMd),
-                      border: Border.all(color: Colors.black.withOpacity(0.08)),
+                      border: Border.all(color: DS.heroCardBorder),
                     ),
                     child: IntrinsicHeight(
                       child: Row(
@@ -426,7 +227,6 @@ class _BillListPageState extends State<BillListPage> {
                     ),
                   ),
                   SizedBox(height: DS.sm),
-                  // 月份切换 + 搜索筛选
                   Row(
                     children: [
                       GestureDetector(
@@ -434,7 +234,7 @@ class _BillListPageState extends State<BillListPage> {
                         child: Container(
                           width: 32, height: 32,
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.6),
+                            color: DS.heroCardBg,
                             shape: BoxShape.circle,
                           ),
                           child: Icon(Icons.chevron_left, size: 18, color: DS.onSurface),
@@ -447,9 +247,9 @@ class _BillListPageState extends State<BillListPage> {
                           child: Container(
                             padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.xs + 2),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.6),
+                              color: DS.heroCardBg,
                               borderRadius: BorderRadius.circular(DS.radiusFull),
-                              border: Border.all(color: Colors.black.withOpacity(0.08)),
+                              border: Border.all(color: DS.heroCardBorder),
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -471,7 +271,7 @@ class _BillListPageState extends State<BillListPage> {
                         child: Container(
                           width: 32, height: 32,
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.6),
+                            color: DS.heroCardBg,
                             shape: BoxShape.circle,
                           ),
                           child: Icon(Icons.chevron_right, size: 18, color: DS.onSurface),
@@ -480,13 +280,12 @@ class _BillListPageState extends State<BillListPage> {
                     ],
                   ),
                   SizedBox(height: DS.sm),
-                  // 搜索栏
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: DS.sm),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.6),
+                      color: DS.heroCardBg,
                       borderRadius: BorderRadius.circular(DS.radiusFull),
-                      border: Border.all(color: Colors.black.withOpacity(0.08)),
+                      border: Border.all(color: DS.heroCardBorder),
                     ),
                     child: Row(
                       children: [
@@ -502,13 +301,16 @@ class _BillListPageState extends State<BillListPage> {
                             ),
                             style: DS.labelMd,
                             onChanged: (value) {
-                              setState(() => _keyword = value);
+                              setState(() => keyword = value);
                               _loadRecords();
                             },
                           ),
                         ),
                         GestureDetector(
-                          onTap: _showFilterDialog,
+                          onTap: () => showFilterDialog(
+                            getAllCategories: _getAllCategories,
+                            onApply: _loadRecords,
+                          ),
                           child: Icon(Icons.tune, size: 18, color: DS.onSurface),
                         ),
                       ],

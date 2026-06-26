@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../../models/achievement_model.dart';
 import '../../providers/app_provider.dart';
-import '../../services/storage_service.dart';
 import '../../services/database_service.dart';
 import '../../theme/app_design_system.dart';
 import '../../theme/app_theme.dart';
@@ -18,10 +17,13 @@ class AchievementPage extends StatefulWidget {
 
 class _AchievementPageState extends State<AchievementPage> {
   int _completedWishes = 0;
+  int _totalWishes = 0;
   int _totalImages = 0;
   int _locationCount = 0;
   int _moodCount = 0;
   int _uniqueCategories = 0;
+  bool _hasBudget = false;
+  double _expenseRatio = 0.0;
   bool _loading = true;
 
   @override
@@ -37,12 +39,32 @@ class _AchievementPageState extends State<AchievementPage> {
     final locationCount = await db.getRecordsWithLocationCount();
     final moodCount = await db.getRecordsWithMoodCount();
     final uniqueCategories = await db.getUniqueCategoriesCount();
+
+    // 从当前账本读取预算（与首页一致）
+    final appProvider = context.read<AppProvider>();
+    final book = await appProvider.getCurrentBook();
+    final budget = book?.budget ?? 0.0;
+    final hasBudget = budget > 0;
+
+    // 计算本月支出占比
+    double expenseRatio = 0.0;
+    if (hasBudget) {
+      final now = DateTime.now();
+      final monthStr = '${now.year}-${now.month.toString().padLeft(2, '0')}';
+      final stats = await db.getMonthStatistics(monthStr, bookId: appProvider.currentBookId);
+      final expense = (stats['expense'] ?? 0.0) as double;
+      expenseRatio = (expense / budget) * 100;
+    }
+
     setState(() {
+      _totalWishes = wishes.length;
       _completedWishes = wishes.where((w) => w.isCompleted).length;
       _totalImages = totalImages;
       _locationCount = locationCount;
       _moodCount = moodCount;
       _uniqueCategories = uniqueCategories;
+      _hasBudget = hasBudget;
+      _expenseRatio = expenseRatio;
       _loading = false;
     });
   }
@@ -56,13 +78,6 @@ class _AchievementPageState extends State<AchievementPage> {
         final user = appProvider.user;
         final checkInDays = appProvider.checkInDays;
         final totalRecords = user?.totalRecords ?? 0;
-
-        final budgetStr =
-            StorageService.instance.getString('monthlyBudget');
-        final hasBudget = budgetStr != null &&
-            budgetStr.isNotEmpty &&
-            double.tryParse(budgetStr) != null &&
-            double.parse(budgetStr) > 0;
 
         return Scaffold(
           backgroundColor: DS.background,
@@ -95,7 +110,9 @@ class _AchievementPageState extends State<AchievementPage> {
                       isUnlocked: isUnlocked,
                       checkInDays: checkInDays,
                       totalRecords: totalRecords,
-                      hasBudget: hasBudget,
+                      hasBudget: _hasBudget,
+                      expenseRatio: _expenseRatio,
+                      totalWishes: _totalWishes,
                       completedWishes: _completedWishes,
                     );
 
@@ -117,6 +134,8 @@ class _AchievementPageState extends State<AchievementPage> {
     required int checkInDays,
     required int totalRecords,
     required bool hasBudget,
+    required double expenseRatio,
+    required int totalWishes,
     required int completedWishes,
   }) {
     if (isUnlocked) return 1.0;
@@ -141,10 +160,12 @@ class _AchievementPageState extends State<AchievementPage> {
       case 'budget_1':
         return hasBudget ? 1.0 : 0.0;
       case 'budget_save':
-        return 0.0;
+        if (!hasBudget) return 0.0;
+        if (expenseRatio <= 80) return 1.0;
+        return (80.0 / expenseRatio).clamp(0.0, 0.99);
       // 心愿
       case 'wish_1':
-        return 0.0;
+        return totalWishes >= 1 ? 1.0 : 0.0;
       case 'wish_complete':
         return completedWishes >= 1 ? 1.0 : 0.0;
       case 'wish_5':

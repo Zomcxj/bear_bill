@@ -101,12 +101,12 @@ class _SettingsListState extends State<SettingsList> {
           _buildMenuItem(
             icon: Icons.info_outline,
             title: '关于',
-            trailing: 'v1.3.1',
+            trailing: 'v1.3.2',
             onTap: () {
               showAboutDialog(
                 context: context,
                 applicationName: '小熊记账本',
-                applicationVersion: 'v1.3.1',
+                applicationVersion: 'v1.3.2',
                 applicationIcon:
                     Text('🐻', style: TextStyle(fontSize: 48)),
                 children: [
@@ -155,7 +155,7 @@ class _SettingsListState extends State<SettingsList> {
                 style: DS.bodyMd.copyWith(
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
-                  color: isDanger ? DS.primaryContainer : DS.onSurface,
+                  color: DS.onSurface,
                 ),
               ),
             ),

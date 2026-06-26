@@ -157,9 +157,9 @@ class _GreetingCardState extends State<GreetingCard>
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.6),
+                    color: DS.heroCardBg,
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.black.withOpacity(0.08)),
+                    border: Border.all(color: DS.heroCardBorder),
                   ),
                   child: Center(
                     child: Text(_bearEmoji, style: TextStyle(fontSize: 28)),
@@ -191,9 +191,9 @@ class _GreetingCardState extends State<GreetingCard>
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.6),
+                    color: DS.heroCardBg,
                     borderRadius: BorderRadius.circular(DS.radiusSm),
-                    border: Border.all(color: Colors.black.withOpacity(0.08)),
+                    border: Border.all(color: DS.heroCardBorder),
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -243,9 +243,9 @@ class _GreetingCardState extends State<GreetingCard>
                     vertical: DS.xs + 2,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.6),
+                    color: DS.heroCardBg,
                     borderRadius: BorderRadius.circular(DS.radiusSm),
-                    border: Border.all(color: Colors.black.withOpacity(0.08)),
+                    border: Border.all(color: DS.heroCardBorder),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -519,6 +519,7 @@ class _GreetingCardState extends State<GreetingCard>
                 await DatabaseService.instance.updateBook(updatedBook);
                 if (!mounted) return;
 
+                context.read<AppProvider>().checkBudgetAchievements();
                 _loadData();
 
                 if (!context.mounted) return;

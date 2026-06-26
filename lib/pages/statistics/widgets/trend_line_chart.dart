@@ -5,7 +5,6 @@ import '../../../providers/app_provider.dart';
 import '../../../providers/theme_provider.dart';
 import '../../../services/database_service.dart';
 import '../../../theme/app_design_system.dart';
-import '../../../theme/app_theme.dart';
 
 /// 近6个月收支趋势折线图
 class TrendLineChart extends StatefulWidget {

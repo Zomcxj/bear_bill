@@ -6,7 +6,6 @@ import '../../providers/app_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../services/database_service.dart';
 import '../../theme/app_design_system.dart';
-import '../../theme/app_theme.dart';
 import 'widgets/achievement_grid.dart';
 import 'widgets/settings_list.dart';
 import 'widgets/user_profile_card.dart';
@@ -72,28 +71,11 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _clearAllData() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.warning_amber, size: 20, color: DS.error),
-            SizedBox(width: DS.xs),
-            Text('警告'),
-          ],
-        ),
-        content: Text('确定要清空所有账单数据吗？此操作不可恢复！'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text('取消'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: DS.error),
-            child: Text('确认清空'),
-          ),
-        ],
+    final confirmed = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => _ClearDataConfirmPage(),
       ),
     );
     if (!mounted) return;
@@ -124,12 +106,66 @@ class _ProfilePageState extends State<ProfilePage> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('已清空当前账本的账单数据'),
-            backgroundColor: DS.secondary,
+          SnackBar(
+            content: const Text('已清空当前账本的账单数据'),
+            backgroundColor: DS.inverseSurface,
           ),
         );
       }
     }
+  }
+}
+
+/// 清空账单确认页（独立页面，不使用对话框）
+class _ClearDataConfirmPage extends StatelessWidget {
+  const _ClearDataConfirmPage();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: DS.background,
+      appBar: AppBar(
+        backgroundColor: DS.background,
+        foregroundColor: DS.onSurface,
+        title: Text('确认操作'),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(DS.gutter),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: DS.md),
+            Icon(Icons.warning_amber, size: 48, color: DS.error),
+            SizedBox(height: DS.gutter),
+            Text('清空账单', style: DS.headlineMd.copyWith(color: DS.onSurface)),
+            SizedBox(height: DS.sm),
+            Text(
+              '确定要清空当前账本的所有账单数据吗？此操作不可恢复！',
+              style: DS.bodyMd.copyWith(color: DS.onSurfaceVariant),
+            ),
+            Spacer(),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: Text('取消'),
+                  ),
+                ),
+                SizedBox(width: DS.sm),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    style: ElevatedButton.styleFrom(backgroundColor: DS.error),
+                    child: Text('确认清空', style: TextStyle(color: Colors.white)),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: DS.md),
+          ],
+        ),
+      ),
+    );
   }
 }

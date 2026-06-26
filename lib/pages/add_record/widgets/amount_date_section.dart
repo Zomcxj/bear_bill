@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../models/models.dart';
 import '../../../theme/app_design_system.dart';
@@ -69,9 +70,9 @@ class AmountDateSection extends StatelessWidget {
                       child: Container(
                         padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: 7),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.6),
+                          color: DS.heroCardBg,
                           borderRadius: BorderRadius.circular(DS.radiusFull),
-                          border: Border.all(color: Colors.black.withOpacity(0.08)),
+                          border: Border.all(color: DS.heroCardBorder),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,

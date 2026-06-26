@@ -1,8 +1,8 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../theme/app_design_system.dart';
-import '../../../theme/app_theme.dart';
 import '../../../providers/theme_provider.dart';
 
 /// 甜甜圈图组件

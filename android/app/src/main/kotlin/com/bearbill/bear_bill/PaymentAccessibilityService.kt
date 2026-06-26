@@ -17,6 +17,29 @@ class PaymentAccessibilityService : AccessibilityService() {
         private const val TAG = "AutoRecord_A11y"
         private const val COOLDOWN_MS = 10000L // 10秒内不重复处理同一笔
 
+        // 监听的包名（与 NotificationListenerServiceImpl 保持一致）
+        private val TARGET_PACKAGES = setOf(
+            "com.tencent.mm",              // 微信
+            "com.eg.android.AlipayGphone", // 支付宝
+            "cmb.pb",                      // 招商银行
+            "com.icbc",                    // 工商银行
+            "com.ccb.start",               // 建设银行
+            "com.abchina.phone",           // 农业银行
+            "com.chinamworld.bocmbci",     // 中国银行
+            "com.bankcomm.Bankcomm",       // 交通银行
+            "com.spdb.mobilebank.nfc",     // 浦发银行
+            "com.pingan.paces.ccms",       // 平安银行
+            "com.yitong.mbank.psbc",       // 邮储银行
+            "com.cebbank.mobile.cemb",     // 光大银行
+            "com.cmbc.cc.mbank",           // 民生银行
+            "com.cib.cibmb",               // 兴业银行
+            "com.ecitic.bank.mobile",      // 中信银行
+            "com.hua.xia",                 // 华夏银行
+            "com.eg.android.GJBWebBankingService", // 广发银行
+            "com.bochk.com",               // 华商银行
+            "com.unionpay"                 // 云闪付
+        )
+
         // 微信支付成功页面的关键文本
         private val WECHAT_SUCCESS_KEYWORDS = listOf(
             "支付成功", "付款成功", "转账成功", "已转账",
@@ -29,11 +52,22 @@ class PaymentAccessibilityService : AccessibilityService() {
             "收款成功", "已付款"
         )
 
+        // 银行 app 支付相关关键词
+        private val BANK_SUCCESS_KEYWORDS = listOf(
+            "支付成功", "付款成功", "转账成功", "交易成功",
+            "扣款成功", "消费成功", "缴费成功",
+            "支出", "消费", "转出", "扣款", "已付款",
+            "已支付", "交易完成"
+        )
+
         // 金额匹配模式
         val AMOUNT_PATTERNS = listOf(
             Pattern.compile("[¥￥]\\s*(\\d+\\.?\\d{0,2})"),
             Pattern.compile("(\\d+\\.\\d{2})\\s*元"),
             Pattern.compile("金额\\s*[¥￥]?\\s*(\\d+\\.?\\d{0,2})"),
+            Pattern.compile("支出\\s*[¥￥]?\\s*(\\d+\\.?\\d{0,2})"),
+            Pattern.compile("消费\\s*[¥￥]?\\s*(\\d+\\.?\\d{0,2})"),
+            Pattern.compile("扣款\\s*[¥￥]?\\s*(\\d+\\.?\\d{0,2})"),
         )
     }
 
@@ -52,7 +86,7 @@ class PaymentAccessibilityService : AccessibilityService() {
         // 始终检测支付事件，由 Flutter 端决定是否处理
 
         val packageName = event.packageName?.toString() ?: return
-        if (packageName !in listOf("com.tencent.mm", "com.eg.android.AlipayGphone")) return
+        if (packageName !in TARGET_PACKAGES) return
 
         // 只处理窗口变化事件
         if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED &&
@@ -69,7 +103,15 @@ class PaymentAccessibilityService : AccessibilityService() {
             if (now - lastProcessedTime < COOLDOWN_MS && screenText == lastProcessedText) return
 
             val isWechat = packageName.contains("tencent")
-            val keywords = if (isWechat) WECHAT_SUCCESS_KEYWORDS else ALIPAY_SUCCESS_KEYWORDS
+            val isAlipay = packageName.contains("Alipay")
+            val isBank = !isWechat && !isAlipay
+
+            // 根据来源选择关键词
+            val keywords = when {
+                isWechat -> WECHAT_SUCCESS_KEYWORDS
+                isAlipay -> ALIPAY_SUCCESS_KEYWORDS
+                else -> BANK_SUCCESS_KEYWORDS
+            }
             val isPaymentSuccess = keywords.any { screenText.contains(it) }
 
             if (!isPaymentSuccess) return
@@ -81,13 +123,18 @@ class PaymentAccessibilityService : AccessibilityService() {
             // 提取商户/描述
             val merchant = extractMerchant(screenText, isWechat)
 
-            Log.d(TAG, "检测到支付成功: ¥$amount $merchant")
+            val sourceLabel = when {
+                isWechat -> "微信"
+                isAlipay -> "支付宝"
+                else -> "银行"
+            }
+            Log.d(TAG, "检测到${sourceLabel}支付成功: ¥$amount ${merchant ?: ""}")
 
             lastProcessedTime = now
             lastProcessedText = screenText
 
             // 通过 MethodChannel 推送给 Flutter
-            pushToFlutter(amount, merchant, isWechat)
+            pushToFlutter(amount, merchant, isWechat, isAlipay)
 
         } catch (e: Exception) {
             Log.e(TAG, "处理无障碍事件失败", e)
@@ -142,6 +189,10 @@ class PaymentAccessibilityService : AccessibilityService() {
             Pattern.compile("转账给[：:]\\s*(.+)"),
             Pattern.compile("向(.+)付款"),
             Pattern.compile("向(.+)转账"),
+            Pattern.compile("交易商户[：:]\\s*(.+)"),
+            Pattern.compile("消费商户[：:]\\s*(.+)"),
+            Pattern.compile("对方[：:]\\s*(.+)"),
+            Pattern.compile("收款人[：:]\\s*(.+)"),
         )
 
         for (pattern in merchantPatterns) {
@@ -160,7 +211,7 @@ class PaymentAccessibilityService : AccessibilityService() {
     /**
      * 通过 MethodChannel 推送给 Flutter
      */
-    private fun pushToFlutter(amount: Double, merchant: String?, isWechat: Boolean) {
+    private fun pushToFlutter(amount: Double, merchant: String?, isWechat: Boolean, isAlipay: Boolean) {
         try {
             val engine = MainActivity.flutterEngine
             if (engine == null) {
@@ -168,13 +219,24 @@ class PaymentAccessibilityService : AccessibilityService() {
                 return
             }
 
+            val source = when {
+                isWechat -> "wechat"
+                isAlipay -> "alipay"
+                else -> "bank"
+            }
+            val title = when {
+                isWechat -> "微信支付"
+                isAlipay -> "支付宝"
+                else -> "银行支付"
+            }
+
             val data = mapOf(
-                "title" to if (isWechat) "微信支付" else "支付宝",
+                "title" to title,
                 "text" to buildString {
                     append("支付成功 ¥$amount")
                     if (!merchant.isNullOrEmpty()) append(" $merchant")
                 },
-                "source" to if (isWechat) "wechat" else "alipay",
+                "source" to source,
                 "timestamp" to System.currentTimeMillis(),
                 "amount" to amount,
                 "merchant" to (merchant ?: ""),
