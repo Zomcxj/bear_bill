@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 import '../../../models/models.dart';
+import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
 import '../../../utils/utils.dart' as utils;
-import '../../../widgets/app_card.dart';
+import '../../../providers/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 /// 将 hex 颜色字符串转换为 Color
 Color _hexToColor(String hex) {
@@ -29,8 +31,9 @@ class RecordGroupList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return ListView.builder(
-      padding: const EdgeInsets.all(AppSpacing.sm),
+      padding: EdgeInsets.only(left: DS.sm, right: DS.sm, bottom: DS.sm),
       itemCount: groupedRecords.length,
       itemBuilder: (context, index) {
         final group = groupedRecords[index];
@@ -42,22 +45,21 @@ class RecordGroupList extends StatelessWidget {
   Widget _buildDateGroup(Map<String, dynamic> group) {
     final records = group['records'] as List<RecordModel>;
 
-    return AppCard(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: EdgeInsets.zero,
-      showShadow: false,
+    return Container(
+      margin: EdgeInsets.only(bottom: DS.sm),
+      decoration: DS.glassDecoration,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 日期标题
           Container(
-            padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.sm, vertical: 12),
+            padding: EdgeInsets.symmetric(
+                horizontal: DS.base, vertical: 12),
             decoration: BoxDecoration(
-              color: AppTheme.primaryBg,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(AppRadius.lg),
-                topRight: Radius.circular(AppRadius.lg),
+              color: DS.background,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(DS.radiusMd),
+                topRight: Radius.circular(DS.radiusMd),
               ),
             ),
             child: Row(
@@ -67,18 +69,15 @@ class RecordGroupList extends StatelessWidget {
                   children: [
                     Text(
                       group['label'],
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.textPrimary,
+                      style: DS.labelMd.copyWith(
+                        color: DS.onSurface,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Text(
                       group['weekday'],
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppTheme.textHint,
+                      style: DS.labelSm.copyWith(
+                        color: DS.outline,
                       ),
                     ),
                   ],
@@ -88,23 +87,21 @@ class RecordGroupList extends StatelessWidget {
                     if (group['dayExpense'] > 0)
                       Text(
                         '支 ¥${utils.FormatUtils.formatAmount(group['dayExpense'])}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.primaryDark,
+                        style: DS.labelSm.copyWith(
+                          color: DS.primaryContainer,
                         ),
                       ),
                     if (group['dayExpense'] > 0 && group['dayIncome'] > 0)
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                        padding: EdgeInsets.symmetric(horizontal: 6),
                         child: Text('|',
                             style: TextStyle(
-                                color: AppTheme.textHint, fontSize: 12)),
+                                color: DS.outline, fontSize: 12)),
                       ),
                     if (group['dayIncome'] > 0)
                       Text(
                         '收 ¥${utils.FormatUtils.formatAmount(group['dayIncome'])}',
-                        style: const TextStyle(
-                          fontSize: 12,
+                        style: DS.labelSm.copyWith(
                           color: AppTheme.success,
                         ),
                       ),
@@ -122,7 +119,7 @@ class RecordGroupList extends StatelessWidget {
                 _buildRecordItem(records[index]),
                 if (index < records.length - 1)
                   Divider(
-                      height: 1, thickness: 1, color: AppTheme.divider),
+                      height: 1, thickness: 1, color: DS.outlineVariant),
               ],
             ),
           ),
@@ -138,15 +135,15 @@ class RecordGroupList extends StatelessWidget {
     return Slidable(
       key: ValueKey(record.id),
       endActionPane: ActionPane(
+        extentRatio: 0.3,
         motion: const ScrollMotion(),
         children: [
           SlidableAction(
             onPressed: (context) => onDelete(record.id),
-            backgroundColor: AppTheme.primaryDark,
+            backgroundColor: DS.primaryContainer,
             foregroundColor: Colors.white,
             icon: Icons.delete,
-            label: '删除',
-            borderRadius: BorderRadius.circular(AppRadius.md),
+            borderRadius: BorderRadius.circular(DS.radiusSm),
           ),
         ],
       ),
@@ -157,7 +154,7 @@ class RecordGroupList extends StatelessWidget {
           }
         },
         child: Container(
-          padding: const EdgeInsets.all(AppSpacing.sm),
+          padding: EdgeInsets.all(DS.base),
           child: Row(
             children: [
               // 分类图标
@@ -167,17 +164,17 @@ class RecordGroupList extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: _hexToColor(category?.color ?? '#B0B0B0')
                       .withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                  borderRadius: BorderRadius.circular(DS.radiusXs),
                 ),
                 child: Center(
                   child: Text(
                     category?.icon ?? '📦',
-                    style: const TextStyle(fontSize: 22),
+                    style: TextStyle(fontSize: 22),
                   ),
                 ),
               ),
 
-              const SizedBox(width: AppSpacing.sm),
+              SizedBox(width: DS.base),
 
               // 分类名称和备注
               Expanded(
@@ -186,33 +183,33 @@ class RecordGroupList extends StatelessWidget {
                   children: [
                     Text(
                       category?.name ?? '未分类',
-                      style: TextStyle(
-                        fontSize: 15,
+                      style: DS.bodyMd.copyWith(
                         fontWeight: FontWeight.w500,
-                        color: AppTheme.textPrimary,
+                        color: DS.onSurface,
                       ),
                     ),
                     if (record.remark != null && record.remark!.isNotEmpty) ...[
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Text(
                         record.remark!,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.textHint,
+                        style: DS.labelSm.copyWith(
+                          color: DS.outline,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
                     if (record.images.isNotEmpty) ...[
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Row(
                         children: [
-                          Icon(Icons.image, size: 12, color: AppTheme.textHint),
-                          const SizedBox(width: 2),
+                          Icon(Icons.image, size: 12, color: DS.outline),
+                          SizedBox(width: 2),
                           Text(
                             '${record.images.length}张图片',
-                            style: TextStyle(fontSize: 11, color: AppTheme.textHint),
+                            style: DS.labelSm.copyWith(
+                              color: DS.outline,
+                            ),
                           ),
                         ],
                       ),
@@ -225,10 +222,10 @@ class RecordGroupList extends StatelessWidget {
               Text(
                 utils.FormatUtils.formatAmountWithSign(record.amount,
                     type: record.type),
-                style: TextStyle(
+                style: DS.labelMd.copyWith(
                   fontSize: 17,
                   fontWeight: FontWeight.w600,
-                  color: AppTheme.textPrimary,
+                  color: DS.onSurface,
                 ),
               ),
             ],

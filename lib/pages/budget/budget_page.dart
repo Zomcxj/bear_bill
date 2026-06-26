@@ -4,8 +4,10 @@ import 'package:provider/provider.dart';
 import '../../providers/app_provider.dart';
 import '../../services/database_service.dart';
 import '../../services/storage_service.dart';
+import '../../theme/app_design_system.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/utils.dart';
+import '../../providers/theme_provider.dart';
 
 /// 预算设置页 - 月度预算设置、进度监控
 class BudgetPage extends StatefulWidget {
@@ -31,7 +33,7 @@ class _BudgetPageState extends State<BudgetPage> {
   Future<void> _loadBudget() async {
     final appProvider = context.read<AppProvider>();
     final book = await appProvider.getCurrentBook();
-    
+
     setState(() {
       _currentBudget = book?.budget ?? 0.0;
       _controller.text = _currentBudget > 0 ? _currentBudget.toString() : '';
@@ -47,7 +49,7 @@ class _BudgetPageState extends State<BudgetPage> {
       );
       return;
     }
-    
+
     final budget = double.tryParse(input);
     if (budget == null || budget < 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -55,7 +57,7 @@ class _BudgetPageState extends State<BudgetPage> {
       );
       return;
     }
-    
+
     final appProvider = context.read<AppProvider>();
     final book = await appProvider.getCurrentBook();
     if (!mounted) return;
@@ -66,7 +68,7 @@ class _BudgetPageState extends State<BudgetPage> {
       );
       return;
     }
-    
+
     final updatedBook = book.copyWith(budget: budget);
     await DatabaseService.instance.updateBook(updatedBook);
 
@@ -82,7 +84,7 @@ class _BudgetPageState extends State<BudgetPage> {
       appProvider.checkBudgetAchievements();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('预算已保存 🎯'),
+          content: Text('预算已保存'),
           backgroundColor: AppTheme.success,
         ),
       );
@@ -93,16 +95,16 @@ class _BudgetPageState extends State<BudgetPage> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('清除预算'),
-        content: const Text('确定清除当前预算设置吗？'),
+        title: Text('清除预算'),
+        content: Text('确定清除当前预算设置吗？'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+            child: Text('取消'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text('清除', style: TextStyle(color: AppTheme.primaryDark)),
+            child: Text('清除', style: TextStyle(color: DS.primaryContainer)),
           ),
         ],
       ),
@@ -112,16 +114,16 @@ class _BudgetPageState extends State<BudgetPage> {
     if (confirmed == true) {
       final appProvider = context.read<AppProvider>();
       final book = await appProvider.getCurrentBook();
-      
+
       if (book != null) {
         final updatedBook = book.copyWith(budget: 0.0);
         await DatabaseService.instance.updateBook(updatedBook);
-        
+
         setState(() {
           _currentBudget = 0.0;
           _controller.text = '';
         });
-        
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('已清除预算')),
@@ -133,39 +135,40 @@ class _BudgetPageState extends State<BudgetPage> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Scaffold(
-      backgroundColor: AppTheme.bgPage,
+      backgroundColor: DS.background,
       appBar: AppBar(
-        title: const Text('预算设置'),
-        backgroundColor: AppTheme.primary,
+        title: Text('预算设置'),
+        backgroundColor: DS.primary,
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.sm),
+              padding: EdgeInsets.all(DS.base),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // 当前预算显示
                   _buildCurrentBudgetCard(),
-                  
-                  const SizedBox(height: AppSpacing.md),
-                  
+
+                  SizedBox(height: DS.gutter),
+
                   // 快捷金额
                   _buildQuickAmounts(),
-                  
-                  const SizedBox(height: AppSpacing.md),
-                  
+
+                  SizedBox(height: DS.gutter),
+
                   // 自定义输入
                   _buildCustomInput(),
-                  
-                  const SizedBox(height: AppSpacing.lg),
-                  
+
+                  SizedBox(height: DS.md),
+
                   // 操作按钮
                   _buildActionButtons(),
-                  
-                  const SizedBox(height: AppSpacing.md),
-                  
+
+                  SizedBox(height: DS.gutter),
+
                   // 温馨提示
                   _buildTips(),
                 ],
@@ -176,43 +179,43 @@ class _BudgetPageState extends State<BudgetPage> {
 
   Widget _buildCurrentBudgetCard() {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: EdgeInsets.all(DS.gutter),
       decoration: BoxDecoration(
-        color: AppTheme.primaryLight,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppTheme.border),
+        color: DS.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(DS.radiusMd),
+        border: Border.all(color: DS.outlineVariant),
       ),
       child: Column(
         children: [
-          Text(
-            '🎯 当前月度预算',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.textSecondary,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.flag, size: 18, color: DS.onSurfaceVariant),
+              SizedBox(width: 6),
+              Text(
+                '当前月度预算',
+                style: DS.labelMd.copyWith(color: DS.onSurfaceVariant),
+              ),
+            ],
           ),
-          const SizedBox(height: AppSpacing.sm),
+          SizedBox(height: DS.base),
           Text(
-            _currentBudget > 0 
+            _currentBudget > 0
                 ? '¥${FormatUtils.formatAmountWithComma(_currentBudget)}'
                 : '未设置',
             style: TextStyle(
               fontSize: 36,
               fontWeight: FontWeight.bold,
-              color: _currentBudget > 0 
-                  ? AppTheme.primaryDark 
-                  : AppTheme.textHint,
+              color: _currentBudget > 0
+                  ? DS.primaryContainer
+                  : DS.outline,
             ),
           ),
           if (_currentBudget > 0) ...[
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               '每日可用 ¥${FormatUtils.formatAmount(_currentBudget / 30)}',
-              style: TextStyle(
-                fontSize: 13,
-                color: AppTheme.textSecondary,
-              ),
+              style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
             ),
           ],
         ],
@@ -226,13 +229,9 @@ class _BudgetPageState extends State<BudgetPage> {
       children: [
         Text(
           '快捷设置：',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: AppTheme.textPrimary,
-          ),
+          style: DS.labelMd.copyWith(color: DS.onSurface),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -244,22 +243,18 @@ class _BudgetPageState extends State<BudgetPage> {
                 });
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(
+                padding: EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryLight,
-                  borderRadius: BorderRadius.circular(AppRadius.full),
-                  border: Border.all(color: AppTheme.primary),
+                  color: DS.surfaceContainerHigh,
+                  borderRadius: BorderRadius.circular(DS.radiusFull),
+                  border: Border.all(color: DS.primary),
                 ),
                 child: Text(
                   '¥${amount.toInt()}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.primaryDark,
-                  ),
+                  style: DS.labelMd.copyWith(color: DS.primaryContainer),
                 ),
               ),
             );
@@ -275,21 +270,17 @@ class _BudgetPageState extends State<BudgetPage> {
       children: [
         Text(
           '自定义金额：',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: AppTheme.textPrimary,
-          ),
+          style: DS.labelMd.copyWith(color: DS.onSurface),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         TextField(
           controller: _controller,
           decoration: InputDecoration(
             hintText: '输入月度预算金额',
-            prefixIcon: Icon(Icons.attach_money, color: AppTheme.primary),
+            prefixIcon: Icon(Icons.attach_money, color: DS.primary),
             suffixIcon: _controller.text.isNotEmpty
                 ? IconButton(
-                    icon: const Icon(Icons.clear, size: 18),
+                    icon: Icon(Icons.clear, size: 18),
                     onPressed: () {
                       setState(() {
                         _controller.text = '';
@@ -298,9 +289,9 @@ class _BudgetPageState extends State<BudgetPage> {
                   )
                 : null,
             filled: true,
-            fillColor: AppTheme.bgCard,
+            fillColor: DS.surfaceContainerLowest,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.md),
+              borderRadius: BorderRadius.circular(DS.radiusSm),
               borderSide: BorderSide.none,
             ),
           ),
@@ -316,30 +307,30 @@ class _BudgetPageState extends State<BudgetPage> {
         Expanded(
           child: OutlinedButton.icon(
             onPressed: _clearBudget,
-            icon: const Icon(Icons.clear),
-            label: const Text('清除预算'),
+            icon: Icon(Icons.clear),
+            label: Text('清除预算'),
             style: OutlinedButton.styleFrom(
-              foregroundColor: AppTheme.primaryDark,
-              side: BorderSide(color: AppTheme.primaryDark),
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              foregroundColor: DS.primaryContainer,
+              side: BorderSide(color: DS.primaryContainer),
+              padding: EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRadius.md),
+                borderRadius: BorderRadius.circular(DS.radiusSm),
               ),
             ),
           ),
         ),
-        const SizedBox(width: AppSpacing.sm),
+        SizedBox(width: DS.base),
         Expanded(
           child: ElevatedButton.icon(
             onPressed: _saveBudget,
-            icon: const Icon(Icons.save),
-            label: const Text('保存预算'),
+            icon: Icon(Icons.save),
+            label: Text('保存预算'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primary,
+              backgroundColor: DS.primary,
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRadius.md),
+                borderRadius: BorderRadius.circular(DS.radiusSm),
               ),
             ),
           ),
@@ -350,10 +341,10 @@ class _BudgetPageState extends State<BudgetPage> {
 
   Widget _buildTips() {
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: EdgeInsets.all(DS.gutter),
       decoration: BoxDecoration(
         color: AppTheme.infoLight,
-        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderRadius: BorderRadius.circular(DS.radiusSm),
         border: Border.all(color: AppTheme.info.withOpacity(0.3)),
       ),
       child: Column(
@@ -361,27 +352,22 @@ class _BudgetPageState extends State<BudgetPage> {
         children: [
           Row(
             children: [
-              const Icon(Icons.lightbulb_outline, color: AppTheme.info, size: 20),
-              const SizedBox(width: 8),
+              Icon(Icons.lightbulb_outline, color: AppTheme.info, size: 20),
+              SizedBox(width: 8),
               Text(
                 '温馨提示',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.textPrimary,
-                ),
+                style: DS.labelMd.copyWith(color: DS.onSurface),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
             '• 建议根据月收入设置合理预算\n'
             '• 一般建议支出不超过收入的 80%\n'
             '• 可在首页查看预算使用进度\n'
             '• 超支时会有提醒哦～',
-            style: TextStyle(
-              fontSize: 13,
-              color: AppTheme.textSecondary,
+            style: DS.labelSm.copyWith(
+              color: DS.onSurfaceVariant,
               height: 1.6,
             ),
           ),

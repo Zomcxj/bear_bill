@@ -5,10 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../providers/app_provider.dart';
+import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
 import '../../multi_book/multi_book_page.dart';
+import '../../../providers/theme_provider.dart';
 
-/// 用户信息卡片 - 等级、经验、打卡（对齐小程序渐变 Hero 风格）
+/// 用户信息卡片 - 等级、经验、打卡（Luminous Finance 风格）
 class UserProfileCard extends StatelessWidget {
   final int totalRecords;
   final int totalBooks;
@@ -23,6 +25,7 @@ class UserProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Consumer<AppProvider>(
       builder: (context, appProvider, child) {
         final user = appProvider.user;
@@ -34,11 +37,18 @@ class UserProfileCard extends StatelessWidget {
         final nextLevelExp = user.expForNextLevel;
 
         return Container(
-          margin: const EdgeInsets.all(AppSpacing.md),
           decoration: BoxDecoration(
-            color: AppTheme.primary,
-            borderRadius: BorderRadius.circular(AppRadius.lg),
-            boxShadow: AppShadow.card,
+            gradient: DS.heroGradientBlueCurrent,
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(DS.radiusLg),
+              bottomRight: Radius.circular(DS.radiusLg),
+            ),
+          ),
+          padding: EdgeInsets.fromLTRB(
+            DS.containerMargin,
+            MediaQuery.of(context).padding.top + DS.gutter,
+            DS.containerMargin,
+            DS.base,
           ),
           child: Stack(
             children: [
@@ -66,9 +76,7 @@ class UserProfileCard extends StatelessWidget {
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(AppSpacing.md),
-                child: Column(
+              Column(
                   children: [
                     Row(
                       children: [
@@ -96,19 +104,19 @@ class UserProfileCard extends StatelessWidget {
                                 : Center(
                                     child: Text(
                                       levelInfo['emoji'],
-                                      style: const TextStyle(fontSize: 26),
+                                      style: TextStyle(fontSize: 26),
                                     ),
                                   ),
                           ),
                         ),
-                        const SizedBox(width: AppSpacing.sm),
+                        SizedBox(width: DS.base),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 user.nickname,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                   color: AppTheme.heroTextMain,
@@ -121,22 +129,22 @@ class UserProfileCard extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              const SizedBox(height: 4),
+                              SizedBox(height: 4),
                               Row(
                                 children: [
                                   Container(
-                                    padding: const EdgeInsets.symmetric(
+                                    padding: EdgeInsets.symmetric(
                                       horizontal: 8,
                                       vertical: 2,
                                     ),
                                     decoration: BoxDecoration(
                                       color: Colors.white.withOpacity(0.25),
                                       borderRadius:
-                                          BorderRadius.circular(AppRadius.full),
+                                          BorderRadius.circular(DS.radiusFull),
                                     ),
                                     child: Text(
                                       'Lv.${user.level} ${levelInfo['name']}',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
                                         color: AppTheme.heroTextMain,
@@ -150,14 +158,14 @@ class UserProfileCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: AppSpacing.lg),
+                    SizedBox(height: DS.sm),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
+                            Text(
                               '经验值',
                               style: TextStyle(
                                 fontSize: 11,
@@ -166,7 +174,7 @@ class UserProfileCard extends StatelessWidget {
                             ),
                             Text(
                               '${user.exp} / $nextLevelExp',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                                 color: AppTheme.heroTextMain,
@@ -174,9 +182,9 @@ class UserProfileCard extends StatelessWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: 4),
                         ClipRRect(
-                          borderRadius: BorderRadius.circular(AppRadius.full),
+                          borderRadius: BorderRadius.circular(DS.radiusFull),
                           child: LinearProgressIndicator(
                             value: user.expProgress,
                             backgroundColor: Colors.white.withOpacity(0.2),
@@ -188,26 +196,26 @@ class UserProfileCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: AppSpacing.md),
+                    SizedBox(height: DS.sm),
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(DS.radiusSm),
                       ),
-                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      padding: EdgeInsets.symmetric(vertical: 10),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          _buildStatItem('📝', '$totalRecords', '记账次数',
+                          _buildStatItem(Icons.edit_note, '$totalRecords', '记账次数',
                               onTap: onRecordTap),
-                          _buildStatItem('🔥', '${appProvider.checkInDays}', '连续打卡',
+                          _buildStatItem(Icons.local_fire_department, '${appProvider.checkInDays}', '连续打卡',
                               onTap: () => _showCheckInInfo(context, appProvider)),
-                          _buildStatItem('📒', '$totalBooks', '账本数',
+                          _buildStatItem(Icons.book, '$totalBooks', '账本数',
                               onTap: () => _showBookManagement(context)),
                         ],
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.sm),
+                    SizedBox(height: DS.base),
                     if (!appProvider.todayChecked)
                       GestureDetector(
                         onTap: () async {
@@ -219,48 +227,57 @@ class UserProfileCard extends StatelessWidget {
                         },
                         child: Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          padding: EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.25),
-                            borderRadius: BorderRadius.circular(AppRadius.full),
+                            borderRadius: BorderRadius.circular(DS.radiusFull),
                             border: Border.all(
                               color: Colors.white.withOpacity(0.4),
                             ),
                           ),
-                          child: const Center(
-                            child: Text(
-                              '🔥 今日打卡',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                color: AppTheme.heroTextMain,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.local_fire_department, size: 18, color: AppTheme.heroTextMain),
+                              SizedBox(width: 6),
+                              Text(
+                                '今日打卡',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppTheme.heroTextMain,
+                                ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
                       )
                     else
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        padding: EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(AppRadius.full),
+                          borderRadius: BorderRadius.circular(DS.radiusFull),
                         ),
-                        child: const Center(
-                          child: Text(
-                            '✅ 今日已打卡',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: AppTheme.heroTextMain,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.check_circle, size: 18, color: AppTheme.heroTextMain),
+                            SizedBox(width: 6),
+                            Text(
+                              '今日已打卡',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.heroTextMain,
+                              ),
                             ),
-                          ),
+                          ],
                         ),
                       ),
                   ],
                 ),
-              ),
             ],
           ),
         );
@@ -268,17 +285,17 @@ class UserProfileCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatItem(String emoji, String value, String label,
+  Widget _buildStatItem(IconData icon, String value, String label,
       {VoidCallback? onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
         children: [
-          Text(emoji, style: const TextStyle(fontSize: 20)),
-          const SizedBox(height: 2),
+          Icon(icon, size: 20, color: AppTheme.heroTextMain),
+          SizedBox(height: 2),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w800,
               color: AppTheme.heroTextMain,
@@ -287,7 +304,7 @@ class UserProfileCard extends StatelessWidget {
           ),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
               color: AppTheme.heroTextSub,
             ),
@@ -303,28 +320,34 @@ class UserProfileCard extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('🔥 打卡记录'),
+        title: Row(
+          children: [
+            Icon(Icons.local_fire_department, color: DS.primary, size: 24),
+            SizedBox(width: 8),
+            Text('打卡记录'),
+          ],
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('连续打卡：${appProvider.checkInDays} 天'),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             if (lastCheckIn.isNotEmpty)
               Text('上次打卡：$lastCheckIn')
             else
-              const Text('暂无打卡记录'),
-            const SizedBox(height: 12),
+              Text('暂无打卡记录'),
+            SizedBox(height: 12),
             Text(
               '每天记账即自动打卡，断签会重置连续天数。',
-              style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+              style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
             ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('知道了'),
+            child: Text('知道了'),
           ),
         ],
       ),
@@ -383,40 +406,35 @@ class UserProfileCard extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         child: Container(
-          margin: const EdgeInsets.only(top: 60),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          margin: EdgeInsets.only(top: 60),
+          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           decoration: BoxDecoration(
-            color: AppTheme.bgCard,
-            borderRadius: BorderRadius.circular(AppRadius.lg),
-            boxShadow: AppShadow.deep,
-            border: Border.all(color: AppTheme.border, width: 1.5),
+            color: DS.surfaceContainerLowest,
+            borderRadius: BorderRadius.circular(DS.radiusMd),
+            boxShadow: DS.shadowMd,
+            border: Border.all(color: DS.outlineVariant, width: 1.5),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 achievements.first.emoji ?? '🏆',
-                style: const TextStyle(fontSize: 40),
+                style: TextStyle(fontSize: 40),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     '成就解锁！',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppTheme.textHint,
-                    ),
+                    style: DS.labelSm.copyWith(color: DS.outline),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2),
                   Text(
                     achievements.first.title ?? '新成就',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.textPrimary,
+                    style: DS.headlineSm.copyWith(
+                      color: DS.onSurface,
                     ),
                   ),
                 ],

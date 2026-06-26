@@ -2,12 +2,15 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// 图片管理服务 - 复制图片到 app 私有目录，确保路径持久有效
 class ImageService {
   static final ImageService instance = ImageService._();
   ImageService._();
+
+  final ImagePicker _picker = ImagePicker();
 
   Future<Directory> get _imageDir async {
     final appDir = await getApplicationDocumentsDirectory();
@@ -46,17 +49,12 @@ class ImageService {
     return paths;
   }
 
-  /// 拍照并复制到 app 目录（通过 FilePicker 的 camera 模式）
+  /// 拍照并复制到 app 目录
   Future<String?> captureFromCamera() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-      allowMultiple: false,
-    );
-    if (result == null || result.files.isEmpty) return null;
-    final path = result.files.first.path;
-    if (path == null) return null;
+    final xFile = await _picker.pickImage(source: ImageSource.camera);
+    if (xFile == null) return null;
     try {
-      return await copyImageToAppDir(path);
+      return await copyImageToAppDir(xFile.path);
     } catch (_) {
       return null;
     }

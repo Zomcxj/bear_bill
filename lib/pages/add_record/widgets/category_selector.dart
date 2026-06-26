@@ -1,7 +1,9 @@
 ﻿import 'package:flutter/material.dart';
 
 import '../../../models/models.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/app_design_system.dart';
+import '../../../providers/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 /// 将 hex 颜色字符串转换为 Color
 Color _hexToColor(String hex) {
@@ -26,9 +28,10 @@ class CategorySelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Container(
-      padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+      padding: EdgeInsets.symmetric(
+          horizontal: DS.base, vertical: DS.xs),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
@@ -37,7 +40,7 @@ class CategorySelector extends StatelessWidget {
             return GestureDetector(
               onTap: () => onSelect(category),
               child: Container(
-                margin: const EdgeInsets.only(right: AppSpacing.sm),
+                margin: EdgeInsets.only(right: DS.base),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -47,30 +50,30 @@ class CategorySelector extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: isSelected
                             ? _hexToColor(category.color).withOpacity(0.15)
-                            : AppTheme.bgCard,
+                            : DS.surfaceContainerLowest,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isSelected
                               ? _hexToColor(category.color)
-                              : AppTheme.border,
+                              : DS.outlineVariant,
                           width: isSelected ? 2 : 1,
                         ),
                       ),
                       child: Center(
                         child: Text(
                           category.icon,
-                          style: const TextStyle(fontSize: 16),
+                          style: TextStyle(fontSize: 16),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       category.name,
                       style: TextStyle(
                         fontSize: 11,
                         color: isSelected
                             ? _hexToColor(category.color)
-                            : AppTheme.textSecondary,
+                            : DS.onSurfaceVariant,
                       ),
                     ),
                   ],

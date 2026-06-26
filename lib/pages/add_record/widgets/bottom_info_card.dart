@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../../../models/models.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/app_design_system.dart';
+import '../../../providers/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 /// 底部信息卡片：心情选择、备注输入、照片上传、位置输入
 class BottomInfoCard extends StatelessWidget {
@@ -40,19 +42,20 @@ class BottomInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Container(
-      margin: const EdgeInsets.all(AppSpacing.sm),
+      margin: EdgeInsets.symmetric(horizontal: DS.sm),
       decoration: BoxDecoration(
-        color: AppTheme.bgCard,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: AppTheme.border),
+        color: DS.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(DS.radiusSm),
+        border: Border.all(color: DS.outlineVariant),
       ),
       child: Column(
         children: [
           // 1. 心情选择
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.sm,
+            padding: EdgeInsets.symmetric(
+              horizontal: DS.base,
               vertical: 10,
             ),
             child: Row(
@@ -62,10 +65,10 @@ class BottomInfoCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.textSecondary,
+                    color: DS.onSurfaceVariant,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -73,24 +76,24 @@ class BottomInfoCard extends StatelessWidget {
                       children: moods.map((mood) {
                         final isSelected = selectedMood?.id == mood.id;
                         return Padding(
-                          padding: const EdgeInsets.only(right: 6),
+                          padding: EdgeInsets.only(right: 6),
                           child: GestureDetector(
                             onTap: () => onMoodChanged(mood),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(
+                              padding: EdgeInsets.symmetric(
                                 horizontal: 10,
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? AppTheme.primaryLight
-                                    : AppTheme.bgPage,
+                                    ? DS.surfaceContainerHigh
+                                    : DS.background,
                                 borderRadius:
-                                    BorderRadius.circular(AppRadius.full),
+                                    BorderRadius.circular(DS.radiusFull),
                                 border: Border.all(
                                   color: isSelected
-                                      ? AppTheme.primary
-                                      : AppTheme.border,
+                                      ? DS.primary
+                                      : DS.outlineVariant,
                                 ),
                               ),
                               child: Row(
@@ -98,16 +101,16 @@ class BottomInfoCard extends StatelessWidget {
                                 children: [
                                   Text(
                                     mood.emoji,
-                                    style: const TextStyle(fontSize: 14),
+                                    style: TextStyle(fontSize: 14),
                                   ),
-                                  const SizedBox(width: 3),
+                                  SizedBox(width: 3),
                                   Text(
                                     mood.label,
                                     style: TextStyle(
                                       fontSize: 11,
                                       color: isSelected
-                                          ? AppTheme.primaryDark
-                                          : AppTheme.textSecondary,
+                                          ? DS.primaryContainer
+                                          : DS.onSurfaceVariant,
                                       fontWeight: isSelected
                                           ? FontWeight.w600
                                           : FontWeight.normal,
@@ -127,12 +130,12 @@ class BottomInfoCard extends StatelessWidget {
           ),
 
           // 分隔线
-          Divider(height: 1, thickness: 1, color: AppTheme.divider),
+          Divider(height: 1, thickness: 1, color: DS.outlineVariant),
 
           // 2. 备注
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.sm,
+            padding: EdgeInsets.symmetric(
+              horizontal: DS.base,
               vertical: 10,
             ),
             child: Row(
@@ -143,10 +146,10 @@ class BottomInfoCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.textSecondary,
+                    color: DS.onSurfaceVariant,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: TextField(
                     controller: noteController,
@@ -157,15 +160,15 @@ class BottomInfoCard extends StatelessWidget {
                     decoration: InputDecoration(
                       hintText: '点这里补一句备注',
                       hintStyle: TextStyle(
-                        color: AppTheme.textHint,
+                        color: DS.outline,
                         fontSize: 13,
                       ),
                       border: InputBorder.none,
                       isDense: true,
-                      contentPadding: const EdgeInsets.only(left: 8),
+                      contentPadding: EdgeInsets.only(left: 8),
                       counterText: '',
                     ),
-                    style: const TextStyle(fontSize: 14),
+                    style: TextStyle(fontSize: 14),
                     onChanged: onNoteChanged,
                   ),
                 ),
@@ -174,12 +177,12 @@ class BottomInfoCard extends StatelessWidget {
           ),
 
           // 分隔线
-          Divider(height: 1, thickness: 1, color: AppTheme.divider),
+          Divider(height: 1, thickness: 1, color: DS.outlineVariant),
 
           // 3. 照片
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.sm,
+            padding: EdgeInsets.symmetric(
+              horizontal: DS.base,
               vertical: 10,
             ),
             child: Row(
@@ -189,56 +192,26 @@ class BottomInfoCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.textSecondary,
+                    color: DS.onSurfaceVariant,
                   ),
                 ),
-                const SizedBox(width: 12),
-                // 相册选择
+                SizedBox(width: 12),
+                // 添加照片（底部弹出选择）
                 GestureDetector(
-                  onTap: onPickImages,
+                  onTap: () => _showPhotoOptions(context),
                   child: Container(
                     width: 50,
                     height: 50,
                     decoration: BoxDecoration(
-                      color: AppTheme.primaryLight,
-                      borderRadius: BorderRadius.circular(AppRadius.md),
+                      color: DS.surfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(DS.radiusSm),
                       border: Border.all(
-                        color: AppTheme.primary.withOpacity(0.3),
-                        style: BorderStyle.solid,
+                        color: DS.primary.withOpacity(0.3),
                         width: 1,
                       ),
                     ),
                     child: Center(
-                      child: Icon(
-                        Icons.photo_library,
-                        size: 18,
-                        color: AppTheme.primary,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                // 拍照
-                GestureDetector(
-                  onTap: onCaptureImage,
-                  child: Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: AppTheme.info.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(AppRadius.md),
-                      border: Border.all(
-                        color: AppTheme.info.withOpacity(0.3),
-                        style: BorderStyle.solid,
-                        width: 1,
-                      ),
-                    ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.camera_alt,
-                        size: 18,
-                        color: AppTheme.info,
-                      ),
+                      child: Icon(Icons.add_a_photo, size: 18, color: DS.primary),
                     ),
                   ),
                 ),
@@ -249,7 +222,7 @@ class BottomInfoCard extends StatelessWidget {
           // 照片缩略图（如果有）
           if (images.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+              padding: EdgeInsets.symmetric(horizontal: DS.base),
               child: SizedBox(
                 height: 64,
                 child: ListView.builder(
@@ -260,12 +233,12 @@ class BottomInfoCard extends StatelessWidget {
                     return Stack(
                       children: [
                         Container(
-                          margin: const EdgeInsets.only(right: AppSpacing.sm),
+                          margin: EdgeInsets.only(right: DS.base),
                           width: 64,
                           height: 64,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(AppRadius.md),
-                            color: AppTheme.bgSection,
+                            borderRadius: BorderRadius.circular(DS.radiusSm),
+                            color: DS.surfaceContainerLow,
                             image: path.isNotEmpty
                                 ? DecorationImage(
                                     image: FileImage(File(path)),
@@ -282,7 +255,7 @@ class BottomInfoCard extends StatelessWidget {
                               decoration: BoxDecoration(
                                   color: Colors.black45,
                                   borderRadius: BorderRadius.circular(12)),
-                              child: const Icon(Icons.close,
+                              child: Icon(Icons.close,
                                   size: 16, color: Colors.white),
                             ),
                           ),
@@ -295,11 +268,11 @@ class BottomInfoCard extends StatelessWidget {
             ),
 
           // 分隔线
-          Divider(height: 1, thickness: 1, color: AppTheme.divider),
+          Divider(height: 1, thickness: 1, color: DS.outlineVariant),
 
           // 4. 位置
           Padding(
-            padding: const EdgeInsets.all(AppSpacing.sm),
+            padding: EdgeInsets.all(DS.base),
             child: Row(
               children: [
                 Text(
@@ -307,35 +280,35 @@ class BottomInfoCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: AppTheme.textSecondary,
+                    color: DS.onSurfaceVariant,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 GestureDetector(
                   onTap: onLocationDialog,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
+                    padding: EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: AppTheme.info.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(AppRadius.full),
+                      color: DS.secondaryContainer.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(DS.radiusFull),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
                           Icons.location_on,
                           size: 16,
-                          color: AppTheme.info,
+                          color: DS.secondaryContainer,
                         ),
                         SizedBox(width: 4),
                         Text(
                           '添加位置',
                           style: TextStyle(
                             fontSize: 13,
-                            color: AppTheme.info,
+                            color: DS.secondaryContainer,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -350,38 +323,75 @@ class BottomInfoCard extends StatelessWidget {
           // 位置输入框（如果有定位）
           if (location != null && location!.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.sm, vertical: 8),
+              padding: EdgeInsets.symmetric(
+                  horizontal: DS.base, vertical: 8),
               child: Container(
-                padding: const EdgeInsets.all(AppSpacing.sm),
+                padding: EdgeInsets.all(DS.base),
                 decoration: BoxDecoration(
-                  color: AppTheme.bgPage,
-                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                  color: DS.background,
+                  borderRadius: BorderRadius.circular(DS.radiusXs),
                 ),
                 child: Row(
                   children: [
                     Icon(Icons.location_on,
-                        size: 16, color: AppTheme.primary),
-                    const SizedBox(width: 8),
+                        size: 16, color: DS.primary),
+                    SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         location!,
                         style: TextStyle(
                           fontSize: 13,
-                          color: AppTheme.textPrimary,
+                          color: DS.onSurface,
                         ),
                       ),
                     ),
                     GestureDetector(
                       onTap: () => onLocationChanged(''),
                       child: Icon(Icons.close,
-                          size: 16, color: AppTheme.textHint),
+                          size: 16, color: DS.outline),
                     ),
                   ],
                 ),
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  void _showPhotoOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).padding.bottom),
+        decoration: BoxDecoration(
+          color: DS.surfaceContainerLowest,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(DS.radiusMd)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(Icons.photo_library, color: DS.primary),
+              title: Text('从相册选择'),
+              onTap: () {
+                Navigator.pop(ctx);
+                onPickImages();
+              },
+            ),
+            if (onCaptureImage != null)
+              ListTile(
+                leading: Icon(Icons.camera_alt, color: DS.secondaryContainer),
+                title: Text('拍照'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  onCaptureImage!();
+                },
+              ),
+            SizedBox(height: DS.sm),
+          ],
+        ),
       ),
     );
   }

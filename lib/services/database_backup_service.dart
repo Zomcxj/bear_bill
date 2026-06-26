@@ -370,19 +370,19 @@ class DatabaseBackupService {
     return await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('确认导入'),
+        title: Text('确认导入'),
         content: Text(
           '文件：$fileName\n大小：${(fileSize / 1024).toStringAsFixed(1)} KB\n\n$desc，此操作不可撤销。\n\n确定继续？',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+            child: Text('取消'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('确认导入'),
+            child: Text('确认导入'),
           ),
         ],
       ),

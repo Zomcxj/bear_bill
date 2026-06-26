@@ -1,8 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../models/category_model.dart';
-import '../../../theme/app_theme.dart';
-import '../../../widgets/app_card.dart';
+import '../../../theme/app_design_system.dart';
+import '../../../providers/theme_provider.dart';
 
 /// 将 hex 颜色字符串转换为 Color
 Color _hexToColor(String hex) {
@@ -56,26 +57,27 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<ThemeProvider>(); // theme rebuild
     return Column(
       children: [
         // 搜索栏
         Padding(
-          padding: const EdgeInsets.all(AppSpacing.sm),
+          padding: EdgeInsets.all(DS.base),
           child: Row(
             children: [
               Expanded(
-                child: AppCard(
-                  padding: EdgeInsets.zero,
-                  borderRadius: AppRadius.md,
-                  showShadow: false,
+                child: Container(
+                  decoration: DS.glassDecoration.copyWith(
+                    borderRadius: BorderRadius.circular(DS.radiusSm),
+                  ),
                   child: TextField(
                     controller: _controller,
                     decoration: InputDecoration(
                       hintText: '搜索分类、备注或金额',
-                      prefixIcon: Icon(Icons.search, color: AppTheme.textHint),
+                      prefixIcon: Icon(Icons.search, color: DS.outline),
                       suffixIcon: widget.keyword.isNotEmpty
                           ? IconButton(
-                              icon: const Icon(Icons.clear, size: 18),
+                              icon: Icon(Icons.clear, size: 18),
                               onPressed: () {
                                 _controller.clear();
                                 widget.onSearchChanged('');
@@ -83,7 +85,7 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
                             )
                           : null,
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(
+                      contentPadding: EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 12,
                       ),
@@ -92,25 +94,25 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
                   ),
                 ),
               ),
-              
-              const SizedBox(width: AppSpacing.xs),
-              
+
+              SizedBox(width: DS.xs),
+
               // 筛选按钮
               GestureDetector(
                 onTap: () {
                   // Toggle filter panel visibility handled by parent
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     color: widget.showFilter
-                        ? AppTheme.primaryLight
-                        : AppTheme.bgCard,
-                    borderRadius: BorderRadius.circular(AppRadius.md),
+                        ? DS.surfaceContainerHigh
+                        : DS.surfaceContainerLowest,
+                    borderRadius: BorderRadius.circular(DS.radiusSm),
                     border: Border.all(
-                      color: widget.showFilter 
-                          ? AppTheme.primary 
-                          : AppTheme.border,
+                      color: widget.showFilter
+                          ? DS.primary
+                          : DS.outlineVariant,
                     ),
                   ),
                   child: Row(
@@ -118,27 +120,26 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
                     children: [
                       Text(
                         '筛选',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: widget.showFilter 
-                              ? AppTheme.primaryDark 
-                              : AppTheme.textSecondary,
+                        style: DS.labelMd.copyWith(
+                          color: widget.showFilter
+                              ? DS.primaryContainer
+                              : DS.onSurfaceVariant,
                         ),
                       ),
                       if (widget.filterCategories.isNotEmpty) ...[
-                        const SizedBox(width: 4),
+                        SizedBox(width: 4),
                         Container(
-                          padding: const EdgeInsets.symmetric(
+                          padding: EdgeInsets.symmetric(
                             horizontal: 6,
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: AppTheme.primary,
-                            borderRadius: BorderRadius.circular(AppRadius.full),
+                            color: DS.primary,
+                            borderRadius: BorderRadius.circular(DS.radiusFull),
                           ),
                           child: Text(
                             '${widget.filterCategories.length}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 11,
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
@@ -153,7 +154,7 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
             ],
           ),
         ),
-        
+
         // 筛选面板
         if (widget.showFilter) _buildFilterPanel(),
       ],
@@ -161,24 +162,23 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
   }
 
   Widget _buildFilterPanel() {
-    return AppCard(
-      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-      padding: const EdgeInsets.all(AppSpacing.sm),
-      borderRadius: AppRadius.md,
-      showShadow: false,
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: DS.sm),
+      padding: EdgeInsets.all(DS.base),
+      decoration: DS.glassDecoration.copyWith(
+        borderRadius: BorderRadius.circular(DS.radiusSm),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // 类型筛选
           Text(
             '类型',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.textPrimary,
+            style: DS.labelMd.copyWith(
+              color: DS.onSurface,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -188,19 +188,17 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
               _buildFilterChip('收入', 'income'),
             ],
           ),
-          
-          const SizedBox(height: AppSpacing.sm),
-          
+
+          SizedBox(height: DS.base),
+
           // 分类筛选
           Text(
             '分类',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: AppTheme.textPrimary,
+            style: DS.labelMd.copyWith(
+              color: DS.onSurface,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -209,27 +207,26 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
               ...incomeCategories.map((c) => _buildCategoryChip(c)),
             ],
           ),
-          
-          const SizedBox(height: AppSpacing.sm),
-          
+
+          SizedBox(height: DS.base),
+
           // 清除筛选
           Center(
             child: GestureDetector(
               onTap: widget.onClearFilter,
               child: Container(
-                padding: const EdgeInsets.symmetric(
+                padding: EdgeInsets.symmetric(
                   horizontal: 24,
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: AppTheme.bgSection,
-                  borderRadius: BorderRadius.circular(AppRadius.full),
+                  color: DS.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(DS.radiusFull),
                 ),
                 child: Text(
                   '清除筛选',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: AppTheme.textSecondary,
+                  style: DS.labelSm.copyWith(
+                    color: DS.onSurfaceVariant,
                   ),
                 ),
               ),
@@ -245,20 +242,19 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
     return GestureDetector(
       onTap: () => widget.onFilterTypeChanged(type),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryLight : AppTheme.bgCard,
-          borderRadius: BorderRadius.circular(AppRadius.full),
+          color: isSelected ? DS.surfaceContainerHigh : DS.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(DS.radiusFull),
           border: Border.all(
-            color: isSelected ? AppTheme.primary : AppTheme.border,
+            color: isSelected ? DS.primary : DS.outlineVariant,
             width: isSelected ? 2 : 1,
           ),
         ),
         child: Text(
           label,
-          style: TextStyle(
-            fontSize: 13,
-            color: isSelected ? AppTheme.primaryDark : AppTheme.textSecondary,
+          style: DS.labelSm.copyWith(
+            color: isSelected ? DS.primaryContainer : DS.onSurfaceVariant,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
           ),
         ),
@@ -271,31 +267,30 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
     return GestureDetector(
       onTap: () => widget.onCategoryToggled(category.id),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           color: isSelected
               ? _hexToColor(category.color).withOpacity(0.2)
-              : AppTheme.bgCard,
-          borderRadius: BorderRadius.circular(AppRadius.full),
+              : DS.surfaceContainerLowest,
+          borderRadius: BorderRadius.circular(DS.radiusFull),
           border: Border.all(
-            color: isSelected 
+            color: isSelected
                 ? _hexToColor(category.color)
-                : AppTheme.border,
+                : DS.outlineVariant,
             width: isSelected ? 2 : 1,
           ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(category.icon, style: const TextStyle(fontSize: 14)),
-            const SizedBox(width: 4),
+            Text(category.icon, style: TextStyle(fontSize: 14)),
+            SizedBox(width: 4),
             Text(
               category.name,
-              style: TextStyle(
-                fontSize: 12,
+              style: DS.labelSm.copyWith(
                 color: isSelected
                     ? _hexToColor(category.color)
-                    : AppTheme.textSecondary,
+                    : DS.onSurfaceVariant,
               ),
             ),
           ],
