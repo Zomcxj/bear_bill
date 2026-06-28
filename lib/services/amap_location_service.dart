@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../config/api_keys.dart' as config;
+import 'api_quota_service.dart';
 
 /// 高德地图 Web API 服务
 /// 使用前请到 https://lbs.amap.com 注册并申请 Web 服务 API Key
@@ -57,6 +58,13 @@ class AmapLocationService {
   /// 反向地理编码: 经纬度 → 地址（传入 WGS84 坐标，内部自动转换为 GCJ-02）
   /// extensions=all 会返回附近 POI（小区、商店、地标等）
   Future<AmapAddress?> reverseGeocode(double lat, double lon) async {
+    // 检查配额
+    final quota = await ApiQuotaService.instance.checkAmapQuota();
+    if (!quota.allowed) {
+      if (kDebugMode) print('高德 API 配额已用完: ${quota.message}');
+      return null;
+    }
+
     try {
       final gcj = wgs84ToGcj02(lat, lon);
       final url = Uri.parse(
@@ -67,6 +75,8 @@ class AmapLocationService {
       if (resp.statusCode == 200) {
         final data = json.decode(resp.body);
         if (data['status'] == '1' && data['regeocode'] != null) {
+          // 记录使用次数
+          await ApiQuotaService.instance.recordAmapUsage();
           final regeocode = data['regeocode'];
           final addressComponent = regeocode['addressComponent'] ?? {};
 
@@ -107,6 +117,13 @@ class AmapLocationService {
   /// POI 搜索: 关键词 → 地点列表
   /// [gcjLat]/[gcjLon] 为 GCJ-02 坐标（高德坐标系），用于距离排序
   Future<List<AmapPoi>> searchPoi(String keyword, {double? gcjLat, double? gcjLon}) async {
+    // 检查配额
+    final quota = await ApiQuotaService.instance.checkAmapQuota();
+    if (!quota.allowed) {
+      if (kDebugMode) print('高德 API 配额已用完: ${quota.message}');
+      return [];
+    }
+
     try {
       String urlStr =
           'https://restapi.amap.com/v3/place/text'
@@ -119,6 +136,8 @@ class AmapLocationService {
       if (resp.statusCode == 200) {
         final data = json.decode(resp.body);
         if (data['status'] == '1' && data['pois'] != null) {
+          // 记录使用次数
+          await ApiQuotaService.instance.recordAmapUsage();
           return (data['pois'] as List).map((poi) {
             final loc = (poi['location'] ?? '').toString().split(',');
             return AmapPoi(

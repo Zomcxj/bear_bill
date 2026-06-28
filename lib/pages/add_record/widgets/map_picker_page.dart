@@ -354,7 +354,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',
+                urlTemplate: 'https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=2&style=8&x={x}&y={y}&z={z}',
                 subdomains: const ['1', '2', '3', '4'],
                 userAgentPackageName: 'com.bearbill.bear_bill',
                 maxZoom: 18,

@@ -140,11 +140,17 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
-            color: Colors.white,
+            color: DS.onSurface,
           ),
         ),
-        backgroundColor: DS.primary,
+        backgroundColor: Colors.transparent,
+        foregroundColor: DS.onSurface,
         elevation: 0,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: DS.heroGradientBlueCurrent,
+          ),
+        ),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -168,7 +174,7 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
                     children: [
                       TileLayer(
                         urlTemplate:
-                            'https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',
+                            'https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=2&style=8&x={x}&y={y}&z={z}',
                         subdomains: const ['1', '2', '3', '4'],
                         userAgentPackageName: 'com.bearbill.bear_bill',
                         maxZoom: 18,
@@ -267,7 +273,7 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: DS.primaryContainer,
+            color: DS.onSurface,
           ),
         ),
         SizedBox(height: 2),

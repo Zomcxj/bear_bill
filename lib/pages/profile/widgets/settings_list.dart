@@ -59,7 +59,7 @@ class _SettingsListState extends State<SettingsList> {
           _buildMenuItem(
             icon: Icons.smart_toy,
             title: '自动记账',
-            trailing: '微信/支付宝',
+            trailing: '通知监听',
             onTap: () => showAutoRecordDialog(context),
           ),
           _buildDivider(),
@@ -101,12 +101,12 @@ class _SettingsListState extends State<SettingsList> {
           _buildMenuItem(
             icon: Icons.info_outline,
             title: '关于',
-            trailing: 'v1.3.2',
+            trailing: 'v1.3.3',
             onTap: () {
               showAboutDialog(
                 context: context,
                 applicationName: '小熊记账本',
-                applicationVersion: 'v1.3.2',
+                applicationVersion: 'v1.3.3',
                 applicationIcon:
                     Text('🐻', style: TextStyle(fontSize: 48)),
                 children: [

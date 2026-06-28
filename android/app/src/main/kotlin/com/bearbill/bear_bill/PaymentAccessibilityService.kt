@@ -1,10 +1,16 @@
 package com.bearbill.bear_bill
 
 import android.accessibilityservice.AccessibilityService
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import androidx.core.app.NotificationCompat
 import io.flutter.plugin.common.MethodChannel
 import java.util.regex.Pattern
 
@@ -19,7 +25,6 @@ class PaymentAccessibilityService : AccessibilityService() {
 
         // 监听的包名（与 NotificationListenerServiceImpl 保持一致）
         private val TARGET_PACKAGES = setOf(
-            "com.tencent.mm",              // 微信
             "com.eg.android.AlipayGphone", // 支付宝
             "cmb.pb",                      // 招商银行
             "com.icbc",                    // 工商银行
@@ -73,6 +78,7 @@ class PaymentAccessibilityService : AccessibilityService() {
 
     private var lastProcessedTime = 0L
     private var lastProcessedText = ""
+    private var lastDebugTime = 0L
 
     override fun onServiceConnected() {
         super.onServiceConnected()
@@ -82,15 +88,26 @@ class PaymentAccessibilityService : AccessibilityService() {
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
 
-        // 不在这里检查 auto_record_prefs 开关（跨进程 SharedPreferences 隔离，读不到）
-        // 始终检测支付事件，由 Flutter 端决定是否处理
-
         val packageName = event.packageName?.toString() ?: return
+
+        // 处理通知事件（替代 NotificationListenerService）
+        if (event.eventType == AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED) {
+            handleNotificationEvent(event, packageName)
+            return
+        }
+
+        // 只处理目标 app 的窗口事件
         if (packageName !in TARGET_PACKAGES) return
 
-        // 只处理窗口变化事件
-        if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED &&
-            event.eventType != AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) return
+        val isAlipay = packageName.contains("Alipay")
+
+        // 支付宝只处理窗口状态切换事件，避免历史交易列表加载时误触发
+        if (isAlipay) {
+            if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
+        } else {
+            if (event.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED &&
+                event.eventType != AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) return
+        }
 
         try {
             val rootNode = rootInActiveWindow ?: return
@@ -103,7 +120,6 @@ class PaymentAccessibilityService : AccessibilityService() {
             if (now - lastProcessedTime < COOLDOWN_MS && screenText == lastProcessedText) return
 
             val isWechat = packageName.contains("tencent")
-            val isAlipay = packageName.contains("Alipay")
             val isBank = !isWechat && !isAlipay
 
             // 根据来源选择关键词
@@ -115,6 +131,26 @@ class PaymentAccessibilityService : AccessibilityService() {
             val isPaymentSuccess = keywords.any { screenText.contains(it) }
 
             if (!isPaymentSuccess) return
+
+            // 支付宝额外保护：要求 "支付成功" 只出现一次
+            // 历史交易页面可能有多笔 "支付成功" 文本，过滤掉
+            if (isAlipay) {
+                val count = screenText.split("支付成功").size - 1
+                if (count > 1) {
+                    Log.d(TAG, "支付宝历史页面, 跳过")
+                    return
+                }
+            }
+
+            // 只有真正检测到支付关键词时才显示调试通知（带冷却）
+            val debugNow = System.currentTimeMillis()
+            if (debugNow - lastDebugTime > 30000L) {
+                lastDebugTime = debugNow
+                showDebugNotification(
+                    "检测到支付 [${if (isWechat) "微信" else if (isAlipay) "支付宝" else "银行"}]",
+                    "金额待提取\n屏幕文字: ${screenText.take(150)}"
+                )
+            }
 
             // 提取金额
             val amount = extractAmount(screenText)
@@ -133,12 +169,107 @@ class PaymentAccessibilityService : AccessibilityService() {
             lastProcessedTime = now
             lastProcessedText = screenText
 
-            // 通过 MethodChannel 推送给 Flutter
-            pushToFlutter(amount, merchant, isWechat, isAlipay)
+            // 构造通知文本
+            val notificationTitle = "${sourceLabel}支付"
+            val notificationText = "¥$amount ${merchant ?: ""}"
+
+            // 1. 存到 SharedPreferences（Flutter 打开时读取）
+            val prefs = getSharedPreferences("auto_record_prefs", MODE_PRIVATE)
+            prefs.edit()
+                .putString("pending_title", notificationTitle)
+                .putString("pending_text", notificationText)
+                .putString("pending_source", if (isWechat) "wechat" else if (isAlipay) "alipay" else "bank")
+                .putLong("pending_timestamp", System.currentTimeMillis())
+                .apply()
+
+            // 2. 发系统通知
+            showPaymentNotification(notificationTitle, notificationText, if (isWechat) "wechat" else if (isAlipay) "alipay" else "bank")
+
+            // 3. 尝试推送给 Flutter
+            try {
+                val engine = MainActivity.flutterEngine
+                if (engine != null) {
+                    pushToFlutter(amount, merchant, isWechat, isAlipay)
+                    Log.d(TAG, "已推送给 Flutter")
+                } else {
+                    Log.d(TAG, "Flutter 引擎不可用，数据已存到 SharedPreferences")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "推送给 Flutter 失败", e)
+            }
 
         } catch (e: Exception) {
             Log.e(TAG, "处理无障碍事件失败", e)
         }
+    }
+
+    /**
+     * 处理通知事件（替代 NotificationListenerService）
+     * 当系统收到通知时，无障碍服务会收到 TYPE_NOTIFICATION_STATE_CHANGED 事件
+     */
+    private fun handleNotificationEvent(event: AccessibilityEvent, packageName: String) {
+        try {
+            // 提取通知文本
+            val text = event.text?.joinToString(" ") ?: ""
+            if (text.isEmpty()) return
+
+            Log.d(TAG, "收到通知事件: pkg=$packageName, text=$text")
+
+            // 调试：每个通知都弹窗
+            showDebugNotification(
+                "无障碍收到通知",
+                "来源: $packageName\n内容: $text"
+            )
+
+            // 检查是否是支付通知
+            val isPayment = isPaymentNotification(text, packageName)
+            if (!isPayment) return
+
+            Log.d(TAG, "无障碍检测到支付通知: $text")
+
+            // 提取金额
+            val amount = extractAmount(text)
+            if (amount == null || amount <= 0) return
+
+            val source = when {
+                packageName.contains("Alipay") -> "alipay"
+                packageName.contains("tencent") -> "wechat"
+                else -> "bank"
+            }
+            val sourceLabel = when (source) {
+                "alipay" -> "支付宝"
+                "wechat" -> "微信"
+                else -> "银行"
+            }
+
+            // 存到 SharedPreferences
+            val prefs = getSharedPreferences("auto_record_prefs", MODE_PRIVATE)
+            prefs.edit()
+                .putString("pending_title", "${sourceLabel}支付")
+                .putString("pending_text", "¥$amount")
+                .putString("pending_source", source)
+                .putLong("pending_timestamp", System.currentTimeMillis())
+                .apply()
+
+            // 发系统通知
+            showPaymentNotification("${sourceLabel}支付", "¥$amount", source)
+
+            Log.d(TAG, "无障碍已处理支付通知: $sourceLabel ¥$amount")
+        } catch (e: Exception) {
+            Log.e(TAG, "处理通知事件失败", e)
+        }
+    }
+
+    private fun isPaymentNotification(text: String, packageName: String): Boolean {
+        val paymentKeywords = listOf(
+            "支出", "消费", "付款", "转出", "扣款", "取现", "缴费",
+            "支付成功", "付款成功", "转账成功", "已付款", "已支付",
+            "交易成功", "交易完成",
+            "收入", "转入", "到账", "收款", "存入", "收款成功",
+            "余额宝", "花呗", "借呗", "交易通知", "账户变动", "资金变动",
+            "人民币", "账户余额"
+        )
+        return paymentKeywords.any { text.contains(it) }
     }
 
     /**
@@ -208,6 +339,48 @@ class PaymentAccessibilityService : AccessibilityService() {
         return null
     }
 
+    private fun showPaymentNotification(title: String, text: String, source: String) {
+        try {
+            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val channel = NotificationChannel(
+                    "auto_record_payment",
+                    "自动记账",
+                    NotificationManager.IMPORTANCE_HIGH
+                )
+                manager.createNotificationChannel(channel)
+            }
+
+            val sourceLabel = when (source) {
+                "alipay" -> "支付宝"
+                "wechat" -> "微信"
+                else -> "银行"
+            }
+
+            val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
+            val pendingIntent = PendingIntent.getActivity(
+                this, 0, launchIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+
+            val notification = NotificationCompat.Builder(this, "auto_record_payment")
+                .setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setContentTitle("🐻 检测到${sourceLabel}支付")
+                .setContentText("$title $text · 点击打开记账")
+                .setStyle(NotificationCompat.BigTextStyle().bigText("$title $text"))
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent)
+                .build()
+
+            manager.notify(777, notification)
+            Log.d(TAG, "已发送支付通知")
+        } catch (e: Exception) {
+            Log.e(TAG, "发送支付通知失败", e)
+        }
+    }
+
     /**
      * 通过 MethodChannel 推送给 Flutter
      */
@@ -249,6 +422,34 @@ class PaymentAccessibilityService : AccessibilityService() {
             Log.d(TAG, "已通过 MethodChannel 推送给 Flutter")
         } catch (e: Exception) {
             Log.e(TAG, "MethodChannel 推送失败", e)
+        }
+    }
+
+    private fun showDebugNotification(title: String, text: String) {
+        try {
+            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val debugChannel = NotificationChannel(
+                    "auto_record_debug",
+                    "自动记账调试",
+                    NotificationManager.IMPORTANCE_HIGH
+                )
+                manager.createNotificationChannel(debugChannel)
+            }
+
+            val notification = NotificationCompat.Builder(this, "auto_record_debug")
+                .setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setContentTitle("🔍 $title")
+                .setContentText(text)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true)
+                .build()
+
+            manager.notify(System.currentTimeMillis().toInt(), notification)
+        } catch (e: Exception) {
+            Log.e(TAG, "显示调试通知失败", e)
         }
     }
 

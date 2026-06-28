@@ -373,6 +373,54 @@ class MainActivity : FlutterFragmentActivity() {
                     result.success(true)
                 }
 
+                // 检查通知监听服务是否在运行
+                "isListenerRunning" -> {
+                    val prefs = getSharedPreferences("auto_record_prefs", MODE_PRIVATE)
+                    result.success(prefs.getBoolean("listener_running", false))
+                }
+
+                // 读取最后收到的通知信息（调试用）
+                "getLastNotification" -> {
+                    val prefs = getSharedPreferences("auto_record_prefs", MODE_PRIVATE)
+                    val pkg = prefs.getString("last_notification_package", "") ?: ""
+                    val title = prefs.getString("last_notification_title", "") ?: ""
+                    val text = prefs.getString("last_notification_text", "") ?: ""
+                    val time = prefs.getLong("last_notification_time", 0)
+                    result.success(mapOf(
+                        "package" to pkg,
+                        "title" to title,
+                        "text" to text,
+                        "time" to time
+                    ))
+                }
+
+                // 读取暂存的支付数据（app 在后台时原生端存的）
+                "getPendingPayment" -> {
+                    val prefs = getSharedPreferences("auto_record_prefs", MODE_PRIVATE)
+                    val title = prefs.getString("pending_title", "") ?: ""
+                    val text = prefs.getString("pending_text", "") ?: ""
+                    val source = prefs.getString("pending_source", "") ?: ""
+                    val timestamp = prefs.getLong("pending_timestamp", 0)
+
+                    if (title.isNotEmpty() || text.isNotEmpty()) {
+                        // 读取后清除，避免重复处理
+                        prefs.edit()
+                            .remove("pending_title")
+                            .remove("pending_text")
+                            .remove("pending_source")
+                            .remove("pending_timestamp")
+                            .apply()
+                        result.success(mapOf(
+                            "title" to title,
+                            "text" to text,
+                            "source" to source,
+                            "timestamp" to timestamp
+                        ))
+                    } else {
+                        result.success(null)
+                    }
+                }
+
                 else -> result.notImplemented()
             }
         }

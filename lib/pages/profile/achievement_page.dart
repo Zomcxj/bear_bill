@@ -271,7 +271,7 @@ class _AchievementCard extends StatelessWidget {
                   minHeight: 4,
                   backgroundColor: DS.surfaceContainerLow,
                   valueColor: AlwaysStoppedAnimation<Color>(
-                    isUnlocked ? AppTheme.success : DS.primary,
+                    isUnlocked ? AppTheme.success : DS.onSurface,
                   ),
                 ),
               ),
@@ -361,7 +361,7 @@ class _AchievementCard extends StatelessWidget {
                   minHeight: 8,
                   backgroundColor: DS.surfaceContainerLow,
                   valueColor:
-                      AlwaysStoppedAnimation<Color>(DS.primary),
+                      AlwaysStoppedAnimation<Color>(DS.onSurface),
                 ),
               ),
               SizedBox(height: 4),
