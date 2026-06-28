@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../services/auto_record_service.dart';
 import '../../../theme/app_design_system.dart';
@@ -32,7 +33,9 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
     with WidgetsBindingObserver {
   late bool _enabled;
   bool _listenerEnabled = false;
+  bool _listenerRunning = false;
   bool _accessibilityEnabled = false;
+  String _lastNotificationInfo = '';
 
   @override
   void initState() {
@@ -59,12 +62,35 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
   Future<void> _checkListenerStatus() async {
     final listenerEnabled =
         await AutoRecordService.instance.isNotificationListenerEnabled();
+    final listenerRunning =
+        await AutoRecordService.instance.isNotificationListenerRunning();
     final accessibilityEnabled =
         await AutoRecordService.instance.isAccessibilityEnabled();
+
+    // 读取最后收到的通知信息
+    String lastInfo = '';
+    try {
+      final result = await const MethodChannel('bear_bill/auto_record')
+          .invokeMethod<Map>('getLastNotification');
+      if (result != null) {
+        final pkg = result['package'] ?? '';
+        final title = result['title'] ?? '';
+        final text = result['text'] ?? '';
+        final time = result['time'] ?? 0;
+        if (pkg.isNotEmpty) {
+          final dt = DateTime.fromMillisecondsSinceEpoch(time);
+          lastInfo =
+              '${dt.hour}:${dt.minute.toString().padLeft(2, '0')} [$pkg]\n$title: $text';
+        }
+      }
+    } catch (_) {}
+
     if (mounted) {
       setState(() {
         _listenerEnabled = listenerEnabled;
+        _listenerRunning = listenerRunning;
         _accessibilityEnabled = accessibilityEnabled;
+        _lastNotificationInfo = lastInfo;
       });
     }
   }
@@ -97,7 +123,7 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '监听微信/支付宝支付通知，自动识别并记录账单',
+            '监听支付宝/银行卡通知，识别后跳转记账页确认',
             style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
           ),
           SizedBox(height: 16),
@@ -121,17 +147,35 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
                 Icon(
                   _listenerEnabled ? Icons.check_circle : Icons.warning,
                   size: 20,
-                  color: _listenerEnabled ? AppTheme.success : DS.primaryContainer,
+                  color:
+                      _listenerEnabled ? AppTheme.success : DS.primaryContainer,
                 ),
                 SizedBox(width: 8),
                 Expanded(
-                  child: Text(
-                    _listenerEnabled ? '通知监听权限已开启' : '需要开启通知读取权限',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: _listenerEnabled ? AppTheme.success : DS.primaryContainer,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _listenerEnabled ? '通知监听权限已开启' : '需要开启通知读取权限',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: _listenerEnabled
+                              ? AppTheme.success
+                              : DS.primaryContainer,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      if (_listenerEnabled)
+                        Text(
+                          _listenerRunning ? '服务已被系统绑定' : '等待系统绑定，以下方最近通知为准',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: _listenerRunning
+                                ? AppTheme.success
+                                : AppTheme.warning,
+                          ),
+                        ),
+                    ],
                   ),
                 ),
                 if (!_listenerEnabled)
@@ -164,9 +208,13 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
             child: Row(
               children: [
                 Icon(
-                  _accessibilityEnabled ? Icons.check_circle : Icons.accessibility_new,
+                  _accessibilityEnabled
+                      ? Icons.check_circle
+                      : Icons.accessibility_new,
                   size: 20,
-                  color: _accessibilityEnabled ? AppTheme.success : AppTheme.warning,
+                  color: _accessibilityEnabled
+                      ? AppTheme.success
+                      : AppTheme.warning,
                 ),
                 SizedBox(width: 8),
                 Expanded(
@@ -174,16 +222,18 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _accessibilityEnabled ? '无障碍服务已开启' : '无障碍服务未开启',
+                        _accessibilityEnabled ? '无障碍辅助已开启' : '无障碍辅助未开启',
                         style: TextStyle(
                           fontSize: 13,
-                          color: _accessibilityEnabled ? AppTheme.success : AppTheme.warning,
+                          color: _accessibilityEnabled
+                              ? AppTheme.success
+                              : AppTheme.warning,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                       SizedBox(height: 2),
                       Text(
-                        '读取支付成功页面，实时捕获',
+                        '实验辅助，通知监听才是主路径',
                         style: TextStyle(
                           fontSize: 11,
                           color: DS.outline,
@@ -203,6 +253,34 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
               ],
             ),
           ),
+          SizedBox(height: 12),
+
+          // 调试信息：最后收到的通知
+          if (_lastNotificationInfo.isNotEmpty)
+            Container(
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: DS.background,
+                borderRadius: BorderRadius.circular(DS.radiusXs),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '最后收到的通知',
+                    style: DS.labelSm.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: DS.onSurfaceVariant,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    _lastNotificationInfo,
+                    style: DS.labelSm.copyWith(color: DS.outline),
+                  ),
+                ],
+              ),
+            ),
           SizedBox(height: 16),
 
           // 自动记账开关
@@ -244,7 +322,7 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
                 ),
                 SizedBox(height: 4),
                 Text(
-                  '• 微信支付\n• 支付宝',
+                  '• 支付宝（交易提醒弹窗）\n• 主流银行 App（通知栏消息）',
                   style: DS.labelSm.copyWith(color: DS.outline),
                 ),
                 SizedBox(height: 8),
@@ -261,6 +339,29 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
                   style: DS.labelSm.copyWith(color: DS.outline),
                 ),
               ],
+            ),
+          ),
+          SizedBox(height: 12),
+
+          // 测试按钮
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () async {
+                Navigator.pop(context); // 关闭设置弹窗
+                await AutoRecordService.instance.simulatePayment(
+                  title: '支付宝',
+                  text: '你有一笔25.00元的支出，点击查看详情',
+                  source: 'alipay',
+                );
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('已模拟支付宝支付，请查看是否跳转记账页面')),
+                  );
+                }
+              },
+              icon: Icon(Icons.bug_report, size: 16),
+              label: Text('发送测试通知'),
             ),
           ),
         ],

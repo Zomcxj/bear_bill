@@ -69,7 +69,7 @@ class BaiduSpeechService {
     final audioBytes = await file.readAsBytes();
     await file.delete();
 
-    if (audioBytes.isEmpty) throw Exception('录音数据为空');
+    if (audioBytes.isEmpty) throw Exception('识别失败');
 
     final text = await _recognize(audioBytes);
     return {'text': text, 'autoStopped': autoStopped};
@@ -110,13 +110,12 @@ class BaiduSpeechService {
     final errNo = data['err_no'] as int;
 
     if (errNo != 0) {
-      final errMsg = data['err_msg'] as String? ?? '未知错误';
-      throw Exception('语音识别错误($errNo): $errMsg');
+      throw Exception('识别失败');
     }
 
     final results = data['result'] as List<dynamic>?;
     if (results == null || results.isEmpty) {
-      throw Exception('未识别到语音内容');
+      throw Exception('识别失败');
     }
 
     return results.first as String;

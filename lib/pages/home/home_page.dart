@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import '../../main.dart';
 import '../../providers/theme_provider.dart';
 import '../../services/baidu_speech_service.dart';
+import '../../services/api_quota_service.dart';
+import '../../services/auto_record_confirm_mixin.dart';
 import '../../theme/app_design_system.dart';
 import '../add_record/add_record_page.dart';
 import '../ai_chat/ai_chat_page.dart';
@@ -23,7 +25,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage>
-    with WidgetsBindingObserver, RouteAware {
+    with WidgetsBindingObserver, RouteAware, AutoRecordConfirmMixin {
   bool _isRecording = false;
   bool _isRecognizing = false;
   bool _isCancelled = false;
@@ -33,7 +35,7 @@ class _HomePageState extends State<HomePage>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    // WidgetsBindingObserver 由 AutoRecordConfirmMixin 注册，无需重复添加
   }
 
   @override
@@ -54,7 +56,7 @@ class _HomePageState extends State<HomePage>
   @override
   void dispose() {
     routeObserver.unsubscribe(this);
-    WidgetsBinding.instance.removeObserver(this);
+    // WidgetsBindingObserver 由 AutoRecordConfirmMixin 移除，无需重复操作
     _pollTimer?.cancel();
     super.dispose();
   }
@@ -65,6 +67,17 @@ class _HomePageState extends State<HomePage>
     if (_isRecognizing) return;
     _dragStartY = details.globalPosition.dy;
     _isCancelled = false;
+
+    // 检查语音配额
+    final quota = await ApiQuotaService.instance.checkVoiceQuota();
+    if (!quota.allowed) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(quota.message ?? '语音次数已用完')),
+        );
+      }
+      return;
+    }
 
     try {
       await BaiduSpeechService.instance.startRecording();
@@ -126,6 +139,8 @@ class _HomePageState extends State<HomePage>
 
       final text = (result['text'] as String).trim();
       if (text.isNotEmpty) {
+        // 记录语音使用次数
+        await ApiQuotaService.instance.recordVoiceUsage();
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -141,7 +156,7 @@ class _HomePageState extends State<HomePage>
       if (!mounted) return;
       setState(() => _isRecognizing = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('识别失败：$e')),
+        const SnackBar(content: Text('识别失败，请重试')),
       );
     }
   }
