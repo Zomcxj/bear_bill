@@ -81,13 +81,13 @@
         <service
             android:name=".NotificationListenerServiceImpl"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
 
-        <!-- 支付无障碍服务（自动记账增强） -->
+        <!-- 支付无障碍服务（自动记账） -->
         <service
             android:name=".PaymentAccessibilityService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"

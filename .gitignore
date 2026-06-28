@@ -52,6 +52,9 @@ pubspec.lock
 release/
 releases/
 
+# Plan files (local tracking)
+plan/
+
 # Android build artifacts
 *.apk
 *.aab
