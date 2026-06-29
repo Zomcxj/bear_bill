@@ -35,6 +35,7 @@ class ChatBubble extends StatelessWidget {
   final String? location;
   final bool locationLoading;
   final VoidCallback? onLocationTap;
+  final bool confirmed; // 是否已确认
 
   const ChatBubble({
     super.key,
@@ -46,6 +47,7 @@ class ChatBubble extends StatelessWidget {
     this.location,
     this.locationLoading = false,
     this.onLocationTap,
+    this.confirmed = false,
   });
 
   @override
@@ -201,7 +203,7 @@ class ChatBubble extends StatelessWidget {
             children: [
               Expanded(
                 child: OutlinedButton(
-                  onPressed: onModify,
+                  onPressed: confirmed ? null : onModify,
                   style: OutlinedButton.styleFrom(
                     side: BorderSide(color: DS.outline),
                     shape: RoundedRectangleBorder(
@@ -216,16 +218,16 @@ class ChatBubble extends StatelessWidget {
               SizedBox(width: 10),
               Expanded(
                 child: ElevatedButton(
-                  onPressed: onConfirm,
+                  onPressed: confirmed ? null : onConfirm,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: DS.primary,
+                    backgroundColor: confirmed ? DS.outline : DS.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(DS.radiusSm),
                     ),
                     padding: EdgeInsets.symmetric(vertical: 10),
                   ),
-                  child: Text('确认'),
+                  child: Text(confirmed ? '已确认' : '确认'),
                 ),
               ),
             ],
