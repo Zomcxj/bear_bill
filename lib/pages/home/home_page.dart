@@ -4,10 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../main.dart';
+import '../../models/models.dart';
+import '../../providers/app_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../services/baidu_speech_service.dart';
 import '../../services/api_quota_service.dart';
 import '../../services/auto_record_confirm_mixin.dart';
+import '../../services/auto_record_service.dart';
 import '../../theme/app_design_system.dart';
 import '../add_record/add_record_page.dart';
 import '../ai_chat/ai_chat_page.dart';
@@ -36,6 +39,13 @@ class _HomePageState extends State<HomePage>
   void initState() {
     super.initState();
     // WidgetsBindingObserver 由 AutoRecordConfirmMixin 注册，无需重复添加
+
+    // 注册通知点击跳转编辑页面的回调
+    AutoRecordService.instance.onOpenEditPage = (title, text, source) {
+      if (mounted) {
+        _openEditPageFromNotification(title, text, source);
+      }
+    };
   }
 
   @override
@@ -159,6 +169,43 @@ class _HomePageState extends State<HomePage>
         const SnackBar(content: Text('识别失败，请重试')),
       );
     }
+  }
+
+  /// 从通知点击跳转到编辑页面
+  void _openEditPageFromNotification(String title, String text, String source) {
+    // 解析金额
+    final amountMatch = RegExp(r'[\d.]+').firstMatch(text);
+    final amount = amountMatch != null ? double.tryParse(amountMatch.group(0) ?? '0') ?? 0.0 : 0.0;
+
+    if (amount <= 0) return;
+
+    // 创建预填记录
+    final now = DateTime.now();
+    final dateStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    final bookId = context.read<AppProvider>().currentBookId;
+
+    final record = RecordModel(
+      id: '${now.millisecondsSinceEpoch}_auto',
+      bookId: bookId,
+      type: 'expense',
+      amount: amount,
+      categoryId: 'other',
+      categoryName: '其他',
+      categoryIcon: '📦',
+      remark: '自动记账',
+      date: dateStr,
+      month: dateStr.substring(0, 7),
+      dateTs: now.millisecondsSinceEpoch,
+      createdAt: now,
+    );
+
+    // 跳转到编辑页面
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AddRecordPage(prefillRecord: record),
+      ),
+    );
   }
 
   @override

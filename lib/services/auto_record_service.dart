@@ -112,6 +112,9 @@ class AutoRecordService {
     }
   }
 
+  /// 打开编辑页面的回调（用于通知点击跳转）
+  Function(String title, String text, String source)? onOpenEditPage;
+
   /// 注册 MethodChannel 回调（只注册一次）
   void _setupMethodCallHandler() {
     if (_handlerSet) return;
@@ -133,6 +136,15 @@ class AutoRecordService {
 
         if (kDebugMode) print('自动记账: 收到推送通知 [$title] $text');
         await _processPaymentNotification(title, text, source);
+      } else if (call.method == 'openEditPage') {
+        // 通知点击跳转编辑页面
+        final data = Map<String, dynamic>.from(call.arguments);
+        final title = data['title'] as String? ?? '';
+        final text = data['text'] as String? ?? '';
+        final source = data['source'] as String? ?? '';
+
+        if (kDebugMode) print('自动记账: 跳转编辑页面 [$title] $text');
+        onOpenEditPage?.call(title, text, source);
       }
     });
 

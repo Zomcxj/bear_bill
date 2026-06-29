@@ -31,6 +31,7 @@ class _AiChatPageState extends State<AiChatPage>
   bool _isLoading = false;
 
   final Map<String, MoodModel?> _msgMoods = {};
+  final Set<String> _confirmedMessageIds = {}; // 已确认的消息ID，防止重复记账
 
   @override
   List<ChatMessage> get messages => _messages;
@@ -192,6 +193,10 @@ class _AiChatPageState extends State<AiChatPage>
   }
 
   Future<void> _confirmRecord(ChatMessage msg) async {
+    // 防止重复记账
+    if (_confirmedMessageIds.contains(msg.id)) return;
+    _confirmedMessageIds.add(msg.id);
+
     final data = msg.data!;
     final appProvider = context.read<AppProvider>();
     final type = data['type'] as String;
@@ -497,6 +502,7 @@ class _AiChatPageState extends State<AiChatPage>
                   onLocationTap: msg.type == ChatMessageType.recordConfirm
                       ? () => showLocationOptions(msg.id, () => setState(() {}))
                       : null,
+                  confirmed: _confirmedMessageIds.contains(msg.id),
                 );
               },
             ),
