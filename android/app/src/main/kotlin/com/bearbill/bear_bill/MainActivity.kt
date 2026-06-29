@@ -43,6 +43,9 @@ class MainActivity : FlutterFragmentActivity() {
         // 暴露 FlutterEngine 引用，供 NotificationListenerService 反向推送
         MainActivity.flutterEngine = flutterEngine
 
+        // 检查是否有自动记账通知点击传入的数据
+        handleAutoRecordIntent(intent)
+
         // 启动时检查并恢复闹钟（防止被系统杀掉后丢失）
         AlarmScheduler.ensureScheduled(this)
 
@@ -421,6 +424,26 @@ class MainActivity : FlutterFragmentActivity() {
                     }
                 }
 
+                // 保存自动记账记录（悬浮窗确认后调用）
+                "saveAutoRecord" -> {
+                    val amount = call.argument<Double>("amount") ?: 0.0
+                    val source = call.argument<String>("source") ?: ""
+                    val category = call.argument<String>("category") ?: ""
+                    val remark = call.argument<String>("remark") ?: ""
+
+                    // 存到 SharedPreferences，Flutter 打开时读取
+                    val prefs = getSharedPreferences("auto_record_prefs", MODE_PRIVATE)
+                    prefs.edit()
+                        .putFloat("pending_save_amount", amount.toFloat())
+                        .putString("pending_save_source", source)
+                        .putString("pending_save_category", category)
+                        .putString("pending_save_remark", remark)
+                        .putLong("pending_save_timestamp", System.currentTimeMillis())
+                        .apply()
+
+                    result.success(true)
+                }
+
                 else -> result.notImplemented()
             }
         }
@@ -551,6 +574,44 @@ class MainActivity : FlutterFragmentActivity() {
                 }
 
                 else -> result.notImplemented()
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleAutoRecordIntent(intent)
+    }
+
+    private fun handleAutoRecordIntent(intent: Intent?) {
+        if (intent?.getBooleanExtra("auto_record_payment", false) == true) {
+            val title = intent.getStringExtra("auto_record_title") ?: ""
+            val text = intent.getStringExtra("auto_record_text") ?: ""
+            val source = intent.getStringExtra("auto_record_source") ?: ""
+
+            // 存到 SharedPreferences，Flutter 读取后跳转编辑页面
+            val prefs = getSharedPreferences("auto_record_prefs", MODE_PRIVATE)
+            prefs.edit()
+                .putString("pending_edit_title", title)
+                .putString("pending_edit_text", text)
+                .putString("pending_edit_source", source)
+                .putLong("pending_edit_timestamp", System.currentTimeMillis())
+                .apply()
+
+            // 通知 Flutter 跳转编辑页面
+            try {
+                val engine = flutterEngine
+                if (engine != null) {
+                    val data = mapOf(
+                        "title" to title,
+                        "text" to text,
+                        "source" to source
+                    )
+                    MethodChannel(engine.dartExecutor.binaryMessenger, "bear_bill/auto_record")
+                        .invokeMethod("openEditPage", data)
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("MainActivity", "通知 Flutter 跳转编辑页面失败", e)
             }
         }
     }

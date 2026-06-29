@@ -79,6 +79,7 @@ class PaymentAccessibilityService : AccessibilityService() {
     private var lastProcessedTime = 0L
     private var lastProcessedText = ""
     private var lastDebugTime = 0L
+    private var lastFloatingWindowTime = 0L
 
     override fun onServiceConnected() {
         super.onServiceConnected()
@@ -140,16 +141,6 @@ class PaymentAccessibilityService : AccessibilityService() {
                     Log.d(TAG, "支付宝历史页面, 跳过")
                     return
                 }
-            }
-
-            // 只有真正检测到支付关键词时才显示调试通知（带冷却）
-            val debugNow = System.currentTimeMillis()
-            if (debugNow - lastDebugTime > 30000L) {
-                lastDebugTime = debugNow
-                showDebugNotification(
-                    "检测到支付 [${if (isWechat) "微信" else if (isAlipay) "支付宝" else "银行"}]",
-                    "金额待提取\n屏幕文字: ${screenText.take(150)}"
-                )
             }
 
             // 提取金额
@@ -215,12 +206,6 @@ class PaymentAccessibilityService : AccessibilityService() {
 
             Log.d(TAG, "收到通知事件: pkg=$packageName, text=$text")
 
-            // 调试：每个通知都弹窗
-            showDebugNotification(
-                "无障碍收到通知",
-                "来源: $packageName\n内容: $text"
-            )
-
             // 检查是否是支付通知
             val isPayment = isPaymentNotification(text, packageName)
             if (!isPayment) return
@@ -242,19 +227,15 @@ class PaymentAccessibilityService : AccessibilityService() {
                 else -> "银行"
             }
 
-            // 存到 SharedPreferences
-            val prefs = getSharedPreferences("auto_record_prefs", MODE_PRIVATE)
-            prefs.edit()
-                .putString("pending_title", "${sourceLabel}支付")
-                .putString("pending_text", "¥$amount")
-                .putString("pending_source", source)
-                .putLong("pending_timestamp", System.currentTimeMillis())
-                .apply()
-
-            // 发系统通知
-            showPaymentNotification("${sourceLabel}支付", "¥$amount", source)
-
-            Log.d(TAG, "无障碍已处理支付通知: $sourceLabel ¥$amount")
+            // 显示通知（点击进入编辑页面，60秒冷却）
+            val notifyNow = System.currentTimeMillis()
+            if (notifyNow - lastFloatingWindowTime > 60000L) {
+                lastFloatingWindowTime = notifyNow
+                showPaymentNotification("${sourceLabel}支付", "¥$amount", source)
+                Log.d(TAG, "已发送支付通知: $sourceLabel ¥$amount")
+            } else {
+                Log.d(TAG, "通知冷却中，跳过")
+            }
         } catch (e: Exception) {
             Log.e(TAG, "处理通知事件失败", e)
         }
@@ -358,7 +339,14 @@ class PaymentAccessibilityService : AccessibilityService() {
                 else -> "银行"
             }
 
-            val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
+            // 创建打开 app 并跳转到编辑页面的 Intent
+            val launchIntent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
+                putExtra("auto_record_payment", true)
+                putExtra("auto_record_title", title)
+                putExtra("auto_record_text", text)
+                putExtra("auto_record_source", source)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            }
             val pendingIntent = PendingIntent.getActivity(
                 this, 0, launchIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
@@ -422,34 +410,6 @@ class PaymentAccessibilityService : AccessibilityService() {
             Log.d(TAG, "已通过 MethodChannel 推送给 Flutter")
         } catch (e: Exception) {
             Log.e(TAG, "MethodChannel 推送失败", e)
-        }
-    }
-
-    private fun showDebugNotification(title: String, text: String) {
-        try {
-            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val debugChannel = NotificationChannel(
-                    "auto_record_debug",
-                    "自动记账调试",
-                    NotificationManager.IMPORTANCE_HIGH
-                )
-                manager.createNotificationChannel(debugChannel)
-            }
-
-            val notification = NotificationCompat.Builder(this, "auto_record_debug")
-                .setSmallIcon(android.R.drawable.ic_dialog_info)
-                .setContentTitle("🔍 $title")
-                .setContentText(text)
-                .setStyle(NotificationCompat.BigTextStyle().bigText(text))
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setAutoCancel(true)
-                .build()
-
-            manager.notify(System.currentTimeMillis().toInt(), notification)
-        } catch (e: Exception) {
-            Log.e(TAG, "显示调试通知失败", e)
         }
     }
 
