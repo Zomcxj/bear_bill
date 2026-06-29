@@ -3,7 +3,7 @@
 ## 项目信息
 - **名称**: 小熊记账本 (Bear Bill)
 - **框架**: Flutter 3.24 / Dart 3.5
-- **版本**: 1.3.5 (pubspec.yaml 和 settings_list.dart 需同步更新)
+- **版本**: 1.3.4 (pubspec.yaml 和 settings_list.dart 需同步更新)
 - **状态管理**: Provider
 - **数据库**: sqflite (SQLite)
 - **主题**: Luminous Finance 玻璃态设计系统，DS 统一管理
