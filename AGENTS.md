@@ -3,7 +3,7 @@
 ## 项目信息
 - **名称**: 小熊记账本 (Bear Bill)
 - **框架**: Flutter 3.24 / Dart 3.5
-- **版本**: 1.3.3 (pubspec.yaml 和 settings_list.dart 需同步更新)
+- **版本**: 1.3.5 (pubspec.yaml 和 settings_list.dart 需同步更新)
 - **状态管理**: Provider
 - **数据库**: sqflite (SQLite)
 - **主题**: Luminous Finance 玻璃态设计系统，DS 统一管理
@@ -19,7 +19,9 @@
 ## 构建规则
 - 仅支持 Android 平台，不构建 iOS
 - 本地构建: `flutter build apk --release`
-- APK 输出: `build/app/outputs/flutter-apk/app-release.apk`
+- 仅导出 64 位 ARM 版本 (arm64-v8a)
+- APK 输出: `build/app/outputs/flutter-apk/app-arm64-v8a-release.apk`
+- 复制到 releases: `cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk releases/bear_bill_v{x.y.z}_{YYYYMMDD}_{HHmm}.apk`
 - 修改版本号时同步: `pubspec.yaml` (version) + `settings_list.dart` (关于页面)
 - 每次功能改动后导出 APK
 
