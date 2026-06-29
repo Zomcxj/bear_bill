@@ -35,7 +35,6 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
   bool _listenerEnabled = false;
   bool _listenerRunning = false;
   bool _accessibilityEnabled = false;
-  String _lastNotificationInfo = '';
 
   @override
   void initState() {
@@ -67,30 +66,11 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
     final accessibilityEnabled =
         await AutoRecordService.instance.isAccessibilityEnabled();
 
-    // 读取最后收到的通知信息
-    String lastInfo = '';
-    try {
-      final result = await const MethodChannel('bear_bill/auto_record')
-          .invokeMethod<Map>('getLastNotification');
-      if (result != null) {
-        final pkg = result['package'] ?? '';
-        final title = result['title'] ?? '';
-        final text = result['text'] ?? '';
-        final time = result['time'] ?? 0;
-        if (pkg.isNotEmpty) {
-          final dt = DateTime.fromMillisecondsSinceEpoch(time);
-          lastInfo =
-              '${dt.hour}:${dt.minute.toString().padLeft(2, '0')} [$pkg]\n$title: $text';
-        }
-      }
-    } catch (_) {}
-
     if (mounted) {
       setState(() {
         _listenerEnabled = listenerEnabled;
         _listenerRunning = listenerRunning;
         _accessibilityEnabled = accessibilityEnabled;
-        _lastNotificationInfo = lastInfo;
       });
     }
   }
@@ -253,34 +233,6 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
               ],
             ),
           ),
-          SizedBox(height: 12),
-
-          // 调试信息：最后收到的通知
-          if (_lastNotificationInfo.isNotEmpty)
-            Container(
-              padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: DS.background,
-                borderRadius: BorderRadius.circular(DS.radiusXs),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '最后收到的通知',
-                    style: DS.labelSm.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: DS.onSurfaceVariant,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    _lastNotificationInfo,
-                    style: DS.labelSm.copyWith(color: DS.outline),
-                  ),
-                ],
-              ),
-            ),
           SizedBox(height: 16),
 
           // 自动记账开关
