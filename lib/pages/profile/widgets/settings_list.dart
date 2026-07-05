@@ -51,7 +51,8 @@ class _SettingsListState extends State<SettingsList> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const MapFootprintPage()),
+                MaterialPageRoute(
+                    builder: (context) => const MapFootprintPage()),
               );
             },
           ),
@@ -107,8 +108,7 @@ class _SettingsListState extends State<SettingsList> {
                 context: context,
                 applicationName: '小熊记账本',
                 applicationVersion: 'v1.3.4',
-                applicationIcon:
-                    Text('🐻', style: TextStyle(fontSize: 48)),
+                applicationIcon: Text('🐻', style: TextStyle(fontSize: 48)),
                 children: [
                   Text('软萌粉糖色系记账应用'),
                   SizedBox(height: 8),

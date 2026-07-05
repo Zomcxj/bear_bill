@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:permission_handler/permission_handler.dart';
 
 import '../config/api_keys.dart';
 
@@ -45,6 +46,10 @@ class BaiduSpeechService {
 
   /// 开始录音（Android 原生 AudioRecord，PCM 16kHz 16bit Mono）
   Future<void> startRecording() async {
+    final permission = await Permission.microphone.request();
+    if (!permission.isGranted) {
+      throw Exception('麦克风权限未开启');
+    }
     await _channel.invokeMethod('startRecording');
   }
 

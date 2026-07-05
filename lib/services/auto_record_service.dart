@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/models.dart';
 import 'database_service.dart';
@@ -28,6 +29,8 @@ class AutoRecordService {
   AutoRecordService._();
 
   static const MethodChannel _channel = MethodChannel('bear_bill/auto_record');
+  static const _lastFingerprintKey = 'auto_record_last_fingerprint';
+  static const _lastProcessedAtKey = 'auto_record_last_processed_at';
   final FlutterLocalNotificationsPlugin _notifications =
       FlutterLocalNotificationsPlugin();
 
@@ -112,9 +115,6 @@ class AutoRecordService {
     }
   }
 
-  /// 打开编辑页面的回调（用于通知点击跳转）
-  Function(String title, String text, String source)? onOpenEditPage;
-
   /// 注册 MethodChannel 回调（只注册一次）
   void _setupMethodCallHandler() {
     if (_handlerSet) return;
@@ -137,14 +137,14 @@ class AutoRecordService {
         if (kDebugMode) print('自动记账: 收到推送通知 [$title] $text');
         await _processPaymentNotification(title, text, source);
       } else if (call.method == 'openEditPage') {
-        // 通知点击跳转编辑页面
+        // 旧原生入口统一回到自动记账解析，避免点击通知时粗解析导致错单。
         final data = Map<String, dynamic>.from(call.arguments);
         final title = data['title'] as String? ?? '';
         final text = data['text'] as String? ?? '';
         final source = data['source'] as String? ?? '';
 
-        if (kDebugMode) print('自动记账: 跳转编辑页面 [$title] $text');
-        onOpenEditPage?.call(title, text, source);
+        if (kDebugMode) print('自动记账: 点击通知 [$title] $text');
+        await _processPaymentNotification(title, text, source);
       }
     });
 
@@ -178,14 +178,10 @@ class AutoRecordService {
 
     final fingerprint = '$source|$title|$text';
     final now = DateTime.now();
-    if (_lastProcessedFingerprint == fingerprint &&
-        _lastProcessedAt != null &&
-        now.difference(_lastProcessedAt!).inSeconds < 30) {
+    if (await _isDuplicate(fingerprint, now)) {
       if (kDebugMode) print('自动记账: 重复通知，已忽略');
       return;
     }
-    _lastProcessedFingerprint = fingerprint;
-    _lastProcessedAt = now;
 
     // 支付通知优先使用本地解析，避免自动记账依赖网络和 API 配额
     final input = '$title $text';
@@ -197,6 +193,8 @@ class AutoRecordService {
       await _showDetectionFailedNotification(input);
       return;
     }
+
+    await _markProcessed(fingerprint, now);
 
     // 获取当前账本 ID
     final books = await DatabaseService.instance.getAllBooks();
@@ -236,6 +234,7 @@ class AutoRecordService {
       rawText: input,
     );
     _candidateController.add(_pendingCandidate!);
+    await _clearPendingPayment();
 
     if (kDebugMode) {
       print('自动记账候选: ${record.categoryName} ¥${record.amount}');
@@ -247,6 +246,10 @@ class AutoRecordService {
     String text,
   ) {
     final input = '$title $text'.trim();
+    if (RegExp(r'(余额|可用额度|剩余额度)').hasMatch(input) &&
+        !RegExp(r'(支出|消费|付款|支付|扣款|收入|到账|转入|收款)').hasMatch(input)) {
+      return null;
+    }
     final amount = _extractAmount(input);
     if (amount == null || amount <= 0) return null;
 
@@ -280,6 +283,44 @@ class AutoRecordService {
       }
     }
     return null;
+  }
+
+  Future<bool> _isDuplicate(String fingerprint, DateTime now) async {
+    if (_lastProcessedFingerprint == fingerprint &&
+        _lastProcessedAt != null &&
+        now.difference(_lastProcessedAt!).inSeconds < 30) {
+      return true;
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    final savedFingerprint = prefs.getString(_lastFingerprintKey);
+    final savedAt = prefs.getInt(_lastProcessedAtKey);
+    return savedFingerprint == fingerprint &&
+        savedAt != null &&
+        now.difference(DateTime.fromMillisecondsSinceEpoch(savedAt)).inMinutes <
+            5;
+  }
+
+  Future<void> _markProcessed(String fingerprint, DateTime now) async {
+    _lastProcessedFingerprint = fingerprint;
+    _lastProcessedAt = now;
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_lastFingerprintKey, fingerprint);
+    await prefs.setInt(_lastProcessedAtKey, now.millisecondsSinceEpoch);
+  }
+
+  Future<void> _clearPendingPayment() async {
+    try {
+      await _channel.invokeMethod('clearPendingPayment');
+    } catch (_) {
+      // 原生清理失败时保留内存候选，避免影响用户确认当前账单。
+    }
+  }
+
+  @visibleForTesting
+  static AiParseResult? parsePaymentForTest(String title, String text) {
+    return AutoRecordService.instance._parsePaymentLocally(title, text);
   }
 
   String _detectPaymentType(String input) {

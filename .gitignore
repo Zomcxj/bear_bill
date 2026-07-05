@@ -62,6 +62,11 @@ AGENTS.md
 *.aab
 *.so
 
+# Android signing keys (local only)
+android/key.properties
+android/app/*.jks
+android/app/*.keystore
+
 # API 密钥（安全）
 lib/config/api_keys.dart
 CLAUDE.md
