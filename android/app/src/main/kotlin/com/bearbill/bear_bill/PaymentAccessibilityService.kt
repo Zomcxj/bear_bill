@@ -12,6 +12,7 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.core.app.NotificationCompat
 import io.flutter.plugin.common.MethodChannel
+import java.util.Locale
 import java.util.regex.Pattern
 
 /**
@@ -22,6 +23,7 @@ class PaymentAccessibilityService : AccessibilityService() {
     companion object {
         private const val TAG = "AutoRecord_A11y"
         private const val COOLDOWN_MS = 10000L // 10秒内不重复处理同一笔
+        private const val PAYMENT_COOLDOWN_MS = 300000L // 页面文本变化时，同一笔仍只提醒一次
 
         // 监听的包名（与 NotificationListenerServiceImpl 保持一致）
         private val TARGET_PACKAGES = setOf(
@@ -78,6 +80,7 @@ class PaymentAccessibilityService : AccessibilityService() {
 
     private var lastProcessedTime = 0L
     private var lastProcessedText = ""
+    private var lastProcessedPaymentKey = ""
     private var lastDebugTime = 0L
     private var lastFloatingWindowTime = 0L
 
@@ -90,6 +93,7 @@ class PaymentAccessibilityService : AccessibilityService() {
         if (event == null) return
 
         val packageName = event.packageName?.toString() ?: return
+        if (packageName == applicationContext.packageName) return
 
         // 处理通知事件（替代 NotificationListenerService）
         if (event.eventType == AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED) {
@@ -149,6 +153,12 @@ class PaymentAccessibilityService : AccessibilityService() {
 
             // 提取商户/描述
             val merchant = extractMerchant(screenText, isWechat)
+            val source = if (isWechat) "wechat" else if (isAlipay) "alipay" else "bank"
+            val paymentKey = buildPaymentKey(source, amount, merchant)
+            if (now - lastProcessedTime < PAYMENT_COOLDOWN_MS && paymentKey == lastProcessedPaymentKey) {
+                Log.d(TAG, "同一笔支付已提醒，跳过: $paymentKey")
+                return
+            }
 
             val sourceLabel = when {
                 isWechat -> "微信"
@@ -159,6 +169,7 @@ class PaymentAccessibilityService : AccessibilityService() {
 
             lastProcessedTime = now
             lastProcessedText = screenText
+            lastProcessedPaymentKey = paymentKey
 
             // 构造通知文本
             val notificationTitle = "${sourceLabel}支付"
@@ -169,12 +180,12 @@ class PaymentAccessibilityService : AccessibilityService() {
             prefs.edit()
                 .putString("pending_title", notificationTitle)
                 .putString("pending_text", notificationText)
-                .putString("pending_source", if (isWechat) "wechat" else if (isAlipay) "alipay" else "bank")
+                .putString("pending_source", source)
                 .putLong("pending_timestamp", System.currentTimeMillis())
                 .apply()
 
             // 2. 发系统通知
-            showPaymentNotification(notificationTitle, notificationText, if (isWechat) "wechat" else if (isAlipay) "alipay" else "bank")
+            showPaymentNotification(notificationTitle, notificationText, source)
 
             // 3. 尝试推送给 Flutter
             try {
@@ -226,11 +237,18 @@ class PaymentAccessibilityService : AccessibilityService() {
                 "wechat" -> "微信"
                 else -> "银行"
             }
+            val notifyNow = System.currentTimeMillis()
+            val paymentKey = buildPaymentKey(source, amount, null)
+            if (notifyNow - lastProcessedTime < PAYMENT_COOLDOWN_MS && paymentKey == lastProcessedPaymentKey) {
+                Log.d(TAG, "同一笔通知已提醒，跳过: $paymentKey")
+                return
+            }
 
             // 显示通知（点击进入编辑页面，60秒冷却）
-            val notifyNow = System.currentTimeMillis()
             if (notifyNow - lastFloatingWindowTime > 60000L) {
                 lastFloatingWindowTime = notifyNow
+                lastProcessedTime = notifyNow
+                lastProcessedPaymentKey = paymentKey
                 showPaymentNotification("${sourceLabel}支付", "¥$amount", source)
                 Log.d(TAG, "已发送支付通知: $sourceLabel ¥$amount")
             } else {
@@ -318,6 +336,11 @@ class PaymentAccessibilityService : AccessibilityService() {
         }
 
         return null
+    }
+
+    private fun buildPaymentKey(source: String, amount: Double, merchant: String?): String {
+        val normalizedAmount = String.format(Locale.US, "%.2f", amount)
+        return "$source|$normalizedAmount|${merchant?.trim().orEmpty()}"
     }
 
     private fun showPaymentNotification(title: String, text: String, source: String) {

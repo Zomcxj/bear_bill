@@ -406,13 +406,6 @@ class MainActivity : FlutterFragmentActivity() {
                     val timestamp = prefs.getLong("pending_timestamp", 0)
 
                     if (title.isNotEmpty() || text.isNotEmpty()) {
-                        // 读取后清除，避免重复处理
-                        prefs.edit()
-                            .remove("pending_title")
-                            .remove("pending_text")
-                            .remove("pending_source")
-                            .remove("pending_timestamp")
-                            .apply()
                         result.success(mapOf(
                             "title" to title,
                             "text" to text,
@@ -422,6 +415,17 @@ class MainActivity : FlutterFragmentActivity() {
                     } else {
                         result.success(null)
                     }
+                }
+
+                "clearPendingPayment" -> {
+                    val prefs = getSharedPreferences("auto_record_prefs", MODE_PRIVATE)
+                    prefs.edit()
+                        .remove("pending_title")
+                        .remove("pending_text")
+                        .remove("pending_source")
+                        .remove("pending_timestamp")
+                        .apply()
+                    result.success(true)
                 }
 
                 // 保存自动记账记录（悬浮窗确认后调用）
@@ -464,6 +468,10 @@ class MainActivity : FlutterFragmentActivity() {
                         val channelConfig = AudioFormat.CHANNEL_IN_MONO
                         val audioFormat = AudioFormat.ENCODING_PCM_16BIT
                         val bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat)
+                        if (bufferSize <= 0) {
+                            result.error("init_failed", "AudioRecord 缓冲区初始化失败", null)
+                            return@setMethodCallHandler
+                        }
 
                         audioRecord = AudioRecord(
                             MediaRecorder.AudioSource.MIC,
@@ -474,6 +482,8 @@ class MainActivity : FlutterFragmentActivity() {
                         )
 
                         if (audioRecord?.state != AudioRecord.STATE_INITIALIZED) {
+                            audioRecord?.release()
+                            audioRecord = null
                             result.error("init_failed", "AudioRecord 初始化失败", null)
                             return@setMethodCallHandler
                         }
@@ -589,16 +599,16 @@ class MainActivity : FlutterFragmentActivity() {
             val text = intent.getStringExtra("auto_record_text") ?: ""
             val source = intent.getStringExtra("auto_record_source") ?: ""
 
-            // 存到 SharedPreferences，Flutter 读取后跳转编辑页面
+            // 点击通知只唤起 App，后续仍走统一解析，避免点击路径生成错单。
             val prefs = getSharedPreferences("auto_record_prefs", MODE_PRIVATE)
             prefs.edit()
-                .putString("pending_edit_title", title)
-                .putString("pending_edit_text", text)
-                .putString("pending_edit_source", source)
-                .putLong("pending_edit_timestamp", System.currentTimeMillis())
+                .putString("pending_title", title)
+                .putString("pending_text", text)
+                .putString("pending_source", source)
+                .putLong("pending_timestamp", System.currentTimeMillis())
                 .apply()
 
-            // 通知 Flutter 跳转编辑页面
+            // 通知 Flutter 处理支付通知
             try {
                 val engine = flutterEngine
                 if (engine != null) {
@@ -608,10 +618,10 @@ class MainActivity : FlutterFragmentActivity() {
                         "source" to source
                     )
                     MethodChannel(engine.dartExecutor.binaryMessenger, "bear_bill/auto_record")
-                        .invokeMethod("openEditPage", data)
+                        .invokeMethod("onPaymentNotification", data)
                 }
             } catch (e: Exception) {
-                android.util.Log.e("MainActivity", "通知 Flutter 跳转编辑页面失败", e)
+                android.util.Log.e("MainActivity", "通知 Flutter 处理自动记账失败", e)
             }
         }
     }

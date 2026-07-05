@@ -18,13 +18,12 @@ import io.flutter.plugin.common.MethodChannel
  */
 class NotificationListenerServiceImpl : NotificationListenerService() {
 
-    private var lastDebugTime = 0L
     private var notificationCount = 0
 
     companion object {
         private const val TAG = "AutoRecord"
         private const val CHANNEL_ID = "auto_record"
-        private const val DEBUG_COOLDOWN_MS = 0L // 调试：每个通知都弹
+        private const val SHOW_DEBUG_NOTIFICATION = false
 
         // 监听的包名
         private val TARGET_PACKAGES = setOf(
@@ -70,6 +69,7 @@ class NotificationListenerServiceImpl : NotificationListenerService() {
         if (sbn == null) return
 
         val packageName = sbn.packageName ?: return
+        if (packageName == applicationContext.packageName) return
 
         val notification = sbn.notification ?: return
         val extras = notification.extras ?: return
@@ -89,11 +89,12 @@ class NotificationListenerServiceImpl : NotificationListenerService() {
             .putLong("last_notification_time", now)
             .putInt("notification_count", notificationCount)
             .apply()
-        // 每个通知都弹调试窗
-        showDebugNotification(
-            "[$notificationCount] 收到通知",
-            "来源: $packageName\n标题: $title\n内容: $text"
-        )
+        if (SHOW_DEBUG_NOTIFICATION) {
+            showDebugNotification(
+                "[$notificationCount] 收到通知",
+                "来源: $packageName\n标题: $title\n内容: $text"
+            )
+        }
 
         // 只处理支付相关通知（通过关键词匹配，不过滤包名）
         val isPayment = isPaymentNotification(title, text, packageName)
@@ -215,7 +216,12 @@ class NotificationListenerServiceImpl : NotificationListenerService() {
             }
 
             // 点击通知打开 app
-            val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
+            val launchIntent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
+                putExtra("auto_record_payment", true)
+                putExtra("auto_record_title", title)
+                putExtra("auto_record_text", text)
+                putExtra("auto_record_source", source)
+            }
             val pendingIntent = PendingIntent.getActivity(
                 this, 0, launchIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE

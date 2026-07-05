@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../../services/auto_record_service.dart';
+import '../../../services/notification_service.dart';
 import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
 import '../../../providers/theme_provider.dart';
@@ -76,6 +76,19 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
   }
 
   Future<void> _toggleEnabled(bool value) async {
+    if (value) {
+      final notificationAllowed =
+          await NotificationService.instance.requestPermission();
+      if (!notificationAllowed) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('请先允许通知权限，自动记账才能弹出确认提醒')),
+          );
+        }
+        return;
+      }
+    }
+
     if (value && !_listenerEnabled) {
       // 需要先开启通知监听权限
       await AutoRecordService.instance.openNotificationListenerSettings();
