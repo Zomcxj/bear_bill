@@ -194,6 +194,16 @@ class AutoRecordService {
       return;
     }
 
+    if (_shouldIgnoreDuplicateSource(
+      existingSource: _pendingCandidate?.source,
+      existingAmount: _pendingCandidate?.record.amount,
+      newSource: source,
+      newAmount: result.amount!,
+    )) {
+      if (kDebugMode) print('自动记账: 已有支付宝候选，忽略同金额银行通知');
+      return;
+    }
+
     await _markProcessed(fingerprint, now);
 
     // 获取当前账本 ID
@@ -321,6 +331,32 @@ class AutoRecordService {
   @visibleForTesting
   static AiParseResult? parsePaymentForTest(String title, String text) {
     return AutoRecordService.instance._parsePaymentLocally(title, text);
+  }
+
+  bool _shouldIgnoreDuplicateSource({
+    required String? existingSource,
+    required double? existingAmount,
+    required String newSource,
+    required double newAmount,
+  }) {
+    return shouldIgnoreDuplicateSourceForTest(
+      existingSource: existingSource,
+      existingAmount: existingAmount,
+      newSource: newSource,
+      newAmount: newAmount,
+    );
+  }
+
+  @visibleForTesting
+  static bool shouldIgnoreDuplicateSourceForTest({
+    required String? existingSource,
+    required double? existingAmount,
+    required String newSource,
+    required double newAmount,
+  }) {
+    if (existingSource != 'alipay' || newSource != 'bank') return false;
+    if (existingAmount == null) return false;
+    return (existingAmount - newAmount).abs() < 0.01;
   }
 
   String _detectPaymentType(String input) {
