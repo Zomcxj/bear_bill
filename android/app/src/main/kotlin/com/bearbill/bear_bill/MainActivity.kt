@@ -333,35 +333,6 @@ class MainActivity : FlutterFragmentActivity() {
                     }
                 }
 
-                "isAccessibilityEnabled" -> {
-                    try {
-                        val enabledServices = Settings.Secure.getString(
-                            contentResolver,
-                            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
-                        ) ?: ""
-                        // 兼容两种格式：完整 ComponentName 和缩写格式
-                        val fullComponentName = ComponentName(this, PaymentAccessibilityService::class.java).flattenToString()
-                        val shortComponentName = ComponentName(this, PaymentAccessibilityService::class.java).flattenToShortString()
-                        val isEnabled = enabledServices.contains(fullComponentName) || enabledServices.contains(shortComponentName)
-                        android.util.Log.d("AutoRecord_A11y", "无障碍检测: enabledServices=$enabledServices, full=$fullComponentName, short=$shortComponentName, result=$isEnabled")
-                        result.success(isEnabled)
-                    } catch (e: Exception) {
-                        android.util.Log.e("AutoRecord_A11y", "检测无障碍状态失败", e)
-                        result.success(false)
-                    }
-                }
-
-                "openAccessibilitySettings" -> {
-                    try {
-                        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        startActivity(intent)
-                        result.success(true)
-                    } catch (e: Exception) {
-                        result.error("open_failed", e.message, null)
-                    }
-                }
-
                 // 读取自动记账开关状态（与 NotificationListenerServiceImpl 使用相同 prefs 文件）
                 "getAutoRecordEnabled" -> {
                     val prefs = getSharedPreferences("auto_record_prefs", MODE_PRIVATE)

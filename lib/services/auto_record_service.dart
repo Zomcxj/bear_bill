@@ -41,6 +41,8 @@ class AutoRecordService {
 
   /// 待确认的候选记录（检测到支付后暂存）
   AutoRecordCandidate? _pendingCandidate;
+  DateTime? _pendingCandidateAt;
+  Timer? _alipayEmitTimer;
   AutoRecordCandidate? get pendingCandidate => _pendingCandidate;
 
   /// 检测到支付后，通过 stream 通知 UI 弹窗确认
@@ -197,10 +199,12 @@ class AutoRecordService {
     if (_shouldIgnoreDuplicateSource(
       existingSource: _pendingCandidate?.source,
       existingAmount: _pendingCandidate?.record.amount,
+      existingAt: _pendingCandidateAt,
       newSource: source,
       newAmount: result.amount!,
+      now: now,
     )) {
-      if (kDebugMode) print('自动记账: 已有支付宝候选，忽略同金额银行通知');
+      if (kDebugMode) print('自动记账: 1秒内已有银行卡候选，忽略支付宝通知');
       return;
     }
 
@@ -238,12 +242,12 @@ class AutoRecordService {
       createdAt: now,
     );
 
-    _pendingCandidate = AutoRecordCandidate(
+    final candidate = AutoRecordCandidate(
       record: record,
       source: source,
       rawText: input,
     );
-    _candidateController.add(_pendingCandidate!);
+    _publishCandidate(candidate, now);
     await _clearPendingPayment();
 
     if (kDebugMode) {
@@ -328,6 +332,24 @@ class AutoRecordService {
     }
   }
 
+  void _publishCandidate(AutoRecordCandidate candidate, DateTime now) {
+    _pendingCandidate = candidate;
+    _pendingCandidateAt = now;
+
+    _alipayEmitTimer?.cancel();
+    if (candidate.source == 'alipay') {
+      // 支付宝钱包走银行卡时，银行卡扣款通知通常会在 1 秒内补到；等一下再决定来源。
+      _alipayEmitTimer = Timer(const Duration(seconds: 1), () {
+        if (_pendingCandidate == candidate) {
+          _candidateController.add(candidate);
+        }
+      });
+      return;
+    }
+
+    _candidateController.add(candidate);
+  }
+
   @visibleForTesting
   static AiParseResult? parsePaymentForTest(String title, String text) {
     return AutoRecordService.instance._parsePaymentLocally(title, text);
@@ -336,14 +358,18 @@ class AutoRecordService {
   bool _shouldIgnoreDuplicateSource({
     required String? existingSource,
     required double? existingAmount,
+    required DateTime? existingAt,
     required String newSource,
     required double newAmount,
+    required DateTime now,
   }) {
     return shouldIgnoreDuplicateSourceForTest(
       existingSource: existingSource,
       existingAmount: existingAmount,
+      existingAt: existingAt,
       newSource: newSource,
       newAmount: newAmount,
+      now: now,
     );
   }
 
@@ -351,12 +377,16 @@ class AutoRecordService {
   static bool shouldIgnoreDuplicateSourceForTest({
     required String? existingSource,
     required double? existingAmount,
+    required DateTime? existingAt,
     required String newSource,
     required double newAmount,
+    required DateTime now,
   }) {
-    if (existingSource != 'alipay' || newSource != 'bank') return false;
-    if (existingAmount == null) return false;
-    return (existingAmount - newAmount).abs() < 0.01;
+    if (existingAmount == null || existingAt == null) return false;
+    final samePayment = (existingAmount - newAmount).abs() < 0.01 &&
+        now.difference(existingAt).inMilliseconds.abs() <= 1000;
+    if (!samePayment) return false;
+    return existingSource == 'bank' && newSource == 'alipay';
   }
 
   String _detectPaymentType(String input) {
@@ -420,7 +450,9 @@ class AutoRecordService {
 
   /// 用户取消
   void dismissRecord() {
+    _alipayEmitTimer?.cancel();
     _pendingCandidate = null;
+    _pendingCandidateAt = null;
     if (kDebugMode) print('自动记账: 用户取消');
   }
 
@@ -478,26 +510,6 @@ class AutoRecordService {
   Future<void> openNotificationListenerSettings() async {
     try {
       await _channel.invokeMethod('openListenerSettings');
-    } catch (_) {
-      // ignore
-    }
-  }
-
-  /// 检查无障碍服务是否已授予
-  Future<bool> isAccessibilityEnabled() async {
-    try {
-      final result =
-          await _channel.invokeMethod<bool>('isAccessibilityEnabled');
-      return result ?? false;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  /// 打开无障碍设置页面
-  Future<void> openAccessibilitySettings() async {
-    try {
-      await _channel.invokeMethod('openAccessibilitySettings');
     } catch (_) {
       // ignore
     }
