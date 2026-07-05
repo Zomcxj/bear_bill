@@ -34,7 +34,6 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
   late bool _enabled;
   bool _listenerEnabled = false;
   bool _listenerRunning = false;
-  bool _accessibilityEnabled = false;
 
   @override
   void initState() {
@@ -63,14 +62,10 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
         await AutoRecordService.instance.isNotificationListenerEnabled();
     final listenerRunning =
         await AutoRecordService.instance.isNotificationListenerRunning();
-    final accessibilityEnabled =
-        await AutoRecordService.instance.isAccessibilityEnabled();
-
     if (mounted) {
       setState(() {
         _listenerEnabled = listenerEnabled;
         _listenerRunning = listenerRunning;
-        _accessibilityEnabled = accessibilityEnabled;
       });
     }
   }
@@ -183,70 +178,6 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
             ),
           ),
           SizedBox(height: 12),
-
-          // 无障碍服务状态
-          Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: _accessibilityEnabled
-                  ? AppTheme.success.withOpacity(0.1)
-                  : AppTheme.warning.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(DS.radiusSm),
-              border: Border.all(
-                color: _accessibilityEnabled
-                    ? AppTheme.success.withOpacity(0.3)
-                    : AppTheme.warning.withOpacity(0.3),
-              ),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  _accessibilityEnabled
-                      ? Icons.check_circle
-                      : Icons.accessibility_new,
-                  size: 20,
-                  color: _accessibilityEnabled
-                      ? AppTheme.success
-                      : AppTheme.warning,
-                ),
-                SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _accessibilityEnabled ? '无障碍辅助已开启' : '无障碍辅助未开启',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: _accessibilityEnabled
-                              ? AppTheme.success
-                              : AppTheme.warning,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      SizedBox(height: 2),
-                      Text(
-                        '实验辅助，通知监听才是主路径',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: DS.outline,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (!_accessibilityEnabled)
-                  TextButton(
-                    onPressed: () async {
-                      await AutoRecordService.instance
-                          .openAccessibilitySettings();
-                    },
-                    child: Text('去开启'),
-                  ),
-              ],
-            ),
-          ),
-          SizedBox(height: 16),
 
           // 自动记账开关
           Row(

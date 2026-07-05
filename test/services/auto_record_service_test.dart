@@ -34,23 +34,40 @@ void main() {
       expect(result, isNull);
     });
 
-    test('同金额支付宝候选存在时忽略后到的银行扣款通知', () {
+    test('1秒内支付宝候选存在时允许银行扣款通知覆盖', () {
       final ignored = AutoRecordService.shouldIgnoreDuplicateSourceForTest(
         existingSource: 'alipay',
         existingAmount: 25,
+        existingAt: DateTime(2026, 7, 5, 12, 0, 0),
         newSource: 'bank',
         newAmount: 25,
+        now: DateTime(2026, 7, 5, 12, 0, 0, 500),
+      );
+
+      expect(ignored, false);
+    });
+
+    test('1秒内银行候选存在时忽略支付宝弹窗', () {
+      final ignored = AutoRecordService.shouldIgnoreDuplicateSourceForTest(
+        existingSource: 'bank',
+        existingAmount: 25,
+        existingAt: DateTime(2026, 7, 5, 12, 0, 0),
+        newSource: 'alipay',
+        newAmount: 25,
+        now: DateTime(2026, 7, 5, 12, 0, 0, 500),
       );
 
       expect(ignored, true);
     });
 
-    test('同金额银行候选存在时允许支付宝弹窗覆盖', () {
+    test('超过1秒的同金额支付宝弹窗不按银行重复事件处理', () {
       final ignored = AutoRecordService.shouldIgnoreDuplicateSourceForTest(
         existingSource: 'bank',
         existingAmount: 25,
+        existingAt: DateTime(2026, 7, 5, 12, 0, 0),
         newSource: 'alipay',
         newAmount: 25,
+        now: DateTime(2026, 7, 5, 12, 0, 2),
       );
 
       expect(ignored, false);
