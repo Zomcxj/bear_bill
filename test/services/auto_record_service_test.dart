@@ -33,5 +33,27 @@ void main() {
 
       expect(result, isNull);
     });
+
+    test('同金额支付宝候选存在时忽略后到的银行扣款通知', () {
+      final ignored = AutoRecordService.shouldIgnoreDuplicateSourceForTest(
+        existingSource: 'alipay',
+        existingAmount: 25,
+        newSource: 'bank',
+        newAmount: 25,
+      );
+
+      expect(ignored, true);
+    });
+
+    test('同金额银行候选存在时允许支付宝弹窗覆盖', () {
+      final ignored = AutoRecordService.shouldIgnoreDuplicateSourceForTest(
+        existingSource: 'bank',
+        existingAmount: 25,
+        newSource: 'alipay',
+        newAmount: 25,
+      );
+
+      expect(ignored, false);
+    });
   });
 }
