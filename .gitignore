@@ -54,6 +54,8 @@ releases/
 
 # Plan files (local tracking)
 plan/
+task_plan.md
+AGENTS.md
 
 # Android build artifacts
 *.apk
