@@ -1,6 +1,6 @@
 # 🐻 小熊记账本
 
-一个基于 Flutter 开发的软萌粉糖色系移动端记账应用
+一个基于 Flutter 开发的 Android 记账应用，采用 Luminous Finance 玻璃态视觉风格。
 
 ---
 
@@ -20,7 +20,7 @@
 - **打卡功能** - 连续记账天数统计，断签重置，已记账自动跳过提醒
 - **主题颜色** - 8 种预设主题色 + 自定义调色盘（HSV 滑块），全应用同步
 - **消费地图** - 地图标注消费位置，足迹可视化
-- **自动记账** - 监听支付宝/银行通知，识别后跳转记账页确认
+- **自动记账** - 监听支付宝/银行卡通知，识别后跳转记账页确认，不直接静默入账
 - **本地存储** - SQLite 数据库，数据安全，离线可用
 
 ### 🤖 AI 记账功能
@@ -72,10 +72,10 @@ cp lib/config/api_keys.dart.template lib/config/api_keys.dart
 ### 构建应用
 
 ```bash
-flutter build apk --release
+flutter build apk --release --target-platform android-arm64
 ```
 
-APK 输出位置：`build/app/outputs/flutter-apk/app-release.apk`
+APK 输出位置：`build/app/outputs/flutter-apk/app-arm64-v8a-release.apk`
 
 > ⚠️ Windows 用户名包含中文时需先配置环境变量。详见 [docs/CONFIGURATION.md](docs/CONFIGURATION.md#中文路径问题)
 
@@ -85,6 +85,8 @@ APK 输出位置：`build/app/outputs/flutter-apk/app-release.apk`
 flutter pub get
 flutter run
 ```
+
+说明：项目仅支持 Android 平台，不构建 iOS。
 
 ## 📚 文档导航
 

@@ -110,9 +110,9 @@ class _SettingsListState extends State<SettingsList> {
                 applicationVersion: 'v1.3.4',
                 applicationIcon: Text('🐻', style: TextStyle(fontSize: 48)),
                 children: [
-                  Text('软萌粉糖色系记账应用'),
+                  Text('轻盈通透的玻璃态记账应用'),
                   SizedBox(height: 8),
-                  Text('让记账变得有趣又可爱～'),
+                  Text('让记账更自然、更省心'),
                 ],
               );
             },
