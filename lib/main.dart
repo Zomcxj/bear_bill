@@ -30,14 +30,14 @@ class FontSizeNotifier extends ChangeNotifier {
   }
 }
 
-void _checkMonthlySummary() {
+Future<void> _checkMonthlySummary() async {
   final now = DateTime.now();
   if (now.day != 1) return; // 只在每月1日触发
   final monthKey = 'monthlySummary_${now.year}_${now.month.toString().padLeft(2, '0')}';
-  final sent = StorageService.instance.getString(monthKey);
+  final sent = await StorageService.instance.getStringAsync(monthKey);
   if (sent == '1') return; // 本月已发送
   StorageService.instance.setString(monthKey, '1');
-  NotificationService.instance.showMonthlySummary();
+  await NotificationService.instance.showMonthlySummary();
 }
 
 void main() async {
@@ -59,7 +59,7 @@ void main() async {
   await AutoRecordService.instance.init();
 
   // 月度财务简报：每月1日自动推送
-  _checkMonthlySummary();
+  await _checkMonthlySummary();
 
   runApp(BearBillApp(themeProvider: themeProvider));
 }

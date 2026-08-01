@@ -53,6 +53,13 @@ class StorageService {
   // String 操作
   String? getString(String key) => _cache[key] as String?;
 
+  /// 异步读取：先查内存缓存，未命中再读文件（用于 load() 未预加载的动态键）
+  Future<String?> getStringAsync(String key) async {
+    final cached = _cache[key];
+    if (cached != null) return cached as String;
+    return _loadFromFile(key);
+  }
+
   void setString(String key, String value) {
     _cache[key] = value;
     _saveToFile(key, value);
