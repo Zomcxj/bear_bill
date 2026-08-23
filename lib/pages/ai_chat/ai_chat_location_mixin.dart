@@ -63,7 +63,10 @@ mixin AiChatLocationMixin on State<AiChatPage> {
             'latitude': position.latitude,
             'longitude': position.longitude,
           });
-          address = result;
+          // 过滤国产 ROM 无谷歌后端时返回的"中国"级粗地址
+          if (result != null && result.trim().length > 4) {
+            address = result.trim();
+          }
         } catch (_) {}
       }
 
