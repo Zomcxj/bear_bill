@@ -77,33 +77,7 @@ class AmapLocationService {
         if (data['status'] == '1' && data['regeocode'] != null) {
           // 记录使用次数
           await ApiQuotaService.instance.recordAmapUsage();
-          final regeocode = data['regeocode'];
-          final addressComponent = regeocode['addressComponent'] ?? {};
-
-          // 提取附近 POI（小区、商店、地标）
-          final pois = <String>[];
-          final poisData = regeocode['pois'] as List<dynamic>? ?? [];
-          for (final poi in poisData.take(5)) {
-            final name = poi['name']?.toString() ?? '';
-            if (name.isNotEmpty) pois.add(name);
-          }
-          // 也提取 AOI（更精确的建筑/小区）
-          final aoisData = regeocode['aois'] as List<dynamic>? ?? [];
-          for (final aoi in aoisData.take(3)) {
-            final name = aoi['name']?.toString() ?? '';
-            if (name.isNotEmpty && !pois.contains(name)) pois.add(name);
-          }
-
-          return AmapAddress(
-            formattedAddress: regeocode['formatted_address'] ?? '',
-            province: addressComponent['province'] ?? '',
-            city: addressComponent['city'] ?? '',
-            district: addressComponent['district'] ?? '',
-            township: addressComponent['township'] ?? '',
-            street: (addressComponent['streetNumber'] ?? {})['street'] ?? '',
-            number: (addressComponent['streetNumber'] ?? {})['number'] ?? '',
-            nearbyPois: pois,
-          );
+          return AmapAddress.fromRegeo(data['regeocode']);
         } else {
           if (kDebugMode) print('高德反向编码失败: ${data['info'] ?? data}');
         }
@@ -196,6 +170,9 @@ class AmapLocationService {
   bool get isConfigured => _apiKey != 'YOUR_AMAP_API_KEY';
 }
 
+/// 安全取字符串：高德部分字段（如直辖市的 city）返回数组，统一兜底为空串
+String _str(dynamic value) => value is String ? value : '';
+
 /// 高德地址信息
 class AmapAddress {
   final String formattedAddress;
@@ -217,6 +194,31 @@ class AmapAddress {
     required this.number,
     this.nearbyPois = const [],
   });
+
+  /// 从高德 regeo 响应解析（直辖市的 city 是空数组，需安全兜底）
+  factory AmapAddress.fromRegeo(Map<dynamic, dynamic> regeocode) {
+    final component = (regeocode['addressComponent'] ?? {}) as Map;
+    final pois = <String>[];
+    for (final poi in ((regeocode['pois'] ?? []) as List).take(5)) {
+      final name = poi['name']?.toString() ?? '';
+      if (name.isNotEmpty) pois.add(name);
+    }
+    for (final aoi in ((regeocode['aois'] ?? []) as List).take(3)) {
+      final name = aoi['name']?.toString() ?? '';
+      if (name.isNotEmpty && !pois.contains(name)) pois.add(name);
+    }
+    final streetNumber = (component['streetNumber'] ?? {}) as Map;
+    return AmapAddress(
+      formattedAddress: _str(regeocode['formatted_address']),
+      province: _str(component['province']),
+      city: _str(component['city']),
+      district: _str(component['district']),
+      township: _str(component['township']),
+      street: _str(streetNumber['street']),
+      number: _str(streetNumber['number']),
+      nearbyPois: pois,
+    );
+  }
 
   /// 获取简短地址（不包含省、市前缀）
   String get shortAddress {

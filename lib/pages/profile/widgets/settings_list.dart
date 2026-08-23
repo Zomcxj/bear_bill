@@ -102,12 +102,12 @@ class _SettingsListState extends State<SettingsList> {
           _buildMenuItem(
             icon: Icons.info_outline,
             title: '关于',
-            trailing: 'v1.3.5',
+            trailing: 'v1.3.6',
             onTap: () {
               showAboutDialog(
                 context: context,
                 applicationName: '小熊记账本',
-                applicationVersion: 'v1.3.5',
+                applicationVersion: 'v1.3.6',
                 applicationIcon: Text('🐻', style: TextStyle(fontSize: 48)),
                 children: [
                   Text('轻盈通透的玻璃态记账应用'),
