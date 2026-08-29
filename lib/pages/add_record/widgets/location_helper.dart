@@ -167,9 +167,10 @@ mixin LocationHelper<T extends StatefulWidget> on State<T> {
   }
 
   /// 位置选择对话框
+  /// 注意：动作必须在对话框关闭后执行，不能在 onTap 里 pop 后再赋值，
+  /// 否则 showDialog 的 future 先完成，外层拿到的是 null（竞态丢失结果）
   Future<LocationResult?> showLocationDialog() async {
-    LocationResult? result;
-    await showDialog(
+    final choice = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('📍 添加位置'),
@@ -180,10 +181,7 @@ mixin LocationHelper<T extends StatefulWidget> on State<T> {
               leading: Icon(Icons.edit_location, color: DS.primary),
               title: Text('手动输入'),
               subtitle: Text('直接输入地点名称'),
-              onTap: () async {
-                Navigator.pop(context);
-                result = await showManualInputDialog();
-              },
+              onTap: () => Navigator.pop(context, 'manual'),
             ),
             Divider(height: 1),
             ListTile(
@@ -191,20 +189,14 @@ mixin LocationHelper<T extends StatefulWidget> on State<T> {
                   Icon(Icons.my_location, color: DS.secondaryContainer),
               title: Text('GPS定位'),
               subtitle: Text('获取当前设备位置'),
-              onTap: () async {
-                Navigator.pop(context);
-                result = await fetchDeviceLocation();
-              },
+              onTap: () => Navigator.pop(context, 'gps'),
             ),
             Divider(height: 1),
             ListTile(
               leading: Icon(Icons.map, color: DS.secondary),
               title: Text('地图选点'),
               subtitle: Text('打开地图搜索和选择位置'),
-              onTap: () async {
-                Navigator.pop(context);
-                result = await openMapPicker();
-              },
+              onTap: () => Navigator.pop(context, 'map'),
             ),
           ],
         ),
@@ -216,7 +208,16 @@ mixin LocationHelper<T extends StatefulWidget> on State<T> {
         ],
       ),
     );
-    return result;
+
+    switch (choice) {
+      case 'manual':
+        return showManualInputDialog();
+      case 'gps':
+        return fetchDeviceLocation();
+      case 'map':
+        return openMapPicker();
+    }
+    return null;
   }
 
   /// 手动输入位置
