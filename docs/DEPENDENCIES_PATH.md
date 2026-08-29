@@ -154,7 +154,7 @@ releases/bear_bill_{x.y.z}_{YYYYMMDD}_{HHmm}.apk
 版本号从 `pubspec.yaml` 自动解析：
 
 ```yaml
-version: 1.3.6+10
+version: 1.3.7+11
 ```
 
 不要再手动依赖旧的：
