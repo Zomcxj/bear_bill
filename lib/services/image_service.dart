@@ -31,13 +31,12 @@ class ImageService {
 
   /// 从相册选择图片并复制到 app 目录
   Future<List<String>> pickAndCopyImages() async {
-    final result = await FilePicker.platform.pickFiles(
+    final files = await FilePicker.pickFiles(
       type: FileType.image,
-      allowMultiple: true,
     );
-    if (result == null || result.files.isEmpty) return [];
+    if (files.isEmpty) return [];
     final paths = <String>[];
-    for (final file in result.files) {
+    for (final file in files) {
       if (file.path != null) {
         try {
           paths.add(await copyImageToAppDir(file.path!));
