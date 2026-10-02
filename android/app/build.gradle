@@ -47,10 +47,6 @@ android {
         coreLibraryDesugaringEnabled true
     }
 
-    kotlinOptions {
-        jvmTarget = '17'
-    }
-
     defaultConfig {
         applicationId "com.bearbill.bear_bill"
         minSdkVersion flutter.minSdkVersion
@@ -78,6 +74,13 @@ android {
     // Flutter Gradle 插件在未检测到 -Psplit-per-abi 时会强制覆盖 ndk.abiFilters
     // 为全部平台 ABI，与手写 splits 冲突（AGP 8.11+ 报 "Conflicting configuration"）。
     // 只出 arm64 包请用命令行：flutter build apk --target-platform android-arm64
+}
+
+// AGP 9 / Kotlin 2.3 新 DSL：原 android.kotlinOptions 已移除，改用顶层 kotlin 块
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+    }
 }
 
 flutter {
