@@ -6,21 +6,6 @@ buildscript {
         google()
         mavenCentral()
     }
-    configurations.all {
-        resolutionStrategy {
-            force 'org.bouncycastle:bcprov-jdk18on:1.78.1'
-        }
-    }
-}
-
-allprojects {
-    repositories {
-        maven { url 'https://maven.aliyun.com/repository/google' }
-        maven { url 'https://maven.aliyun.com/repository/central' }
-        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
-        google()
-        mavenCentral()
-    }
 }
 
 // Provide compile/target SDK values for plugin projects that expect them
@@ -29,29 +14,36 @@ ext {
     targetSdkVersion = 36
 }
 
-rootProject.buildDir = "../build"
+// 构建输出重定向：rootProject -> <项目根>/build，子项目 -> build/<name>
+// Flutter 工具链按 build/app/outputs/flutter-apk/ 找 APK，必须保留这个重定向。
+// 用 layout.buildDirectory（Gradle 8+ 新 API），旧写法 project.buildDir 在 8.14 已废弃。
+rootProject.layout.buildDirectory.set(file("../build"))
 subprojects {
-    project.buildDir = "${rootProject.buildDir}/${project.name}"
+    project.layout.buildDirectory.set(file("${rootProject.layout.buildDirectory.get().asFile}/${project.name}"))
 }
+
 subprojects {
     project.evaluationDependsOn(":app")
 }
 
 // Fix: Flutter plugin projects expect a `flutter` extension with compileSdkVersion.
 // The Flutter Gradle plugin only creates this for the app project, not library subprojects.
+// 注意：ndkVersion 必须存在，jni / path_provider_android 等插件会读 flutter.ndkVersion，
+// 缺失会导致 "Parameter specified as non-null is null: setNdkVersion"。
 subprojects { project ->
     project.beforeEvaluate {
         if (!project.ext.has('flutter')) {
             project.ext.flutter = [
                 compileSdkVersion: 36,
-                minSdkVersion: 21,
+                minSdkVersion: 24,
                 targetSdkVersion: 36,
+                ndkVersion: '27.0.12077973',
             ]
         }
     }
 }
 
-// Fix: bcprov-jdk18on 1.79 has Java 21 classes that Gradle 8.2 can't process
+// Fix: bcprov-jdk18on 1.79 has Java 21 classes that older Gradle can't process
 allprojects {
     configurations.all {
         resolutionStrategy {
@@ -61,5 +53,5 @@ allprojects {
 }
 
 tasks.register("clean", Delete) {
-    delete rootProject.buildDir
+    delete layout.buildDirectory
 }

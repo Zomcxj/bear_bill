@@ -419,16 +419,18 @@ class DatabaseBackupService {
       );
     }
 
-    final targetPath = await FilePicker.platform.saveFile(
+    // file_picker 13: saveFile 需要直接提供 bytes，返回 Uri?
+    final bytes = await File(sourcePath).readAsBytes();
+    final targetUri = await FilePicker.saveFile(
       dialogTitle: '选择导出位置',
       fileName: suggestedFileName,
+      bytes: bytes,
       type: FileType.custom,
       allowedExtensions: ['zip'],
     );
-    if (targetPath == null || targetPath.isEmpty) return null;
+    if (targetUri == null) return null;
 
-    await File(sourcePath).copy(targetPath);
-    return targetPath;
+    return targetUri.toFilePath();
   }
 
   Future<String?> _pickImportFile() async {
@@ -436,12 +438,12 @@ class DatabaseBackupService {
       return _fileChannel.invokeMethod<String>('pickFile');
     }
 
-    final result = await FilePicker.platform.pickFiles(
+    // file_picker 13: 单选请用 pickFile（pickFiles 为多选，且无 allowMultiple 参数）
+    final file = await FilePicker.pickFile(
       dialogTitle: '选择备份文件',
       type: FileType.any,
-      allowMultiple: false,
     );
-    return result?.files.first.path;
+    return file?.path;
   }
 
   void _showSnackBar(

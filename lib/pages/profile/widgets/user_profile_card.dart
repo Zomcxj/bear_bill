@@ -377,13 +377,12 @@ class UserProfileCard extends StatelessWidget {
   }
 
   Future<void> _pickAvatar(BuildContext context) async {
-    final result = await FilePicker.platform.pickFiles(
+    final file = await FilePicker.pickFile(
       dialogTitle: '选择头像图片',
       type: FileType.image,
-      allowMultiple: false,
     );
 
-    final path = result?.files.single.path;
+    final path = file?.path;
     if (path == null || !context.mounted) return;
 
     await context.read<AppProvider>().updateUserProfile(avatar: path);
