@@ -18,11 +18,12 @@
 
 ## 环境要求
 
-- Flutter SDK 3.24.0+
-- Dart SDK 3.5.0+
+- Flutter SDK 3.47+
+- Dart SDK 3.0.0+（`pubspec.yaml` 约束 `>=3.0.0 <4.0.0`）
 - Android SDK API 21-36
-- JDK 17+
-- Gradle 8.2+
+- JDK 17
+- Gradle 9.2.0
+- AGP 9.0.1 / Kotlin 2.3.20
 
 项目仅支持 Android，不构建 iOS。
 
@@ -53,18 +54,85 @@ cp lib/config/api_keys.dart.template lib/config/api_keys.dart
 
 当前项目构建规则以 `android/app/build.gradle` 为准：
 
-- 仅导出 `arm64-v8a`
-- ABI split 已开启
-- 不生成通用 APK
-- release 构建走本地签名配置
+- release 构建走本地签名配置（`key.properties`）
+- `android/app/build.gradle` 中**不写** `splits.abi`，也不写 `minifyEnabled` / `proguardFiles`
+- 上述项全部由 Flutter Gradle 插件在构建期注入，手写会与插件配置冲突（AGP 8.11+ 报 `Conflicting configuration`）
 
 关键配置如下：
 
 - `compileSdk 36`
-- `minSdk 21`
+- `minSdk 21`（`flutter.minSdkVersion`）
 - `targetSdk 36`
 - `coreLibraryDesugaringEnabled true`
-- `splits.abi.include 'arm64-v8a'`
+- AGP 9 新 DSL：顶层 `kotlin { compilerOptions { jvmTarget = JVM_17 } }`（`android.kotlinOptions` 已移除）
+
+### 代码压缩与 R8 规则接线
+
+Flutter Gradle 插件（`FlutterPlugin.kt`）在 release 构建时自动完成：
+
+```kotlin
+releaseBuildType.isMinifyEnabled = true
+releaseBuildType.isShrinkResources = ...
+releaseBuildType.proguardFiles.add(getDefaultProguardFile("proguard-android-optimize.txt"))
+releaseBuildType.proguardFiles.add(flutterProguardRules)
+if (File("${project.projectDir}/proguard-rules.pro").exists()) {
+    releaseBuildType.proguardFiles.add(proguardRulesPro)  // 文件名固定，放 android/app/ 下即生效
+}
+```
+
+因此 `android/app/proguard-rules.pro` **无需在 build.gradle 中声明也会被自动接入**。当前该文件内容：
+
+```proguard
+-keep class * extends androidx.room.RoomDatabase {
+    <init>();
+}
+```
+
+用途：WorkManager 内部依赖 Room，Room 通过反射 `newInstance()` 实例化 `WorkDatabase_Impl`。`room-runtime` 自带的 consumer 规则只保留类名、不保留成员，R8 9.x（AGP 9.0.1）会删除无静态引用的无参构造函数，导致 `InitializationProvider` 阶段抛 `InstantiationException`——此时 Flutter 引擎尚未启动，表现为应用一直白屏。
+
+验证规则是否生效（构建产物）：
+
+- `build/app/outputs/mapping/release/configuration.txt` — 应包含 `proguard-rules.pro` 来源标注
+- `build/app/outputs/mapping/release/seeds.txt` — 应出现 `WorkDatabase_Impl: WorkDatabase_Impl()`
+
+### ABI 控制
+
+插件在未开启 split 时，会把 `abiFilters` 设为 Flutter 支持的全部 ABI（arm64-v8a / armeabi-v7a / x86_64），此时 `--target-platform android-arm64` 只限制 AOT 编译目标，**不会**从 APK 中剔除插件依赖带来的其他 ABI `.so`。
+
+- 只出 arm64 单包：加 `--split-per-abi`，产物为 `app-arm64-v8a-release.apk`
+- 只出 universal 胖包：不加该参数，产物为 `app-release.apk`（含 3 个 ABI 的 `.so`）
+
+### versionCode 与 ABI 编码（重要）
+
+`--split-per-abi` 默认会把 versionCode 改写为 `abiCode * 1000 + versionCode`（arm64-v8a 的 abiCode = 2），即 `pubspec.yaml` 的 `1.3.7+11` 在 APK 里会变成 **2011**：
+
+| 构建方式 | APK 内 versionCode | 说明 |
+|---|---|---|
+| `--target-platform android-arm64`（不带 split） | `11` | 与 `pubspec.yaml` 一致 |
+| `--split-per-abi`（未设该开关时） | `2011` | 与 build 号脱钩 |
+
+一旦手机上装过 `2011` 的 split 包，再装 `11` 的包会被系统判为版本降级而拒绝安装（`INSTALL_FAILED_VERSION_DOWNGRADE`），只能先卸载。`android/gradle.properties` 因此设置了 `force-version-code-ignoring-abi=true`，强制忽略 ABI 编码，使所有 APK 的 versionCode 始终等于 `pubspec.yaml` 的 build 号，保持版本号规则单一来源。该开关仅在 `--split-per-abi` 时生效，不影响其他构建。
+
+出包后务必核对：
+
+```bash
+D:/Softwaredata/Android/SDK/build-tools/<ver>/aapt2 dump badging <apk> | grep versionCode
+```
+
+### APK 体积翻倍（native 库改为 STORED）
+
+升级到 Flutter 3.47 / AGP 9.0.1 后，arm64 release 包从 ~11MB 涨到 ~21MB，原因是 native 库打包方式变化：
+
+| | `extractNativeLibs` | 存储方式 | libflutter.so | APK 体积 |
+|---|---|---|---|---|
+| 1.3.7 及之前（AGP 8.2） | `true` | DEFLATE 压缩 | 4.76 MB（raw 10.22 MB） | ~11 MB |
+| 现在（AGP 9.0.1） | `false` | STORED 不压缩、页对齐 | 11.20 MB | ~21 MB |
+
+- raw 体积只涨了约 1 MB（引擎本身变化），其余是“不再压缩”导致
+- `extractNativeLibs=false` 让系统直接 mmap APK 内的 `.so`，**安装后占用磁盘反而更小**、启动更快，代价是 APK 分发体积变大
+- 若需要压回分发体积，在 `android/app/build.gradle` 的 `release` 里加 `packagingOptions { jniLibs { useLegacyPackaging = true } }`（会退回压缩 + 安装时解压）
+
+另：新依赖引入 `lib/arm64-v8a/libdartjni.so`（约 0.13 MB），属正常。
 
 ### 版本号规则
 
@@ -75,7 +143,7 @@ version: 1.3.7+11
 ```
 
 - `1.3.7` 对应 `versionName`
-- `7` 对应 `versionCode`
+- `11` 对应 `versionCode`
 
 说明：
 
@@ -143,7 +211,7 @@ flutter test
 ### 构建 arm64 Release APK
 
 ```bash
-flutter build apk --release --target-platform android-arm64
+flutter build apk --release --target-platform android-arm64 --split-per-abi
 ```
 
 输出文件：
@@ -151,6 +219,8 @@ flutter build apk --release --target-platform android-arm64
 ```text
 build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
 ```
+
+注意：若漏掉 `--split-per-abi`，产物名为 `app-release.apk`，且 APK 内会混入 armeabi-v7a / x86_64 的插件 `.so`。
 
 发布归档命名规则：
 
@@ -204,5 +274,5 @@ bear_bill/
 flutter doctor -v
 flutter pub get
 flutter test
-flutter build apk --release --target-platform android-arm64
+flutter build apk --release --target-platform android-arm64 --split-per-abi
 ```

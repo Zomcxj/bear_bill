@@ -9,7 +9,7 @@
 ```bash
 flutter pub get
 flutter test
-flutter build apk --release --target-platform android-arm64
+flutter build apk --release --target-platform android-arm64 --split-per-abi
 ```
 
 当前项目测试基线应保持全绿。
@@ -41,7 +41,7 @@ Remove-Item <YOUR_GRADLE_CACHE>/caches/* -Recurse -Force
 当前 release 包只构建 arm64：
 
 ```bash
-flutter build apk --release --target-platform android-arm64
+flutter build apk --release --target-platform android-arm64 --split-per-abi
 ```
 
 输出路径：
@@ -62,6 +62,24 @@ build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
 
 - 签名文件属于本地敏感材料
 - 不能把真实密码写进文档、issue、提交说明
+- 出包后用 `unzip -l xxx.apk | grep '^ *lib/'` 检查是否只剩 `lib/arm64-v8a/`
+
+### 安装后白屏（R8 删除 Room 构造函数）
+
+release 包安装后一直白屏、logcat 报 `Unable to get provider androidx.startup.InitializationProvider`，多为 R8 把 WorkManager 依赖的 Room 数据库实现类的无参构造函数当无用代码删掉（反射入口静态分析看不见）。
+
+排查顺序：
+
+1. `android/app/proguard-rules.pro` 是否存在，且含 `-keep class * extends androidx.room.RoomDatabase { <init>(); }`
+2. 构建产物 `build/app/outputs/mapping/release/configuration.txt` 中是否出现 `proguard-rules.pro` 的来源标注（该文件由 Flutter Gradle 插件自动接入，无需在 `build.gradle` 声明）
+3. `build/app/outputs/mapping/release/seeds.txt` 中是否有 `WorkDatabase_Impl: WorkDatabase_Impl()`
+
+详见 `docs/CONFIGURATION.md` 的“代码压缩与 R8 规则接线”。
+
+### ABI 未生效（包体积异常）
+
+- 只带 `--target-platform android-arm64` 时产物是 universal 胖包 `app-release.apk`，`lib/` 下会混有 armeabi-v7a / x86_64 的插件 `.so`，且 `libflutter.so`、`libapp.so` 体积也会因 Flutter 引擎构建方式变化而波动
+- 需要严格单 ABI 出包时加 `--split-per-abi`，产物为 `app-arm64-v8a-release.apk`
 
 ## 自动记账维护
 
