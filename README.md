@@ -44,11 +44,11 @@
 
 ### 环境要求
 
-- Flutter SDK 3.24.0+
-- Dart SDK 3.5.0+
+- Flutter SDK 3.47+
+- Dart SDK 3.0.0+（`pubspec.yaml` 约束 `>=3.0.0 <4.0.0`）
 - Android SDK (API 21-36)
-- JDK 17+
-- Gradle 8.2+
+- JDK 17
+- Gradle 9.2.0 / AGP 9.0.1 / Kotlin 2.3.20
 
 > 📖 详细环境配置请查看 [docs/CONFIGURATION.md](docs/CONFIGURATION.md)
 
@@ -72,7 +72,7 @@ cp lib/config/api_keys.dart.template lib/config/api_keys.dart
 ### 构建应用
 
 ```bash
-flutter build apk --release --target-platform android-arm64
+flutter build apk --release --target-platform android-arm64 --split-per-abi
 ```
 
 APK 输出位置：`build/app/outputs/flutter-apk/app-arm64-v8a-release.apk`
@@ -98,7 +98,7 @@ flutter run
 
 ## 🛠️ 技术栈
 
-- **框架**: Flutter 3.24.0 / Dart 3.5.0
+- **框架**: Flutter 3.47+ / Dart 3.0+
 - **状态管理**: Provider ^6.1.1
 - **本地数据库**: sqflite ^2.3.0
 - **图表组件**: fl_chart ^0.66.0

@@ -7,7 +7,7 @@
 ### Flutter SDK
 
 - 路径：`<YOUR_FLUTTER_SDK>`
-- 版本：3.24.0+
+- 版本：3.47+
 - 用途：Flutter 与 Dart 工具链
 - 验证：`flutter --version`
 
@@ -188,5 +188,5 @@ flutter doctor -v
 flutter pub deps --style=compact
 flutter pub outdated
 flutter test
-flutter build apk --release --target-platform android-arm64
+flutter build apk --release --target-platform android-arm64 --split-per-abi
 ```
