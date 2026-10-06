@@ -9,6 +9,8 @@ import '../../services/database_service.dart';
 import '../../services/notification_service.dart';
 import '../../theme/app_design_system.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/glass_dialog_shell.dart';
+import '../../widgets/glass_sub_page_bar.dart';
 import '../../utils/utils.dart' as utils;
 import '../add_record/add_record_page.dart';
 import '../../providers/theme_provider.dart';
@@ -40,7 +42,8 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
   }
 
   Future<void> _loadRecord() async {
-    final record = await DatabaseService.instance.getRecordById(widget.recordId);
+    final record =
+        await DatabaseService.instance.getRecordById(widget.recordId);
     setState(() {
       _record = record;
       _loading = false;
@@ -68,27 +71,13 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
   Future<void> _deleteRecord() async {
     if (_record == null) return;
 
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showGlassConfirmDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('确认删除'),
-        content: Text(
+      title: '确认删除',
+      message:
           '确定要删除「${_record!.categoryName}」¥${utils.FormatUtils.formatAmount(_record!.amount)} 吗？',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(
-              '删除',
-              style: TextStyle(color: DS.primaryContainer),
-            ),
-          ),
-        ],
-      ),
+      confirmText: '删除',
+      destructive: true,
     );
 
     if (confirmed == true) {
@@ -120,14 +109,14 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
     context.watch<ThemeProvider>(); // theme rebuild
     if (_loading) {
       return Scaffold(
-        appBar: AppBar(title: Text('账单详情')),
+        appBar: const GlassSubPageBar(title: '账单详情'),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_record == null) {
       return Scaffold(
-        appBar: AppBar(title: Text('账单详情')),
+        appBar: const GlassSubPageBar(title: '账单详情'),
         body: const Center(child: Text('账单不存在')),
       );
     }
@@ -140,10 +129,8 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
 
     return Scaffold(
       backgroundColor: DS.background,
-      appBar: AppBar(
-        title: Text(_record!.type == 'income' ? '收入详情' : '支出详情'),
-        backgroundColor:
-            _record!.type == 'income' ? AppTheme.success : DS.primary,
+      appBar: GlassSubPageBar(
+        title: _record!.type == 'income' ? '收入详情' : '支出详情',
       ),
       body: Column(
         children: [
@@ -184,7 +171,8 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
                       style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
                     ),
                   ),
-                  if (_record!.location != null && _record!.location!.isNotEmpty)
+                  if (_record!.location != null &&
+                      _record!.location!.isNotEmpty)
                     _buildDetailRow(
                       '位置',
                       Text(
@@ -460,7 +448,8 @@ class _FullImageViewerState extends State<_FullImageViewer> {
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.broken_image, size: 64, color: Colors.grey[600]),
+                      Icon(Icons.broken_image,
+                          size: 64, color: Colors.grey[600]),
                       SizedBox(height: 12),
                       Text(
                         '图片加载失败',

@@ -7,6 +7,7 @@ import '../../../providers/theme_provider.dart';
 import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
 import '../achievement_page.dart';
+import '../../../widgets/glass_dialog_shell.dart';
 
 /// 成就徽章网格
 class AchievementGrid extends StatelessWidget {
@@ -52,7 +53,8 @@ class AchievementGrid extends StatelessWidget {
                       children: [
                         Text(
                           '${unlockedIds.length}/${AchievementDefinitions.all.length}',
-                          style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
+                          style:
+                              DS.labelSm.copyWith(color: DS.onSurfaceVariant),
                         ),
                         SizedBox(width: 2),
                         Icon(
@@ -72,8 +74,7 @@ class AchievementGrid extends StatelessWidget {
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
                   itemCount: AchievementDefinitions.all.length,
-                  separatorBuilder: (context, index) =>
-                      SizedBox(width: 8),
+                  separatorBuilder: (context, index) => SizedBox(width: 8),
                   itemBuilder: (context, index) {
                     final achievement = AchievementDefinitions.all[index];
                     final isUnlocked = unlockedIds.contains(achievement.id);
@@ -116,7 +117,8 @@ class _AchievementBadge extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: isUnlocked ? DS.surfaceContainerHigh : DS.surfaceContainerLow,
+              color:
+                  isUnlocked ? DS.surfaceContainerHigh : DS.surfaceContainerLow,
               borderRadius: BorderRadius.circular(DS.radiusFull),
               border: Border.all(
                 color: isUnlocked ? DS.primary : DS.outlineVariant,
@@ -151,76 +153,80 @@ class _AchievementBadge extends StatelessWidget {
   }
 
   void _showAchievementDetail(BuildContext context) {
-    showDialog(
+    showGlassDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Text(achievement.emoji, style: TextStyle(fontSize: 28)),
-            SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    achievement.title,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+      maxWidth: 320,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(achievement.emoji, style: const TextStyle(fontSize: 28)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      achievement.title,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: DS.onSurface,
+                      ),
                     ),
-                  ),
-                  Text(
-                    isUnlocked ? '✅ 已解锁' : '🔒 未解锁',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: isUnlocked ? AppTheme.success : DS.outline,
+                    Text(
+                      isUnlocked ? '✅ 已解锁' : '🔒 未解锁',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isUnlocked ? AppTheme.success : DS.outline,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+            ],
+          ),
+          const SizedBox(height: DS.base),
+          Text(
+            '达成条件：',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: DS.onSurface,
             ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          ),
+          const SizedBox(height: 8),
+          Text(
+            achievement.description,
+            style: TextStyle(fontSize: 14, color: DS.onSurface),
+          ),
+          if (isUnlocked && achievement.unlockedAt != null) ...[
+            const SizedBox(height: 16),
             Text(
-              '达成条件：',
+              '解锁时间：',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
+                color: DS.onSurface,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 4),
             Text(
-              achievement.description,
-              style: TextStyle(fontSize: 14),
+              '${achievement.unlockedAt!.year}年${achievement.unlockedAt!.month}月${achievement.unlockedAt!.day}日',
+              style: DS.labelMd.copyWith(color: DS.onSurfaceVariant),
             ),
-            if (isUnlocked && achievement.unlockedAt != null) ...[
-              SizedBox(height: 16),
-              Text(
-                '解锁时间：',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              SizedBox(height: 4),
-              Text(
-                '${achievement.unlockedAt!.year}年${achievement.unlockedAt!.month}月${achievement.unlockedAt!.day}日',
-                style: DS.labelMd.copyWith(color: DS.onSurfaceVariant),
-              ),
-            ],
           ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('知道了'),
-          ),
         ],
       ),
+      buildActions: (ctx) => [
+        GlassDialogButton(
+          label: '知道了',
+          isPrimary: true,
+          onPressed: () => Navigator.pop(ctx),
+        ),
+      ],
     );
   }
 }

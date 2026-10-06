@@ -4,19 +4,24 @@ import 'package:provider/provider.dart';
 import '../../../providers/app_provider.dart';
 import '../../../services/database_service.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../theme/glass_materials.dart';
+import '../../../widgets/glass_dialog_shell.dart';
 import '../../../utils/utils.dart';
 import '../../../providers/theme_provider.dart';
 
 /// 年度总结组件
 class YearSummary extends StatefulWidget {
-  const YearSummary({super.key});
+  const YearSummary({super.key, this.year});
+
+  /// 父级选中的年份（与统计页头部选择器联动）；null 时用当前年
+  final int? year;
 
   @override
   State<YearSummary> createState() => _YearSummaryState();
 }
 
 class _YearSummaryState extends State<YearSummary> {
-  int _selectedYear = DateTime.now().year;
+  late int _selectedYear = widget.year ?? DateTime.now().year;
   List<Map<String, dynamic>> _monthlyData = [];
   List<Map<String, dynamic>> _expenseCategories = [];
   bool _loading = true;
@@ -25,6 +30,16 @@ class _YearSummaryState extends State<YearSummary> {
   void initState() {
     super.initState();
     _loadYearStats();
+  }
+
+  @override
+  void didUpdateWidget(covariant YearSummary oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 父级切换年份时跟随刷新
+    if (widget.year != null && widget.year != _selectedYear) {
+      setState(() => _selectedYear = widget.year!);
+      _loadYearStats();
+    }
   }
 
   Future<void> _loadYearStats() async {
@@ -37,7 +52,8 @@ class _YearSummaryState extends State<YearSummary> {
 
     if (mounted) {
       setState(() {
-        _monthlyData = (data['monthlyData'] as List).cast<Map<String, dynamic>>();
+        _monthlyData =
+            (data['monthlyData'] as List).cast<Map<String, dynamic>>();
         _expenseCategories = (data['categories'] as List)
             .cast<Map<String, dynamic>>()
             .where((c) => c['type'] == 'expense')
@@ -61,7 +77,8 @@ class _YearSummaryState extends State<YearSummary> {
                 SizedBox(height: DS.sm),
                 // 年度分类明细
                 _buildYearCategoryBreakdown(),
-                SizedBox(height: DS.sm),
+                // 玻璃模式底部留白：避免内容被浮动玻璃底栏盖住
+                SizedBox(height: DS.sm + glassBottomInset(context)),
               ],
             ),
           );
@@ -85,7 +102,7 @@ class _YearSummaryState extends State<YearSummary> {
                 color: DS.background,
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.chevron_left, size: 24, color: DS.primaryContainer),
+              child: Icon(Icons.chevron_left, size: 24, color: DS.emphasis),
             ),
           ),
           SizedBox(width: 16),
@@ -125,7 +142,7 @@ class _YearSummaryState extends State<YearSummary> {
                 Icons.chevron_right,
                 size: 24,
                 color: _selectedYear < DateTime.now().year
-                    ? DS.primaryContainer
+                    ? DS.emphasis
                     : DS.outline,
               ),
             ),
@@ -137,48 +154,61 @@ class _YearSummaryState extends State<YearSummary> {
 
   void _pickYear() {
     int tempYear = _selectedYear;
-    showDialog(
+    showGlassDialog(
       context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setState) {
-          return AlertDialog(
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.chevron_left),
-                  onPressed: () => setState(() => tempYear--),
-                ),
-                Text(
-                  '$tempYear 年',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                ),
-                IconButton(
-                  icon: Icon(Icons.chevron_right),
-                  onPressed: tempYear < DateTime.now().year
-                      ? () => setState(() => tempYear++)
-                      : null,
-                ),
-              ],
-            ),
-            content: Text('选择年份查看年度总结', textAlign: TextAlign.center),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: Text('取消'),
+      maxWidth: 300,
+      content: StatefulBuilder(
+        builder: (ctx, setDialogState) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.chevron_left, color: DS.onSurface),
+                    onPressed: () => setDialogState(() => tempYear--),
+                  ),
+                  Text(
+                    '$tempYear 年',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: DS.onSurface,
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.chevron_right, color: DS.onSurface),
+                    onPressed: tempYear < DateTime.now().year
+                        ? () => setDialogState(() => tempYear++)
+                        : null,
+                  ),
+                ],
               ),
-              TextButton(
-                onPressed: () {
-                  setState(() => _selectedYear = tempYear);
-                  Navigator.pop(ctx);
-                  _loadYearStats();
-                },
-                child: Text('确认', style: TextStyle(color: DS.primary)),
+              Text(
+                '选择年份查看年度总结',
+                textAlign: TextAlign.center,
+                style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
               ),
             ],
           );
         },
       ),
+      buildActions: (ctx) => [
+        GlassDialogButton(
+          label: '取消',
+          onPressed: () => Navigator.pop(ctx),
+        ),
+        GlassDialogButton(
+          label: '确认',
+          isPrimary: true,
+          onPressed: () {
+            setState(() => _selectedYear = tempYear);
+            Navigator.pop(ctx);
+            _loadYearStats();
+          },
+        ),
+      ],
     );
   }
 
@@ -208,7 +238,7 @@ class _YearSummaryState extends State<YearSummary> {
         children: [
           Row(
             children: [
-              Icon(Icons.bar_chart, size: 18, color: DS.primary),
+              Icon(Icons.bar_chart, size: 18, color: DS.emphasis),
               SizedBox(width: 6),
               Text(
                 '月度趋势',
@@ -242,13 +272,22 @@ class _YearSummaryState extends State<YearSummary> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        // 金额标签（仅有数据时显示）
-                        if (hasData)
+                        // 金额标签：支出/收入两柱各一行（原仅支出一行）
+                        if (expense > 0)
                           Text(
                             _formatCompact(expense),
                             style: TextStyle(
                               fontSize: 8,
-                              color: DS.primaryContainer,
+                              color: DS.chartExpense,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        if (income > 0)
+                          Text(
+                            _formatCompact(income),
+                            style: TextStyle(
+                              fontSize: 8,
+                              color: DS.chartIncome,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -263,7 +302,7 @@ class _YearSummaryState extends State<YearSummary> {
                               height: hasData ? barHeight * expenseRatio : 2,
                               decoration: BoxDecoration(
                                 color: hasData
-                                    ? DS.primaryContainer
+                                    ? DS.chartExpense
                                     : DS.outlineVariant,
                                 borderRadius: BorderRadius.circular(2),
                               ),
@@ -274,7 +313,7 @@ class _YearSummaryState extends State<YearSummary> {
                               height: hasData ? barHeight * incomeRatio : 2,
                               decoration: BoxDecoration(
                                 color: hasData
-                                    ? DS.secondary
+                                    ? DS.chartIncome
                                     : DS.outlineVariant,
                                 borderRadius: BorderRadius.circular(2),
                               ),
@@ -286,9 +325,7 @@ class _YearSummaryState extends State<YearSummary> {
                           '${i + 1}',
                           style: TextStyle(
                             fontSize: 10,
-                            color: isCurrentMonth
-                                ? DS.primary
-                                : DS.outline,
+                            color: isCurrentMonth ? DS.emphasis : DS.outline,
                             fontWeight: isCurrentMonth
                                 ? FontWeight.w600
                                 : FontWeight.normal,
@@ -305,13 +342,15 @@ class _YearSummaryState extends State<YearSummary> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(width: 10, height: 10, color: DS.primaryContainer),
+              Container(width: 10, height: 10, color: DS.chartExpense),
               SizedBox(width: 4),
-              Text('支出', style: TextStyle(fontSize: 11)),
+              Text('支出',
+                  style: TextStyle(fontSize: 11, color: DS.onSurfaceVariant)),
               SizedBox(width: 16),
-              Container(width: 10, height: 10, color: DS.secondary),
+              Container(width: 10, height: 10, color: DS.chartIncome),
               SizedBox(width: 4),
-              Text('收入', style: TextStyle(fontSize: 11)),
+              Text('收入',
+                  style: TextStyle(fontSize: 11, color: DS.onSurfaceVariant)),
             ],
           ),
         ],
@@ -323,7 +362,8 @@ class _YearSummaryState extends State<YearSummary> {
     if (_expenseCategories.isEmpty) return const SizedBox.shrink();
 
     // 计算百分比
-    final total = _expenseCategories.fold(0.0, (s, c) => s + (c['amount'] as double));
+    final total =
+        _expenseCategories.fold(0.0, (s, c) => s + (c['amount'] as double));
     final categoriesWithPercent = _expenseCategories.map((c) {
       return {
         ...c,
@@ -340,7 +380,7 @@ class _YearSummaryState extends State<YearSummary> {
         children: [
           Row(
             children: [
-              Icon(Icons.bar_chart, size: 18, color: DS.primary),
+              Icon(Icons.bar_chart, size: 18, color: DS.emphasis),
               SizedBox(width: 6),
               Text(
                 '年度支出分类 Top ${categoriesWithPercent.length > 5 ? 5 : categoriesWithPercent.length}',

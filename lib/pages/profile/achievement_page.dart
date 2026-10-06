@@ -7,6 +7,8 @@ import '../../services/database_service.dart';
 import '../../theme/app_design_system.dart';
 import '../../theme/app_theme.dart';
 import '../../../providers/theme_provider.dart';
+import '../../../widgets/glass_dialog_shell.dart';
+import '../../widgets/glass_sub_page_bar.dart';
 
 class AchievementPage extends StatefulWidget {
   const AchievementPage({super.key});
@@ -51,7 +53,8 @@ class _AchievementPageState extends State<AchievementPage> {
     if (hasBudget) {
       final now = DateTime.now();
       final monthStr = '${now.year}-${now.month.toString().padLeft(2, '0')}';
-      final stats = await db.getMonthStatistics(monthStr, bookId: appProvider.currentBookId);
+      final stats = await db.getMonthStatistics(monthStr,
+          bookId: appProvider.currentBookId);
       final expense = (stats['expense'] ?? 0.0) as double;
       expenseRatio = (expense / budget) * 100;
     }
@@ -81,20 +84,15 @@ class _AchievementPageState extends State<AchievementPage> {
 
         return Scaffold(
           backgroundColor: DS.background,
-          appBar: AppBar(
-            title: Text(
-              '成就徽章  ${unlockedIds.length}/${AchievementDefinitions.all.length}',
-            ),
-            backgroundColor: DS.surfaceContainerLowest,
-            foregroundColor: DS.onSurface,
-            elevation: 0,
+          appBar: GlassSubPageBar(
+            title:
+                '成就徽章  ${unlockedIds.length}/${AchievementDefinitions.all.length}',
           ),
           body: _loading
               ? const Center(child: CircularProgressIndicator())
               : GridView.builder(
                   padding: EdgeInsets.all(DS.gutter),
-                  gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 4,
                     crossAxisSpacing: DS.base,
                     mainAxisSpacing: DS.base,
@@ -103,8 +101,7 @@ class _AchievementPageState extends State<AchievementPage> {
                   itemCount: AchievementDefinitions.all.length,
                   itemBuilder: (context, index) {
                     final achievement = AchievementDefinitions.all[index];
-                    final isUnlocked =
-                        unlockedIds.contains(achievement.id);
+                    final isUnlocked = unlockedIds.contains(achievement.id);
                     final progress = _calcProgress(
                       achievement: achievement,
                       isUnlocked: isUnlocked,
@@ -240,9 +237,7 @@ class _AchievementCard extends StatelessWidget {
                   achievement.emoji,
                   style: TextStyle(
                     fontSize: 18,
-                    color: isUnlocked
-                        ? Colors.black
-                        : Colors.grey.shade400,
+                    color: isUnlocked ? Colors.black : Colors.grey.shade400,
                   ),
                 ),
               ),
@@ -255,9 +250,7 @@ class _AchievementCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
-                color: isUnlocked
-                    ? DS.onSurface
-                    : DS.outline,
+                color: isUnlocked ? DS.onSurface : DS.outline,
               ),
             ),
             SizedBox(height: 2),
@@ -282,9 +275,7 @@ class _AchievementCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 9,
                 fontWeight: FontWeight.w600,
-                color: isUnlocked
-                    ? AppTheme.success
-                    : DS.onSurfaceVariant,
+                color: isUnlocked ? AppTheme.success : DS.onSurfaceVariant,
               ),
             ),
           ],
@@ -295,105 +286,106 @@ class _AchievementCard extends StatelessWidget {
 
   void _showDetail(BuildContext context) {
     final percent = (progress * 100).toInt();
-    showDialog(
+    showGlassDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Text(achievement.emoji,
-                style: TextStyle(fontSize: 28)),
-            SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    achievement.title,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+      maxWidth: 320,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(achievement.emoji, style: const TextStyle(fontSize: 28)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      achievement.title,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: DS.onSurface,
+                      ),
                     ),
-                  ),
-                  Text(
-                    isUnlocked ? '✅ 已解锁' : '🔒 未解锁 ($percent%)',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: isUnlocked
-                          ? AppTheme.success
-                          : DS.outline,
+                    Text(
+                      isUnlocked ? '✅ 已解锁' : '🔒 未解锁 ($percent%)',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isUnlocked ? AppTheme.success : DS.outline,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
+            ],
+          ),
+          const SizedBox(height: DS.base),
+          Text(
+            '达成条件：',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: DS.onSurface,
             ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          ),
+          const SizedBox(height: 8),
+          Text(
+            achievement.description,
+            style: TextStyle(fontSize: 14, color: DS.onSurface),
+          ),
+          if (!isUnlocked) ...[
+            const SizedBox(height: 16),
             Text(
-              '达成条件：',
+              '当前进度：',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
+                color: DS.onSurface,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(DS.radiusFull),
+              child: LinearProgressIndicator(
+                value: progress,
+                minHeight: 8,
+                backgroundColor: DS.surfaceContainerLow,
+                valueColor: AlwaysStoppedAnimation<Color>(DS.emphasis),
+              ),
+            ),
+            const SizedBox(height: 4),
             Text(
-              achievement.description,
-              style: TextStyle(fontSize: 14),
+              '$percent%',
+              style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
             ),
-            if (!isUnlocked) ...[
-              SizedBox(height: 16),
-              Text(
-                '当前进度：',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              SizedBox(height: 8),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(DS.radiusFull),
-                child: LinearProgressIndicator(
-                  value: progress,
-                  minHeight: 8,
-                  backgroundColor: DS.surfaceContainerLow,
-                  valueColor:
-                      AlwaysStoppedAnimation<Color>(DS.onSurface),
-                ),
-              ),
-              SizedBox(height: 4),
-              Text(
-                '$percent%',
-                style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
-              ),
-            ],
-            if (isUnlocked && achievement.unlockedAt != null) ...[
-              SizedBox(height: 16),
-              Text(
-                '解锁时间：',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              SizedBox(height: 4),
-              Text(
-                '${achievement.unlockedAt!.year}年${achievement.unlockedAt!.month}月${achievement.unlockedAt!.day}日',
-                style: DS.labelMd.copyWith(color: DS.onSurfaceVariant),
-              ),
-            ],
           ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('知道了'),
-          ),
+          if (isUnlocked && achievement.unlockedAt != null) ...[
+            const SizedBox(height: 16),
+            Text(
+              '解锁时间：',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: DS.onSurface,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '${achievement.unlockedAt!.year}年${achievement.unlockedAt!.month}月${achievement.unlockedAt!.day}日',
+              style: DS.labelMd.copyWith(color: DS.onSurfaceVariant),
+            ),
+          ],
         ],
       ),
+      buildActions: (ctx) => [
+        GlassDialogButton(
+          label: '知道了',
+          isPrimary: true,
+          onPressed: () => Navigator.pop(ctx),
+        ),
+      ],
     );
   }
 }

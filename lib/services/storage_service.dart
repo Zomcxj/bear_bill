@@ -40,6 +40,12 @@ class StorageService {
         if (parsed != null) _cache['themeDarkMode'] = parsed;
       }
 
+      final liquidGlass = await _loadFromFile('liquidGlassEnabled');
+      if (liquidGlass != null) {
+        final parsed = int.tryParse(liquidGlass);
+        if (parsed != null) _cache['liquidGlassEnabled'] = parsed;
+      }
+
       final reminderHour = await _loadFromFile('reminderHour');
       if (reminderHour != null) _cache['reminderHour'] = reminderHour;
 

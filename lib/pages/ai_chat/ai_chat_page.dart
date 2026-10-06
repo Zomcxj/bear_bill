@@ -13,6 +13,7 @@ import 'ai_chat_location_mixin.dart';
 import 'ai_chat_query_mixin.dart';
 import 'widgets/chat_bubble.dart';
 import 'widgets/chat_input_bar.dart';
+import '../../widgets/glass_sub_page_bar.dart';
 
 /// AI 对话式记账页面
 class AiChatPage extends StatefulWidget {
@@ -56,7 +57,8 @@ class _AiChatPageState extends State<AiChatPage>
   void _addWelcomeMessage() {
     _messages.add(const ChatMessage(
       id: 'welcome',
-      text: '你好！我是小熊记账助手 🐻\n\n你可以直接告诉我消费内容，比如：\n• "午餐花了25"\n• "昨天打车18元"\n• "前天奶茶12"\n• "工资收入8000"\n\n也可以说分类名，我会追问金额：\n• "交通"、"购物"、"餐饮"\n\n或者问我：\n• "这个月花了多少"\n• "餐饮这个月花了多少"\n• "开心时候的消费"\n• "在星巴克的记录"\n• "6月1号到10号的账单"',
+      text:
+          '你好！我是小熊记账助手 🐻\n\n你可以直接告诉我消费内容，比如：\n• "午餐花了25"\n• "昨天打车18元"\n• "前天奶茶12"\n• "工资收入8000"\n\n也可以说分类名，我会追问金额：\n• "交通"、"购物"、"餐饮"\n\n或者问我：\n• "这个月花了多少"\n• "餐饮这个月花了多少"\n• "开心时候的消费"\n• "在星巴克的记录"\n• "6月1号到10号的账单"',
       isUser: false,
     ));
   }
@@ -137,7 +139,8 @@ class _AiChatPageState extends State<AiChatPage>
       } else if (result.isQuery) {
         await _handleQueryResult(result);
       } else {
-        _addBotMessage('抱歉，我没有理解你的意思 😅\n\n试试这样说：\n• "午餐花了25"\n• "打车18元"\n• "交通"（然后告诉我金额）');
+        _addBotMessage(
+            '抱歉，我没有理解你的意思 😅\n\n试试这样说：\n• "午餐花了25"\n• "打车18元"\n• "交通"（然后告诉我金额）');
       }
     } catch (e) {
       _addBotMessage('出了点问题，请稍后再试 😢', type: ChatMessageType.error);
@@ -181,7 +184,8 @@ class _AiChatPageState extends State<AiChatPage>
     await handleQueryResult(result);
   }
 
-  void _addBotMessage(String text, {ChatMessageType type = ChatMessageType.text}) {
+  void _addBotMessage(String text,
+      {ChatMessageType type = ChatMessageType.text}) {
     setState(() {
       _messages.add(ChatMessage(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -271,7 +275,8 @@ class _AiChatPageState extends State<AiChatPage>
     achievements.addAll(checkInAchievements);
 
     String dateLabel = '';
-    if (finalDateStr != '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}') {
+    if (finalDateStr !=
+        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}') {
       try {
         final d = DateTime.parse(finalDateStr);
         dateLabel = d.year == now.year
@@ -374,30 +379,7 @@ class _AiChatPageState extends State<AiChatPage>
     context.watch<ThemeProvider>(); // theme rebuild
     return Scaffold(
       backgroundColor: DS.background,
-      appBar: AppBar(
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('🐻', style: TextStyle(fontSize: 20)),
-            SizedBox(width: 8),
-            Text(
-              'AI 记账',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: DS.heroGradientBlueCurrent,
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
+      appBar: const GlassSubPageBar(title: '🐻 AI 记账'),
       body: Column(
         children: [
           // 提示条
@@ -408,7 +390,8 @@ class _AiChatPageState extends State<AiChatPage>
               color: DS.surfaceContainerHigh,
               child: Row(
                 children: [
-                  Icon(Icons.info_outline, size: 14, color: DS.primaryContainer),
+                  Icon(Icons.info_outline,
+                      size: 14, color: DS.primaryContainer),
                   SizedBox(width: 6),
                   Expanded(
                     child: Text(
@@ -432,8 +415,7 @@ class _AiChatPageState extends State<AiChatPage>
                 if (index == _messages.length) {
                   // 加载指示器
                   return Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Row(
                       children: [
                         Container(

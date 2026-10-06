@@ -1,10 +1,15 @@
 ﻿import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
+    show GlassDialog, GlassDialogAction, GlassQuality;
 import 'package:uuid/uuid.dart';
 
 import '../../../models/models.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../theme/glass_materials.dart';
 import '../../../providers/theme_provider.dart';
+import '../../../widgets/glass_date_picker.dart';
+import '../../../widgets/glass_dialog_shell.dart';
 import 'package:provider/provider.dart';
 
 /// 创建心愿对话框
@@ -65,223 +70,232 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
   @override
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>(); // theme rebuild
-    return AlertDialog(
-      title: Text('✨ 创建新心愿'),
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 快速模板
-              Text(
-                '快速选择：',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: DS.onSurfaceVariant,
-                ),
+
+    final form = SingleChildScrollView(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 快速模板
+            Text(
+              '快速选择：',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: DS.onSurfaceVariant,
               ),
-              SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _templates.map((tpl) {
-                  return GestureDetector(
-                    onTap: () => _selectTemplate(tpl),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: DS.surfaceContainerLow,
-                        borderRadius: BorderRadius.circular(DS.radiusFull),
-                        border: Border.all(color: DS.outlineVariant),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(tpl['emoji'],
-                              style: TextStyle(fontSize: 16)),
-                          SizedBox(width: 4),
-                          Text(
-                            tpl['name'],
-                            style: TextStyle(fontSize: 12),
-                          ),
-                        ],
-                      ),
+            ),
+            SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _templates.map((tpl) {
+                return GestureDetector(
+                  onTap: () => _selectTemplate(tpl),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
                     ),
-                  );
-                }).toList(),
-              ),
-
-              SizedBox(height: DS.gutter),
-
-              // 心愿名称
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: '心愿名称',
-                  hintText: '例如：买一台新手机',
-                  prefixIcon: Icon(Icons.title),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return '请输入心愿名称';
-                  }
-                  return null;
-                },
-              ),
-
-              SizedBox(height: DS.base),
-
-              // 心愿描述（可选）
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: '描述（选填）',
-                  hintText: '添加一些备注',
-                  prefixIcon: Icon(Icons.description),
-                ),
-                maxLines: 2,
-              ),
-
-              SizedBox(height: DS.base),
-
-              // 心愿金额
-              TextFormField(
-                controller: _amountController,
-                decoration: const InputDecoration(
-                  labelText: '心愿金额',
-                  hintText: '例如：5000',
-                  prefixIcon: Icon(Icons.attach_money),
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return '请输入心愿金额';
-                  }
-                  final amount = double.tryParse(value);
-                  if (amount == null || amount <= 0) {
-                    return '请输入有效金额';
-                  }
-                  return null;
-                },
-              ),
-
-              SizedBox(height: DS.base),
-
-              // 截止日期
-              GestureDetector(
-                onTap: () async {
-                  DateTime tempDate = _deadline ?? DateTime.now().add(const Duration(days: 30));
-                  final picked = await showCupertinoModalPopup<DateTime>(
-                    context: context,
-                    builder: (context) => Container(
-                      height: 320,
-                      color: DS.surfaceContainerLowest,
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              CupertinoButton(
-                                child: Text('取消'),
-                                onPressed: () => Navigator.pop(context),
-                              ),
-                              CupertinoButton(
-                                child: Text('确定', style: TextStyle(fontWeight: FontWeight.w600)),
-                                onPressed: () => Navigator.pop(context, tempDate),
-                              ),
-                            ],
-                          ),
-                          Expanded(
-                            child: CupertinoDatePicker(
-                              mode: CupertinoDatePickerMode.date,
-                              initialDateTime: _deadline ?? DateTime.now().add(const Duration(days: 30)),
-                              minimumDate: DateTime.now(),
-                              maximumDate: DateTime.now().add(const Duration(days: 365)),
-                              onDateTimeChanged: (date) => tempDate = date,
-                            ),
-                          ),
-                        ],
-                      ),
+                    decoration: BoxDecoration(
+                      color: shouldUseLiquidGlass(context)
+                          ? (DS.isDark
+                              ? Colors.white.withOpacity(0.10)
+                              : Colors.white.withOpacity(0.50))
+                          : DS.surfaceContainerLow,
+                      borderRadius: BorderRadius.circular(DS.radiusFull),
+                      border: Border.all(color: DS.outlineVariant),
                     ),
-                  );
-                  if (picked != null) {
-                    setState(() {
-                      _deadline = picked;
-                    });
-                  }
-                },
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: DS.sm,
-                    vertical: DS.base,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(tpl['emoji'], style: TextStyle(fontSize: 16)),
+                        SizedBox(width: 4),
+                        Text(
+                          tpl['name'],
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      ],
+                    ),
                   ),
-                  decoration: BoxDecoration(
-                    color: DS.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(DS.radiusSm),
-                    border: Border.all(color: DS.outlineVariant),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.calendar_today,
-                          size: 18, color: DS.primary),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          _deadline != null
-                              ? '截止：${_deadline!.year}年${_deadline!.month}月${_deadline!.day}日'
-                              : '选择截止日期（选填）',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: _deadline != null
-                                ? DS.onSurface
-                                : DS.onSurfaceVariant,
-                          ),
+                );
+              }).toList(),
+            ),
+
+            SizedBox(height: DS.gutter),
+
+            // 心愿名称
+            TextFormField(
+              controller: _titleController,
+              decoration: glassDialogInputDecoration(
+                context,
+                labelText: '心愿名称',
+                hintText: '例如：买一台新手机',
+                prefixIcon: const Icon(Icons.title),
+              ),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return '请输入心愿名称';
+                }
+                return null;
+              },
+            ),
+
+            SizedBox(height: DS.base),
+
+            // 心愿描述（可选）
+            TextFormField(
+              controller: _descriptionController,
+              decoration: glassDialogInputDecoration(
+                context,
+                labelText: '描述（选填）',
+                hintText: '添加一些备注',
+                prefixIcon: const Icon(Icons.description),
+              ),
+              maxLines: 2,
+            ),
+
+            SizedBox(height: DS.base),
+
+            // 心愿金额
+            TextFormField(
+              controller: _amountController,
+              decoration: glassDialogInputDecoration(
+                context,
+                labelText: '心愿金额',
+                hintText: '例如：5000',
+                prefixIcon: const Icon(Icons.attach_money),
+              ),
+              keyboardType: TextInputType.number,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return '请输入心愿金额';
+                }
+                final amount = double.tryParse(value);
+                if (amount == null || amount <= 0) {
+                  return '请输入有效金额';
+                }
+                return null;
+              },
+            ),
+
+            SizedBox(height: DS.base),
+
+            // 截止日期
+            GestureDetector(
+              onTap: () async {
+                final picked = await showGlassDatePicker(
+                  context: context,
+                  initialDate:
+                      _deadline ?? DateTime.now().add(const Duration(days: 30)),
+                  minimumDate: DateTime.now(),
+                  maximumDate: DateTime.now().add(const Duration(days: 365)),
+                  title: '截止日期',
+                );
+                if (picked != null) {
+                  setState(() {
+                    _deadline = picked;
+                  });
+                }
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: DS.sm,
+                  vertical: DS.base,
+                ),
+                decoration: BoxDecoration(
+                  color: shouldUseLiquidGlass(context)
+                      ? (DS.isDark
+                          ? Colors.white.withOpacity(0.10)
+                          : Colors.white.withOpacity(0.50))
+                      : DS.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(DS.radiusSm),
+                  border: Border.all(color: DS.outlineVariant),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_today, size: 18, color: DS.emphasis),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _deadline != null
+                            ? '截止：${_deadline!.year}年${_deadline!.month}月${_deadline!.day}日'
+                            : '选择截止日期（选填）',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: _deadline != null
+                              ? DS.onSurface
+                              : DS.onSurfaceVariant,
                         ),
                       ),
-                      if (_deadline != null)
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _deadline = null;
-                            });
-                          },
-                          child: Icon(Icons.clear,
-                              size: 18, color: DS.outline),
-                        ),
-                    ],
-                  ),
+                    ),
+                    if (_deadline != null)
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _deadline = null;
+                          });
+                        },
+                        child: Icon(Icons.clear, size: 18, color: DS.outline),
+                      ),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('取消'),
-        ),
-        ElevatedButton(
-          onPressed: _createWish,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: DS.primary,
-            padding: EdgeInsets.symmetric(
-              horizontal: DS.md,
-              vertical: DS.base,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(DS.radiusFull),
-            ),
+    );
+
+    final actions = [
+      GlassDialogAction(
+        label: '取消',
+        onPressed: () => Navigator.pop(context),
+      ),
+      GlassDialogAction(
+        label: '创建',
+        isPrimary: true,
+        onPressed: _createWish,
+      ),
+    ];
+
+    if (!shouldUseLiquidGlass(context)) {
+      return AlertDialog(
+        title: Text('✨ 创建新心愿'),
+        content: form,
+        actions: [
+          TextButton(
+            onPressed: actions[0].onPressed,
+            child: Text(actions[0].label),
           ),
-          child: Text('创建'),
-        ),
-      ],
+          ElevatedButton(
+            onPressed: actions[1].onPressed,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: DS.primary,
+              padding: EdgeInsets.symmetric(
+                horizontal: DS.md,
+                vertical: DS.base,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(DS.radiusFull),
+              ),
+            ),
+            child: Text(actions[1].label),
+          ),
+        ],
+      );
+    }
+
+    // 开启液态玻璃：官方 GlassDialog（真玻璃材质 + 交互光晕）
+    return GlassDialog(
+      title: '✨ 创建新心愿',
+      content: form,
+      maxWidth: 340,
+      quality: GlassQuality.standard,
+      settings: GlassMaterials.bar(),
+      actions: actions,
     );
   }
 

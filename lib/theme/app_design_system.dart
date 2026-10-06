@@ -135,6 +135,25 @@ class DS {
       ? const Color(0xFFFFB4AB)
       : const Color(0xFFBA1A1A);
 
+  // ── 图表色（动态） ──
+  // 常量 primary/primaryContainer 是近黑色，深色模式下画在黑底上不可见，
+  // 图表一律用下面这组动态色。
+  /// 图表「支出」色：浅色近黑（沿用原设计），深色浅红（黑底可读）
+  static Color get chartExpense => _isDark
+      ? const Color(0xFFFFB4AB)
+      : const Color(0xFF1B1B1B);
+
+  /// 图表「收入」色：浅色深蓝，深色亮蓝
+  static Color get chartIncome => _isDark
+      ? const Color(0xFF40C2FD)
+      : const Color(0xFF00668A);
+
+  /// 强调前景（动态）：浅色近黑、深色近白。
+  /// 用于「选中态」文字/边框，替代常量 primary/primaryContainer。
+  static Color get emphasis => _isDark
+      ? const Color(0xFFE8E8EC)
+      : const Color(0xFF1B1B1B);
+
   // ── 毛玻璃装饰 ──
   static BoxDecoration get glassDecoration => BoxDecoration(
     color: _isDark ? Colors.white.withOpacity(0.06) : Colors.white.withOpacity(0.7),

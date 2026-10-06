@@ -8,6 +8,7 @@ import 'package:latlong2/latlong.dart';
 
 import '../../../services/amap_location_service.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../widgets/glass_dialog_shell.dart';
 import 'map_picker_page.dart';
 
 /// 位置选择结果
@@ -170,43 +171,42 @@ mixin LocationHelper<T extends StatefulWidget> on State<T> {
   /// 注意：动作必须在对话框关闭后执行，不能在 onTap 里 pop 后再赋值，
   /// 否则 showDialog 的 future 先完成，外层拿到的是 null（竞态丢失结果）
   Future<LocationResult?> showLocationDialog() async {
-    final choice = await showDialog<String>(
+    final choice = await showGlassDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('📍 添加位置'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: Icon(Icons.edit_location, color: DS.primary),
-              title: Text('手动输入'),
-              subtitle: Text('直接输入地点名称'),
-              onTap: () => Navigator.pop(context, 'manual'),
-            ),
-            Divider(height: 1),
-            ListTile(
-              leading:
-                  Icon(Icons.my_location, color: DS.secondaryContainer),
-              title: Text('GPS定位'),
-              subtitle: Text('获取当前设备位置'),
-              onTap: () => Navigator.pop(context, 'gps'),
-            ),
-            Divider(height: 1),
-            ListTile(
-              leading: Icon(Icons.map, color: DS.secondary),
-              title: Text('地图选点'),
-              subtitle: Text('打开地图搜索和选择位置'),
-              onTap: () => Navigator.pop(context, 'map'),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('取消'),
+      title: '📍 添加位置',
+      maxWidth: 320,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: Icon(Icons.edit_location, color: DS.emphasis),
+            title: Text('手动输入'),
+            subtitle: Text('直接输入地点名称'),
+            onTap: () => Navigator.pop(context, 'manual'),
+          ),
+          Divider(height: 1),
+          ListTile(
+            leading:
+                Icon(Icons.my_location, color: DS.secondaryContainer),
+            title: Text('GPS定位'),
+            subtitle: Text('获取当前设备位置'),
+            onTap: () => Navigator.pop(context, 'gps'),
+          ),
+          Divider(height: 1),
+          ListTile(
+            leading: Icon(Icons.map, color: DS.secondary),
+            title: Text('地图选点'),
+            subtitle: Text('打开地图搜索和选择位置'),
+            onTap: () => Navigator.pop(context, 'map'),
           ),
         ],
       ),
+      buildActions: (ctx) => [
+        GlassDialogButton(
+          label: '取消',
+          onPressed: () => Navigator.pop(ctx),
+        ),
+      ],
     );
 
     switch (choice) {
@@ -224,31 +224,29 @@ mixin LocationHelper<T extends StatefulWidget> on State<T> {
   Future<LocationResult?> showManualInputDialog({String? current}) async {
     final controller = TextEditingController(text: current ?? '');
     String? name;
-    await showDialog(
+    await showGlassDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('输入位置'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(
-            hintText: '输入地点、地址或门店名',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('取消'),
-          ),
-          TextButton(
-            onPressed: () {
-              name = controller.text.trim();
-              Navigator.pop(context);
-            },
-            child: Text('保存', style: TextStyle(color: DS.primary)),
-          ),
-        ],
+      title: '输入位置',
+      maxWidth: 320,
+      content: GlassDialogField(
+        controller: controller,
+        autofocus: true,
+        hintText: '输入地点、地址或门店名',
       ),
+      buildActions: (ctx) => [
+        GlassDialogButton(
+          label: '取消',
+          onPressed: () => Navigator.pop(ctx),
+        ),
+        GlassDialogButton(
+          label: '保存',
+          isPrimary: true,
+          onPressed: () {
+            name = controller.text.trim();
+            Navigator.pop(ctx);
+          },
+        ),
+      ],
     );
     if (name != null && name!.isNotEmpty) {
       return LocationResult(name: name);

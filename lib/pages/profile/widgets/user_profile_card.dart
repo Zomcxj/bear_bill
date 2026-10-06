@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 import '../../../providers/app_provider.dart';
 import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
+import '../../../theme/glass_materials.dart';
+import '../../../widgets/glass_dialog_shell.dart';
 import '../../multi_book/multi_book_page.dart';
 import '../../../providers/theme_provider.dart';
 
@@ -77,207 +79,210 @@ class UserProfileCard extends StatelessWidget {
                 ),
               ),
               Column(
-                  children: [
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () => _pickAvatar(context),
-                          child: Container(
-                            width: 50,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.25),
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.white.withOpacity(0.4),
-                                width: 2,
-                              ),
-                              image: user.avatar.isNotEmpty
-                                  ? DecorationImage(
-                                      image: FileImage(File(user.avatar)),
-                                      fit: BoxFit.cover,
-                                    )
-                                  : null,
+                children: [
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => _pickAvatar(context),
+                        child: Container(
+                          width: 50,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.25),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.4),
+                              width: 2,
                             ),
-                            child: user.avatar.isNotEmpty
-                                ? null
-                                : Center(
-                                    child: Text(
-                                      levelInfo['emoji'],
-                                      style: TextStyle(fontSize: 26),
-                                    ),
-                                  ),
+                            image: user.avatar.isNotEmpty
+                                ? DecorationImage(
+                                    image: FileImage(File(user.avatar)),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
                           ),
-                        ),
-                        SizedBox(width: DS.base),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                user.nickname,
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppTheme.heroTextMain,
-                                  shadows: [
-                                    Shadow(
-                                      color: Color(0x26000000),
-                                      offset: Offset(0, 1),
-                                      blurRadius: 2,
-                                    ),
-                                  ],
+                          child: user.avatar.isNotEmpty
+                              ? null
+                              : Center(
+                                  child: Text(
+                                    levelInfo['emoji'],
+                                    style: TextStyle(fontSize: 26),
+                                  ),
                                 ),
-                              ),
-                              SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.25),
-                                      borderRadius:
-                                          BorderRadius.circular(DS.radiusFull),
-                                    ),
-                                    child: Text(
-                                      'Lv.${user.level} ${levelInfo['name']}',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppTheme.heroTextMain,
-                                      ),
-                                    ),
+                        ),
+                      ),
+                      SizedBox(width: DS.base),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              user.nickname,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.heroTextMain,
+                                shadows: [
+                                  Shadow(
+                                    color: Color(0x26000000),
+                                    offset: Offset(0, 1),
+                                    blurRadius: 2,
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: DS.sm),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              '经验值',
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: AppTheme.heroTextSub,
-                              ),
                             ),
-                            Text(
-                              '${user.exp} / $nextLevelExp',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: AppTheme.heroTextMain,
-                              ),
+                            SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.25),
+                                    borderRadius:
+                                        BorderRadius.circular(DS.radiusFull),
+                                  ),
+                                  child: Text(
+                                    'Lv.${user.level} ${levelInfo['name']}',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppTheme.heroTextMain,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                        SizedBox(height: 4),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(DS.radiusFull),
-                          child: LinearProgressIndicator(
-                            value: user.expProgress,
-                            backgroundColor: Colors.white.withOpacity(0.2),
-                            valueColor: const AlwaysStoppedAnimation<Color>(
-                              Colors.white,
-                            ),
-                            minHeight: 6,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: DS.sm),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(DS.radiusSm),
                       ),
-                      padding: EdgeInsets.symmetric(vertical: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    ],
+                  ),
+                  SizedBox(height: DS.sm),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _buildStatItem(Icons.edit_note, '$totalRecords', '记账次数',
-                              onTap: onRecordTap),
-                          _buildStatItem(Icons.local_fire_department, '${appProvider.checkInDays}', '连续打卡',
-                              onTap: () => _showCheckInInfo(context, appProvider)),
-                          _buildStatItem(Icons.book, '$totalBooks', '账本数',
-                              onTap: () => _showBookManagement(context)),
+                          Text(
+                            '经验值',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: AppTheme.heroTextSub,
+                            ),
+                          ),
+                          Text(
+                            '${user.exp} / $nextLevelExp',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.heroTextMain,
+                            ),
+                          ),
                         ],
                       ),
-                    ),
-                    SizedBox(height: DS.base),
-                    if (!appProvider.todayChecked)
-                      GestureDetector(
-                        onTap: () async {
-                          final achievements =
-                              await appProvider.recordCheckIn();
-                          if (achievements.isNotEmpty && context.mounted) {
-                            _showAchievementDialog(context, achievements);
-                          }
-                        },
-                        child: Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.symmetric(vertical: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.25),
-                            borderRadius: BorderRadius.circular(DS.radiusFull),
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.4),
-                            ),
+                      SizedBox(height: 4),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(DS.radiusFull),
+                        child: LinearProgressIndicator(
+                          value: user.expProgress,
+                          backgroundColor: Colors.white.withOpacity(0.2),
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                            Colors.white,
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.local_fire_department, size: 18, color: AppTheme.heroTextMain),
-                              SizedBox(width: 6),
-                              Text(
-                                '今日打卡',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppTheme.heroTextMain,
-                                ),
-                              ),
-                            ],
-                          ),
+                          minHeight: 6,
                         ),
-                      )
-                    else
-                      Container(
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: DS.sm),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(DS.radiusSm),
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _buildStatItem(Icons.edit_note, '$totalRecords', '记账次数',
+                            onTap: onRecordTap),
+                        _buildStatItem(Icons.local_fire_department,
+                            '${appProvider.checkInDays}', '连续打卡',
+                            onTap: () =>
+                                _showCheckInInfo(context, appProvider)),
+                        _buildStatItem(Icons.book, '$totalBooks', '账本数',
+                            onTap: () => _showBookManagement(context)),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: DS.base),
+                  if (!appProvider.todayChecked)
+                    GestureDetector(
+                      onTap: () async {
+                        final achievements = await appProvider.recordCheckIn();
+                        if (achievements.isNotEmpty && context.mounted) {
+                          _showAchievementDialog(context, achievements);
+                        }
+                      },
+                      child: Container(
                         width: double.infinity,
                         padding: EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.3),
+                          color: Colors.white.withOpacity(0.25),
                           borderRadius: BorderRadius.circular(DS.radiusFull),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.4),
+                          ),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.check_circle, size: 18, color: AppTheme.heroTextMain),
+                            Icon(Icons.local_fire_department,
+                                size: 18, color: AppTheme.heroTextMain),
                             SizedBox(width: 6),
                             Text(
-                              '今日已打卡',
+                              '今日打卡',
                               style: TextStyle(
                                 fontSize: 15,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w700,
                                 color: AppTheme.heroTextMain,
                               ),
                             ),
                           ],
                         ),
                       ),
-                  ],
-                ),
+                    )
+                  else
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(DS.radiusFull),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.check_circle,
+                              size: 18, color: AppTheme.heroTextMain),
+                          SizedBox(width: 6),
+                          Text(
+                            '今日已打卡',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.heroTextMain,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
             ],
           ),
         );
@@ -317,40 +322,35 @@ class UserProfileCard extends StatelessWidget {
   /// 显示打卡信息
   void _showCheckInInfo(BuildContext context, AppProvider appProvider) {
     final lastCheckIn = appProvider.user?.lastCheckIn ?? '';
-    showDialog(
+    showGlassDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.local_fire_department, color: DS.primary, size: 24),
-            SizedBox(width: 8),
-            Text('打卡记录'),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('连续打卡：${appProvider.checkInDays} 天'),
-            SizedBox(height: 8),
-            if (lastCheckIn.isNotEmpty)
-              Text('上次打卡：$lastCheckIn')
-            else
-              Text('暂无打卡记录'),
-            SizedBox(height: 12),
-            Text(
-              '每天记账即自动打卡，断签会重置连续天数。',
-              style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text('知道了'),
+      title: '打卡记录',
+      maxWidth: 320,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('连续打卡：${appProvider.checkInDays} 天',
+              style: DS.bodyMd.copyWith(color: DS.onSurface)),
+          const SizedBox(height: 8),
+          Text(
+            lastCheckIn.isNotEmpty ? '上次打卡：$lastCheckIn' : '暂无打卡记录',
+            style: DS.bodyMd.copyWith(color: DS.onSurface),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            '每天记账即自动打卡，断签会重置连续天数。',
+            style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
           ),
         ],
       ),
+      buildActions: (ctx) => [
+        GlassDialogButton(
+          label: '知道了',
+          isPrimary: true,
+          onPressed: () => Navigator.pop(ctx),
+        ),
+      ],
     );
   }
 
@@ -398,6 +398,7 @@ class UserProfileCard extends StatelessWidget {
 
   void _showAchievementDialog(
       BuildContext context, List<dynamic> achievements) {
+    final glass = shouldUseLiquidGlass(context);
     showDialog(
       context: context,
       barrierColor: Colors.black26,
@@ -408,10 +409,17 @@ class UserProfileCard extends StatelessWidget {
           margin: EdgeInsets.only(top: 60),
           padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           decoration: BoxDecoration(
-            color: DS.surfaceContainerLowest,
+            color: glass
+                ? (DS.isDark
+                    ? Colors.white.withOpacity(0.16)
+                    : Colors.white.withOpacity(0.80))
+                : DS.surfaceContainerLowest,
             borderRadius: BorderRadius.circular(DS.radiusMd),
             boxShadow: DS.shadowMd,
-            border: Border.all(color: DS.outlineVariant, width: 1.5),
+            border: Border.all(
+              color: glass ? Colors.white.withOpacity(0.30) : DS.outlineVariant,
+              width: 1.5,
+            ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -427,7 +435,7 @@ class UserProfileCard extends StatelessWidget {
                 children: [
                   Text(
                     '成就解锁！',
-                    style: DS.labelSm.copyWith(color: DS.outline),
+                    style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
                   ),
                   SizedBox(height: 2),
                   Text(

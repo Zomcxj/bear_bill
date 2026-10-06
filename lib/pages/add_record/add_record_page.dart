@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
+    show GlassSegment, GlassSegmentedControl;
 import 'package:provider/provider.dart';
 
 import '../../models/models.dart';
@@ -9,6 +11,9 @@ import '../../services/database_service.dart';
 import '../../services/image_service.dart';
 import '../../services/notification_service.dart';
 import '../../theme/app_design_system.dart';
+import '../../theme/glass_materials.dart';
+import '../../widgets/glass_date_picker.dart';
+import '../../widgets/glass_dialog_shell.dart';
 import '../../utils/utils.dart' as utils;
 import 'widgets/bottom_info_card.dart';
 import 'widgets/category_selector.dart';
@@ -292,30 +297,30 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
   }
 
   void _showAchievementDialog(List<dynamic> achievements) {
-    showDialog(
+    showGlassDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('🎉 解锁新成就！'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: achievements.map((a) {
-            return ListTile(
-              leading: Text(a.emoji, style: TextStyle(fontSize: 32)),
-              title: Text(a.title),
-              subtitle: Text(a.description),
-            );
-          }).toList(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              context.read<AppProvider>().clearNewAchievements();
-              Navigator.pop(context);
-            },
-            child: Text('太棒了！'),
-          ),
-        ],
+      title: '🎉 解锁新成就！',
+      maxWidth: 320,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: achievements.map((a) {
+          return ListTile(
+            leading: Text(a.emoji, style: TextStyle(fontSize: 32)),
+            title: Text(a.title),
+            subtitle: Text(a.description),
+          );
+        }).toList(),
       ),
+      buildActions: (ctx) => [
+        GlassDialogButton(
+          label: '太棒了！',
+          isPrimary: true,
+          onPressed: () {
+            context.read<AppProvider>().clearNewAchievements();
+            Navigator.pop(ctx);
+          },
+        ),
+      ],
     );
   }
 
@@ -364,51 +369,69 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
                   ),
                   SizedBox(height: DS.base),
                   // 支出/收入切换
-                  Container(
-                    padding: EdgeInsets.all(3),
-                    decoration: BoxDecoration(
-                      color: DS.heroCardBg,
-                      borderRadius: BorderRadius.circular(DS.radiusFull),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => _switchType('expense'),
-                            child: Container(
-                              padding: EdgeInsets.symmetric(vertical: DS.sm),
-                              decoration: BoxDecoration(
-                                color: _type == 'expense' ? DS.primary : Colors.transparent,
-                                borderRadius: BorderRadius.circular(DS.radiusFull),
-                              ),
-                              child: Center(
-                                child: Text('支出', style: DS.labelMd.copyWith(
-                                  color: _type == 'expense' ? DS.onPrimary : DS.onSurface,
-                                )),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => _switchType('income'),
-                            child: Container(
-                              padding: EdgeInsets.symmetric(vertical: DS.sm),
-                              decoration: BoxDecoration(
-                                color: _type == 'income' ? DS.primary : Colors.transparent,
-                                borderRadius: BorderRadius.circular(DS.radiusFull),
-                              ),
-                              child: Center(
-                                child: Text('收入', style: DS.labelMd.copyWith(
-                                  color: _type == 'income' ? DS.onPrimary : DS.onSurface,
-                                )),
+                  if (!shouldUseLiquidGlass(context))
+                    Container(
+                      padding: EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        color: DS.heroCardBg,
+                        borderRadius: BorderRadius.circular(DS.radiusFull),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => _switchType('expense'),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: DS.sm),
+                                decoration: BoxDecoration(
+                                  color: _type == 'expense' ? DS.primary : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(DS.radiusFull),
+                                ),
+                                child: Center(
+                                  child: Text('支出', style: DS.labelMd.copyWith(
+                                    color: _type == 'expense' ? DS.onPrimary : DS.onSurface,
+                                  )),
+                                ),
                               ),
                             ),
                           ),
-                        ),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => _switchType('income'),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: DS.sm),
+                                decoration: BoxDecoration(
+                                  color: _type == 'income' ? DS.primary : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(DS.radiusFull),
+                                ),
+                                child: Center(
+                                  child: Text('收入', style: DS.labelMd.copyWith(
+                                    color: _type == 'income' ? DS.onPrimary : DS.onSurface,
+                                  )),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    GlassSegmentedControl(
+                      segments: const [
+                        GlassSegment(label: '支出'),
+                        GlassSegment(label: '收入'),
                       ],
+                      selectedIndex: _type == 'expense' ? 0 : 1,
+                      onSegmentSelected: (i) =>
+                          _switchType(i == 0 ? 'expense' : 'income'),
+                      height: 34,
+                      selectedTextStyle: DS.labelMd.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: DS.onSurface,
+                      ),
+                      unselectedTextStyle:
+                          DS.labelMd.copyWith(color: DS.onSurfaceVariant),
                     ),
-                  ),
                   SizedBox(height: DS.base),
                   // 金额 + 日期
                   _buildAmountRow(),
@@ -542,39 +565,11 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
   }
 
   Future<void> _selectDate() async {
-    DateTime tempDate = _selectedDate;
-    final picked = await showCupertinoModalPopup<DateTime>(
+    final picked = await showGlassDatePicker(
       context: context,
-      builder: (context) => Container(
-        height: 320,
-        color: DS.surfaceContainerLowest,
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CupertinoButton(
-                  child: Text('取消'),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                CupertinoButton(
-                  child: Text('确定', style: TextStyle(fontWeight: FontWeight.w600)),
-                  onPressed: () => Navigator.pop(context, tempDate),
-                ),
-              ],
-            ),
-            Expanded(
-              child: CupertinoDatePicker(
-                mode: CupertinoDatePickerMode.date,
-                initialDateTime: _selectedDate,
-                minimumDate: DateTime(2020),
-                maximumDate: DateTime.now().add(const Duration(days: 365)),
-                onDateTimeChanged: (date) => tempDate = date,
-              ),
-            ),
-          ],
-        ),
-      ),
+      initialDate: _selectedDate,
+      minimumDate: DateTime(2020),
+      maximumDate: DateTime.now().add(const Duration(days: 365)),
     );
 
     if (picked != null && picked != _selectedDate) {

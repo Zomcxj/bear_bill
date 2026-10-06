@@ -10,6 +10,7 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
 import '../services/database_service.dart';
+import '../widgets/glass_dialog_shell.dart';
 
 /// 数据库备份服务 - 完整数据导出/导入（数据库 + 图片 + 头像 + 打卡）
 class DatabaseBackupService {
@@ -219,7 +220,8 @@ class DatabaseBackupService {
     DatabaseService.instance.resetConnection();
 
     if (!context.mounted) return true;
-    _showSnackBar(context, '导入成功！请重启应用以生效。', duration: const Duration(seconds: 3));
+    _showSnackBar(context, '导入成功！请重启应用以生效。',
+        duration: const Duration(seconds: 3));
     return true;
   }
 
@@ -241,7 +243,9 @@ class DatabaseBackupService {
       if (file.isFile) {
         // 防止 Zip Slip 路径穿越攻击
         final fileName = file.name;
-        if (fileName.contains('..') || fileName.startsWith('/') || fileName.startsWith('\\')) {
+        if (fileName.contains('..') ||
+            fileName.startsWith('/') ||
+            fileName.startsWith('\\')) {
           continue; // 跳过可疑路径
         }
         final outFile = File('${extractDir.path}/$fileName');
@@ -258,9 +262,11 @@ class DatabaseBackupService {
     final manifestFile = File('${extractDir.path}/manifest.json');
     Map<String, dynamic> manifest = {};
     if (await manifestFile.exists()) {
-      manifest = jsonDecode(await manifestFile.readAsString()) as Map<String, dynamic>;
+      manifest =
+          jsonDecode(await manifestFile.readAsString()) as Map<String, dynamic>;
     }
-    final imageMapping = manifest['imageMapping'] as Map<String, dynamic>? ?? {};
+    final imageMapping =
+        manifest['imageMapping'] as Map<String, dynamic>? ?? {};
     final avatarName = manifest['avatar'] as String?;
 
     // 关闭当前数据库
@@ -310,7 +316,9 @@ class DatabaseBackupService {
 
     // 4. 恢复 StorageService 文件
     for (final file in archive) {
-      if (file.isFile && file.name.startsWith('bear_bill_') && file.name.endsWith('.txt')) {
+      if (file.isFile &&
+          file.name.startsWith('bear_bill_') &&
+          file.name.endsWith('.txt')) {
         final outFile = File('${docsDir.path}/${file.name}');
         await outFile.writeAsBytes(file.content as List<int>);
       }
@@ -357,35 +365,36 @@ class DatabaseBackupService {
     } catch (_) {}
 
     if (!context.mounted) return true;
-    _showSnackBar(context, '导入成功！请重启应用以生效。', duration: const Duration(seconds: 3));
+    _showSnackBar(context, '导入成功！请重启应用以生效。',
+        duration: const Duration(seconds: 3));
     return true;
   }
 
-  Future<bool?> _confirmImport(BuildContext context, File file, {bool isLegacy = false}) async {
+  Future<bool?> _confirmImport(BuildContext context, File file,
+      {bool isLegacy = false}) async {
     final fileSize = await file.length();
     if (!context.mounted) return null;
     final fileName = path.basename(file.path);
     final desc = isLegacy ? '导入数据库将覆盖当前所有数据' : '导入将恢复数据库、图片和头像数据';
 
-    return await showDialog<bool>(
+    return await showGlassDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('确认导入'),
-        content: Text(
-          '文件：$fileName\n大小：${(fileSize / 1024).toStringAsFixed(1)} KB\n\n$desc，此操作不可撤销。\n\n确定继续？',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text('确认导入'),
-          ),
-        ],
+      title: '确认导入',
+      maxWidth: 320,
+      content: Text(
+        '文件：$fileName\n大小：${(fileSize / 1024).toStringAsFixed(1)} KB\n\n$desc，此操作不可撤销。\n\n确定继续？',
       ),
+      buildActions: (ctx) => [
+        GlassDialogButton(
+          label: '取消',
+          onPressed: () => Navigator.pop(ctx, false),
+        ),
+        GlassDialogButton(
+          label: '确认导入',
+          isDestructive: true,
+          onPressed: () => Navigator.pop(ctx, true),
+        ),
+      ],
     );
   }
 

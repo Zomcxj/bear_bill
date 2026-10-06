@@ -4,6 +4,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import '../../../models/models.dart';
 import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
+import '../../../theme/glass_materials.dart';
 import '../../../utils/utils.dart' as utils;
 import '../../../providers/theme_provider.dart';
 import 'package:provider/provider.dart';
@@ -33,7 +34,12 @@ class RecordGroupList extends StatelessWidget {
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>(); // theme rebuild
     return ListView.builder(
-      padding: EdgeInsets.only(left: DS.sm, right: DS.sm, bottom: DS.sm),
+      // 玻璃模式底部留白：避免最后一项被浮动玻璃底栏盖住
+      padding: EdgeInsets.only(
+        left: DS.sm,
+        right: DS.sm,
+        bottom: DS.sm + glassBottomInset(context),
+      ),
       itemCount: groupedRecords.length,
       itemBuilder: (context, index) {
         final group = groupedRecords[index];

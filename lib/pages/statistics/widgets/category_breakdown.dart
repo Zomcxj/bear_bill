@@ -31,7 +31,7 @@ class CategoryBreakdown extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.pie_chart, size: 18, color: DS.primary),
+              Icon(Icons.pie_chart, size: 18, color: DS.emphasis),
               SizedBox(width: 6),
               Text(
                 '分类明细',
@@ -51,7 +51,7 @@ class CategoryBreakdown extends StatelessWidget {
   }
 
   Color _hexToColor(String? hex) {
-    if (hex == null || hex.isEmpty) return DS.primary;
+    if (hex == null || hex.isEmpty) return DS.emphasis;
     final buffer = StringBuffer();
     if (hex.length == 6 || hex.length == 7) buffer.write('ff');
     buffer.write(hex.replaceFirst('#', ''));

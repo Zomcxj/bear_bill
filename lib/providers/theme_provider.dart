@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import '../services/storage_service.dart';
 import '../theme/app_design_system.dart';
+import '../theme/glass_materials.dart';
 
 /// 主题颜色管理 - 从单一主色自动生成完整主题
 class ThemeProvider extends ChangeNotifier {
   static const String _storageKey = 'themePrimaryColor';
   static const String _darkModeKey = 'themeDarkMode';
+  static const String _liquidGlassKey = 'liquidGlassEnabled';
   static const int _defaultPrimary = 0xFFFF8FAB;
 
   Color _primaryColor = const Color(_defaultPrimary);
@@ -13,6 +15,9 @@ class ThemeProvider extends ChangeNotifier {
 
   bool _isDarkMode = false;
   bool get isDarkMode => _isDarkMode;
+
+  bool _liquidGlassEnabled = false;
+  bool get liquidGlassEnabled => _liquidGlassEnabled;
 
   ThemeProvider() {
     _loadFromStorage();
@@ -26,6 +31,17 @@ class ThemeProvider extends ChangeNotifier {
     final darkSaved = StorageService.instance.getInt(_darkModeKey);
     _isDarkMode = darkSaved == 1;
     DS.setDarkMode(_isDarkMode);
+    // 液态玻璃默认关闭：老用户保持既有视觉，主动开启后才切换
+    _liquidGlassEnabled =
+        StorageService.instance.getInt(_liquidGlassKey) == 1;
+    GlassMaterials.setEnabled(_liquidGlassEnabled);
+  }
+
+  void toggleLiquidGlass() {
+    _liquidGlassEnabled = !_liquidGlassEnabled;
+    GlassMaterials.setEnabled(_liquidGlassEnabled);
+    StorageService.instance.setInt(_liquidGlassKey, _liquidGlassEnabled ? 1 : 0);
+    notifyListeners();
   }
 
   void setPrimaryColor(Color color) {

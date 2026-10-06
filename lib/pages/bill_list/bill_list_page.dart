@@ -8,6 +8,7 @@ import '../../services/database_service.dart';
 import '../../services/notification_service.dart';
 import '../../theme/app_design_system.dart';
 import '../../utils/utils.dart' as utils;
+import '../../widgets/glass_dialog_shell.dart';
 import 'widgets/bill_filter_mixin.dart';
 import 'widgets/record_detail_dialog.dart';
 import 'widgets/record_group_list.dart';
@@ -358,103 +359,101 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
     int selectedYear = int.parse(parts[0]);
     int selectedMonth = int.parse(parts[1]);
 
-    showDialog(
+    showGlassDialog(
       context: context,
-      builder: (ctx) => StatefulBuilder(
+      maxWidth: 320,
+      content: StatefulBuilder(
         builder: (ctx, setState) {
-          return AlertDialog(
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.chevron_left),
-                  onPressed: () => setState(() => selectedYear--),
-                ),
-                Text('$selectedYear 年', style: DS.headlineSm),
-                IconButton(
-                  icon: Icon(Icons.chevron_right),
-                  onPressed: selectedYear < DateTime.now().year
-                      ? () => setState(() => selectedYear++)
-                      : null,
-                ),
-              ],
-            ),
-            content: SizedBox(
-              width: 280,
-              child: GridView.builder(
-                shrinkWrap: true,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4,
-                  mainAxisSpacing: DS.sm,
-                  crossAxisSpacing: DS.sm,
-                  childAspectRatio: 1.4,
-                ),
-                itemCount: 12,
-                itemBuilder: (_, i) {
-                  final month = i + 1;
-                  final isCurrent = month == selectedMonth;
-                  final isFuture = selectedYear == DateTime.now().year &&
-                      month > DateTime.now().month;
-                  return GestureDetector(
-                    onTap: isFuture
-                        ? null
-                        : () {
-                            final m = month.toString().padLeft(2, '0');
-                            setState(() => _currentMonth = '$selectedYear-$m');
-                            Navigator.pop(ctx);
-                            _loadRecords();
-                          },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: isCurrent ? DS.primary : DS.surfaceContainerLow,
-                        borderRadius: BorderRadius.circular(DS.radiusSm),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        '$month 月',
-                        style: DS.labelMd.copyWith(
-                          color: isFuture
-                              ? DS.outline
-                              : isCurrent
-                                  ? Colors.white
-                                  : DS.onSurface,
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.chevron_left),
+                    onPressed: () => setState(() => selectedYear--),
+                  ),
+                  Text('$selectedYear 年',
+                      style: DS.headlineSm.copyWith(color: DS.onSurface)),
+                  IconButton(
+                    icon: Icon(Icons.chevron_right),
+                    onPressed: selectedYear < DateTime.now().year
+                        ? () => setState(() => selectedYear++)
+                        : null,
+                  ),
+                ],
+              ),
+              SizedBox(
+                width: 280,
+                child: GridView.builder(
+                  shrinkWrap: true,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4,
+                    mainAxisSpacing: DS.sm,
+                    crossAxisSpacing: DS.sm,
+                    childAspectRatio: 1.4,
+                  ),
+                  itemCount: 12,
+                  itemBuilder: (_, i) {
+                    final month = i + 1;
+                    final isCurrent = month == selectedMonth;
+                    final isFuture = selectedYear == DateTime.now().year &&
+                        month > DateTime.now().month;
+                    return GestureDetector(
+                      onTap: isFuture
+                          ? null
+                          : () {
+                              final m = month.toString().padLeft(2, '0');
+                              setState(
+                                  () => _currentMonth = '$selectedYear-$m');
+                              Navigator.pop(ctx);
+                              _loadRecords();
+                            },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: isCurrent
+                              ? DS.emphasis
+                              : DS.surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(DS.radiusSm),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          '$month 月',
+                          style: DS.labelMd.copyWith(
+                            color: isFuture
+                                ? DS.outline
+                                : isCurrent
+                                    ? DS.background
+                                    : DS.onSurface,
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
+            ],
           );
         },
       ),
+      buildActions: (ctx) => [
+        GlassDialogButton(
+          label: '取消',
+          onPressed: () => Navigator.pop(ctx),
+        ),
+      ],
     );
   }
 
   Future<void> _deleteRecord(String recordId) async {
-    final confirmed = await showDialog<bool>(
+    // 开启液态玻璃时走玻璃弹窗（真玻璃材质），关闭时回退标准 AlertDialog
+    final confirmed = await showGlassConfirmDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.delete_outline, size: 20, color: DS.error),
-            SizedBox(width: DS.xs),
-            Text('确认删除'),
-          ],
-        ),
-        content: Text('确定要删除这条账单吗？'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text('取消'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: DS.error),
-            child: Text('删除'),
-          ),
-        ],
-      ),
+      title: '确认删除',
+      message: '确定要删除这条账单吗？',
+      confirmText: '删除',
+      destructive: true,
     );
 
     if (confirmed == true) {

@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
+    show GlassContainer, GlassQuality, LiquidRoundedSuperellipse;
 import 'package:provider/provider.dart';
 
 import '../../main.dart';
@@ -9,6 +11,7 @@ import '../../services/baidu_speech_service.dart';
 import '../../services/api_quota_service.dart';
 import '../../services/auto_record_confirm_mixin.dart';
 import '../../theme/app_design_system.dart';
+import '../../theme/glass_materials.dart';
 import '../add_record/add_record_page.dart';
 import '../ai_chat/ai_chat_page.dart';
 import 'widgets/greeting_card.dart';
@@ -170,7 +173,7 @@ class _HomePageState extends State<HomePage>
             RefreshIndicator(
               onRefresh: () async {},
               color: DS.secondaryContainer,
-              child: const SingleChildScrollView(
+              child: SingleChildScrollView(
                 physics: AlwaysScrollableScrollPhysics(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -182,7 +185,7 @@ class _HomePageState extends State<HomePage>
                     QuickEntries(),
                     SizedBox(height: DS.base),
                     TodayRecords(),
-                    SizedBox(height: 100),
+                    SizedBox(height: 100 + glassBottomInset(context)),
                   ],
                 ),
               ),
@@ -268,75 +271,143 @@ class _HomePageState extends State<HomePage>
         ),
       ),
       // 悬浮按钮：话筒 + 记一笔
-      floatingActionButton: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          GestureDetector(
-            onPanStart: _onVoicePanStart,
-            onPanUpdate: _onVoicePanUpdate,
-            onPanEnd: _onVoicePanEnd,
-            child: Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: _isRecording ? DS.error : DS.surfaceContainerLowest,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: _isRecording ? DS.error : DS.outlineVariant,
-                ),
-                boxShadow: DS.shadowSm,
+      // 玻璃态下 GlassScaffold 是沉浸式布局（extendBody），玻璃底栏浮在
+      // 页面之上，FAB 需上抬让位，否则被底栏盖住。
+      floatingActionButton: Padding(
+        padding: EdgeInsets.only(
+          bottom: shouldUseLiquidGlass(context) ? 96 : 0,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            _buildVoiceButton(context),
+            SizedBox(width: 12),
+            _buildRecordButton(context),
+          ],
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+    );
+  }
+
+  /// 话筒按钮：液态玻璃开启时走玻璃圆形，关闭时保持原样。
+  /// 录音手势（onPanStart/Update/End）在两态下完全一致。
+  Widget _buildVoiceButton(BuildContext context) {
+    final inner = Center(
+      child: _isRecognizing
+          ? SizedBox(
+              width: 22,
+              height: 22,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: DS.onSurface,
               ),
-              child: Center(
-                child: _isRecognizing
-                    ? SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: DS.onSurface,
-                        ),
-                      )
-                    : Icon(
-                        _isRecording ? Icons.mic : Icons.mic_none,
-                        color: _isRecording ? Colors.white : DS.onSurface,
-                        size: 24,
-                      ),
-              ),
+            )
+          : Icon(
+              _isRecording ? Icons.mic : Icons.mic_none,
+              color: _isRecording ? Colors.white : DS.onSurface,
+              size: 24,
             ),
+    );
+
+    final Widget circle;
+    if (shouldUseLiquidGlass(context)) {
+      circle = GlassContainer(
+        width: 56,
+        height: 56,
+        shape: const LiquidRoundedSuperellipse(borderRadius: 28),
+        settings: GlassMaterials.bar(),
+        // FAB 浮在滚动内容上：premium 的 texture capture 在此上下文会渲染失败，
+        // 官方推荐 interactive widgets 用 standard
+        quality: GlassQuality.standard,
+        child: inner,
+      );
+    } else {
+      circle = Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          color: _isRecording ? DS.error : DS.surfaceContainerLowest,
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: _isRecording ? DS.error : DS.outlineVariant,
           ),
-          SizedBox(width: 12),
-          SizedBox(
-            height: 56,
-            child: FloatingActionButton.extended(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AddRecordPage(),
-                  ),
-                );
-              },
-              backgroundColor: DS.onSurface,
-              foregroundColor: DS.background,
-              icon: Icon(Icons.edit, size: 20),
-              label: Text(
+          boxShadow: DS.shadowSm,
+        ),
+        child: inner,
+      );
+    }
+
+    return GestureDetector(
+      onPanStart: _onVoicePanStart,
+      onPanUpdate: _onVoicePanUpdate,
+      onPanEnd: _onVoicePanEnd,
+      child: circle,
+    );
+  }
+
+  /// "记一笔"按钮：液态玻璃开启时走玻璃药丸，关闭时保持原 FAB。
+  Widget _buildRecordButton(BuildContext context) {
+    void openAddRecord() {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const AddRecordPage()),
+      );
+    }
+
+    if (shouldUseLiquidGlass(context)) {
+      // 高度锁定 56，与话筒圆钮一致（Row 在 Padding 内居中）
+      return GlassContainer(
+        height: 56,
+        shape: const LiquidRoundedSuperellipse(borderRadius: DS.radiusFull),
+        settings: GlassMaterials.bar(),
+        // FAB 浮在滚动内容上：premium 会渲染失败，用 standard
+        quality: GlassQuality.standard,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: GestureDetector(
+          onTap: openAddRecord,
+          behavior: HitTestBehavior.opaque,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.edit, size: 20, color: DS.onSurface),
+              const SizedBox(width: 8),
+              Text(
                 '记一笔',
                 style: TextStyle(
                   fontFamily: DS.fontLabel,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
+                  color: DS.onSurface,
                 ),
               ),
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(DS.radiusFull),
-              ),
-            ),
+            ],
           ),
-        ],
+        ),
+      );
+    }
+
+    return SizedBox(
+      height: 56,
+      child: FloatingActionButton.extended(
+        onPressed: openAddRecord,
+        backgroundColor: DS.onSurface,
+        foregroundColor: DS.background,
+        icon: Icon(Icons.edit, size: 20),
+        label: Text(
+          '记一笔',
+          style: TextStyle(
+            fontFamily: DS.fontLabel,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(DS.radiusFull),
+        ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }

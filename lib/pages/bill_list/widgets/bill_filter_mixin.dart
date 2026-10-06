@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/app_design_system.dart';
+import '../../../widgets/glass_dialog_shell.dart';
 import '../bill_list_page.dart';
 
 /// 账单列表页 - 筛选相关功能
@@ -56,19 +57,13 @@ mixin BillFilterMixin on State<BillListPage> {
         text: maxAmount != null ? maxAmount.toString() : '');
     final locationController = TextEditingController(text: filterLocation);
 
-    showDialog(
+    showGlassDialog(
       context: context,
-      builder: (context) => StatefulBuilder(
+      title: '筛选条件',
+      maxWidth: 360,
+      content: StatefulBuilder(
         builder: (context, setDialogState) {
-          return AlertDialog(
-            title: Row(
-              children: [
-                Icon(Icons.tune, size: 20),
-                SizedBox(width: DS.xs),
-                Text('筛选条件'),
-              ],
-            ),
-            content: SingleChildScrollView(
+          return SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,34 +143,34 @@ mixin BillFilterMixin on State<BillListPage> {
                   ),
                 ],
               ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  resetFilters();
-                  Navigator.pop(context);
-                  onApply();
-                },
-                child: Text('清除'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  final min = double.tryParse(minController.text.trim());
-                  final max = double.tryParse(maxController.text.trim());
-                  setState(() {
-                    minAmount = min;
-                    maxAmount = max;
-                    filterLocation = locationController.text.trim();
-                  });
-                  Navigator.pop(context);
-                  onApply();
-                },
-                child: Text('确定'),
-              ),
-            ],
-          );
+            );
         },
       ),
+      buildActions: (ctx) => [
+        GlassDialogButton(
+          label: '清除',
+          onPressed: () {
+            resetFilters();
+            Navigator.pop(ctx);
+            onApply();
+          },
+        ),
+        GlassDialogButton(
+          label: '确定',
+          isPrimary: true,
+          onPressed: () {
+            final min = double.tryParse(minController.text.trim());
+            final max = double.tryParse(maxController.text.trim());
+            setState(() {
+              minAmount = min;
+              maxAmount = max;
+              filterLocation = locationController.text.trim();
+            });
+            Navigator.pop(ctx);
+            onApply();
+          },
+        ),
+      ],
     );
   }
 
@@ -189,10 +184,10 @@ mixin BillFilterMixin on State<BillListPage> {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: 6),
         decoration: BoxDecoration(
-          color: selected ? DS.primary : DS.surfaceContainerLowest,
+          color: selected ? DS.emphasis : DS.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(DS.radiusFull),
           border: Border.all(
-            color: selected ? DS.primary : DS.outlineVariant,
+            color: selected ? DS.emphasis : DS.outlineVariant,
           ),
         ),
         child: Text(
@@ -201,7 +196,7 @@ mixin BillFilterMixin on State<BillListPage> {
             fontFamily: DS.fontLabel,
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: selected ? DS.onPrimary : DS.onSurface,
+            color: selected ? DS.background : DS.onSurface,
           ),
         ),
       ),

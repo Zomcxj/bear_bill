@@ -6,8 +6,10 @@ import '../../services/database_service.dart';
 import '../../services/storage_service.dart';
 import '../../theme/app_design_system.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/glass_dialog_shell.dart';
 import '../../utils/utils.dart';
 import '../../providers/theme_provider.dart';
+import '../../widgets/glass_sub_page_bar.dart';
 
 /// 预算设置页 - 月度预算设置、进度监控
 class BudgetPage extends StatefulWidget {
@@ -22,7 +24,14 @@ class _BudgetPageState extends State<BudgetPage> {
   double _currentBudget = 0.0;
   bool _loading = true;
 
-  static const List<double> _quickAmounts = [1000, 2000, 3000, 5000, 8000, 10000];
+  static const List<double> _quickAmounts = [
+    1000,
+    2000,
+    3000,
+    5000,
+    8000,
+    10000
+  ];
 
   @override
   void initState() {
@@ -92,22 +101,12 @@ class _BudgetPageState extends State<BudgetPage> {
   }
 
   Future<void> _clearBudget() async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showGlassConfirmDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('清除预算'),
-        content: Text('确定清除当前预算设置吗？'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text('清除', style: TextStyle(color: DS.primaryContainer)),
-          ),
-        ],
-      ),
+      title: '清除预算',
+      message: '确定清除当前预算设置吗？',
+      confirmText: '清除',
+      destructive: true,
     );
     if (!mounted) return;
 
@@ -138,10 +137,7 @@ class _BudgetPageState extends State<BudgetPage> {
     context.watch<ThemeProvider>(); // theme rebuild
     return Scaffold(
       backgroundColor: DS.background,
-      appBar: AppBar(
-        title: Text('预算设置'),
-        backgroundColor: DS.primary,
-      ),
+      appBar: const GlassSubPageBar(title: '预算设置'),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -206,9 +202,7 @@ class _BudgetPageState extends State<BudgetPage> {
             style: TextStyle(
               fontSize: 36,
               fontWeight: FontWeight.bold,
-              color: _currentBudget > 0
-                  ? DS.primaryContainer
-                  : DS.outline,
+              color: _currentBudget > 0 ? DS.primaryContainer : DS.outline,
             ),
           ),
           if (_currentBudget > 0) ...[

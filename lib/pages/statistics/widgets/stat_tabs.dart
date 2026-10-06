@@ -43,7 +43,7 @@ class StatTabs extends StatelessWidget {
                   borderRadius: BorderRadius.circular(DS.radiusMd),
                   border: Border.all(
                     color: activeTab == 'expense'
-                        ? DS.primary
+                        ? DS.emphasis
                         : Colors.transparent,
                     width: 2,
                   ),
@@ -58,7 +58,7 @@ class StatTabs extends StatelessWidget {
                           Icons.trending_down,
                           size: 14,
                           color: activeTab == 'expense'
-                              ? DS.primaryContainer
+                              ? DS.emphasis
                               : DS.onSurfaceVariant,
                         ),
                         SizedBox(width: 4),
@@ -68,7 +68,7 @@ class StatTabs extends StatelessWidget {
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
                             color: activeTab == 'expense'
-                                ? DS.primaryContainer
+                                ? DS.emphasis
                                 : DS.onSurfaceVariant,
                           ),
                         ),
@@ -81,7 +81,7 @@ class StatTabs extends StatelessWidget {
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: activeTab == 'expense'
-                            ? DS.primaryContainer
+                            ? DS.emphasis
                             : DS.onSurface,
                       ),
                     ),
@@ -103,7 +103,7 @@ class StatTabs extends StatelessWidget {
                   borderRadius: BorderRadius.circular(DS.radiusMd),
                   border: Border.all(
                     color: activeTab == 'income'
-                        ? DS.primary
+                        ? DS.emphasis
                         : Colors.transparent,
                     width: 2,
                   ),
@@ -118,7 +118,7 @@ class StatTabs extends StatelessWidget {
                           Icons.trending_up,
                           size: 14,
                           color: activeTab == 'income'
-                              ? DS.primaryContainer
+                              ? DS.emphasis
                               : DS.onSurfaceVariant,
                         ),
                         SizedBox(width: 4),
@@ -128,7 +128,7 @@ class StatTabs extends StatelessWidget {
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
                             color: activeTab == 'income'
-                                ? DS.primaryContainer
+                                ? DS.emphasis
                                 : DS.onSurfaceVariant,
                           ),
                         ),
@@ -141,7 +141,7 @@ class StatTabs extends StatelessWidget {
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: activeTab == 'income'
-                            ? DS.primaryContainer
+                            ? DS.emphasis
                             : DS.onSurface,
                       ),
                     ),

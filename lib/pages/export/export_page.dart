@@ -11,9 +11,11 @@ import 'package:provider/provider.dart';
 import '../../providers/app_provider.dart';
 import '../../services/database_service.dart';
 import '../../theme/app_design_system.dart';
+import '../../widgets/glass_dialog_shell.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/utils.dart';
 import '../../providers/theme_provider.dart';
+import '../../widgets/glass_sub_page_bar.dart';
 
 /// 账单导出页 - CSV导出、文件保存
 class ExportPage extends StatefulWidget {
@@ -69,35 +71,29 @@ class _ExportPageState extends State<ExportPage> {
       setState(() => _exporting = false);
 
       if (mounted) {
-        showDialog(
+        showGlassDialog(
           context: context,
-          builder: (context) => AlertDialog(
-            title: Row(
-              children: [
-                Icon(Icons.check_circle, color: AppTheme.success, size: 24),
-                SizedBox(width: 8),
-                Text('导出成功'),
-              ],
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('共导出 ${records.length} 条记录'),
-                SizedBox(height: 8),
-                Text(
-                  '文件位置：\n$targetPath',
-                  style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('确定'),
+          title: '✅ 导出成功',
+          maxWidth: 320,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('共导出 ${records.length} 条记录'),
+              SizedBox(height: 8),
+              Text(
+                '文件位置：\n$targetPath',
+                style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
               ),
             ],
           ),
+          buildActions: (ctx) => [
+            GlassDialogButton(
+              label: '确定',
+              isPrimary: true,
+              onPressed: () => Navigator.pop(ctx),
+            ),
+          ],
         );
       }
     } catch (e) {
@@ -150,13 +146,16 @@ class _ExportPageState extends State<ExportPage> {
     // CSV 数据行
     for (final record in records) {
       final type = record.type == 'income' ? '收入' : '支出';
-      final category = getCategoryById(record.categoryId, isExpense: record.type == 'expense');
-      final mood = record.mood != null ? getMoodById(record.mood!)?.emoji ?? '' : '';
+      final category = getCategoryById(record.categoryId,
+          isExpense: record.type == 'expense');
+      final mood =
+          record.mood != null ? getMoodById(record.mood!)?.emoji ?? '' : '';
       final tags = record.tags.isNotEmpty ? record.tags.join(';') : '';
 
       buffer.writeln([
         _sanitizeCsvField(record.date),
-        _sanitizeCsvField('${record.createdAt.hour.toString().padLeft(2, '0')}:${record.createdAt.minute.toString().padLeft(2, '0')}'),
+        _sanitizeCsvField(
+            '${record.createdAt.hour.toString().padLeft(2, '0')}:${record.createdAt.minute.toString().padLeft(2, '0')}'),
         _sanitizeCsvField(type),
         _sanitizeCsvField(category?.name ?? '未分类'),
         record.amount.toStringAsFixed(2),
@@ -174,8 +173,12 @@ class _ExportPageState extends State<ExportPage> {
   static String _sanitizeCsvField(String field) {
     if (field.isEmpty) return field;
     final first = field[0];
-    if (first == '=' || first == '+' || first == '-' || first == '@' ||
-        first == '\t' || first == '\r') {
+    if (first == '=' ||
+        first == '+' ||
+        first == '-' ||
+        first == '@' ||
+        first == '\t' ||
+        first == '\r') {
       return "'$field";
     }
     return field;
@@ -186,10 +189,7 @@ class _ExportPageState extends State<ExportPage> {
     context.watch<ThemeProvider>(); // theme rebuild
     return Scaffold(
       backgroundColor: DS.background,
-      appBar: AppBar(
-        title: Text('账单导出'),
-        backgroundColor: DS.primary,
-      ),
+      appBar: const GlassSubPageBar(title: '账单导出'),
       body: Padding(
         padding: EdgeInsets.all(DS.gutter),
         child: Column(
@@ -280,7 +280,8 @@ class _ExportPageState extends State<ExportPage> {
                           onPressed: () => Navigator.pop(context),
                         ),
                         CupertinoButton(
-                          child: Text('确定', style: TextStyle(fontWeight: FontWeight.w600)),
+                          child: Text('确定',
+                              style: TextStyle(fontWeight: FontWeight.w600)),
                           onPressed: () => Navigator.pop(context, tempDate),
                         ),
                       ],
@@ -301,7 +302,8 @@ class _ExportPageState extends State<ExportPage> {
 
             if (picked != null && mounted) {
               setState(() {
-                _selectedMonth = '${picked.year}-${picked.month.toString().padLeft(2, '0')}';
+                _selectedMonth =
+                    '${picked.year}-${picked.month.toString().padLeft(2, '0')}';
               });
             }
           },

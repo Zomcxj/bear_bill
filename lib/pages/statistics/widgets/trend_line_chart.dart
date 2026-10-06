@@ -90,7 +90,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
         children: [
           Row(
             children: [
-              Icon(Icons.show_chart, size: 18, color: DS.primary),
+              Icon(Icons.show_chart, size: 18, color: DS.emphasis),
               SizedBox(width: 6),
               Text(
                 '收支趋势',
@@ -115,8 +115,9 @@ class _TrendLineChartState extends State<TrendLineChart> {
                 painter: _TrendPainter(
                   data: _data,
                   maxVal: maxVal,
-                  expenseColor: DS.primary,
-                  incomeColor: DS.secondary,
+                  // 动态图表色：常量 primary 是黑色，深色模式黑底不可见
+                  expenseColor: DS.chartExpense,
+                  incomeColor: DS.chartIncome,
                   gridColor: DS.outlineVariant,
                 ),
               ),
@@ -148,7 +149,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
           width: 10,
           height: 10,
           decoration: BoxDecoration(
-            color: DS.primary,
+            color: DS.chartExpense,
             shape: BoxShape.circle,
           ),
         ),
@@ -159,7 +160,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
           width: 10,
           height: 10,
           decoration: BoxDecoration(
-            color: DS.secondary,
+            color: DS.chartIncome,
             shape: BoxShape.circle,
           ),
         ),
