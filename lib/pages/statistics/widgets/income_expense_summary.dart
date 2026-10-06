@@ -34,14 +34,14 @@ class IncomeExpenseSummary extends StatelessWidget {
           Expanded(
             child: Column(
               children: [
-                Icon(Icons.arrow_downward, size: 22, color: DS.primaryContainer),
+                Icon(Icons.arrow_downward, size: 22, color: DS.emphasis),
                 SizedBox(height: 4),
                 Text(
                   '¥${FormatUtils.formatAmount(expense)}',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: DS.primaryContainer,
+                    color: DS.emphasis,
                   ),
                 ),
                 SizedBox(height: 2),

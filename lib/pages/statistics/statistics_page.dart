@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
+    show GlassSegment, GlassSegmentedControl;
 import 'package:provider/provider.dart';
 
 import '../../providers/app_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../services/database_service.dart';
 import '../../theme/app_design_system.dart';
+import '../../widgets/glass_dialog_shell.dart';
+import '../../theme/glass_materials.dart';
 import '../../utils/format_utils.dart';
 import '../bill_list/bill_list_page.dart';
 import 'widgets/category_breakdown.dart';
@@ -48,17 +52,33 @@ class _StatisticsPageState extends State<StatisticsPage> {
   Future<void> _loadStats() async {
     setState(() => _loading = true);
 
-    final monthStr =
-        '${_selectedMonth.year}-${_selectedMonth.month.toString().padLeft(2, '0')}';
     final appProvider = context.read<AppProvider>();
-    final stats = await DatabaseService.instance.getMonthStatistics(
-      monthStr,
-      bookId: appProvider.currentBookId,
-    );
+    final yearStr = '${_selectedMonth.year}';
 
-    final expense = stats['expense'] ?? 0.0;
-    final income = stats['income'] ?? 0.0;
-    final categories = stats['categories'] as List? ?? [];
+    double expense;
+    double income;
+    List categories;
+
+    if (_viewMode == 'yearly') {
+      // 年度模式：汇总整年数据（头部数字与月度同一套口径）
+      final stats = await DatabaseService.instance.getYearStatistics(
+        yearStr,
+        bookId: appProvider.currentBookId,
+      );
+      expense = (stats['totalExpense'] as num?)?.toDouble() ?? 0.0;
+      income = (stats['totalIncome'] as num?)?.toDouble() ?? 0.0;
+      categories = stats['categories'] as List? ?? [];
+    } else {
+      final monthStr =
+          '${_selectedMonth.year}-${_selectedMonth.month.toString().padLeft(2, '0')}';
+      final stats = await DatabaseService.instance.getMonthStatistics(
+        monthStr,
+        bookId: appProvider.currentBookId,
+      );
+      expense = (stats['expense'] as num?)?.toDouble() ?? 0.0;
+      income = (stats['income'] as num?)?.toDouble() ?? 0.0;
+      categories = stats['categories'] as List? ?? [];
+    }
 
     final expCats = categories.where((c) => c['type'] == 'expense').map((c) {
       final percent = expense > 0
@@ -88,6 +108,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>(); // 主题变更时触发重建
     final monthTitle = '${_selectedMonth.year}年${_selectedMonth.month}月';
+    final isYearly = _viewMode == 'yearly';
+    final periodLabel = isYearly ? '年' : '本月';
 
     return Scaffold(
       backgroundColor: DS.background,
@@ -131,7 +153,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                               Expanded(
                                 child: Column(
                                   children: [
-                                    Text('本月支出', style: DS.labelSm),
+                                    Text('$periodLabel支出', style: DS.labelSm),
                                     SizedBox(height: DS.xs),
                                     Text(
                                       '¥${FormatUtils.formatAmount(_totalExpense)}',
@@ -149,7 +171,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                               Expanded(
                                 child: Column(
                                   children: [
-                                    Text('本月收入', style: DS.labelSm),
+                                    Text('$periodLabel收入', style: DS.labelSm),
                                     SizedBox(height: DS.xs),
                                     Text(
                                       '¥${FormatUtils.formatAmount(_totalIncome)}',
@@ -259,58 +281,88 @@ class _StatisticsPageState extends State<StatisticsPage> {
                       ),
                       SizedBox(height: DS.sm),
                       // 月度/年度切换
-                      Container(
-                        padding: EdgeInsets.all(3),
-                        decoration: BoxDecoration(
-                          color: DS.heroCardBg,
-                          borderRadius: BorderRadius.circular(DS.radiusFull),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () => setState(() => _viewMode = 'monthly'),
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(vertical: DS.sm),
-                                  decoration: BoxDecoration(
-                                    color: _viewMode == 'monthly' ? DS.primary : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(DS.radiusFull),
-                                  ),
-                                  child: Center(
-                                    child: Text('月度', style: DS.labelMd.copyWith(
-                                      color: _viewMode == 'monthly' ? DS.onPrimary : DS.onSurface,
-                                    )),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () => setState(() => _viewMode = 'yearly'),
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(vertical: DS.sm),
-                                  decoration: BoxDecoration(
-                                    color: _viewMode == 'yearly' ? DS.primary : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(DS.radiusFull),
-                                  ),
-                                  child: Center(
-                                    child: Text('年度', style: DS.labelMd.copyWith(
-                                      color: _viewMode == 'yearly' ? DS.onPrimary : DS.onSurface,
-                                    )),
+                      if (!shouldUseLiquidGlass(context))
+                        Container(
+                          padding: EdgeInsets.all(3),
+                          decoration: BoxDecoration(
+                            color: DS.heroCardBg,
+                            borderRadius: BorderRadius.circular(DS.radiusFull),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    if (_viewMode == 'monthly') return;
+                                    setState(() => _viewMode = 'monthly');
+                                    _loadStats();
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(vertical: DS.sm),
+                                    decoration: BoxDecoration(
+                                      color: _viewMode == 'monthly' ? DS.emphasis : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(DS.radiusFull),
+                                    ),
+                                    child: Center(
+                                      child: Text('月度', style: DS.labelMd.copyWith(
+                                        color: _viewMode == 'monthly' ? DS.background : DS.onSurface,
+                                      )),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    if (_viewMode == 'yearly') return;
+                                    setState(() => _viewMode = 'yearly');
+                                    _loadStats();
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(vertical: DS.sm),
+                                    decoration: BoxDecoration(
+                                      color: _viewMode == 'yearly' ? DS.emphasis : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(DS.radiusFull),
+                                    ),
+                                    child: Center(
+                                      child: Text('年度', style: DS.labelMd.copyWith(
+                                        color: _viewMode == 'yearly' ? DS.background : DS.onSurface,
+                                      )),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        GlassSegmentedControl(
+                          segments: const [
+                            GlassSegment(label: '月度'),
+                            GlassSegment(label: '年度'),
                           ],
+                          selectedIndex: _viewMode == 'monthly' ? 0 : 1,
+                          onSegmentSelected: (i) {
+                            final mode = i == 0 ? 'monthly' : 'yearly';
+                            if (_viewMode == mode) return;
+                            setState(() => _viewMode = mode);
+                            _loadStats();
+                          },
+                          height: 34,
+                          selectedTextStyle: DS.labelMd.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: DS.onSurface,
+                          ),
+                          unselectedTextStyle:
+                              DS.labelMd.copyWith(color: DS.onSurfaceVariant),
                         ),
-                      ),
                     ],
                   ),
                 ),
                 SizedBox(height: DS.base),
                 Expanded(
                   child: _viewMode == 'yearly'
-                      ? YearSummary()
+                      ? YearSummary(year: _selectedMonth.year)
                       : SingleChildScrollView(
                           child: Column(
                             children: [
@@ -367,6 +419,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                   ],
                                 ),
                               ),
+                              // 玻璃模式底部留白：避免内容被浮动玻璃底栏盖住
+                              SizedBox(height: glassBottomInset(context)),
                             ],
                           ),
                         ),
@@ -381,77 +435,91 @@ class _StatisticsPageState extends State<StatisticsPage> {
     int selectedYear = _selectedMonth.year;
     int selectedMonth = _selectedMonth.month;
 
-    showDialog(
+    showGlassDialog(
       context: context,
-      builder: (ctx) => StatefulBuilder(
+      maxWidth: 320,
+      content: StatefulBuilder(
         builder: (ctx, setState) {
-          return AlertDialog(
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.chevron_left),
-                  onPressed: () => setState(() => selectedYear--),
-                ),
-                Text('$selectedYear 年', style: DS.headlineSm),
-                IconButton(
-                  icon: Icon(Icons.chevron_right),
-                  onPressed: selectedYear < DateTime.now().year
-                      ? () => setState(() => selectedYear++)
-                      : null,
-                ),
-              ],
-            ),
-            content: SizedBox(
-              width: 280,
-              child: GridView.builder(
-                shrinkWrap: true,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4,
-                  mainAxisSpacing: DS.sm,
-                  crossAxisSpacing: DS.sm,
-                  childAspectRatio: 1.4,
-                ),
-                itemCount: 12,
-                itemBuilder: (_, i) {
-                  final month = i + 1;
-                  final isCurrent = month == selectedMonth;
-                  final isFuture = selectedYear == DateTime.now().year &&
-                      month > DateTime.now().month;
-                  return GestureDetector(
-                    onTap: isFuture
-                        ? null
-                        : () {
-                            setState(() {
-                              _selectedMonth = DateTime(selectedYear, month);
-                            });
-                            Navigator.pop(ctx);
-                            _loadStats();
-                          },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: isCurrent ? DS.primary : DS.surfaceContainerLow,
-                        borderRadius: BorderRadius.circular(DS.radiusSm),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        '$month 月',
-                        style: DS.labelMd.copyWith(
-                          color: isFuture
-                              ? DS.outline
-                              : isCurrent
-                                  ? DS.onPrimary
-                                  : DS.onSurface,
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.chevron_left),
+                    onPressed: () => setState(() => selectedYear--),
+                  ),
+                  Text('$selectedYear 年',
+                      style: DS.headlineSm.copyWith(color: DS.onSurface)),
+                  IconButton(
+                    icon: Icon(Icons.chevron_right),
+                    onPressed: selectedYear < DateTime.now().year
+                        ? () => setState(() => selectedYear++)
+                        : null,
+                  ),
+                ],
+              ),
+              SizedBox(
+                width: 280,
+                child: GridView.builder(
+                  shrinkWrap: true,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4,
+                    mainAxisSpacing: DS.sm,
+                    crossAxisSpacing: DS.sm,
+                    childAspectRatio: 1.4,
+                  ),
+                  itemCount: 12,
+                  itemBuilder: (_, i) {
+                    final month = i + 1;
+                    final isCurrent = month == selectedMonth;
+                    final isFuture = selectedYear == DateTime.now().year &&
+                        month > DateTime.now().month;
+                    return GestureDetector(
+                      onTap: isFuture
+                          ? null
+                          : () {
+                              setState(() {
+                                _selectedMonth =
+                                    DateTime(selectedYear, month);
+                              });
+                              Navigator.pop(ctx);
+                              _loadStats();
+                            },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: isCurrent
+                              ? DS.emphasis
+                              : DS.surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(DS.radiusSm),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          '$month 月',
+                          style: DS.labelMd.copyWith(
+                            color: isFuture
+                                ? DS.outline
+                                : isCurrent
+                                    ? DS.background
+                                    : DS.onSurface,
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
+            ],
           );
         },
       ),
+      buildActions: (ctx) => [
+        GlassDialogButton(
+          label: '取消',
+          onPressed: () => Navigator.pop(ctx),
+        ),
+      ],
     );
   }
 

@@ -151,7 +151,7 @@ class _WeekTrendChartState extends State<WeekTrendChart> {
                                     ? FontWeight.w700
                                     : FontWeight.w500,
                                 color: data['isToday']
-                                    ? DS.primary
+                                    ? DS.emphasis
                                     : DS.outline,
                               ),
                             ),
@@ -181,7 +181,7 @@ class _WeekTrendChartState extends State<WeekTrendChart> {
                     barRods: [
                       BarChartRodData(
                         toY: amount,
-                        color: isToday ? DS.primary : DS.secondaryContainer,
+                        color: isToday ? DS.chartExpense : DS.chartIncome,
                         width: 22,
                         borderRadius: BorderRadius.vertical(
                           top: Radius.circular(6),

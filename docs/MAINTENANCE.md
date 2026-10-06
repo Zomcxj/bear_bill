@@ -81,6 +81,16 @@ release 包安装后一直白屏、logcat 报 `Unable to get provider androidx.s
 - 只带 `--target-platform android-arm64` 时产物是 universal 胖包 `app-release.apk`，`lib/` 下会混有 armeabi-v7a / x86_64 的插件 `.so`，且 `libflutter.so`、`libapp.so` 体积也会因 Flutter 引擎构建方式变化而波动
 - 需要严格单 ABI 出包时加 `--split-per-abi`，产物为 `app-arm64-v8a-release.apk`
 
+### 真机安装注意事项（adb）
+
+- `adb install` 长时间无输出先看焦点：`adb shell dumpsys window | grep mCurrentFocus`
+- 部分机型安装时会弹「外部来源应用」风险确认页（焦点为 `PackageInterceptActivity`）：
+  先截图确认勾选框位置，勾选"已了解应用的风险检测结果"后点"继续安装"（坐标依分辨率而定）
+- `adb kill-server` / 守护进程重启后设备可能变 `unauthorized`：先 `adb kill-server && adb start-server`，必要时在设备上重新授权
+- 锁屏状态下 install 会挂死：先 `KEYCODE_WAKEUP` + 滑动解锁再装
+- 曾遇 `.flutter_settings` 残留失效的 `android-studio-dir` 导致构建失败：
+  `flutter config --android-studio-dir` 清掉即可（构建只依赖 Android SDK，不需要 AS 本体）
+
 ## 自动记账维护
 
 当前自动记账主链路：

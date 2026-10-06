@@ -37,14 +37,14 @@ class MonthlySummary extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.auto_awesome, size: 20, color: DS.primary),
+              Icon(Icons.auto_awesome, size: 20, color: DS.emphasis),
               SizedBox(width: 6),
               Text(
                 '小熊助手报告',
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
-                  color: DS.primaryContainer,
+                  color: DS.emphasis,
                 ),
               ),
             ],

@@ -5,6 +5,7 @@ import '../../../providers/app_provider.dart';
 import '../../../providers/theme_provider.dart';
 import '../../../services/database_service.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../widgets/glass_dialog_shell.dart';
 import '../../../utils/utils.dart' as utils;
 import '../../../widgets/glass_card.dart';
 import '../../multi_book/multi_book_page.dart';
@@ -472,70 +473,61 @@ class _GreetingCardState extends State<GreetingCard>
       text: _monthlyBudget > 0 ? _monthlyBudget.toStringAsFixed(0) : '',
     );
 
-    showDialog(
+    showGlassDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.savings_outlined, size: 20),
-            SizedBox(width: DS.xs),
-            Text('设置月度预算'),
-          ],
-        ),
-        content: TextField(
-          controller: controller,
-          keyboardType: TextInputType.number,
-          decoration: const InputDecoration(
-            labelText: '预算金额',
-            prefixText: '¥ ',
-            hintText: '请输入月度预算',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('取消'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final input = controller.text.trim();
-              if (input.isEmpty) {
-                Navigator.pop(context);
-                return;
-              }
-
-              final budget = double.tryParse(input);
-              if (budget == null || budget < 0) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('请输入有效的预算金额')),
-                );
-                return;
-              }
-
-              final appProvider = context.read<AppProvider>();
-              final book = await appProvider.getCurrentBook();
-              if (book != null) {
-                final updatedBook = book.copyWith(budget: budget);
-                await DatabaseService.instance.updateBook(updatedBook);
-                if (!mounted) return;
-
-                context.read<AppProvider>().checkBudgetAchievements();
-                _loadData();
-
-                if (!context.mounted) return;
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('预算已更新'),
-                    backgroundColor: DS.secondary,
-                  ),
-                );
-              }
-            },
-            child: Text('保存'),
-          ),
-        ],
+      title: '设置月度预算',
+      maxWidth: 320,
+      content: GlassDialogField(
+        controller: controller,
+        keyboardType: TextInputType.number,
+        prefixText: '¥ ',
+        hintText: '请输入月度预算',
       ),
+      buildActions: (ctx) => [
+        GlassDialogButton(
+          label: '取消',
+          onPressed: () => Navigator.pop(ctx),
+        ),
+        GlassDialogButton(
+          label: '保存',
+          isPrimary: true,
+          onPressed: () async {
+            final input = controller.text.trim();
+            if (input.isEmpty) {
+              Navigator.pop(ctx);
+              return;
+            }
+
+            final budget = double.tryParse(input);
+            if (budget == null || budget < 0) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('请输入有效的预算金额')),
+              );
+              return;
+            }
+
+            final appProvider = context.read<AppProvider>();
+            final book = await appProvider.getCurrentBook();
+            if (book != null) {
+              final updatedBook = book.copyWith(budget: budget);
+              await DatabaseService.instance.updateBook(updatedBook);
+              if (!mounted) return;
+
+              context.read<AppProvider>().checkBudgetAchievements();
+              _loadData();
+
+              if (!ctx.mounted) return;
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('预算已更新'),
+                  backgroundColor: DS.secondary,
+                ),
+              );
+            }
+          },
+        ),
+      ],
     );
   }
 }

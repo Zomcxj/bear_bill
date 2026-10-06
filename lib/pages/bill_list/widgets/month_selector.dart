@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../theme/app_design_system.dart';
+import '../../../widgets/glass_dialog_shell.dart';
 import '../../../theme/app_theme.dart';
 import '../../../utils/utils.dart' as utils;
 import '../../../providers/theme_provider.dart';
@@ -127,33 +128,36 @@ class MonthSelector extends StatelessWidget {
     int selectedYear = int.parse(parts[0]);
     int selectedMonth = int.parse(parts[1]);
 
-    showDialog(
+    showGlassDialog(
       context: context,
-      builder: (ctx) => StatefulBuilder(
+      maxWidth: 320,
+      content: StatefulBuilder(
         builder: (ctx, setState) {
-          return AlertDialog(
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.chevron_left),
-                  onPressed: () => setState(() => selectedYear--),
-                ),
-                Text(
-                  '$selectedYear 年',
-                  style: DS.headlineSm,
-                ),
-                IconButton(
-                  icon: Icon(Icons.chevron_right),
-                  onPressed: selectedYear < DateTime.now().year
-                      ? () => setState(() => selectedYear++)
-                      : null,
-                ),
-              ],
-            ),
-            content: SizedBox(
-              width: 280,
-              child: GridView.builder(
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.chevron_left),
+                    onPressed: () => setState(() => selectedYear--),
+                  ),
+                  Text(
+                    '$selectedYear 年',
+                    style: DS.headlineSm.copyWith(color: DS.onSurface),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.chevron_right),
+                    onPressed: selectedYear < DateTime.now().year
+                        ? () => setState(() => selectedYear++)
+                        : null,
+                  ),
+                ],
+              ),
+              SizedBox(
+                width: 280,
+                child: GridView.builder(
                 shrinkWrap: true,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 4,
@@ -177,7 +181,7 @@ class MonthSelector extends StatelessWidget {
                           },
                     child: Container(
                       decoration: BoxDecoration(
-                        color: isCurrent ? DS.primary : DS.surfaceContainerLow,
+                        color: isCurrent ? DS.emphasis : DS.surfaceContainerLow,
                         borderRadius: BorderRadius.circular(DS.radiusSm),
                       ),
                       alignment: Alignment.center,
@@ -187,7 +191,7 @@ class MonthSelector extends StatelessWidget {
                           color: isFuture
                               ? DS.outline
                               : isCurrent
-                                  ? Colors.white
+                                  ? DS.background
                                   : DS.onSurface,
                         ),
                       ),
@@ -196,9 +200,16 @@ class MonthSelector extends StatelessWidget {
                 },
               ),
             ),
-          );
+          ],
+        );
         },
       ),
+      buildActions: (ctx) => [
+        GlassDialogButton(
+          label: '取消',
+          onPressed: () => Navigator.pop(ctx),
+        ),
+      ],
     );
   }
 }

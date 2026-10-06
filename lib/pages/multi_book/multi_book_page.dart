@@ -7,6 +7,8 @@ import '../../providers/app_provider.dart';
 import '../../services/database_service.dart';
 import '../../theme/app_design_system.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/glass_materials.dart';
+import '../../widgets/glass_dialog_shell.dart';
 import '../../../providers/theme_provider.dart';
 
 /// 将 hex 颜色字符串转换为 Color
@@ -40,7 +42,9 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _routeObserver ??= Navigator.of(context).widget.observers
+    _routeObserver ??= Navigator.of(context)
+        .widget
+        .observers
         .whereType<RouteObserver<ModalRoute<void>>>()
         .firstOrNull;
     _routeObserver?.subscribe(this, ModalRoute.of(context)!);
@@ -114,22 +118,11 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
       return;
     }
 
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showGlassConfirmDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('切换账本'),
-        content: Text('切换后首页将显示新账本的数据'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text('切换', style: TextStyle(color: DS.primary)),
-          ),
-        ],
-      ),
+      title: '切换账本',
+      message: '切换后首页将显示新账本的数据',
+      confirmText: '切换',
     );
 
     if (confirmed == true) {
@@ -158,87 +151,115 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
     String selectedIcon = book.icon;
 
     const bookEmojis = [
-      '📒', '📕', '📗', '📘', '📙', '📓', '📔', '💰', '🏦', '💳',
-      '🏠', '✈️', '🎓', '💼', '🛒', '🎮', '🍳', '🚗', '❤️', '⭐',
+      '📒',
+      '📕',
+      '📗',
+      '📘',
+      '📙',
+      '📓',
+      '📔',
+      '💰',
+      '🏦',
+      '💳',
+      '🏠',
+      '✈️',
+      '🎓',
+      '💼',
+      '🛒',
+      '🎮',
+      '🍳',
+      '🚗',
+      '❤️',
+      '⭐',
     ];
 
-    final result = await showDialog<Map<String, String>>(
+    final result = await showGlassDialog<Map<String, String>>(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: Row(
+      title: '编辑账本',
+      maxWidth: 340,
+      content: StatefulBuilder(
+        builder: (context, setDialogState) => SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.edit, color: DS.primary, size: 24),
-              SizedBox(width: 8),
-              Text('编辑账本'),
+              Text('账本图标', style: DS.labelMd),
+              SizedBox(height: DS.sm),
+              Wrap(
+                spacing: DS.sm,
+                runSpacing: DS.sm,
+                children: bookEmojis.map((emoji) {
+                  final isSelected = selectedIcon == emoji;
+                  return GestureDetector(
+                    onTap: () => setDialogState(() => selectedIcon = emoji),
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? (shouldUseLiquidGlass(context)
+                                ? (DS.isDark
+                                    ? Colors.white.withOpacity(0.22)
+                                    : Colors.white.withOpacity(0.75))
+                                : DS.secondaryContainer)
+                            : (shouldUseLiquidGlass(context)
+                                ? (DS.isDark
+                                    ? Colors.white.withOpacity(0.08)
+                                    : Colors.white.withOpacity(0.40))
+                                : DS.surfaceContainerLow),
+                        borderRadius: BorderRadius.circular(DS.radiusSm),
+                        border: Border.all(
+                          color: isSelected ? DS.secondary : DS.outlineVariant,
+                          width: isSelected ? 2 : 1,
+                        ),
+                      ),
+                      child: Center(
+                          child: Text(emoji, style: TextStyle(fontSize: 20))),
+                    ),
+                  );
+                }).toList(),
+              ),
+              SizedBox(height: DS.gutter),
+              Text('账本名称', style: DS.labelMd),
+              SizedBox(height: DS.sm),
+              TextField(
+                controller: controller,
+                style: DS.bodyMd.copyWith(color: DS.onSurface),
+                decoration: glassDialogInputDecoration(
+                  context,
+                  hintText: '输入账本名称',
+                ),
+                autofocus: true,
+              ),
             ],
           ),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('账本图标', style: DS.labelMd),
-                SizedBox(height: DS.sm),
-                Wrap(
-                  spacing: DS.sm,
-                  runSpacing: DS.sm,
-                  children: bookEmojis.map((emoji) {
-                    final isSelected = selectedIcon == emoji;
-                    return GestureDetector(
-                      onTap: () => setDialogState(() => selectedIcon = emoji),
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: isSelected ? DS.secondaryContainer : DS.surfaceContainerLow,
-                          borderRadius: BorderRadius.circular(DS.radiusSm),
-                          border: Border.all(
-                            color: isSelected ? DS.secondary : DS.outlineVariant,
-                            width: isSelected ? 2 : 1,
-                          ),
-                        ),
-                        child: Center(child: Text(emoji, style: TextStyle(fontSize: 20))),
-                      ),
-                    );
-                  }).toList(),
-                ),
-                SizedBox(height: DS.gutter),
-                Text('账本名称', style: DS.labelMd),
-                SizedBox(height: DS.sm),
-                TextField(
-                  controller: controller,
-                  decoration: const InputDecoration(hintText: '输入账本名称'),
-                  autofocus: true,
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('取消'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final name = controller.text.trim();
-                if (name.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('请输入账本名称')),
-                  );
-                  return;
-                }
-                Navigator.pop(context, {'name': name, 'icon': selectedIcon});
-              },
-              child: Text('保存'),
-            ),
-          ],
         ),
       ),
+      buildActions: (ctx) => [
+        GlassDialogButton(
+          label: '取消',
+          onPressed: () => Navigator.pop(ctx),
+        ),
+        GlassDialogButton(
+          label: '保存',
+          isPrimary: true,
+          onPressed: () {
+            final name = controller.text.trim();
+            if (name.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('请输入账本名称')),
+              );
+              return;
+            }
+            Navigator.pop(ctx, {'name': name, 'icon': selectedIcon});
+          },
+        ),
+      ],
     );
 
     if (result != null) {
-      final updatedBook = book.copyWith(name: result['name'], icon: result['icon']);
+      final updatedBook =
+          book.copyWith(name: result['name'], icon: result['icon']);
       await DatabaseService.instance.updateBook(updatedBook);
       if (!mounted) return;
       _loadBooks();
@@ -259,23 +280,12 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
   }
 
   Future<void> _deleteBook(BookModel book) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showGlassConfirmDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('确认删除'),
-        content: Text('确定要删除「${book.name}」吗？\n该账本下的所有账单也将被删除！'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child:
-                Text('删除', style: TextStyle(color: DS.primaryContainer)),
-          ),
-        ],
-      ),
+      title: '确认删除',
+      message: '确定要删除「${book.name}」吗？\n该账本下的所有账单也将被删除！',
+      confirmText: '删除',
+      destructive: true,
     );
 
     if (confirmed == true) {
@@ -305,7 +315,11 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
           children: [
             // 渐变 Hero 头部
             Container(
-              padding: EdgeInsets.fromLTRB(DS.containerMargin, MediaQuery.of(context).padding.top + DS.gutter, DS.containerMargin, DS.base),
+              padding: EdgeInsets.fromLTRB(
+                  DS.containerMargin,
+                  MediaQuery.of(context).padding.top + DS.gutter,
+                  DS.containerMargin,
+                  DS.base),
               decoration: BoxDecoration(
                 gradient: DS.heroGradientBlueCurrent,
                 borderRadius: BorderRadius.only(
@@ -317,7 +331,8 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
                 children: [
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: Icon(Icons.arrow_back_ios, size: 20, color: DS.onSurface),
+                    child: Icon(Icons.arrow_back_ios,
+                        size: 20, color: DS.onSurface),
                   ),
                   SizedBox(width: DS.sm),
                   Icon(Icons.book, size: 22, color: DS.onSurface),
@@ -327,7 +342,8 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
                   GestureDetector(
                     onTap: _showCreateDialog,
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.xs + 2),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: DS.sm, vertical: DS.xs + 2),
                       decoration: BoxDecoration(
                         color: DS.heroCardBg,
                         borderRadius: BorderRadius.circular(DS.radiusFull),
@@ -348,29 +364,33 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
             SizedBox(height: DS.base),
             Expanded(
               child: _loading
-                  ? const Center(child: CircularProgressIndicator(color: DS.secondaryContainer))
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                          color: DS.secondaryContainer))
                   : _books.isEmpty
                       ? _buildEmptyState()
                       : ListView.builder(
-                  padding: EdgeInsets.only(left: DS.base, right: DS.base, bottom: DS.base),
-                  itemCount: _books.length,
-                  itemBuilder: (context, index) {
-                    final book = _books[index];
-                    return Consumer<AppProvider>(
-                      builder: (context, appProvider, child) {
-                        final isCurrent = book.id == appProvider.currentBookId;
-                        return _BookCard(
-                          book: book,
-                          recordCount: _bookRecordCounts[book.id] ?? 0,
-                          isCurrent: isCurrent,
-                          onSwitch: () => _switchBook(book),
-                          onEdit: () => _editBook(book),
-                          onDelete: () => _deleteBook(book),
-                        );
-                      },
-                    );
-                  },
-                ),
+                          padding: EdgeInsets.only(
+                              left: DS.base, right: DS.base, bottom: DS.base),
+                          itemCount: _books.length,
+                          itemBuilder: (context, index) {
+                            final book = _books[index];
+                            return Consumer<AppProvider>(
+                              builder: (context, appProvider, child) {
+                                final isCurrent =
+                                    book.id == appProvider.currentBookId;
+                                return _BookCard(
+                                  book: book,
+                                  recordCount: _bookRecordCounts[book.id] ?? 0,
+                                  isCurrent: isCurrent,
+                                  onSwitch: () => _switchBook(book),
+                                  onEdit: () => _editBook(book),
+                                  onDelete: () => _deleteBook(book),
+                                );
+                              },
+                            );
+                          },
+                        ),
             ),
           ],
         ),
@@ -402,52 +422,42 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
   void _showCreateDialog() {
     final controller = TextEditingController();
 
-    showDialog(
+    showGlassDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.add_circle_outline, color: DS.primary, size: 24),
-            SizedBox(width: 8),
-            Text('创建新账本'),
-          ],
+      title: '创建新账本',
+      maxWidth: 320,
+      content: TextField(
+        controller: controller,
+        style: DS.bodyMd.copyWith(color: DS.onSurface),
+        decoration: glassDialogInputDecoration(
+          context,
+          labelText: '账本名称',
+          hintText: '例如：旅行账本、家庭账本',
+          prefixIcon: const Icon(Icons.book),
         ),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: '账本名称',
-            hintText: '例如：旅行账本、家庭账本',
-            prefixIcon: Icon(Icons.book),
-          ),
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('取消'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final name = controller.text.trim();
-              if (name.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('请输入账本名称')),
-                );
-                return;
-              }
-              _createBook(name);
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: DS.primary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(DS.radiusFull),
-              ),
-            ),
-            child: Text('创建'),
-          ),
-        ],
+        autofocus: true,
       ),
+      buildActions: (ctx) => [
+        GlassDialogButton(
+          label: '取消',
+          onPressed: () => Navigator.pop(ctx),
+        ),
+        GlassDialogButton(
+          label: '创建',
+          isPrimary: true,
+          onPressed: () {
+            final name = controller.text.trim();
+            if (name.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('请输入账本名称')),
+              );
+              return;
+            }
+            _createBook(name);
+            Navigator.pop(ctx);
+          },
+        ),
+      ],
     );
   }
 }
@@ -477,8 +487,9 @@ class _BookCard extends StatelessWidget {
       margin: EdgeInsets.only(bottom: DS.base),
       padding: EdgeInsets.all(DS.gutter),
       decoration: BoxDecoration(
-        color:
-            isCurrent ? _hexToColor(book.color).withOpacity(0.1) : DS.surfaceContainerLowest,
+        color: isCurrent
+            ? _hexToColor(book.color).withOpacity(0.1)
+            : DS.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(DS.radiusSm),
         border: Border.all(
           color: isCurrent ? _hexToColor(book.color) : DS.outlineVariant,
@@ -568,8 +579,7 @@ class _BookCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(DS.radiusFull),
                         border: Border.all(color: DS.outlineVariant),
                       ),
-                      child: Icon(Icons.edit,
-                          size: 16, color: DS.primary),
+                      child: Icon(Icons.edit, size: 16, color: DS.primary),
                     ),
                   ),
                   if (!isCurrent) ...[
@@ -584,8 +594,7 @@ class _BookCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(DS.radiusFull),
                           border: Border.all(color: DS.outlineVariant),
                         ),
-                        child: Icon(Icons.close,
-                            size: 16, color: DS.outline),
+                        child: Icon(Icons.close, size: 16, color: DS.outline),
                       ),
                     ),
                   ],

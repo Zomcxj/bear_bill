@@ -5,6 +5,7 @@ import '../../../providers/theme_provider.dart';
 import '../../../services/database_backup_service.dart';
 import '../../../services/storage_service.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../widgets/glass_dialog_shell.dart';
 import '../../map_footprint/map_footprint_page.dart';
 import 'auto_record_settings.dart';
 import 'settings_dialogs.dart';
@@ -94,6 +95,16 @@ class _SettingsListState extends State<SettingsList> {
           ),
           _buildDivider(),
           _buildMenuItem(
+            icon: Icons.blur_circular_rounded,
+            title: '主题模式',
+            trailing:
+                context.watch<ThemeProvider>().liquidGlassEnabled
+                    ? '已开启'
+                    : '已关闭',
+            onTap: () => context.read<ThemeProvider>().toggleLiquidGlass(),
+          ),
+          _buildDivider(),
+          _buildMenuItem(
             icon: Icons.help_outline,
             title: '使用帮助',
             onTap: () => showHelpDialog(context),
@@ -102,17 +113,46 @@ class _SettingsListState extends State<SettingsList> {
           _buildMenuItem(
             icon: Icons.info_outline,
             title: '关于',
-            trailing: 'v1.3.7',
+            trailing: 'v1.3.8',
             onTap: () {
-              showAboutDialog(
+              showGlassDialog(
                 context: context,
-                applicationName: '小熊记账本',
-                applicationVersion: 'v1.3.7',
-                applicationIcon: Text('🐻', style: TextStyle(fontSize: 48)),
-                children: [
-                  Text('轻盈通透的玻璃态记账应用'),
-                  SizedBox(height: 8),
-                  Text('让记账更自然、更省心'),
+                title: '关于',
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('🐻', style: TextStyle(fontSize: 48)),
+                    SizedBox(height: DS.sm),
+                    Text(
+                      '小熊记账本',
+                      style: DS.headlineSm.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: DS.onSurface,
+                      ),
+                    ),
+                    SizedBox(height: DS.xs),
+                    Text(
+                      'v1.3.8',
+                      style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
+                    ),
+                    SizedBox(height: DS.sm),
+                    Text(
+                      '轻盈通透的记账应用',
+                      style: DS.labelMd.copyWith(color: DS.onSurface),
+                    ),
+                    SizedBox(height: DS.xs),
+                    Text(
+                      '让记账更自然、更省心',
+                      style: DS.labelMd.copyWith(color: DS.onSurface),
+                    ),
+                  ],
+                ),
+                buildActions: (ctx) => [
+                  GlassDialogButton(
+                    label: '好的',
+                    onPressed: () => Navigator.pop(ctx),
+                    isPrimary: true,
+                  ),
                 ],
               );
             },

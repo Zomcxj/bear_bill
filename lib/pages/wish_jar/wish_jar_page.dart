@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
+    show GlassContainer, GlassQuality, GlassSegment, GlassSegmentedControl,
+        LiquidRoundedSuperellipse;
 import 'package:provider/provider.dart';
 import '../../models/models.dart';
 import '../../providers/app_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../services/database_service.dart';
 import '../../theme/app_design_system.dart';
+import '../../theme/glass_materials.dart';
 import '../../utils/utils.dart';
 import '../../widgets/glass_card.dart';
+import '../../widgets/glass_dialog_shell.dart';
 import 'widgets/add_money_dialog.dart';
 import 'widgets/create_wish_dialog.dart';
 import 'widgets/wish_jar_card.dart';
@@ -105,26 +110,13 @@ class _WishJarPageState extends State<WishJarPage>
   }
 
   Future<void> _deleteWish(String wishId) async {
-    final confirmed = await showDialog<bool>(
+    // 开启液态玻璃时走玻璃弹窗，关闭时回退标准 AlertDialog
+    final confirmed = await showGlassConfirmDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.delete_outline, size: 20, color: DS.error),
-            SizedBox(width: DS.xs),
-            Text('确认删除'),
-          ],
-        ),
-        content: Text('确定要删除这个心愿吗？'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: Text('取消')),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: DS.error),
-            child: Text('删除'),
-          ),
-        ],
-      ),
+      title: '确认删除',
+      message: '确定要删除这个心愿吗？',
+      confirmText: '删除',
+      destructive: true,
     );
 
     if (confirmed == true) {
@@ -202,15 +194,54 @@ class _WishJarPageState extends State<WishJarPage>
                   ],
                 ),
         ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _showCreateDialog,
-        backgroundColor: DS.secondaryContainer,
-        foregroundColor: DS.primary,
-        icon: Icon(Icons.auto_awesome, size: 20),
-        label: Text('创建心愿', style: DS.labelMd),
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(DS.radiusFull),
+      // 玻璃态下 GlassScaffold 沉浸式布局，FAB 需上抬让位（与首页"记一笔"一致）
+      floatingActionButton: Padding(
+        padding: EdgeInsets.only(
+          bottom: shouldUseLiquidGlass(context) ? 96 : 0,
+        ),
+        child: shouldUseLiquidGlass(context)
+            ? _buildGlassCreateButton()
+            : FloatingActionButton.extended(
+                onPressed: _showCreateDialog,
+                backgroundColor: DS.secondaryContainer,
+                foregroundColor: DS.primary,
+                icon: Icon(Icons.auto_awesome, size: 20),
+                label: Text('创建心愿', style: DS.labelMd),
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(DS.radiusFull),
+                ),
+              ),
+      ),
+    );
+  }
+
+  /// 「创建心愿」玻璃药丸：与首页「记一笔」同款材质/尺寸（高 56）
+  Widget _buildGlassCreateButton() {
+    return GlassContainer(
+      height: 56,
+      shape: const LiquidRoundedSuperellipse(borderRadius: DS.radiusFull),
+      settings: GlassMaterials.bar(),
+      quality: GlassQuality.standard,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: GestureDetector(
+        onTap: _showCreateDialog,
+        behavior: HitTestBehavior.opaque,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.auto_awesome, size: 20, color: DS.onSurface),
+            const SizedBox(width: 8),
+            Text(
+              '创建心愿',
+              style: TextStyle(
+                fontFamily: DS.fontLabel,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: DS.onSurface,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -231,7 +262,12 @@ class _WishJarPageState extends State<WishJarPage>
     }
 
     return ListView.builder(
-      padding: EdgeInsets.only(left: DS.sm, right: DS.sm, bottom: DS.sm),
+      // 玻璃模式底部留白：避免最后一张卡被浮动玻璃底栏盖住
+      padding: EdgeInsets.only(
+        left: DS.sm,
+        right: DS.sm,
+        bottom: DS.sm + glassBottomInset(context),
+      ),
       itemCount: wishes.length,
       itemBuilder: (context, index) {
         final wish = wishes[index];
@@ -279,51 +315,68 @@ class _WishJarPageState extends State<WishJarPage>
           ),
           SizedBox(height: DS.sm),
           // Tab 切换
-          Container(
-            padding: EdgeInsets.all(3),
-            decoration: BoxDecoration(
-              color: DS.heroCardBg,
-              borderRadius: BorderRadius.circular(DS.radiusFull),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => _tabController.animateTo(0),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(vertical: DS.sm),
-                      decoration: BoxDecoration(
-                        color: _tabController.index == 0 ? DS.primary : Colors.transparent,
-                        borderRadius: BorderRadius.circular(DS.radiusFull),
-                      ),
-                      child: Center(
-                        child: Text('进行中', style: DS.labelMd.copyWith(
-                          color: _tabController.index == 0 ? DS.onPrimary : DS.onSurface,
-                        )),
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => _tabController.animateTo(1),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(vertical: DS.sm),
-                      decoration: BoxDecoration(
-                        color: _tabController.index == 1 ? DS.primary : Colors.transparent,
-                        borderRadius: BorderRadius.circular(DS.radiusFull),
-                      ),
-                      child: Center(
-                        child: Text('已实现', style: DS.labelMd.copyWith(
-                          color: _tabController.index == 1 ? DS.onPrimary : DS.onSurface,
-                        )),
+          if (!shouldUseLiquidGlass(context))
+            Container(
+              padding: EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                color: DS.heroCardBg,
+                borderRadius: BorderRadius.circular(DS.radiusFull),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => _tabController.animateTo(0),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: DS.sm),
+                        decoration: BoxDecoration(
+                          color: _tabController.index == 0 ? DS.primary : Colors.transparent,
+                          borderRadius: BorderRadius.circular(DS.radiusFull),
+                        ),
+                        child: Center(
+                          child: Text('进行中', style: DS.labelMd.copyWith(
+                            color: _tabController.index == 0 ? DS.onPrimary : DS.onSurface,
+                          )),
+                        ),
                       ),
                     ),
                   ),
-                ),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => _tabController.animateTo(1),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: DS.sm),
+                        decoration: BoxDecoration(
+                          color: _tabController.index == 1 ? DS.primary : Colors.transparent,
+                          borderRadius: BorderRadius.circular(DS.radiusFull),
+                        ),
+                        child: Center(
+                          child: Text('已实现', style: DS.labelMd.copyWith(
+                            color: _tabController.index == 1 ? DS.onPrimary : DS.onSurface,
+                          )),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            GlassSegmentedControl(
+              segments: const [
+                GlassSegment(label: '进行中'),
+                GlassSegment(label: '已实现'),
               ],
+              selectedIndex: _tabController.index,
+              onSegmentSelected: (i) => _tabController.animateTo(i),
+              height: 34,
+              selectedTextStyle: DS.labelMd.copyWith(
+                fontWeight: FontWeight.w600,
+                color: DS.onSurface,
+              ),
+              unselectedTextStyle:
+                  DS.labelMd.copyWith(color: DS.onSurfaceVariant),
             ),
-          ),
         ],
       ),
     );

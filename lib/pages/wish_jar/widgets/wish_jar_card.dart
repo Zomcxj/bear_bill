@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../models/models.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../theme/glass_materials.dart';
 import '../../../utils/utils.dart';
 import '../../../widgets/glass_card.dart';
 import '../../../providers/theme_provider.dart';
@@ -174,14 +175,56 @@ class WishJarCard extends StatelessWidget {
               child: Container(
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(vertical: DS.sm),
+                // 玻璃态：与记一笔键盘「完成」键同款玻璃片样式
+                // （高光渐变 + 深/浅色描边 + 轻投影），不建折射图层——
+                // 卡片本身已是玻璃，玻璃不套玻璃；关闭态保留实心主色胶囊
                 decoration: BoxDecoration(
-                  color: DS.primary,
+                  gradient: shouldUseLiquidGlass(context)
+                      ? LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: DS.isDark
+                              ? [
+                                  Colors.white.withOpacity(0.36),
+                                  Colors.white.withOpacity(0.12),
+                                ]
+                              : [
+                                  Colors.white.withOpacity(0.69),
+                                  Colors.white.withOpacity(0.45),
+                                ],
+                        )
+                      : null,
+                  color: !shouldUseLiquidGlass(context) ? DS.primary : null,
                   borderRadius: BorderRadius.circular(DS.radiusFull),
+                  border: shouldUseLiquidGlass(context)
+                      ? Border.all(
+                          color: DS.isDark
+                              ? Colors.white.withOpacity(0.16)
+                              : Colors.black.withOpacity(0.10),
+                        )
+                      : null,
+                  boxShadow: shouldUseLiquidGlass(context)
+                      ? [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(
+                              DS.isDark ? 0.20 : 0.06,
+                            ),
+                            blurRadius: 4,
+                            offset: const Offset(0, 1),
+                          ),
+                        ]
+                      : null,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.savings, size: 16, color: DS.onPrimary),
+                    Icon(
+                      Icons.savings,
+                      size: 16,
+                      color: shouldUseLiquidGlass(context)
+                          ? DS.onSurface
+                          : DS.onPrimary,
+                    ),
                     SizedBox(width: DS.xs),
                     Text(
                       '存入',
@@ -189,7 +232,9 @@ class WishJarCard extends StatelessWidget {
                         fontFamily: DS.fontLabel,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: DS.onPrimary,
+                        color: shouldUseLiquidGlass(context)
+                            ? DS.onSurface
+                            : DS.onPrimary,
                       ),
                     ),
                   ],

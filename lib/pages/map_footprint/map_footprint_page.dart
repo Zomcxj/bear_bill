@@ -15,6 +15,7 @@ import '../../theme/app_theme.dart';
 import '../../utils/utils.dart' as utils;
 import 'widgets/category_filter_bar.dart';
 import '../../../providers/theme_provider.dart';
+import '../../widgets/glass_sub_page_bar.dart';
 
 /// 消费地图足迹页面
 class MapFootprintPage extends StatefulWidget {
@@ -55,7 +56,8 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
 
     // 分类筛选
     if (_selectedCategoryId != null) {
-      records = records.where((r) => r.categoryId == _selectedCategoryId).toList();
+      records =
+          records.where((r) => r.categoryId == _selectedCategoryId).toList();
     }
 
     // 聚类: 100m 内的记录合并
@@ -76,8 +78,10 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
         if (r2.latitude == null || r2.longitude == null) continue;
 
         final distance = _haversineDistance(
-          r1.latitude!, r1.longitude!,
-          r2.latitude!, r2.longitude!,
+          r1.latitude!,
+          r1.longitude!,
+          r2.latitude!,
+          r2.longitude!,
         );
 
         if (distance <= 100) {
@@ -87,8 +91,12 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
       }
 
       // 计算聚类中心（WGS84）
-      final avgLat = clusterRecords.map((r) => r.latitude!).reduce((a, b) => a + b) / clusterRecords.length;
-      final avgLng = clusterRecords.map((r) => r.longitude!).reduce((a, b) => a + b) / clusterRecords.length;
+      final avgLat =
+          clusterRecords.map((r) => r.latitude!).reduce((a, b) => a + b) /
+              clusterRecords.length;
+      final avgLng =
+          clusterRecords.map((r) => r.longitude!).reduce((a, b) => a + b) /
+              clusterRecords.length;
 
       // 转换为 GCJ-02 用于地图显示（Amap 瓦片使用 GCJ-02）
       final gcj = AmapLocationService.wgs84ToGcj02(avgLat, avgLng);
@@ -103,7 +111,8 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
   }
 
   /// Haversine 公式计算两点距离（米）
-  double _haversineDistance(double lat1, double lon1, double lat2, double lon2) {
+  double _haversineDistance(
+      double lat1, double lon1, double lat2, double lon2) {
     const R = 6371000.0; // 地球半径（米）
     final dLat = _toRad(lat2 - lat1);
     final dLon = _toRad(lon2 - lon1);
@@ -134,24 +143,7 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
     context.watch<ThemeProvider>(); // theme rebuild
     return Scaffold(
       backgroundColor: DS.background,
-      appBar: AppBar(
-        title: Text(
-          '消费地图',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: DS.onSurface,
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        foregroundColor: DS.onSurface,
-        elevation: 0,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: DS.heroGradientBlueCurrent,
-          ),
-        ),
-      ),
+      appBar: const GlassSubPageBar(title: '消费地图'),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Column(
@@ -237,7 +229,8 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
   }
 
   Widget _buildBottomStats() {
-    final totalRecords = _clusters.fold<int>(0, (sum, c) => sum + c.records.length);
+    final totalRecords =
+        _clusters.fold<int>(0, (sum, c) => sum + c.records.length);
     final totalAmount = _clusters.fold<double>(0, (sum, c) {
       return sum + c.records.fold<double>(0, (s, r) => s + r.amount);
     });
@@ -258,7 +251,8 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
         children: [
           _buildStatItem('标记数', '${_clusters.length}'),
           _buildStatItem('记录数', '$totalRecords'),
-          _buildStatItem('总金额', '¥${utils.FormatUtils.formatAmount(totalAmount)}'),
+          _buildStatItem(
+              '总金额', '¥${utils.FormatUtils.formatAmount(totalAmount)}'),
         ],
       ),
     );
@@ -370,7 +364,8 @@ class _ClusterDetailSheet extends StatelessWidget {
                       borderRadius: BorderRadius.circular(DS.radiusXs),
                     ),
                     child: Center(
-                      child: Text(r.categoryIcon, style: TextStyle(fontSize: 20)),
+                      child:
+                          Text(r.categoryIcon, style: TextStyle(fontSize: 20)),
                     ),
                   ),
                   title: Text(
@@ -386,7 +381,9 @@ class _ClusterDetailSheet extends StatelessWidget {
                   trailing: Text(
                     '${r.type == 'expense' ? '-' : '+'}¥${r.amount.toStringAsFixed(2)}',
                     style: DS.labelMd.copyWith(
-                      color: r.type == 'expense' ? DS.primaryContainer : AppTheme.success,
+                      color: r.type == 'expense'
+                          ? DS.primaryContainer
+                          : AppTheme.success,
                     ),
                   ),
                 );

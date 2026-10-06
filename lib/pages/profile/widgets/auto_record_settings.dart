@@ -4,7 +4,9 @@ import '../../../services/auto_record_service.dart';
 import '../../../services/notification_service.dart';
 import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
+import '../../../theme/glass_materials.dart';
 import '../../../providers/theme_provider.dart';
+import '../../../widgets/glass_dialog_shell.dart';
 import 'package:provider/provider.dart';
 
 /// 自动记账设置对话框
@@ -13,9 +15,17 @@ Future<void> showAutoRecordDialog(BuildContext context) async {
 
   if (!context.mounted) return;
 
-  showDialog(
+  showGlassDialog(
     context: context,
-    builder: (context) => _AutoRecordDialogContent(enabled: enabled),
+    title: '自动记账',
+    maxWidth: 340,
+    content: _AutoRecordDialogContent(enabled: enabled),
+    buildActions: (ctx) => [
+      GlassDialogButton(
+        label: '关闭',
+        onPressed: () => Navigator.pop(ctx),
+      ),
+    ],
   );
 }
 
@@ -98,174 +108,161 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
   @override
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>(); // theme rebuild
-    return AlertDialog(
-      title: Row(
-        children: [
-          Icon(Icons.smart_toy, color: DS.primary, size: 24),
-          SizedBox(width: 8),
-          Text('自动记账'),
-        ],
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '监听支付宝/银行卡通知，识别后跳转记账页确认',
-            style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
-          ),
-          SizedBox(height: 16),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '监听支付宝/银行卡通知，识别后跳转记账页确认',
+          style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
+        ),
+        SizedBox(height: 16),
 
-          // 通知监听权限状态
-          Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
+        // 通知监听权限状态
+        Container(
+          padding: EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: _listenerEnabled
+                ? AppTheme.success.withOpacity(0.1)
+                : DS.emphasis.withOpacity(0.10),
+            borderRadius: BorderRadius.circular(DS.radiusSm),
+            border: Border.all(
               color: _listenerEnabled
-                  ? AppTheme.success.withOpacity(0.1)
-                  : DS.primaryContainer.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(DS.radiusSm),
-              border: Border.all(
-                color: _listenerEnabled
-                    ? AppTheme.success.withOpacity(0.3)
-                    : DS.primaryContainer.withOpacity(0.3),
-              ),
+                  ? AppTheme.success.withOpacity(0.3)
+                  : DS.emphasis.withOpacity(0.30),
             ),
-            child: Row(
-              children: [
-                Icon(
-                  _listenerEnabled ? Icons.check_circle : Icons.warning,
-                  size: 20,
-                  color:
-                      _listenerEnabled ? AppTheme.success : DS.primaryContainer,
-                ),
-                SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+          ),
+          child: Row(
+            children: [
+              Icon(
+                _listenerEnabled ? Icons.check_circle : Icons.warning,
+                size: 20,
+                color: _listenerEnabled ? AppTheme.success : DS.emphasis,
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _listenerEnabled ? '通知监听权限已开启' : '需要开启通知读取权限',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color:
+                            _listenerEnabled ? AppTheme.success : DS.emphasis,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    if (_listenerEnabled)
                       Text(
-                        _listenerEnabled ? '通知监听权限已开启' : '需要开启通知读取权限',
+                        _listenerRunning ? '服务已被系统绑定' : '等待系统绑定，以下方最近通知为准',
                         style: TextStyle(
-                          fontSize: 13,
-                          color: _listenerEnabled
+                          fontSize: 11,
+                          color: _listenerRunning
                               ? AppTheme.success
-                              : DS.primaryContainer,
-                          fontWeight: FontWeight.w500,
+                              : AppTheme.warning,
                         ),
                       ),
-                      if (_listenerEnabled)
-                        Text(
-                          _listenerRunning ? '服务已被系统绑定' : '等待系统绑定，以下方最近通知为准',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: _listenerRunning
-                                ? AppTheme.success
-                                : AppTheme.warning,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-                if (!_listenerEnabled)
-                  TextButton(
-                    onPressed: () async {
-                      await AutoRecordService.instance
-                          .openNotificationListenerSettings();
-                    },
-                    child: Text('去开启'),
-                  ),
-              ],
-            ),
-          ),
-          SizedBox(height: 12),
-
-          // 自动记账开关
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '启用自动记账',
-                style: DS.bodyMd.copyWith(
-                  fontWeight: FontWeight.w500,
-                  color: DS.onSurface,
+                  ],
                 ),
               ),
-              Switch(
-                value: _enabled,
-                onChanged: _toggleEnabled,
-                activeColor: DS.primary,
+              if (!_listenerEnabled)
+                TextButton(
+                  onPressed: () async {
+                    await AutoRecordService.instance
+                        .openNotificationListenerSettings();
+                  },
+                  child: Text('去开启', style: TextStyle(color: DS.emphasis)),
+                ),
+            ],
+          ),
+        ),
+        SizedBox(height: 12),
+
+        // 自动记账开关
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '启用自动记账',
+              style: DS.bodyMd.copyWith(
+                fontWeight: FontWeight.w500,
+                color: DS.onSurface,
+              ),
+            ),
+            Switch(
+              value: _enabled,
+              onChanged: _toggleEnabled,
+              activeColor: DS.emphasis,
+            ),
+          ],
+        ),
+        SizedBox(height: 12),
+
+        // 提示
+        Container(
+          padding: EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: shouldUseLiquidGlass(context)
+                ? (DS.isDark
+                    ? Colors.white.withOpacity(0.06)
+                    : Colors.white.withOpacity(0.40))
+                : DS.background,
+            borderRadius: BorderRadius.circular(DS.radiusXs),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '支持的应用',
+                style: DS.labelSm.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: DS.onSurfaceVariant,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                '• 支付宝（交易提醒弹窗）\n• 主流银行 App（通知栏消息）',
+                style: DS.labelSm.copyWith(color: DS.outline),
+              ),
+              SizedBox(height: 8),
+              Text(
+                '识别的内容',
+                style: DS.labelSm.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: DS.onSurfaceVariant,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                '• 支付成功通知\n• 转账/红包通知',
+                style: DS.labelSm.copyWith(color: DS.outline),
               ),
             ],
           ),
-          SizedBox(height: 12),
+        ),
+        SizedBox(height: 12),
 
-          // 提示
-          Container(
-            padding: EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: DS.background,
-              borderRadius: BorderRadius.circular(DS.radiusXs),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '支持的应用',
-                  style: DS.labelSm.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: DS.onSurfaceVariant,
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  '• 支付宝（交易提醒弹窗）\n• 主流银行 App（通知栏消息）',
-                  style: DS.labelSm.copyWith(color: DS.outline),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  '识别的内容',
-                  style: DS.labelSm.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: DS.onSurfaceVariant,
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  '• 支付成功通知\n• 转账/红包通知',
-                  style: DS.labelSm.copyWith(color: DS.outline),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 12),
-
-          // 测试按钮
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () async {
-                Navigator.pop(context); // 关闭设置弹窗
-                await AutoRecordService.instance.simulatePayment(
-                  title: '支付宝',
-                  text: '你有一笔25.00元的支出，点击查看详情',
-                  source: 'alipay',
+        // 测试按钮
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: () async {
+              Navigator.pop(context); // 关闭设置弹窗
+              await AutoRecordService.instance.simulatePayment(
+                title: '支付宝',
+                text: '你有一笔25.00元的支出，点击查看详情',
+                source: 'alipay',
+              );
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('已模拟支付宝支付，请查看是否跳转记账页面')),
                 );
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('已模拟支付宝支付，请查看是否跳转记账页面')),
-                  );
-                }
-              },
-              icon: Icon(Icons.bug_report, size: 16),
-              label: Text('发送测试通知'),
-            ),
+              }
+            },
+            icon: Icon(Icons.bug_report, size: 16),
+            label: Text('发送测试通知'),
           ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text('关闭'),
         ),
       ],
     );

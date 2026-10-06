@@ -16,18 +16,20 @@ class DonutChartWidget extends StatelessWidget {
     required this.total,
   });
 
-  static final List<Color> _colors = [
-    DS.primary,
-    DS.surfaceContainerHigh,
-    const Color(0xFFFFD93D),
-    const Color(0xFF6BCB77),
-    const Color(0xFF74C0FC),
-    const Color(0xFFCC5DE8),
-    const Color(0xFFFFA94D),
-    const Color(0xFFA5D8FF),
-    const Color(0xFFB2F2BB),
-    const Color(0xFFFFE066),
-  ];
+  // 动态色（DS.emphasis 等是 getter，随主题变化）——不能在 static final
+  // 里取值，否则只缓存首次主题的颜色。首色用图表支出色，其余为固定配色。
+  List<Color> get _colors => [
+        DS.chartExpense,
+        DS.surfaceContainerHigh,
+        const Color(0xFFFFD93D),
+        const Color(0xFF6BCB77),
+        const Color(0xFF74C0FC),
+        const Color(0xFFCC5DE8),
+        const Color(0xFFFFA94D),
+        const Color(0xFFA5D8FF),
+        const Color(0xFFB2F2BB),
+        const Color(0xFFFFE066),
+      ];
 
   @override
   Widget build(BuildContext context) {
