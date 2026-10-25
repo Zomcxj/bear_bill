@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../models/category_model.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../theme/glass_materials.dart';
 import '../../../providers/theme_provider.dart';
 
 /// 心情选择器
@@ -48,16 +49,27 @@ class MoodSelector extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: isSelected 
-                      ? DS.surfaceContainerHigh 
-                      : DS.surfaceContainerLowest,
+                  color: shouldUseLiquidGlass(context)
+                      ? (isSelected
+                          ? (DS.isDark
+                              ? Colors.white.withOpacity(0.22)
+                              : Colors.white.withOpacity(0.70))
+                          : (DS.isDark
+                              ? Colors.white.withOpacity(0.08)
+                              : Colors.white.withOpacity(0.45)))
+                      : (isSelected
+                          ? DS.surfaceContainerHigh
+                          : DS.surfaceContainerLowest),
                   borderRadius: BorderRadius.circular(DS.radiusFull),
-                  border: Border.all(
-                    color: isSelected 
-                        ? DS.primary 
-                        : DS.outlineVariant,
-                    width: isSelected ? 2 : 1,
-                  ),
+                  // 玻璃主题无边框，选中靠填充；关闭态原样
+                  border: shouldUseLiquidGlass(context)
+                      ? null
+                      : Border.all(
+                          color: isSelected
+                              ? DS.emphasis
+                              : DS.outlineVariant,
+                          width: isSelected ? 2 : 1,
+                        ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -69,7 +81,7 @@ class MoodSelector extends StatelessWidget {
                         mood.label,
                         style: TextStyle(
                           fontSize: 12,
-                          color: DS.primaryContainer,
+                          color: DS.emphasis,
                         ),
                       ),
                     ],

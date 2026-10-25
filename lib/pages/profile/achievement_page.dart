@@ -5,6 +5,7 @@ import '../../models/achievement_model.dart';
 import '../../providers/app_provider.dart';
 import '../../services/database_service.dart';
 import '../../theme/app_design_system.dart';
+import '../../theme/glass_materials.dart';
 import '../../theme/app_theme.dart';
 import '../../../providers/theme_provider.dart';
 import '../../../widgets/glass_dialog_shell.dart';
@@ -211,10 +212,13 @@ class _AchievementCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: DS.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(DS.radiusSm),
-          border: Border.all(
-            color: isUnlocked ? DS.primary : DS.outlineVariant,
-            width: isUnlocked ? 1.5 : 1,
-          ),
+          // 玻璃主题无边框，解锁靠填充；关闭态原样
+          border: shouldUseLiquidGlass(context)
+              ? null
+              : Border.all(
+                  color: isUnlocked ? DS.emphasis : DS.outlineVariant,
+                  width: isUnlocked ? 1.5 : 1,
+                ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -227,10 +231,13 @@ class _AchievementCard extends StatelessWidget {
                     ? DS.surfaceContainerHigh
                     : DS.surfaceContainerLow,
                 borderRadius: BorderRadius.circular(DS.radiusFull),
-                border: Border.all(
-                  color: isUnlocked ? DS.primary : DS.outlineVariant,
-                  width: 1.5,
-                ),
+                // 玻璃主题无边框；关闭态原样
+                border: shouldUseLiquidGlass(context)
+                    ? null
+                    : Border.all(
+                        color: isUnlocked ? DS.emphasis : DS.outlineVariant,
+                        width: 1.5,
+                      ),
               ),
               child: Center(
                 child: Text(

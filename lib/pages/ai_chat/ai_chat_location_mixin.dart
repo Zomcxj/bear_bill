@@ -92,7 +92,7 @@ mixin AiChatLocationMixin on State<AiChatPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Icon(Icons.my_location, color: DS.primary),
+              leading: Icon(Icons.my_location, color: DS.emphasis),
               title: Text('重新获取 GPS 定位'),
               onTap: () {
                 Navigator.pop(ctx);
@@ -104,7 +104,7 @@ mixin AiChatLocationMixin on State<AiChatPage> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.map, color: DS.primary),
+              leading: Icon(Icons.map, color: DS.emphasis),
               title: Text('地图选点'),
               onTap: () {
                 Navigator.pop(ctx);

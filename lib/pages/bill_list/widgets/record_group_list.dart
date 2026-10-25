@@ -3,6 +3,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 
 import '../../../models/models.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../widgets/glass_dialog_shell.dart';
 import '../../../theme/app_theme.dart';
 import '../../../theme/glass_materials.dart';
 import '../../../utils/utils.dart' as utils;
@@ -51,9 +52,9 @@ class RecordGroupList extends StatelessWidget {
   Widget _buildDateGroup(Map<String, dynamic> group) {
     final records = group['records'] as List<RecordModel>;
 
-    return Container(
+    return GlassSurface(
       margin: EdgeInsets.only(bottom: DS.sm),
-      decoration: DS.glassDecoration,
+      fallbackDecoration: DS.glassDecoration,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -94,7 +95,9 @@ class RecordGroupList extends StatelessWidget {
                       Text(
                         '支 ¥${utils.FormatUtils.formatAmount(group['dayExpense'])}',
                         style: DS.labelSm.copyWith(
-                          color: DS.primaryContainer,
+                          // 动态支出色：浅色近黑 / 深色浅红（常量
+                          // primaryContainer 近黑，深色下黑底黑字不可见）
+                          color: DS.chartExpense,
                         ),
                       ),
                     if (group['dayExpense'] > 0 && group['dayIncome'] > 0)
@@ -146,7 +149,8 @@ class RecordGroupList extends StatelessWidget {
         children: [
           SlidableAction(
             onPressed: (context) => onDelete(record.id),
-            backgroundColor: DS.primaryContainer,
+            // 删除 = 破坏性操作，红色（常量 primaryContainer 深色下不可见）
+            backgroundColor: const Color(0xFFE5484D),
             foregroundColor: Colors.white,
             icon: Icons.delete,
             borderRadius: BorderRadius.circular(DS.radiusSm),
@@ -231,7 +235,11 @@ class RecordGroupList extends StatelessWidget {
                 style: DS.labelMd.copyWith(
                   fontSize: 17,
                   fontWeight: FontWeight.w600,
-                  color: DS.onSurface,
+                  // 按收支着色（与统计页一致）：支出动态红、收入绿，
+                  // 深浅色都动态可读
+                  color: record.type == 'expense'
+                      ? DS.chartExpense
+                      : AppTheme.success,
                 ),
               ),
             ],

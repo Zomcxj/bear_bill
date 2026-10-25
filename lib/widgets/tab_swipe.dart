@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 
 /// 底部导航栏"按住滑动"：把指针的 x 坐标换算成应选中的 Tab 索引。
 ///

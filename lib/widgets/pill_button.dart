@@ -24,8 +24,11 @@ class PillButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = backgroundColor ?? DS.primary;
-    final fgColor = foregroundColor ?? DS.onPrimary;
+    final bgColor = backgroundColor ?? DS.emphasis;
+    final fgColor = foregroundColor ??
+        (backgroundColor == null
+            ? (DS.isDark ? DS.background : Colors.white)
+            : DS.onPrimary);
 
     final button = TextButton(
       onPressed: onPressed,

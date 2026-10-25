@@ -7,6 +7,7 @@ import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
 import '../../../utils/utils.dart' as utils;
 import '../../../providers/theme_provider.dart';
+import '../../../widgets/glass_dialog_shell.dart';
 
 /// 月度预算进度条卡片（Luminous Finance 风格）
 class BudgetProgressCard extends StatefulWidget {
@@ -79,13 +80,13 @@ class _BudgetProgressCardState extends State<BudgetProgressCard> {
     context.watch<ThemeProvider>(); // theme rebuild
     if (_budget <= 0) return const SizedBox.shrink();
 
-    return Container(
+    return GlassSurface(
       margin: EdgeInsets.symmetric(horizontal: DS.sm),
       padding: EdgeInsets.symmetric(
         horizontal: DS.sm,
         vertical: 14,
       ),
-      decoration: DS.glassDecoration.copyWith(
+      fallbackDecoration: DS.glassDecoration.copyWith(
         boxShadow: DS.shadowSm,
       ),
       child: Column(
@@ -148,7 +149,7 @@ class _BudgetProgressCardState extends State<BudgetProgressCard> {
                 decoration: BoxDecoration(
                   color: _budgetOver
                       ? const Color(0xFFFF4444)
-                      : DS.primary,
+                      : DS.emphasis,
                 ),
               ),
             ),

@@ -2,6 +2,7 @@
 
 import '../../../models/models.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../theme/glass_materials.dart';
 import '../../../providers/theme_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -52,12 +53,15 @@ class CategorySelector extends StatelessWidget {
                             ? _hexToColor(category.color).withOpacity(0.15)
                             : DS.surfaceContainerLowest,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isSelected
-                              ? _hexToColor(category.color)
-                              : DS.outlineVariant,
-                          width: isSelected ? 2 : 1,
-                        ),
+                        // 玻璃主题无边框，选中靠填充；关闭态原样
+                        border: shouldUseLiquidGlass(context)
+                            ? null
+                            : Border.all(
+                                color: isSelected
+                                    ? _hexToColor(category.color)
+                                    : DS.outlineVariant,
+                                width: isSelected ? 2 : 1,
+                              ),
                       ),
                       child: Center(
                         child: Text(

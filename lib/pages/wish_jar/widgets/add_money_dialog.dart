@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
-    show GlassContainer, GlassDialogAction, GlassQuality;
+    show
+        GlassButton,
+        GlassButtonStyle,
+        GlassContainer,
+        GlassDialogAction,
+        GlassQuality,
+        LiquidRoundedSuperellipse;
 
 import '../../../models/models.dart';
 import '../../../theme/app_design_system.dart';
@@ -121,8 +127,14 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
           runSpacing: 8,
           children: _quickAmounts.map((amount) {
             final selected = _amountController.text == amount.toString();
-            return GestureDetector(
+            // 按压物理 = 官方 GlassButton 透明样式（弹簧膨胀 + 触点光晕），
+            // 不画玻璃壳——托盘已是玻璃，玻璃不套玻璃；键面仍是着色层
+            return GlassButton.custom(
+              style: GlassButtonStyle.transparent,
               onTap: () => _selectQuickAmount(amount),
+              interactionScale: 1.05,
+              stretch: 0.25,
+              shape: const LiquidRoundedSuperellipse(borderRadius: 999),
               child: Container(
                 padding: EdgeInsets.symmetric(
                   horizontal: 16,

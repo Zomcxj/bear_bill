@@ -106,7 +106,10 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
                               : Colors.white.withOpacity(0.50))
                           : DS.surfaceContainerLow,
                       borderRadius: BorderRadius.circular(DS.radiusFull),
-                      border: Border.all(color: DS.outlineVariant),
+                      // 玻璃主题无边框；关闭态原样
+                      border: shouldUseLiquidGlass(context)
+                          ? null
+                          : Border.all(color: DS.outlineVariant),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -212,7 +215,10 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
                           : Colors.white.withOpacity(0.50))
                       : DS.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(DS.radiusSm),
-                  border: Border.all(color: DS.outlineVariant),
+                  // 玻璃主题无边框；关闭态原样
+                  border: shouldUseLiquidGlass(context)
+                      ? null
+                      : Border.all(color: DS.outlineVariant),
                 ),
                 child: Row(
                   children: [
@@ -273,7 +279,8 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
           ElevatedButton(
             onPressed: actions[1].onPressed,
             style: ElevatedButton.styleFrom(
-              backgroundColor: DS.primary,
+              backgroundColor: DS.emphasis,
+              foregroundColor: DS.isDark ? DS.background : Colors.white,
               padding: EdgeInsets.symmetric(
                 horizontal: DS.md,
                 vertical: DS.base,

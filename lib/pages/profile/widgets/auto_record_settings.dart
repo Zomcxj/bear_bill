@@ -126,11 +126,14 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
                 ? AppTheme.success.withOpacity(0.1)
                 : DS.emphasis.withOpacity(0.10),
             borderRadius: BorderRadius.circular(DS.radiusSm),
-            border: Border.all(
-              color: _listenerEnabled
-                  ? AppTheme.success.withOpacity(0.3)
-                  : DS.emphasis.withOpacity(0.30),
-            ),
+            // 玻璃主题无边框，状态靠填充；关闭态原样
+            border: shouldUseLiquidGlass(context)
+                ? null
+                : Border.all(
+                    color: _listenerEnabled
+                        ? AppTheme.success.withOpacity(0.3)
+                        : DS.emphasis.withOpacity(0.30),
+                  ),
           ),
           child: Row(
             children: [

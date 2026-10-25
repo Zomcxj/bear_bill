@@ -7,8 +7,9 @@ import '../../../services/database_service.dart';
 import '../../../theme/app_design_system.dart';
 import '../../../utils/utils.dart' as utils;
 import '../../../widgets/glass_card.dart';
+import '../../../widgets/glass_dialog_shell.dart';
 import '../../../main.dart';
-import '../../record_detail/record_detail_page.dart';
+import '../../bill_list/widgets/record_detail_dialog.dart';
 import '../../../providers/theme_provider.dart';
 
 /// 将 hex 颜色字符串转换为 Color
@@ -240,11 +241,12 @@ class _TodayRecordsState extends State<TodayRecords> {
 
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => RecordDetailPage(recordId: record.id),
-          ),
+        // 点击记录弹窗口展示（原 push 全屏详情页，按产品要求改为窗口；
+        // 窗口内保留编辑/删除，编辑页仍是全屏 AddRecordPage）
+        // 玻璃态走居中小窗壳（showDialog 的紧约束会把玻璃壳撑成全屏）
+        showGlassContentDialog(
+          context: context,
+          builder: (context) => RecordDetailDialog(record: record),
         );
       },
       behavior: HitTestBehavior.opaque,
@@ -320,7 +322,8 @@ class _TodayRecordsState extends State<TodayRecords> {
                     fontWeight: FontWeight.w700,
                     color: record.type == 'income'
                         ? DS.secondary
-                        : DS.onSurface,
+                        // 支出用动态色（深色浅红），与账单页/统计页一致
+                        : DS.chartExpense,
                   ),
                 ),
                 Text(

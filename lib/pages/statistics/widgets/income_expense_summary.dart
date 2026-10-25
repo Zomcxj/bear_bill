@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../theme/app_design_system.dart';
 import '../../../utils/utils.dart';
 import '../../../providers/theme_provider.dart';
+import '../../../widgets/glass_dialog_shell.dart';
 import 'package:provider/provider.dart';
 
 /// 收支结余概览卡片
@@ -21,10 +22,11 @@ class IncomeExpenseSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>(); // theme rebuild
-    return Container(
+    // 玻璃态：整块 shader 玻璃（一体收支卡）；关闭态原渐变（零漂移）
+    return GlassSurface(
       margin: EdgeInsets.all(DS.base),
       padding: EdgeInsets.symmetric(vertical: DS.gutter),
-      decoration: BoxDecoration(
+      fallbackDecoration: BoxDecoration(
         gradient: DS.heroGradientBlueCurrent,
         borderRadius: BorderRadius.all(Radius.circular(DS.radiusMd)),
       ),

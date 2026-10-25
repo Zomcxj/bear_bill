@@ -44,15 +44,19 @@ void showThemeColorDialog(BuildContext context, ThemeProvider themeProvider) {
                     ),
                   );
                 },
-                child: AnimatedContainer(
+                  child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   decoration: BoxDecoration(
                     color: color,
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isSelected ? Colors.white : Colors.transparent,
-                      width: 3,
-                    ),
+                    // 玻璃主题无边框，选中靠对勾+光晕；关闭态原样
+                    border: shouldUseLiquidGlass(context)
+                        ? null
+                        : Border.all(
+                            color:
+                                isSelected ? Colors.white : Colors.transparent,
+                            width: 3,
+                          ),
                     boxShadow: [
                       if (isSelected)
                         BoxShadow(
@@ -185,7 +189,10 @@ class _ColorPickerDialogState extends State<ColorPickerDialog> {
           decoration: BoxDecoration(
             color: selectedColor,
             borderRadius: BorderRadius.circular(DS.radiusSm),
-            border: Border.all(color: DS.outlineVariant),
+            // 玻璃主题无边框；关闭态原样
+            border: shouldUseLiquidGlass(context)
+                ? null
+                : Border.all(color: DS.outlineVariant),
           ),
           alignment: Alignment.center,
           child: Text(

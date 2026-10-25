@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../models/category_model.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../theme/glass_materials.dart';
 import '../../../providers/theme_provider.dart';
 
 /// 将 hex 颜色字符串转换为 Color
@@ -109,11 +110,14 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
                         ? DS.surfaceContainerHigh
                         : DS.surfaceContainerLowest,
                     borderRadius: BorderRadius.circular(DS.radiusSm),
-                    border: Border.all(
-                      color: widget.showFilter
-                          ? DS.primary
-                          : DS.outlineVariant,
-                    ),
+                    // 玻璃主题无边框，选中靠填充；关闭态原样
+                    border: shouldUseLiquidGlass(context)
+                        ? null
+                        : Border.all(
+                            color: widget.showFilter
+                                ? DS.emphasis
+                                : DS.outlineVariant,
+                          ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -122,7 +126,7 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
                         '筛选',
                         style: DS.labelMd.copyWith(
                           color: widget.showFilter
-                              ? DS.primaryContainer
+                              ? DS.emphasis
                               : DS.onSurfaceVariant,
                         ),
                       ),
@@ -134,14 +138,14 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: DS.primary,
+                            color: DS.emphasis,
                             borderRadius: BorderRadius.circular(DS.radiusFull),
                           ),
                           child: Text(
                             '${widget.filterCategories.length}',
                             style: TextStyle(
                               fontSize: 11,
-                              color: Colors.white,
+                              color: DS.isDark ? DS.background : Colors.white,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -246,15 +250,18 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
         decoration: BoxDecoration(
           color: isSelected ? DS.surfaceContainerHigh : DS.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(DS.radiusFull),
-          border: Border.all(
-            color: isSelected ? DS.primary : DS.outlineVariant,
-            width: isSelected ? 2 : 1,
-          ),
+          // 玻璃主题无边框，选中靠填充；关闭态原样
+          border: shouldUseLiquidGlass(context)
+              ? null
+              : Border.all(
+                  color: isSelected ? DS.emphasis : DS.outlineVariant,
+                  width: isSelected ? 2 : 1,
+                ),
         ),
         child: Text(
           label,
           style: DS.labelSm.copyWith(
-            color: isSelected ? DS.primaryContainer : DS.onSurfaceVariant,
+            color: isSelected ? DS.emphasis : DS.onSurfaceVariant,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
           ),
         ),
@@ -273,12 +280,15 @@ class _SearchFilterBarState extends State<SearchFilterBar> {
               ? _hexToColor(category.color).withOpacity(0.2)
               : DS.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(DS.radiusFull),
-          border: Border.all(
-            color: isSelected
-                ? _hexToColor(category.color)
-                : DS.outlineVariant,
-            width: isSelected ? 2 : 1,
-          ),
+          // 玻璃主题无边框，选中靠填充；关闭态原样
+          border: shouldUseLiquidGlass(context)
+              ? null
+              : Border.all(
+                  color: isSelected
+                      ? _hexToColor(category.color)
+                      : DS.outlineVariant,
+                  width: isSelected ? 2 : 1,
+                ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

@@ -396,7 +396,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                 SizedBox(height: 4),
                 Icon(
                   Icons.location_on,
-                  color: DS.primary,
+                  color: DS.emphasis,
                   size: 40,
                   shadows: const [
                     Shadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
@@ -467,7 +467,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                       IconButton(
                         icon: Icon(
                           Icons.search,
-                          color: _isSearching ? DS.outline : DS.primary,
+                          color: _isSearching ? DS.outline : DS.emphasis,
                         ),
                         onPressed: () => _searchPlace(_searchController.text),
                       ),
@@ -500,7 +500,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                         final r = _searchResults[index];
                         return ListTile(
                           dense: true,
-                          leading: Icon(Icons.place, color: DS.primary, size: 20),
+                          leading: Icon(Icons.place, color: DS.emphasis, size: 20),
                           title: Text(
                             r['name'] ?? '',
                             style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
@@ -549,7 +549,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : Icon(Icons.my_location, color: DS.primary),
+                        : Icon(Icons.my_location, color: DS.emphasis),
                     onPressed: _isLoading ? null : _locateMe,
                   ),
                 ),
@@ -586,7 +586,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.place, color: DS.primary, size: 20),
+                      Icon(Icons.place, color: DS.emphasis, size: 20),
                       SizedBox(width: 8),
                       Expanded(
                         child: Column(
@@ -629,8 +629,8 @@ class _MapPickerPageState extends State<MapPickerPage> {
                     child: ElevatedButton(
                       onPressed: _confirmSelection,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: DS.primary,
-                        foregroundColor: Colors.white,
+                        backgroundColor: DS.emphasis,
+                        foregroundColor: DS.isDark ? DS.background : Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(22),
                         ),
@@ -658,7 +658,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        CircularProgressIndicator(color: DS.primary),
+                        CircularProgressIndicator(color: DS.emphasis),
                         SizedBox(height: 12),
                         Text('正在定位...', style: TextStyle(fontSize: 14)),
                       ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'    show GlassButton, LiquidRoundedSuperellipse;
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
@@ -208,10 +209,15 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
                                     : Colors.white.withOpacity(0.40))
                                 : DS.surfaceContainerLow),
                         borderRadius: BorderRadius.circular(DS.radiusSm),
-                        border: Border.all(
-                          color: isSelected ? DS.secondary : DS.outlineVariant,
-                          width: isSelected ? 2 : 1,
-                        ),
+                        // 玻璃主题无边框，选中靠填充；关闭态原样
+                        border: shouldUseLiquidGlass(context)
+                            ? null
+                            : Border.all(
+                                color: isSelected
+                                    ? DS.secondary
+                                    : DS.outlineVariant,
+                                width: isSelected ? 2 : 1,
+                              ),
                       ),
                       child: Center(
                           child: Text(emoji, style: TextStyle(fontSize: 20))),
@@ -314,19 +320,21 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
         child: Column(
           children: [
             // 渐变 Hero 头部
-            Container(
-              padding: EdgeInsets.fromLTRB(
-                  DS.containerMargin,
-                  MediaQuery.of(context).padding.top + DS.gutter,
-                  DS.containerMargin,
-                  DS.base),
-              decoration: BoxDecoration(
+            // 玻璃态：头部 = shader 玻璃（与我的页统一）；关闭态原渐变
+            GlassSurface(
+              borderRadius: DS.radiusLg,
+              fallbackDecoration: BoxDecoration(
                 gradient: DS.heroGradientBlueCurrent,
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(DS.radiusLg),
                   bottomRight: Radius.circular(DS.radiusLg),
                 ),
               ),
+              padding: EdgeInsets.fromLTRB(
+                  DS.containerMargin,
+                  MediaQuery.of(context).padding.top + DS.gutter,
+                  DS.containerMargin,
+                  DS.base),
               child: Row(
                 children: [
                   GestureDetector(
@@ -345,9 +353,17 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
                       padding: EdgeInsets.symmetric(
                           horizontal: DS.sm, vertical: DS.xs + 2),
                       decoration: BoxDecoration(
-                        color: DS.heroCardBg,
+                        // 玻璃态头部本身是玻璃面，胶囊用淡填充
+                        color: shouldUseLiquidGlass(context)
+                            ? (DS.isDark
+                                ? Colors.white.withOpacity(0.14)
+                                : Colors.white.withOpacity(0.55))
+                            : DS.heroCardBg,
                         borderRadius: BorderRadius.circular(DS.radiusFull),
-                        border: Border.all(color: DS.heroCardBorder),
+                        // 玻璃主题无边框；关闭态原样
+                        border: shouldUseLiquidGlass(context)
+                            ? null
+                            : Border.all(color: DS.heroCardBorder),
                       ),
                       child: Row(
                         children: [
@@ -483,10 +499,10 @@ class _BookCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>(); // theme rebuild
-    return Container(
+    return GlassSurface(
       margin: EdgeInsets.only(bottom: DS.base),
       padding: EdgeInsets.all(DS.gutter),
-      decoration: BoxDecoration(
+      fallbackDecoration: BoxDecoration(
         color: isCurrent
             ? _hexToColor(book.color).withOpacity(0.1)
             : DS.surfaceContainerLowest,
@@ -577,9 +593,12 @@ class _BookCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: DS.surfaceContainerLow,
                         borderRadius: BorderRadius.circular(DS.radiusFull),
-                        border: Border.all(color: DS.outlineVariant),
+                        // 玻璃主题无边框；关闭态原样
+                        border: shouldUseLiquidGlass(context)
+                            ? null
+                            : Border.all(color: DS.outlineVariant),
                       ),
-                      child: Icon(Icons.edit, size: 16, color: DS.primary),
+                      child: Icon(Icons.edit, size: 16, color: DS.emphasis),
                     ),
                   ),
                   if (!isCurrent) ...[
@@ -589,10 +608,13 @@ class _BookCard extends StatelessWidget {
                       child: Container(
                         width: 32,
                         height: 32,
-                        decoration: BoxDecoration(
-                          color: DS.surfaceContainerLow,
-                          borderRadius: BorderRadius.circular(DS.radiusFull),
-                          border: Border.all(color: DS.outlineVariant),
+                          decoration: BoxDecoration(
+                            color: DS.surfaceContainerLow,
+                            borderRadius: BorderRadius.circular(DS.radiusFull),
+                            // 玻璃主题无边框；关闭态原样
+                            border: shouldUseLiquidGlass(context)
+                                ? null
+                                : Border.all(color: DS.outlineVariant),
                         ),
                         child: Icon(Icons.close, size: 16, color: DS.outline),
                       ),
@@ -606,15 +628,24 @@ class _BookCard extends StatelessWidget {
             SizedBox(height: DS.gutter),
             SizedBox(
               width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: onSwitch,
-                icon: Icon(Icons.swap_horiz, size: 18),
-                label: Text('切换到此账本'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: _hexToColor(book.color),
-                  side: BorderSide(color: _hexToColor(book.color)),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(DS.radiusSm),
+              child: GlassButton.custom(
+                onTap: onSwitch,
+                interactionScale: 1.03,
+                stretch: 0.1,
+                shape: const LiquidRoundedSuperellipse(borderRadius: 999),
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.swap_horiz, size: 18,
+                          color: _hexToColor(book.color)),
+                      SizedBox(width: 6),
+                      Text('切换到此账本',
+                          style: TextStyle(
+                              color: _hexToColor(book.color),
+                              fontWeight: FontWeight.w600)),
+                    ],
                   ),
                 ),
               ),

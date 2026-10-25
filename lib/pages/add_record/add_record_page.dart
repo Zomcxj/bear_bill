@@ -1,12 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
-    show GlassSegment, GlassSegmentedControl;
 import 'package:provider/provider.dart';
 
 import '../../models/models.dart';
 import '../../providers/app_provider.dart';
 import '../../providers/theme_provider.dart';
+import '../../services/category_order_service.dart';
 import '../../services/database_service.dart';
 import '../../services/image_service.dart';
 import '../../services/notification_service.dart';
@@ -91,7 +90,9 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
 
   void _initCategories() {
     final categories =
-        _type == 'expense' ? expenseCategories : incomeCategories;
+        _type == 'expense'
+            ? CategoryOrderService.instance.expense
+            : incomeCategories;
 
     if (widget.preselectedCategory != null) {
       _selectedCategory = categories.firstWhere(
@@ -328,7 +329,9 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>(); // theme rebuild
     final categories =
-        _type == 'expense' ? expenseCategories : incomeCategories;
+        _type == 'expense'
+            ? CategoryOrderService.instance.expense
+            : incomeCategories;
     return Scaffold(
       backgroundColor: DS.background,
       body: SafeArea(
@@ -336,20 +339,21 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
         bottom: false,
         child: Column(
           children: [
-            // 渐变 Hero 区域：标题 + 类型切换 + 金额 + 日期 + 分类
-            Container(
-              padding: EdgeInsets.fromLTRB(
-                DS.containerMargin,
-                MediaQuery.of(context).padding.top + DS.gutter,
-                DS.containerMargin,
-                DS.base,
-              ),
-              decoration: BoxDecoration(
+            // 玻璃态：整块 shader 玻璃 hero（与我的页同款）；关闭态原蓝渐变（零漂移）
+            GlassSurface(
+              borderRadius: DS.radiusLg,
+              fallbackDecoration: BoxDecoration(
                 gradient: DS.heroGradientBlueCurrent,
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(DS.radiusLg),
                   bottomRight: Radius.circular(DS.radiusLg),
                 ),
+              ),
+              padding: EdgeInsets.fromLTRB(
+                DS.containerMargin,
+                MediaQuery.of(context).padding.top + DS.gutter,
+                DS.containerMargin,
+                DS.base,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -384,12 +388,14 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
                               child: Container(
                                 padding: EdgeInsets.symmetric(vertical: DS.sm),
                                 decoration: BoxDecoration(
-                                  color: _type == 'expense' ? DS.primary : Colors.transparent,
+                                  color: _type == 'expense' ? DS.emphasis : Colors.transparent,
                                   borderRadius: BorderRadius.circular(DS.radiusFull),
                                 ),
                                 child: Center(
                                   child: Text('支出', style: DS.labelMd.copyWith(
-                                    color: _type == 'expense' ? DS.onPrimary : DS.onSurface,
+                                    color: _type == 'expense'
+                                        ? (DS.isDark ? DS.background : Colors.white)
+                                        : DS.onSurface,
                                   )),
                                 ),
                               ),
@@ -401,12 +407,14 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
                               child: Container(
                                 padding: EdgeInsets.symmetric(vertical: DS.sm),
                                 decoration: BoxDecoration(
-                                  color: _type == 'income' ? DS.primary : Colors.transparent,
+                                  color: _type == 'income' ? DS.emphasis : Colors.transparent,
                                   borderRadius: BorderRadius.circular(DS.radiusFull),
                                 ),
                                 child: Center(
                                   child: Text('收入', style: DS.labelMd.copyWith(
-                                    color: _type == 'income' ? DS.onPrimary : DS.onSurface,
+                                    color: _type == 'income'
+                                        ? (DS.isDark ? DS.background : Colors.white)
+                                        : DS.onSurface,
                                   )),
                                 ),
                               ),
@@ -416,21 +424,13 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
                       ),
                     )
                   else
-                    GlassSegmentedControl(
-                      segments: const [
-                        GlassSegment(label: '支出'),
-                        GlassSegment(label: '收入'),
-                      ],
+                    // 自研一体玻璃条：与统计/心愿同款（滑块动画+按住拖动+按压放大）
+                    GlassSegmented(
+                      labels: const ['支出', '收入'],
                       selectedIndex: _type == 'expense' ? 0 : 1,
-                      onSegmentSelected: (i) =>
+                      onSelected: (i) =>
                           _switchType(i == 0 ? 'expense' : 'income'),
-                      height: 34,
-                      selectedTextStyle: DS.labelMd.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: DS.onSurface,
-                      ),
-                      unselectedTextStyle:
-                          DS.labelMd.copyWith(color: DS.onSurfaceVariant),
+                      height: 40,
                     ),
                   SizedBox(height: DS.base),
                   // 金额 + 日期
@@ -489,13 +489,15 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
   }
 
   Widget _buildAmountRow() {
-    return Container(
-      padding: EdgeInsets.all(DS.gutter),
-      decoration: BoxDecoration(
+    // 玻璃态：金额模块 = shader 玻璃卡；关闭态原 heroCardBg 实色卡（零漂移）
+    return GlassSurface(
+      borderRadius: DS.radiusMd,
+      fallbackDecoration: BoxDecoration(
         color: DS.heroCardBg,
         borderRadius: BorderRadius.circular(DS.radiusMd),
         border: Border.all(color: DS.heroCardBorder),
       ),
+      padding: EdgeInsets.all(DS.gutter),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -505,7 +507,7 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.xs + 2),
                 decoration: BoxDecoration(
-                  color: DS.primary,
+                  color: DS.emphasis,
                   borderRadius: BorderRadius.circular(DS.radiusFull),
                 ),
                 child: Row(
@@ -515,7 +517,8 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
                     SizedBox(width: DS.xs),
                     Text(
                       _selectedCategory?.name ?? '餐饮',
-                      style: DS.labelSm.copyWith(color: DS.onPrimary),
+                      style: DS.labelSm.copyWith(
+                          color: DS.isDark ? DS.background : Colors.white),
                     ),
                   ],
                 ),
@@ -526,9 +529,14 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.xs + 2),
                   decoration: BoxDecoration(
-                    color: DS.heroCardBg,
+                    // 玻璃态：白 tint 浮在玻璃卡上；关闭态原样
+                    color: shouldUseLiquidGlass(context)
+                        ? Colors.white.withOpacity(0.18)
+                        : DS.heroCardBg,
                     borderRadius: BorderRadius.circular(DS.radiusFull),
-                    border: Border.all(color: DS.heroCardBorder),
+                    border: shouldUseLiquidGlass(context)
+                        ? null
+                        : Border.all(color: DS.heroCardBorder),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,

@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../theme/app_design_system.dart';
+import '../../../theme/glass_materials.dart';
 import '../../../widgets/glass_dialog_shell.dart';
 import '../../../theme/app_theme.dart';
 import '../../../utils/utils.dart' as utils;
 import '../../../providers/theme_provider.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
+    show GlassButton, GlassButtonStyle, LiquidRoundedSuperellipse;
 
 /// 月份选择器 - 顶部切换条
 class MonthSelector extends StatelessWidget {
@@ -29,32 +32,16 @@ class MonthSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>(); // theme rebuild
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: DS.base, vertical: 12),
-      decoration: BoxDecoration(
-        color: DS.surfaceContainerLowest,
-        border: Border(bottom: BorderSide(color: DS.outlineVariant)),
-      ),
-      child: Row(
-        children: [
-          // 上一月按钮
-          GestureDetector(
-            onTap: onPrevMonth,
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: DS.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(DS.radiusFull),
-              ),
-              child: Icon(Icons.chevron_left, color: DS.onSurfaceVariant),
-            ),
-          ),
+    final glass = shouldUseLiquidGlass(context);
+    final row = Row(
+      children: [
+        // 上一月按钮
+        _arrow(context, icon: Icons.chevron_left, onTap: onPrevMonth),
 
-          SizedBox(width: DS.base),
+        SizedBox(width: DS.base),
 
-          // 月份和统计信息
-          Expanded(
+        // 月份和统计信息
+        Expanded(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -84,7 +71,8 @@ class MonthSelector extends StatelessWidget {
                     Text(
                       '支 ¥${utils.FormatUtils.formatAmount(totalExpense)}',
                       style: DS.labelSm.copyWith(
-                        color: DS.primaryContainer,
+                        // 动态支出色（常量 primaryContainer 深色下不可见）
+                        color: DS.chartExpense,
                       ),
                     ),
                     Padding(
@@ -105,111 +93,67 @@ class MonthSelector extends StatelessWidget {
 
           SizedBox(width: DS.base),
 
-          // 下一月按钮
-          GestureDetector(
-            onTap: onNextMonth,
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: DS.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(DS.radiusFull),
-              ),
-              child: Icon(Icons.chevron_right, color: DS.onSurfaceVariant),
-            ),
-          ),
-        ],
+        // 下一月按钮
+        _arrow(context, icon: Icons.chevron_right, onTap: onNextMonth),
+      ],
+    );
+
+    if (!glass) {
+      return Container(
+        padding: EdgeInsets.symmetric(horizontal: DS.base, vertical: 12),
+        decoration: BoxDecoration(
+          color: DS.surfaceContainerLowest,
+          border: Border(bottom: BorderSide(color: DS.outlineVariant)),
+        ),
+        child: row,
+      );
+    }
+
+    // 玻璃态：整条日期栏 = 底部导航栏同款玻璃条
+    return GlassBarWrap(child: row);
+  }
+
+  /// 玻璃态：透明玻璃按钮（条本身已是玻璃，只取按压物理）；
+  /// 关闭态：原填充圆钮（零漂移）
+  Widget _arrow(
+    BuildContext context, {
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    if (shouldUseLiquidGlass(context)) {
+      return GlassButton.custom(
+        style: GlassButtonStyle.transparent,
+        onTap: onTap,
+        interactionScale: 1.12,
+        stretch: 0.2,
+        shape: const LiquidRoundedSuperellipse(borderRadius: 999),
+        child: SizedBox(
+          width: 36,
+          height: 36,
+          child: Icon(icon, size: 22, color: DS.onSurface),
+        ),
+      );
+    }
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: DS.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(DS.radiusFull),
+        ),
+        child: Icon(icon, color: DS.onSurfaceVariant),
       ),
     );
   }
 
   void _pickYearMonth(BuildContext context) {
-    final parts = currentMonth.split('-');
-    int selectedYear = int.parse(parts[0]);
-    int selectedMonth = int.parse(parts[1]);
-
-    showGlassDialog(
+    // 玻璃年月选择小窗（三处日期切换统一组件，见 glass_dialog_shell）
+    showGlassYearMonthPicker(
       context: context,
-      maxWidth: 320,
-      content: StatefulBuilder(
-        builder: (ctx, setState) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.chevron_left),
-                    onPressed: () => setState(() => selectedYear--),
-                  ),
-                  Text(
-                    '$selectedYear 年',
-                    style: DS.headlineSm.copyWith(color: DS.onSurface),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.chevron_right),
-                    onPressed: selectedYear < DateTime.now().year
-                        ? () => setState(() => selectedYear++)
-                        : null,
-                  ),
-                ],
-              ),
-              SizedBox(
-                width: 280,
-                child: GridView.builder(
-                shrinkWrap: true,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4,
-                  mainAxisSpacing: 8,
-                  crossAxisSpacing: 8,
-                  childAspectRatio: 1.4,
-                ),
-                itemCount: 12,
-                itemBuilder: (_, i) {
-                  final month = i + 1;
-                  final isCurrent = month == selectedMonth;
-                  final isFuture = selectedYear == DateTime.now().year &&
-                      month > DateTime.now().month;
-                  return GestureDetector(
-                    onTap: isFuture
-                        ? null
-                        : () {
-                            final m = month.toString().padLeft(2, '0');
-                            onMonthPicked?.call('$selectedYear-$m');
-                            Navigator.pop(ctx);
-                          },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: isCurrent ? DS.emphasis : DS.surfaceContainerLow,
-                        borderRadius: BorderRadius.circular(DS.radiusSm),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        '$month 月',
-                        style: DS.labelMd.copyWith(
-                          color: isFuture
-                              ? DS.outline
-                              : isCurrent
-                                  ? DS.background
-                                  : DS.onSurface,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        );
-        },
-      ),
-      buildActions: (ctx) => [
-        GlassDialogButton(
-          label: '取消',
-          onPressed: () => Navigator.pop(ctx),
-        ),
-      ],
+      currentMonth: currentMonth,
+      onPicked: onMonthPicked!,
     );
   }
 }

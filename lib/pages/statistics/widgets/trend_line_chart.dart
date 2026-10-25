@@ -5,6 +5,7 @@ import '../../../providers/app_provider.dart';
 import '../../../providers/theme_provider.dart';
 import '../../../services/database_service.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../widgets/glass_dialog_shell.dart';
 
 /// 近6个月收支趋势折线图
 class TrendLineChart extends StatefulWidget {
@@ -58,10 +59,10 @@ class _TrendLineChartState extends State<TrendLineChart> {
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>(); // 主题变更时触发重建
     if (_loading) {
-      return Container(
+      return GlassSurface(
         margin: EdgeInsets.symmetric(horizontal: DS.sm),
         padding: EdgeInsets.all(DS.gutter),
-        decoration: DS.glassDecoration,
+        fallbackDecoration: DS.glassDecoration,
         child: SizedBox(
           height: 260,
           child: Center(child: CircularProgressIndicator()),
@@ -81,10 +82,10 @@ class _TrendLineChartState extends State<TrendLineChart> {
     }
     if (maxVal == 0) maxVal = 1; // 避免除零
 
-    return Container(
+    return GlassSurface(
       margin: EdgeInsets.symmetric(horizontal: DS.sm),
       padding: EdgeInsets.all(DS.gutter),
-      decoration: DS.glassDecoration,
+      fallbackDecoration: DS.glassDecoration,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

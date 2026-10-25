@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
+    show GlassButton, LiquidRoundedSuperellipse;
 import 'package:provider/provider.dart';
 
 import '../../../providers/app_provider.dart';
@@ -38,8 +40,11 @@ class UserProfileCard extends StatelessWidget {
         final levelInfo = _getLevelInfo(user.level);
         final nextLevelExp = user.expForNextLevel;
 
-        return Container(
-          decoration: BoxDecoration(
+        // 玻璃态：整张用户卡 = shader 玻璃（文字用 DS.onSurface 动态色，
+        // 两态都可读）；关闭态 = 原蓝色渐变 hero（零漂移）
+        return GlassSurface(
+          borderRadius: DS.radiusLg,
+          fallbackDecoration: BoxDecoration(
             gradient: DS.heroGradientBlueCurrent,
             borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(DS.radiusLg),
@@ -90,10 +95,13 @@ class UserProfileCard extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.25),
                             shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.4),
-                              width: 2,
-                            ),
+                            // 玻璃主题无边框；关闭态原样
+                            border: shouldUseLiquidGlass(context)
+                                ? null
+                                : Border.all(
+                                    color: Colors.white.withOpacity(0.4),
+                                    width: 2,
+                                  ),
                             image: user.avatar.isNotEmpty
                                 ? DecorationImage(
                                     image: FileImage(File(user.avatar)),
@@ -199,44 +207,96 @@ class UserProfileCard extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: DS.sm),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(DS.radiusSm),
-                    ),
-                    padding: EdgeInsets.symmetric(vertical: 10),
-                    child: Row(
+                  // 玻璃态：三枚独立玻璃钮（按压弹簧+光晕，预算弹窗按钮同款）；
+                  // 关闭态：原填充盒（零漂移）
+                  if (shouldUseLiquidGlass(context))
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _buildStatItem(Icons.edit_note, '$totalRecords', '记账次数',
-                            onTap: onRecordTap),
-                        _buildStatItem(Icons.local_fire_department,
+                        _buildStatGlassButton(Icons.edit_note, '$totalRecords',
+                            '记账次数', onTap: onRecordTap),
+                        _buildStatGlassButton(Icons.local_fire_department,
                             '${appProvider.checkInDays}', '连续打卡',
                             onTap: () =>
                                 _showCheckInInfo(context, appProvider)),
-                        _buildStatItem(Icons.book, '$totalBooks', '账本数',
+                        _buildStatGlassButton(Icons.book, '$totalBooks',
+                            '账本数',
                             onTap: () => _showBookManagement(context)),
                       ],
+                    )
+                  else
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(DS.radiusSm),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _buildStatItem(Icons.edit_note, '$totalRecords',
+                              '记账次数', onTap: onRecordTap),
+                          _buildStatItem(Icons.local_fire_department,
+                              '${appProvider.checkInDays}', '连续打卡',
+                              onTap: () =>
+                                  _showCheckInInfo(context, appProvider)),
+                          _buildStatItem(Icons.book, '$totalBooks', '账本数',
+                              onTap: () => _showBookManagement(context)),
+                        ],
+                      ),
                     ),
-                  ),
                   SizedBox(height: DS.base),
                   if (!appProvider.todayChecked)
-                    GestureDetector(
-                      onTap: () async {
-                        final achievements = await appProvider.recordCheckIn();
-                        if (achievements.isNotEmpty && context.mounted) {
-                          _showAchievementDialog(context, achievements);
-                        }
-                      },
-                      child: Container(
+                    shouldUseLiquidGlass(context)
+                        ? GlassButton.custom(
+                            // 玻璃态：默认 filled = 玻璃壳+按压物理+光晕
+                            // （预算弹窗按钮同款，hero 玻璃面上嵌玻璃钮观感已验证）
+                            onTap: () async {
+                              final achievements = await appProvider.recordCheckIn();
+                              if (achievements.isNotEmpty && context.mounted) {
+                                _showAchievementDialog(context, achievements);
+                              }
+                            },
+                            interactionScale: 1.03,
+                            stretch: 0.1,
+                            shape: const LiquidRoundedSuperellipse(borderRadius: 999),
+                            child: Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(vertical: 12),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.local_fire_department,
+                                      size: 18, color: AppTheme.heroTextMain),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    '今日打卡',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppTheme.heroTextMain,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        : GestureDetector(
+                            onTap: () async {
+                              final achievements = await appProvider.recordCheckIn();
+                              if (achievements.isNotEmpty && context.mounted) {
+                                _showAchievementDialog(context, achievements);
+                              }
+                            },
+                            child: Container(
                         width: double.infinity,
                         padding: EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.25),
                           borderRadius: BorderRadius.circular(DS.radiusFull),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.4),
-                          ),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.4),
+                              ),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -257,7 +317,26 @@ class UserProfileCard extends StatelessWidget {
                       ),
                     )
                   else
-                    Container(
+                    shouldUseLiquidGlass(context)
+                        ? GlassButton.custom(
+                            onTap: () {},
+                            interactionScale: 1.0,
+                            stretch: 0.0,
+                            shape: const LiquidRoundedSuperellipse(
+                                borderRadius: 999),
+                            child: Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.symmetric(vertical: 12),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.check_circle,
+                                      size: 18, color: AppTheme.heroTextMain),
+                                ],
+                              ),
+                            ),
+                          )
+                        : Container(
                       width: double.infinity,
                       padding: EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
@@ -287,6 +366,22 @@ class UserProfileCard extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  /// 玻璃态统计钮：玻璃壳 + 按压物理（hero 玻璃面上嵌玻璃钮，
+  /// 与预算弹窗的按钮同款观感）
+  Widget _buildStatGlassButton(IconData icon, String value, String label,
+      {VoidCallback? onTap}) {
+    return GlassButton.custom(
+      onTap: onTap ?? () {},
+      interactionScale: 1.05,
+      stretch: 0.12,
+      shape: const LiquidRoundedSuperellipse(borderRadius: 999),
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: DS.sm),
+        child: _buildStatItem(icon, value, label),
+      ),
     );
   }
 
@@ -416,10 +511,13 @@ class UserProfileCard extends StatelessWidget {
                 : DS.surfaceContainerLowest,
             borderRadius: BorderRadius.circular(DS.radiusMd),
             boxShadow: DS.shadowMd,
-            border: Border.all(
-              color: glass ? Colors.white.withOpacity(0.30) : DS.outlineVariant,
-              width: 1.5,
-            ),
+            // 玻璃主题无边框；关闭态原样
+            border: glass
+                ? null
+                : Border.all(
+                    color: DS.outlineVariant,
+                    width: 1.5,
+                  ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,

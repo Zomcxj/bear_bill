@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'hero_chips.dart';
 import '../../../providers/app_provider.dart';
 import '../../../providers/theme_provider.dart';
 import '../../../services/database_service.dart';
@@ -126,8 +127,10 @@ class _GreetingCardState extends State<GreetingCard>
   @override
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>(); // 主题变更时触发重建
-    return Container(
-      decoration: BoxDecoration(
+    // 玻璃态：整块 shader 玻璃 hero（与我的页同款）；关闭态原渐变（零漂移）
+    return GlassSurface(
+      borderRadius: DS.radiusLg,
+      fallbackDecoration: BoxDecoration(
         gradient: DS.heroGradientBlueCurrent,
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(DS.radiusLg),
@@ -184,39 +187,11 @@ class _GreetingCardState extends State<GreetingCard>
                   ],
                 ),
               ),
-              GestureDetector(
-                onTap: _todayChecked ? null : _handleCheckIn,
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: DS.heroCardBg,
-                    borderRadius: BorderRadius.circular(DS.radiusSm),
-                    border: Border.all(color: DS.heroCardBorder),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        _todayChecked ? Icons.check_circle : Icons.local_fire_department,
-                        size: 16,
-                        color: _todayChecked ? DS.secondary : DS.error,
-                      ),
-                      SizedBox(height: 1),
-                      Text(
-                        '$_checkInDays天',
-                        style: TextStyle(
-                          fontFamily: DS.fontLabel,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: DS.onSurface,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              // 打卡徽章（玻璃态真玻璃壳，关闭态原样；见 hero_chips.dart）
+              CheckInBadge(
+                checked: _todayChecked,
+                days: _checkInDays,
+                onTap: _handleCheckIn,
               ),
             ],
           ),
@@ -231,37 +206,16 @@ class _GreetingCardState extends State<GreetingCard>
                 '$_monthLabel 概览',
                 style: DS.labelMd.copyWith(color: DS.onSurfaceVariant),
               ),
-              GestureDetector(
+              // 账本切换胶囊（玻璃态真玻璃壳；见 hero_chips.dart）
+              BookSwitchChip(
+                icon: _currentBookIcon,
+                name: _currentBookName,
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const MultiBookPage()),
                   );
                 },
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: DS.sm,
-                    vertical: DS.xs + 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: DS.heroCardBg,
-                    borderRadius: BorderRadius.circular(DS.radiusSm),
-                    border: Border.all(color: DS.heroCardBorder),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(_currentBookIcon, style: TextStyle(fontSize: 14)),
-                      SizedBox(width: DS.xs),
-                      Text(
-                        _currentBookName,
-                        style: DS.labelSm.copyWith(color: DS.onSurface),
-                      ),
-                      SizedBox(width: 2),
-                      Icon(Icons.chevron_right, size: 14, color: DS.outline),
-                    ],
-                  ),
-                ),
               ),
             ],
           ),

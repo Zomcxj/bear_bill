@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../theme/app_design_system.dart';
+import '../../../theme/glass_materials.dart';
 import '../../../providers/theme_provider.dart';
 
 /// 账单搜索筛选栏
@@ -28,8 +29,13 @@ class BillSearchBar extends StatelessWidget {
       padding:
           EdgeInsets.symmetric(horizontal: DS.base, vertical: 8),
       decoration: BoxDecoration(
-        color: DS.surfaceContainerLowest,
-        border: Border(bottom: BorderSide(color: DS.outlineVariant)),
+        // 玻璃主题：无底色无边框；关闭态原样
+        color: shouldUseLiquidGlass(context)
+            ? Colors.transparent
+            : DS.surfaceContainerLowest,
+        border: shouldUseLiquidGlass(context)
+            ? null
+            : Border(bottom: BorderSide(color: DS.outlineVariant)),
       ),
       child: Row(
         children: [
@@ -40,7 +46,10 @@ class BillSearchBar extends StatelessWidget {
               decoration: BoxDecoration(
                 color: DS.background,
                 borderRadius: BorderRadius.circular(DS.radiusSm),
-                border: Border.all(color: DS.outlineVariant),
+                // 玻璃主题无边框；关闭态原样
+                border: shouldUseLiquidGlass(context)
+                    ? null
+                    : Border.all(color: DS.outlineVariant),
               ),
               child: TextField(
                 onChanged: onKeywordChanged,
@@ -78,11 +87,14 @@ class BillSearchBar extends StatelessWidget {
                     ? DS.surfaceContainerHigh
                     : DS.background,
                 borderRadius: BorderRadius.circular(DS.radiusSm),
-                border: Border.all(
-                  color: filterType != 'all' || filterCategories.isNotEmpty
-                      ? DS.primary
-                      : DS.outlineVariant,
-                ),
+                // 玻璃主题无边框；关闭态原样
+                border: shouldUseLiquidGlass(context)
+                    ? null
+                    : Border.all(
+                        color: filterType != 'all' || filterCategories.isNotEmpty
+                            ? DS.emphasis
+                            : DS.outlineVariant,
+                      ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -91,7 +103,7 @@ class BillSearchBar extends StatelessWidget {
                     Icons.filter_list,
                     size: 18,
                     color: filterType != 'all' || filterCategories.isNotEmpty
-                        ? DS.primary
+                        ? DS.emphasis
                         : DS.onSurfaceVariant,
                   ),
                   SizedBox(width: 4),
@@ -99,7 +111,7 @@ class BillSearchBar extends StatelessWidget {
                     '筛选',
                     style: DS.labelMd.copyWith(
                       color: filterType != 'all' || filterCategories.isNotEmpty
-                          ? DS.primary
+                          ? DS.emphasis
                           : DS.onSurfaceVariant,
                     ),
                   ),

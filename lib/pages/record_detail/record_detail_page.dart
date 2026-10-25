@@ -8,6 +8,7 @@ import '../../providers/app_provider.dart';
 import '../../services/database_service.dart';
 import '../../services/notification_service.dart';
 import '../../theme/app_design_system.dart';
+import '../../theme/glass_materials.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/glass_dialog_shell.dart';
 import '../../widgets/glass_sub_page_bar.dart';
@@ -208,10 +209,13 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
             decoration: BoxDecoration(
               color: DS.surfaceContainerLowest,
               borderRadius: BorderRadius.circular(DS.radiusFull),
-              border: Border.all(
-                color: _hexToColor(category?.color ?? '#B0B0B0'),
-                width: 2,
-              ),
+              // 玻璃主题无边框；关闭态原样
+              border: shouldUseLiquidGlass(context)
+                  ? null
+                  : Border.all(
+                      color: _hexToColor(category?.color ?? '#B0B0B0'),
+                      width: 2,
+                    ),
             ),
             child: Center(
               child: Text(
@@ -236,7 +240,8 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
               fontWeight: FontWeight.bold,
               color: _record!.type == 'income'
                   ? AppTheme.success
-                  : DS.primaryContainer,
+                  // 动态支出色（常量 primaryContainer 近黑，深色下不可见）
+                  : DS.chartExpense,
               fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),
@@ -375,8 +380,8 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
               icon: Icon(Icons.delete),
               label: Text('删除'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: DS.primaryContainer,
-                foregroundColor: Colors.white,
+                backgroundColor: DS.emphasis,
+                foregroundColor: DS.isDark ? DS.background : Colors.white,
                 padding: EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(DS.radiusSm),

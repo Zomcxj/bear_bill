@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'glass_materials.dart';
+
 /// Luminous Finance 设计系统 Token
 class DS {
   DS._();
@@ -158,13 +160,18 @@ class DS {
   static BoxDecoration get glassDecoration => BoxDecoration(
     color: _isDark ? Colors.white.withOpacity(0.06) : Colors.white.withOpacity(0.7),
     borderRadius: BorderRadius.circular(radiusMd),
-    border: Border.all(color: _isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.08)),
+    // 玻璃主题下组件无边框（老大要求）；关闭态保留细边（零漂移）
+    border: GlassMaterials.enabled
+        ? null
+        : Border.all(color: _isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.08)),
   );
 
   static BoxDecoration get glassDecorationLight => BoxDecoration(
     color: _isDark ? Colors.white.withOpacity(0.04) : Colors.white.withOpacity(0.6),
     borderRadius: BorderRadius.circular(radiusMd),
-    border: Border.all(color: _isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.05)),
+    border: GlassMaterials.enabled
+        ? null
+        : Border.all(color: _isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.05)),
   );
 
   // ── 文字样式 ──

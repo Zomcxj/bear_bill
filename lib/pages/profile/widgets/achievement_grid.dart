@@ -5,6 +5,7 @@ import '../../../models/achievement_model.dart';
 import '../../../providers/app_provider.dart';
 import '../../../providers/theme_provider.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../theme/glass_materials.dart';
 import '../../../theme/app_theme.dart';
 import '../achievement_page.dart';
 import '../../../widgets/glass_dialog_shell.dart';
@@ -20,10 +21,10 @@ class AchievementGrid extends StatelessWidget {
       builder: (context, appProvider, child) {
         final unlockedIds = appProvider.unlockedAchievements;
 
-        return Container(
+        return GlassSurface(
           margin: EdgeInsets.symmetric(horizontal: DS.sm),
           padding: EdgeInsets.all(DS.gutter),
-          decoration: DS.glassDecorationLight,
+          fallbackDecoration: DS.glassDecorationLight,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -120,10 +121,13 @@ class _AchievementBadge extends StatelessWidget {
               color:
                   isUnlocked ? DS.surfaceContainerHigh : DS.surfaceContainerLow,
               borderRadius: BorderRadius.circular(DS.radiusFull),
-              border: Border.all(
-                color: isUnlocked ? DS.primary : DS.outlineVariant,
-                width: 1.5,
-              ),
+              // 玻璃主题无边框；关闭态原样
+              border: shouldUseLiquidGlass(context)
+                  ? null
+                  : Border.all(
+                      color: isUnlocked ? DS.emphasis : DS.outlineVariant,
+                      width: 1.5,
+                    ),
             ),
             child: Center(
               child: Text(

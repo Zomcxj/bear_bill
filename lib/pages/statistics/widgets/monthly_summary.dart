@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/app_design_system.dart';
+import '../../../theme/glass_materials.dart';
 import '../../../utils/utils.dart';
 import '../../../providers/theme_provider.dart';
 import 'package:provider/provider.dart';
@@ -30,7 +31,10 @@ class MonthlySummary extends StatelessWidget {
       decoration: BoxDecoration(
         color: DS.background,
         borderRadius: BorderRadius.circular(DS.radiusLg),
-        border: Border.all(color: DS.outlineVariant, width: 2),
+        // 玻璃主题无边框；关闭态原样
+        border: shouldUseLiquidGlass(context)
+            ? null
+            : Border.all(color: DS.outlineVariant, width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

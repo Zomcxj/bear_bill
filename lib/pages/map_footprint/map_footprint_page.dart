@@ -11,6 +11,7 @@ import '../../models/models.dart';
 import '../../providers/app_provider.dart';
 import '../../services/database_service.dart';
 import '../../theme/app_design_system.dart';
+import '../../theme/glass_materials.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/utils.dart' as utils;
 import 'widgets/category_filter_bar.dart';
@@ -182,10 +183,10 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
                               onTap: () => _showClusterDetail(cluster),
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: isSingle
-                                      ? DS.primary
-                                      : DS.primaryContainer,
+                                  color: DS.emphasis,
                                   shape: BoxShape.circle,
+                                  // 地图标记白圈 = 与底图的对比功能性描边
+                                  // （同键盘键面边豁免），两态保留
                                   border: Border.all(
                                     color: Colors.white,
                                     width: 2,
@@ -207,7 +208,9 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
                                       : Text(
                                           '${cluster.records.length}',
                                           style: TextStyle(
-                                            color: Colors.white,
+                                            color: DS.isDark
+                                                ? DS.background
+                                                : Colors.white,
                                             fontSize: 14,
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -244,7 +247,10 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
       ),
       decoration: BoxDecoration(
         color: DS.surfaceContainerLowest,
-        border: Border(top: BorderSide(color: DS.outlineVariant)),
+        // 玻璃主题无边框；关闭态原样
+        border: shouldUseLiquidGlass(context)
+            ? null
+            : Border(top: BorderSide(color: DS.outlineVariant)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -328,7 +334,7 @@ class _ClusterDetailSheet extends StatelessWidget {
             padding: EdgeInsets.all(16),
             child: Row(
               children: [
-                Icon(Icons.place, color: DS.primary, size: 20),
+                Icon(Icons.place, color: DS.emphasis, size: 20),
                 SizedBox(width: 8),
                 Text(
                   '${cluster.records.length} 条记录',
@@ -342,7 +348,7 @@ class _ClusterDetailSheet extends StatelessWidget {
                   '¥${cluster.records.fold<double>(0, (s, r) => s + r.amount).toStringAsFixed(2)}',
                   style: DS.bodyMd.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: DS.primaryContainer,
+                    color: DS.emphasis,
                   ),
                 ),
               ],
@@ -382,7 +388,7 @@ class _ClusterDetailSheet extends StatelessWidget {
                     '${r.type == 'expense' ? '-' : '+'}¥${r.amount.toStringAsFixed(2)}',
                     style: DS.labelMd.copyWith(
                       color: r.type == 'expense'
-                          ? DS.primaryContainer
+                          ? DS.emphasis
                           : AppTheme.success,
                     ),
                   ),

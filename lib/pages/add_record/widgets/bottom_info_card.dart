@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../../../models/models.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../widgets/glass_dialog_shell.dart';
+import '../../../theme/glass_materials.dart';
 import '../../../providers/theme_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -43,9 +45,9 @@ class BottomInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>(); // theme rebuild
-    return Container(
+    return GlassSurface(
       margin: EdgeInsets.symmetric(horizontal: DS.sm),
-      decoration: BoxDecoration(
+      fallbackDecoration: BoxDecoration(
         color: DS.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(DS.radiusSm),
         border: Border.all(color: DS.outlineVariant),
@@ -90,11 +92,14 @@ class BottomInfoCard extends StatelessWidget {
                                     : DS.background,
                                 borderRadius:
                                     BorderRadius.circular(DS.radiusFull),
-                                border: Border.all(
-                                  color: isSelected
-                                      ? DS.primary
-                                      : DS.outlineVariant,
-                                ),
+                                // 玻璃主题无边框，选中靠填充；关闭态原样
+                                border: shouldUseLiquidGlass(context)
+                                    ? null
+                                    : Border.all(
+                                        color: isSelected
+                                            ? DS.emphasis
+                                            : DS.outlineVariant,
+                                      ),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -109,7 +114,7 @@ class BottomInfoCard extends StatelessWidget {
                                     style: TextStyle(
                                       fontSize: 11,
                                       color: isSelected
-                                          ? DS.primaryContainer
+                                          ? DS.emphasis
                                           : DS.onSurfaceVariant,
                                       fontWeight: isSelected
                                           ? FontWeight.w600
@@ -205,13 +210,17 @@ class BottomInfoCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: DS.surfaceContainerHigh,
                       borderRadius: BorderRadius.circular(DS.radiusSm),
-                      border: Border.all(
-                        color: DS.primary.withOpacity(0.3),
-                        width: 1,
-                      ),
+                      // 玻璃主题无边框；关闭态原样
+                      border: shouldUseLiquidGlass(context)
+                          ? null
+                          : Border.all(
+                              color: DS.emphasis.withOpacity(0.3),
+                              width: 1,
+                            ),
                     ),
                     child: Center(
-                      child: Icon(Icons.add_a_photo, size: 18, color: DS.primary),
+                      child:
+                          Icon(Icons.add_a_photo, size: 18, color: DS.emphasis),
                     ),
                   ),
                 ),
@@ -334,7 +343,7 @@ class BottomInfoCard extends StatelessWidget {
                 child: Row(
                   children: [
                     Icon(Icons.location_on,
-                        size: 16, color: DS.primary),
+                        size: 16, color: DS.emphasis),
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -373,7 +382,7 @@ class BottomInfoCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Icon(Icons.photo_library, color: DS.primary),
+              leading: Icon(Icons.photo_library, color: DS.emphasis),
               title: Text('从相册选择'),
               onTap: () {
                 Navigator.pop(ctx);

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
+    show GlassButton, GlassButtonStyle, LiquidRoundedSuperellipse;
 
 import '../../../models/models.dart';
 import '../../../theme/app_design_system.dart';
@@ -42,7 +44,10 @@ class WishJarCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: themeColor.withOpacity(0.15),
                   shape: BoxShape.circle,
-                  border: Border.all(color: themeColor.withOpacity(0.3)),
+                  // 玻璃主题无边框；关闭态原样
+                  border: shouldUseLiquidGlass(context)
+                      ? null
+                      : Border.all(color: themeColor.withOpacity(0.3)),
                 ),
                 child: Icon(icon, size: 22, color: themeColor),
               ),
@@ -170,8 +175,15 @@ class WishJarCard extends StatelessWidget {
               ),
             )
           else
-            GestureDetector(
+            // 按压物理 = 官方 GlassButton 透明样式（弹簧膨胀 + 拖拽跟随 +
+            // 触点光晕），不画玻璃壳——卡片本身已是玻璃，玻璃不套玻璃；
+            // 键面仍是「完成」键同款玻璃着色层
+            GlassButton.custom(
+              style: GlassButtonStyle.transparent,
               onTap: onAddMoney,
+              interactionScale: 1.05,
+              stretch: 0.25,
+              shape: const LiquidRoundedSuperellipse(borderRadius: 999),
               child: Container(
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(vertical: DS.sm),
@@ -194,7 +206,7 @@ class WishJarCard extends StatelessWidget {
                                 ],
                         )
                       : null,
-                  color: !shouldUseLiquidGlass(context) ? DS.primary : null,
+                  color: !shouldUseLiquidGlass(context) ? DS.emphasis : null,
                   borderRadius: BorderRadius.circular(DS.radiusFull),
                   border: shouldUseLiquidGlass(context)
                       ? Border.all(
@@ -223,7 +235,7 @@ class WishJarCard extends StatelessWidget {
                       size: 16,
                       color: shouldUseLiquidGlass(context)
                           ? DS.onSurface
-                          : DS.onPrimary,
+                          : (DS.isDark ? DS.background : Colors.white),
                     ),
                     SizedBox(width: DS.xs),
                     Text(
@@ -234,7 +246,7 @@ class WishJarCard extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                         color: shouldUseLiquidGlass(context)
                             ? DS.onSurface
-                            : DS.onPrimary,
+                            : (DS.isDark ? DS.background : Colors.white),
                       ),
                     ),
                   ],

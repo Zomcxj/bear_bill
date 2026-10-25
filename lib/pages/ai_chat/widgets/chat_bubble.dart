@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../models/category_model.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../theme/glass_materials.dart';
 import '../../../providers/theme_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -103,20 +104,20 @@ class ChatBubble extends StatelessWidget {
       case ChatMessageType.recordConfirm:
         return _buildRecordBubble(context);
       case ChatMessageType.queryResult:
-        return _buildQueryBubble();
+        return _buildQueryBubble(context);
       case ChatMessageType.error:
-        return _buildTextBubble(isError: true);
+        return _buildTextBubble(context, isError: true);
       case ChatMessageType.text:
-        return _buildTextBubble();
+        return _buildTextBubble(context);
     }
   }
 
-  Widget _buildTextBubble({bool isError = false}) {
+  Widget _buildTextBubble(BuildContext context, {bool isError = false}) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: message.isUser
-            ? DS.primary
+            ? DS.emphasis
             : (isError ? Colors.red[50] : DS.surfaceContainerLowest),
         borderRadius: BorderRadius.only(
           topLeft: const Radius.circular(16),
@@ -124,7 +125,8 @@ class ChatBubble extends StatelessWidget {
           bottomLeft: Radius.circular(message.isUser ? 16 : 4),
           bottomRight: Radius.circular(message.isUser ? 4 : 16),
         ),
-        border: message.isUser
+        // 玻璃主题无边框；关闭态原样
+        border: message.isUser || shouldUseLiquidGlass(context)
             ? null
             : Border.all(color: DS.outlineVariant.withOpacity(0.5)),
       ),
@@ -133,7 +135,7 @@ class ChatBubble extends StatelessWidget {
         style: TextStyle(
           fontSize: 15,
           color: message.isUser
-              ? Colors.white
+              ? (DS.isDark ? DS.background : Colors.white)
               : (isError ? Colors.red[700] : DS.onSurface),
           height: 1.4,
         ),
@@ -160,7 +162,10 @@ class ChatBubble extends StatelessWidget {
           bottomLeft: Radius.circular(4),
           bottomRight: Radius.circular(16),
         ),
-        border: Border.all(color: DS.primary.withOpacity(0.3)),
+        // 玻璃主题无边框；关闭态原样
+        border: shouldUseLiquidGlass(context)
+            ? null
+            : Border.all(color: DS.emphasis.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -186,14 +191,14 @@ class ChatBubble extends StatelessWidget {
           _buildDetailRow(
             '金额',
             '${type == 'expense' ? '-' : '+'}¥${amount.toStringAsFixed(2)}',
-            valueColor: type == 'expense' ? DS.primaryContainer : DS.secondary,
+            valueColor: type == 'expense' ? DS.emphasis : DS.secondary,
           ),
           if (remark != null && remark.isNotEmpty)
             _buildDetailRow('备注', remark),
           _buildDetailRow('日期', _formatDateLabel(dateStr)),
           SizedBox(height: 10),
           // 心情选择
-          _buildMoodRow(),
+          _buildMoodRow(context),
           SizedBox(height: 8),
           // 定位信息
           _buildLocationRow(),
@@ -220,8 +225,10 @@ class ChatBubble extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: confirmed ? null : onConfirm,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: confirmed ? DS.outline : DS.primary,
-                    foregroundColor: Colors.white,
+                    backgroundColor: confirmed ? DS.outline : DS.emphasis,
+                    foregroundColor: confirmed
+                        ? Colors.white
+                        : (DS.isDark ? DS.background : Colors.white),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(DS.radiusSm),
                     ),
@@ -237,7 +244,7 @@ class ChatBubble extends StatelessWidget {
     );
   }
 
-  Widget _buildQueryBubble() {
+  Widget _buildQueryBubble(BuildContext context) {
     final data = message.data ?? {};
     final totalExpense = data['totalExpense'] as double? ?? 0;
     final totalIncome = data['totalIncome'] as double? ?? 0;
@@ -256,7 +263,10 @@ class ChatBubble extends StatelessWidget {
           bottomLeft: Radius.circular(4),
           bottomRight: Radius.circular(16),
         ),
-        border: Border.all(color: DS.secondaryContainer.withOpacity(0.3)),
+        // 玻璃主题无边框；关闭态原样
+        border: shouldUseLiquidGlass(context)
+            ? null
+            : Border.all(color: DS.secondaryContainer.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -275,7 +285,7 @@ class ChatBubble extends StatelessWidget {
             _buildDetailRow(
               '总支出',
               '¥${totalExpense.toStringAsFixed(2)}',
-              valueColor: DS.primaryContainer,
+              valueColor: DS.emphasis,
             ),
           if (totalIncome > 0)
             _buildDetailRow(
@@ -321,7 +331,7 @@ class ChatBubble extends StatelessWidget {
     );
   }
 
-  Widget _buildMoodRow() {
+  Widget _buildMoodRow(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(bottom: 4),
       child: Row(
@@ -344,10 +354,13 @@ class ChatBubble extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isSelected ? DS.surfaceContainerHigh : DS.background,
                   borderRadius: BorderRadius.circular(DS.radiusFull),
-                  border: Border.all(
-                    color: isSelected ? DS.primary : DS.outlineVariant,
-                    width: isSelected ? 1.5 : 1,
-                  ),
+                  // 玻璃主题无边框，选中靠填充；关闭态原样
+                  border: shouldUseLiquidGlass(context)
+                      ? null
+                      : Border.all(
+                          color: isSelected ? DS.emphasis : DS.outlineVariant,
+                          width: isSelected ? 1.5 : 1,
+                        ),
                 ),
                 child: Text(
                   '${mood.emoji}${isSelected ? " ${mood.label}" : ""}',

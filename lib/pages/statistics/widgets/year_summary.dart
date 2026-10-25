@@ -229,10 +229,10 @@ class _YearSummaryState extends State<YearSummary> {
             : (m['income'] as double))
         .reduce((a, b) => a > b ? a : b);
 
-    return Container(
+    return GlassSurface(
       margin: EdgeInsets.symmetric(horizontal: DS.sm),
       padding: EdgeInsets.all(DS.gutter),
-      decoration: DS.glassDecoration,
+      fallbackDecoration: DS.glassDecoration,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -371,10 +371,10 @@ class _YearSummaryState extends State<YearSummary> {
       };
     }).toList();
 
-    return Container(
+    return GlassSurface(
       margin: EdgeInsets.symmetric(horizontal: DS.sm),
       padding: EdgeInsets.all(DS.gutter),
-      decoration: DS.glassDecoration,
+      fallbackDecoration: DS.glassDecoration,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -16,6 +16,8 @@ class CategoryModel {
 }
 
 /// 支出分类
+/// 顺序为默认顺序；用户可在「我的 → 分类排序」长按拖拽自定义
+/// （顺序持久化见 CategoryOrderService，此处常量表仅作默认值）
 const List<CategoryModel> expenseCategories = [
   CategoryModel(
       id: 'food', name: '餐饮', icon: '🍜', color: '#FF6B6B', isExpense: true),
@@ -30,6 +32,16 @@ const List<CategoryModel> expenseCategories = [
       name: '购物',
       icon: '🛍️',
       color: '#45B7D1',
+      isExpense: true),
+  CategoryModel(
+      id: 'snack', name: '零食', icon: '🍿', color: '#FDCB6E', isExpense: true),
+  CategoryModel(
+      id: 'fruit', name: '水果', icon: '🍎', color: '#00B894', isExpense: true),
+  CategoryModel(
+      id: 'milk_tea',
+      name: '奶茶',
+      icon: '🧋',
+      color: '#FDCB6E',
       isExpense: true),
   CategoryModel(
       id: 'entertainment',
@@ -55,14 +67,6 @@ const List<CategoryModel> expenseCategories = [
       icon: '👕',
       color: '#FD79A8',
       isExpense: true),
-  CategoryModel(
-      id: 'milk_tea',
-      name: '奶茶',
-      icon: '🧋',
-      color: '#FDCB6E',
-      isExpense: true),
-  CategoryModel(
-      id: 'snack', name: '零食', icon: '🍿', color: '#FDCB6E', isExpense: true),
   CategoryModel(
       id: 'pet', name: '宠物', icon: '🐾', color: '#A29BFE', isExpense: true),
   CategoryModel(

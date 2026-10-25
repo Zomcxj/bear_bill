@@ -243,13 +243,13 @@ Widget _buildContent(
               Icon(
                 Icons.battery_alert,
                 size: 14,
-                color: glass ? DS.onSurfaceVariant : DS.primaryContainer,
+                color: glass ? DS.onSurfaceVariant : DS.emphasis,
               ),
               SizedBox(width: DS.xs),
               Text(
                 '提醒不生效？点击关闭电池优化',
                 style: DS.labelSm.copyWith(
-                  color: glass ? DS.onSurfaceVariant : DS.primaryContainer,
+                  color: glass ? DS.onSurfaceVariant : DS.emphasis,
                 ),
               ),
             ],

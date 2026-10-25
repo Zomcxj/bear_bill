@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../../../models/models.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../widgets/glass_dialog_shell.dart';
+import '../../../theme/glass_materials.dart';
 import '../../../providers/theme_provider.dart';
 
 /// 金额展示 + 日期选择 + 快捷金额标签
@@ -38,10 +40,10 @@ class AmountDateSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
+          GlassSurface(
             width: double.infinity,
             padding: EdgeInsets.all(DS.gutter),
-            decoration: BoxDecoration(
+            fallbackDecoration: BoxDecoration(
               color: DS.surfaceContainerLowest,
               borderRadius: BorderRadius.circular(DS.radiusMd),
               border: Border.all(color: accentColor.withOpacity(0.12)),
@@ -61,8 +63,8 @@ class AmountDateSection extends StatelessWidget {
                     _buildInfoPill(
                       icon: selectedCategory?.icon ?? '🍜',
                       label: selectedCategory?.name ?? '餐饮',
-                      backgroundColor: DS.primary,
-                      textColor: Colors.white,
+                      backgroundColor: DS.emphasis,
+                      textColor: DS.isDark ? DS.background : Colors.white,
                     ),
                     SizedBox(width: DS.sm),
                     GestureDetector(
@@ -72,7 +74,10 @@ class AmountDateSection extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: DS.heroCardBg,
                           borderRadius: BorderRadius.circular(DS.radiusFull),
-                          border: Border.all(color: DS.heroCardBorder),
+                          // 玻璃主题无边框；关闭态原样
+                          border: shouldUseLiquidGlass(context)
+                              ? null
+                              : Border.all(color: DS.heroCardBorder),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -127,13 +132,22 @@ class AmountDateSection extends StatelessWidget {
                         vertical: 7,
                       ),
                       decoration: BoxDecoration(
-                        color: isSelected ? accentColor : DS.surfaceContainerLowest,
+                        color: isSelected
+                            ? accentColor
+                            : shouldUseLiquidGlass(context)
+                                ? (DS.isDark
+                                    ? Colors.white.withOpacity(0.10)
+                                    : Colors.white.withOpacity(0.50))
+                                : DS.surfaceContainerLowest,
                         borderRadius: BorderRadius.circular(DS.radiusFull),
-                        border: Border.all(
-                          color: isSelected
-                              ? accentColor
-                              : accentColor.withOpacity(0.18),
-                        ),
+                        // 玻璃主题无边框，选中靠填充；关闭态原样
+                        border: shouldUseLiquidGlass(context)
+                            ? null
+                            : Border.all(
+                                color: isSelected
+                                    ? accentColor
+                                    : accentColor.withOpacity(0.18),
+                              ),
                       ),
                       child: Text(
                         '¥$quickAmount',

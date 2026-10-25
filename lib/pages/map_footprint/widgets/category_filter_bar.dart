@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../../models/models.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../theme/glass_materials.dart';
 import '../../../providers/theme_provider.dart';
+import '../../../services/category_order_service.dart';
 import 'package:provider/provider.dart';
 
 /// 地图分类筛选条
@@ -23,20 +24,31 @@ class CategoryFilterBar extends StatelessWidget {
       height: 48,
       decoration: BoxDecoration(
         color: DS.surfaceContainerLowest,
-        border: Border(bottom: BorderSide(color: DS.outlineVariant)),
+        // 玻璃主题无边框；关闭态原样
+        border: shouldUseLiquidGlass(context)
+            ? null
+            : Border(bottom: BorderSide(color: DS.outlineVariant)),
       ),
       child: ListView(
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: 8),
         children: [
-          _buildChip(null, '全部', Icons.all_inclusive),
-          ...expenseCategories.map((c) => _buildChip(c.id, c.name, null, c.icon)),
+          _buildChip(context, null, '全部', Icons.all_inclusive),
+          // 跟随用户自定义的分类顺序
+          ...CategoryOrderService.instance.expense
+              .map((c) => _buildChip(context, c.id, c.name, null, c.icon)),
         ],
       ),
     );
   }
 
-  Widget _buildChip(String? id, String label, IconData? icon, [String? emoji]) {
+  Widget _buildChip(
+    BuildContext context,
+    String? id,
+    String label,
+    IconData? icon, [
+    String? emoji,
+  ]) {
     final isSelected = id == selectedCategoryId;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 4, vertical: 8),
@@ -45,11 +57,14 @@ class CategoryFilterBar extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
-            color: isSelected ? DS.primary : DS.background,
+            color: isSelected ? DS.emphasis : DS.background,
             borderRadius: BorderRadius.circular(DS.radiusFull),
-            border: Border.all(
-              color: isSelected ? DS.primary : DS.outlineVariant,
-            ),
+            // 玻璃主题无边框，选中靠填充；关闭态原样
+            border: shouldUseLiquidGlass(context)
+                ? null
+                : Border.all(
+                    color: isSelected ? DS.emphasis : DS.outlineVariant,
+                  ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -57,13 +72,20 @@ class CategoryFilterBar extends StatelessWidget {
               if (emoji != null)
                 Text(emoji, style: TextStyle(fontSize: 14))
               else if (icon != null)
-                Icon(icon, size: 14, color: isSelected ? Colors.white : DS.onSurfaceVariant),
+                Icon(
+                    icon,
+                    size: 14,
+                    color: isSelected
+                        ? (DS.isDark ? DS.background : Colors.white)
+                        : DS.onSurfaceVariant),
               SizedBox(width: 4),
               Text(
                 label,
                 style: TextStyle(
                   fontSize: 12,
-                  color: isSelected ? Colors.white : DS.onSurface,
+                  color: isSelected
+                      ? (DS.isDark ? DS.background : Colors.white)
+                      : DS.onSurface,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 ),
               ),

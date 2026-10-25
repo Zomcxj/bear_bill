@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:provider/provider.dart';
 
+import 'dev/glass_lab_page.dart';
 import 'pages/bill_list/bill_list_page.dart';
 import 'pages/home/home_page.dart';
 import 'pages/profile/profile_page.dart';
@@ -11,6 +12,7 @@ import 'pages/wish_jar/wish_jar_page.dart';
 import 'providers/app_provider.dart';
 import 'providers/theme_provider.dart';
 import 'services/auto_record_service.dart';
+import 'services/category_order_service.dart';
 import 'services/database_service.dart';
 import 'services/notification_service.dart';
 import 'services/storage_service.dart';
@@ -52,6 +54,9 @@ void main() async {
 
   // 加载本地缓存（如打卡/账本记忆、字号设置）
   await StorageService.instance.load();
+
+  // 分类排序（用户自定义支出分类顺序，默认=常量表顺序）
+  await CategoryOrderService.instance.load();
 
   // 初始化主题（从缓存加载用户选择的颜色）
   final themeProvider = ThemeProvider();
@@ -152,7 +157,10 @@ class _BearBillAppState extends State<BearBillApp> {
           );
         },
         navigatorObservers: [routeObserver], // 注册全局路由观察者
-        home: MainTabPage(onFontSizeChanged: _loadFontSize),
+        // 【临时】玻璃实验室验证页（_kGlassLab=true 时直启，验证完改回 false 删除）
+        home: _kGlassLab
+            ? const GlassLabPage()
+            : MainTabPage(onFontSizeChanged: _loadFontSize),
       ),
       ),
     );
@@ -162,6 +170,9 @@ class _BearBillAppState extends State<BearBillApp> {
 /// 主 Tab 页面
 /// 全局 Tab 切换通知器（从子页面切换底部 Tab）
 final ValueNotifier<int> tabSwitchNotifier = ValueNotifier<int>(0);
+
+/// 【临时】玻璃实验室开关：true 直启验证页，验证完改回 false 并删除实验室文件
+const bool _kGlassLab = false;
 
 class MainTabPage extends StatefulWidget {
   final VoidCallback? onFontSizeChanged;
@@ -363,10 +374,13 @@ class _MainTabPageState extends State<MainTabPage> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: DS.primary,
+                  color: DS.emphasis,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(icon, color: DS.onPrimary, size: 24),
+                child: Icon(
+                    icon,
+                    color: DS.isDark ? DS.background : Colors.white,
+                    size: 24),
               )
             : Column(
                 mainAxisSize: MainAxisSize.min,

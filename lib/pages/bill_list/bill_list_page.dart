@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
+    show GlassButton, GlassButtonStyle, LiquidRoundedSuperellipse;
 import 'package:provider/provider.dart';
 
 import '../../models/models.dart';
 import '../../providers/app_provider.dart';
 import '../../providers/theme_provider.dart';
+import '../../services/category_order_service.dart';
 import '../../services/database_service.dart';
 import '../../services/notification_service.dart';
 import '../../theme/app_design_system.dart';
+import '../../theme/glass_materials.dart';
 import '../../utils/utils.dart' as utils;
 import '../../widgets/glass_dialog_shell.dart';
 import 'widgets/bill_filter_mixin.dart';
@@ -141,7 +145,8 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
 
   List<Map<String, dynamic>> _getAllCategories() {
     final allCategories = <Map<String, dynamic>>[];
-    for (final cat in expenseCategories) {
+    // 支出分类跟随用户自定义顺序
+    for (final cat in CategoryOrderService.instance.expense) {
       allCategories.add({'id': cat.id, 'name': cat.name, 'emoji': cat.icon});
     }
     for (final cat in incomeCategories) {
@@ -159,15 +164,16 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
         top: false,
         child: Column(
           children: [
-            Container(
-              padding: EdgeInsets.fromLTRB(DS.containerMargin, MediaQuery.of(context).padding.top + DS.gutter, DS.containerMargin, DS.base),
-              decoration: BoxDecoration(
+            GlassSurface(
+              borderRadius: DS.radiusLg,
+              fallbackDecoration: BoxDecoration(
                 gradient: DS.heroGradientBlueCurrent,
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(DS.radiusLg),
                   bottomRight: Radius.circular(DS.radiusLg),
                 ),
               ),
+              padding: EdgeInsets.fromLTRB(DS.containerMargin, MediaQuery.of(context).padding.top + DS.gutter, DS.containerMargin, DS.base),
               child: Column(
                 children: [
                   Row(
@@ -178,9 +184,9 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
                     ],
                   ),
                   SizedBox(height: DS.sm),
-                  Container(
+                  GlassSurface(
                     padding: EdgeInsets.symmetric(vertical: DS.gutter),
-                    decoration: BoxDecoration(
+                    fallbackDecoration: BoxDecoration(
                       color: DS.heroCardBg,
                       borderRadius: BorderRadius.circular(DS.radiusMd),
                       border: Border.all(color: DS.heroCardBorder),
@@ -228,62 +234,52 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
                     ),
                   ),
                   SizedBox(height: DS.sm),
-                  Row(
-                    children: [
-                      GestureDetector(
-                        onTap: _prevMonth,
-                        child: Container(
-                          width: 32, height: 32,
-                          decoration: BoxDecoration(
-                            color: DS.heroCardBg,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(Icons.chevron_left, size: 18, color: DS.onSurface),
-                        ),
-                      ),
-                      SizedBox(width: DS.xs),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => _pickYearMonth(context),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.xs + 2),
-                            decoration: BoxDecoration(
-                              color: DS.heroCardBg,
-                              borderRadius: BorderRadius.circular(DS.radiusFull),
-                              border: Border.all(color: DS.heroCardBorder),
+                  // 玻璃态：整条日期栏 = 底部导航栏同款玻璃条（与统计页统一）；
+                  // 关闭态原样（零漂移）
+                  GlassBarWrap(
+                    child: Row(
+                      children: [
+                        _monthArrow(context, icon: Icons.chevron_left, onTap: _prevMonth),
+                        SizedBox(width: DS.xs),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => _pickYearMonth(context),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.xs + 2),
+                              decoration: BoxDecoration(
+                                // 玻璃条本身是玻璃面，胶囊不再填充
+                                color: shouldUseLiquidGlass(context)
+                                    ? Colors.transparent
+                                    : DS.heroCardBg,
+                                borderRadius: BorderRadius.circular(DS.radiusFull),
+                                // 玻璃主题无边框；关闭态原样
+                                border: shouldUseLiquidGlass(context)
+                                    ? null
+                                    : Border.all(color: DS.heroCardBorder),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    utils.DateUtils.formatMonthCN(_currentMonth),
+                                    style: DS.labelMd.copyWith(color: DS.onSurface),
+                                  ),
+                                  SizedBox(width: DS.xs),
+                                  Icon(Icons.unfold_more, size: 14, color: DS.outline),
+                                ],
+                              ),
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  utils.DateUtils.formatMonthCN(_currentMonth),
-                                  style: DS.labelMd.copyWith(color: DS.onSurface),
-                                ),
-                                SizedBox(width: DS.xs),
-                                Icon(Icons.unfold_more, size: 14, color: DS.outline),
-                              ],
-                            ),
                           ),
                         ),
-                      ),
-                      SizedBox(width: DS.xs),
-                      GestureDetector(
-                        onTap: _nextMonth,
-                        child: Container(
-                          width: 32, height: 32,
-                          decoration: BoxDecoration(
-                            color: DS.heroCardBg,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(Icons.chevron_right, size: 18, color: DS.onSurface),
-                        ),
-                      ),
-                    ],
+                        SizedBox(width: DS.xs),
+                        _monthArrow(context, icon: Icons.chevron_right, onTap: _nextMonth),
+                      ],
+                    ),
                   ),
                   SizedBox(height: DS.sm),
-                  Container(
+                  GlassSurface(
                     padding: EdgeInsets.symmetric(horizontal: DS.sm),
-                    decoration: BoxDecoration(
+                    fallbackDecoration: BoxDecoration(
                       color: DS.heroCardBg,
                       borderRadius: BorderRadius.circular(DS.radiusFull),
                       border: Border.all(color: DS.heroCardBorder),
@@ -354,95 +350,50 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
     );
   }
 
-  void _pickYearMonth(BuildContext context) {
-    final parts = _currentMonth.split('-');
-    int selectedYear = int.parse(parts[0]);
-    int selectedMonth = int.parse(parts[1]);
-
-    showGlassDialog(
-      context: context,
-      maxWidth: 320,
-      content: StatefulBuilder(
-        builder: (ctx, setState) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.chevron_left),
-                    onPressed: () => setState(() => selectedYear--),
-                  ),
-                  Text('$selectedYear 年',
-                      style: DS.headlineSm.copyWith(color: DS.onSurface)),
-                  IconButton(
-                    icon: Icon(Icons.chevron_right),
-                    onPressed: selectedYear < DateTime.now().year
-                        ? () => setState(() => selectedYear++)
-                        : null,
-                  ),
-                ],
-              ),
-              SizedBox(
-                width: 280,
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4,
-                    mainAxisSpacing: DS.sm,
-                    crossAxisSpacing: DS.sm,
-                    childAspectRatio: 1.4,
-                  ),
-                  itemCount: 12,
-                  itemBuilder: (_, i) {
-                    final month = i + 1;
-                    final isCurrent = month == selectedMonth;
-                    final isFuture = selectedYear == DateTime.now().year &&
-                        month > DateTime.now().month;
-                    return GestureDetector(
-                      onTap: isFuture
-                          ? null
-                          : () {
-                              final m = month.toString().padLeft(2, '0');
-                              setState(
-                                  () => _currentMonth = '$selectedYear-$m');
-                              Navigator.pop(ctx);
-                              _loadRecords();
-                            },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: isCurrent
-                              ? DS.emphasis
-                              : DS.surfaceContainerLow,
-                          borderRadius: BorderRadius.circular(DS.radiusSm),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          '$month 月',
-                          style: DS.labelMd.copyWith(
-                            color: isFuture
-                                ? DS.outline
-                                : isCurrent
-                                    ? DS.background
-                                    : DS.onSurface,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-      buildActions: (ctx) => [
-        GlassDialogButton(
-          label: '取消',
-          onPressed: () => Navigator.pop(ctx),
+  /// 玻璃态：透明玻璃圆钮（玻璃条本身已是玻璃，不套玻璃）；
+  /// 关闭态：原填充圆钮（零漂移）
+  Widget _monthArrow(
+    BuildContext context, {
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    if (shouldUseLiquidGlass(context)) {
+      return GlassButton.custom(
+        style: GlassButtonStyle.transparent,
+        onTap: onTap,
+        interactionScale: 1.12,
+        stretch: 0.2,
+        shape: const LiquidRoundedSuperellipse(borderRadius: 999),
+        child: SizedBox(
+          width: 32,
+          height: 32,
+          child: Icon(icon, size: 18, color: DS.onSurface),
         ),
-      ],
+      );
+    }
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          color: DS.heroCardBg,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, size: 18, color: DS.onSurface),
+      ),
+    );
+  }
+
+  void _pickYearMonth(BuildContext context) {
+    // 玻璃年月选择小窗（三处日期切换统一组件，见 glass_dialog_shell）
+    showGlassYearMonthPicker(
+      context: context,
+      currentMonth: _currentMonth,
+      onPicked: (m) {
+        setState(() => _currentMonth = m);
+        _loadRecords();
+      },
     );
   }
 
@@ -472,7 +423,8 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
   }
 
   void _showRecordDetail(RecordModel record) {
-    showDialog(
+    // 玻璃态走居中小窗壳（showDialog 的紧约束会把玻璃壳撑成全屏）
+    showGlassContentDialog(
       context: context,
       builder: (context) => RecordDetailDialog(record: record),
     );

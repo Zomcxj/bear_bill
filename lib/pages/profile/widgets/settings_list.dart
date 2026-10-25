@@ -7,6 +7,7 @@ import '../../../services/storage_service.dart';
 import '../../../theme/app_design_system.dart';
 import '../../../widgets/glass_dialog_shell.dart';
 import '../../map_footprint/map_footprint_page.dart';
+import 'category_order_page.dart';
 import 'auto_record_settings.dart';
 import 'settings_dialogs.dart';
 
@@ -23,10 +24,10 @@ class SettingsList extends StatefulWidget {
 class _SettingsListState extends State<SettingsList> {
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GlassSurface(
       margin: EdgeInsets.symmetric(horizontal: DS.sm),
       padding: EdgeInsets.all(DS.gutter),
-      decoration: DS.glassDecoration,
+      fallbackDecoration: DS.glassDecoration,
       child: Column(
         children: [
           _buildMenuItem(
@@ -54,6 +55,19 @@ class _SettingsListState extends State<SettingsList> {
                 context,
                 MaterialPageRoute(
                     builder: (context) => const MapFootprintPage()),
+              );
+            },
+          ),
+          _buildDivider(),
+          _buildMenuItem(
+            icon: Icons.swap_vert,
+            title: '分类排序',
+            trailing: '长按拖动',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const CategoryOrderPage()),
               );
             },
           ),

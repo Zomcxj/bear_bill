@@ -5,6 +5,7 @@ import '../../providers/app_provider.dart';
 import '../../services/database_service.dart';
 import '../../services/storage_service.dart';
 import '../../theme/app_design_system.dart';
+import '../../theme/glass_materials.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/glass_dialog_shell.dart';
 import '../../utils/utils.dart';
@@ -179,7 +180,10 @@ class _BudgetPageState extends State<BudgetPage> {
       decoration: BoxDecoration(
         color: DS.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(DS.radiusMd),
-        border: Border.all(color: DS.outlineVariant),
+        // 玻璃主题无边框；关闭态原样
+        border: shouldUseLiquidGlass(context)
+            ? null
+            : Border.all(color: DS.outlineVariant),
       ),
       child: Column(
         children: [
@@ -202,7 +206,7 @@ class _BudgetPageState extends State<BudgetPage> {
             style: TextStyle(
               fontSize: 36,
               fontWeight: FontWeight.bold,
-              color: _currentBudget > 0 ? DS.primaryContainer : DS.outline,
+              color: _currentBudget > 0 ? DS.emphasis : DS.outline,
             ),
           ),
           if (_currentBudget > 0) ...[
@@ -244,11 +248,14 @@ class _BudgetPageState extends State<BudgetPage> {
                 decoration: BoxDecoration(
                   color: DS.surfaceContainerHigh,
                   borderRadius: BorderRadius.circular(DS.radiusFull),
-                  border: Border.all(color: DS.primary),
+                  // 玻璃主题无边框；关闭态原样
+                  border: shouldUseLiquidGlass(context)
+                      ? null
+                      : Border.all(color: DS.emphasis),
                 ),
                 child: Text(
                   '¥${amount.toInt()}',
-                  style: DS.labelMd.copyWith(color: DS.primaryContainer),
+                  style: DS.labelMd.copyWith(color: DS.emphasis),
                 ),
               ),
             );
@@ -271,7 +278,7 @@ class _BudgetPageState extends State<BudgetPage> {
           controller: _controller,
           decoration: InputDecoration(
             hintText: '输入月度预算金额',
-            prefixIcon: Icon(Icons.attach_money, color: DS.primary),
+            prefixIcon: Icon(Icons.attach_money, color: DS.emphasis),
             suffixIcon: _controller.text.isNotEmpty
                 ? IconButton(
                     icon: Icon(Icons.clear, size: 18),
@@ -304,8 +311,8 @@ class _BudgetPageState extends State<BudgetPage> {
             icon: Icon(Icons.clear),
             label: Text('清除预算'),
             style: OutlinedButton.styleFrom(
-              foregroundColor: DS.primaryContainer,
-              side: BorderSide(color: DS.primaryContainer),
+              foregroundColor: DS.emphasis,
+              side: BorderSide(color: DS.emphasis),
               padding: EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(DS.radiusSm),
@@ -320,8 +327,8 @@ class _BudgetPageState extends State<BudgetPage> {
             icon: Icon(Icons.save),
             label: Text('保存预算'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: DS.primary,
-              foregroundColor: Colors.white,
+              backgroundColor: DS.emphasis,
+              foregroundColor: DS.isDark ? DS.background : Colors.white,
               padding: EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(DS.radiusSm),
@@ -339,7 +346,10 @@ class _BudgetPageState extends State<BudgetPage> {
       decoration: BoxDecoration(
         color: AppTheme.infoLight,
         borderRadius: BorderRadius.circular(DS.radiusSm),
-        border: Border.all(color: AppTheme.info.withOpacity(0.3)),
+        // 玻璃主题无边框；关闭态原样
+        border: shouldUseLiquidGlass(context)
+            ? null
+            : Border.all(color: AppTheme.info.withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

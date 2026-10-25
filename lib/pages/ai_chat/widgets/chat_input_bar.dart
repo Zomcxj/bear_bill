@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../services/baidu_speech_service.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../theme/glass_materials.dart';
 import '../../../providers/theme_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -140,7 +141,10 @@ class _ChatInputBarState extends State<ChatInputBar> {
           ),
           decoration: BoxDecoration(
             color: DS.surfaceContainerLowest,
-            border: Border(top: BorderSide(color: DS.outlineVariant)),
+            // 玻璃主题无边框；关闭态原样
+            border: shouldUseLiquidGlass(context)
+                ? null
+                : Border(top: BorderSide(color: DS.outlineVariant)),
           ),
           child: Row(
             children: [
@@ -155,9 +159,12 @@ class _ChatInputBarState extends State<ChatInputBar> {
                   decoration: BoxDecoration(
                     color: _isRecording ? Colors.red : DS.background,
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: _isRecording ? Colors.red : DS.outlineVariant,
-                    ),
+                    // 玻璃主题无边框；关闭态原样
+                    border: shouldUseLiquidGlass(context)
+                        ? null
+                        : Border.all(
+                            color: _isRecording ? Colors.red : DS.outlineVariant,
+                          ),
                   ),
                   child: _isRecognizing
                       ? SizedBox(
@@ -182,7 +189,10 @@ class _ChatInputBarState extends State<ChatInputBar> {
                   decoration: BoxDecoration(
                     color: DS.background,
                     borderRadius: BorderRadius.circular(DS.radiusFull),
-                    border: Border.all(color: DS.outlineVariant),
+                    // 玻璃主题无边框；关闭态原样
+                    border: shouldUseLiquidGlass(context)
+                        ? null
+                        : Border.all(color: DS.outlineVariant),
                   ),
                   child: TextField(
                     controller: _controller,
@@ -196,7 +206,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
                           : '按住说话，上滑取消',
                       hintStyle: TextStyle(
                         color: _isRecognizing
-                            ? DS.primary
+                            ? DS.emphasis
                             : DS.outline,
                         fontSize: 14,
                       ),
@@ -219,12 +229,12 @@ class _ChatInputBarState extends State<ChatInputBar> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: DS.primary,
+                    color: DS.emphasis,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Icon(
                     Icons.send,
-                    color: Colors.white,
+                    color: DS.isDark ? DS.background : Colors.white,
                     size: 20,
                   ),
                 ),

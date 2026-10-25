@@ -8,6 +8,7 @@ import '../../services/database_service.dart';
 import '../../services/glm_service.dart';
 import '../../services/notification_service.dart';
 import '../../theme/app_design_system.dart';
+import '../../theme/glass_materials.dart';
 import '../add_record/add_record_page.dart';
 import 'ai_chat_location_mixin.dart';
 import 'ai_chat_query_mixin.dart';
@@ -391,14 +392,14 @@ class _AiChatPageState extends State<AiChatPage>
               child: Row(
                 children: [
                   Icon(Icons.info_outline,
-                      size: 14, color: DS.primaryContainer),
+                      size: 14, color: DS.emphasis),
                   SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       '未配置 GLM API Key，使用本地关键词解析（精度较低）',
                       style: TextStyle(
                         fontSize: 11,
-                        color: DS.primaryContainer,
+                        color: DS.emphasis,
                       ),
                     ),
                   ),
@@ -436,8 +437,11 @@ class _AiChatPageState extends State<AiChatPage>
                           decoration: BoxDecoration(
                             color: DS.surfaceContainerLowest,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                                color: DS.outlineVariant.withOpacity(0.5)),
+                            // 玻璃主题无边框；关闭态原样
+                            border: shouldUseLiquidGlass(context)
+                                ? null
+                                : Border.all(
+                                    color: DS.outlineVariant.withOpacity(0.5)),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -447,7 +451,7 @@ class _AiChatPageState extends State<AiChatPage>
                                 height: 16,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: DS.primary,
+                                  color: DS.emphasis,
                                 ),
                               ),
                               SizedBox(width: 8),

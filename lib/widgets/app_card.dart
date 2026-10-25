@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_design_system.dart';
+import '../theme/glass_materials.dart';
 
 /// 通用卡片容器 - 毛玻璃风格
 class AppCard extends StatelessWidget {
@@ -32,8 +33,11 @@ class AppCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: color ?? DS.heroCardBg,
         borderRadius: BorderRadius.circular(borderRadius),
+        // 共享卡片：玻璃主题无边框；关闭态原样（零漂移）
         border: showBorder
-            ? Border.all(color: DS.heroCardBorder)
+            ? (shouldUseLiquidGlass(context)
+                ? null
+                : Border.all(color: DS.heroCardBorder))
             : null,
         boxShadow: showShadow ? DS.shadowSm : null,
       ),

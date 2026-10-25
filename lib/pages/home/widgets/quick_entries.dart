@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/app_design_system.dart';
+import '../../../theme/glass_materials.dart';
 import '../../../widgets/glass_card.dart';
 import '../../add_record/add_record_page.dart';
 import '../../ai_chat/ai_chat_page.dart';
@@ -185,7 +186,10 @@ class _QuickEntryItem extends StatelessWidget {
             decoration: BoxDecoration(
               color: color.withOpacity(0.15),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: color.withOpacity(0.3), width: 1),
+              // 玻璃主题无边框；关闭态原样
+              border: shouldUseLiquidGlass(context)
+                  ? null
+                  : Border.all(color: color.withOpacity(0.3), width: 1),
             ),
             child: Icon(icon, size: 20, color: DS.onSurface),
           ),

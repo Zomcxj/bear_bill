@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/app_design_system.dart';
+import '../../../theme/glass_materials.dart';
 import '../../../widgets/glass_dialog_shell.dart';
 import '../bill_list_page.dart';
 
@@ -186,9 +187,12 @@ mixin BillFilterMixin on State<BillListPage> {
         decoration: BoxDecoration(
           color: selected ? DS.emphasis : DS.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(DS.radiusFull),
-          border: Border.all(
-            color: selected ? DS.emphasis : DS.outlineVariant,
-          ),
+          // 玻璃主题无边框，选中靠填充；关闭态原样
+          border: shouldUseLiquidGlass(context)
+              ? null
+              : Border.all(
+                  color: selected ? DS.emphasis : DS.outlineVariant,
+                ),
         ),
         child: Text(
           label,

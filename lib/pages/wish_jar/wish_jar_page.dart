@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
-    show GlassContainer, GlassQuality, GlassSegment, GlassSegmentedControl,
+    show GlassContainer, GlassQuality,
         LiquidRoundedSuperellipse;
 import 'package:provider/provider.dart';
 import '../../models/models.dart';
@@ -204,6 +204,8 @@ class _WishJarPageState extends State<WishJarPage>
             : FloatingActionButton.extended(
                 onPressed: _showCreateDialog,
                 backgroundColor: DS.secondaryContainer,
+                // 例外：墨水画在常量亮蓝 secondaryContainer 上，
+                // 近黑两态皆可读；emphasis 深色态近白会失去对比
                 foregroundColor: DS.primary,
                 icon: Icon(Icons.auto_awesome, size: 20),
                 label: Text('创建心愿', style: DS.labelMd),
@@ -281,15 +283,17 @@ class _WishJarPageState extends State<WishJarPage>
   }
 
   Widget _buildHeroBanner() {
-    return Container(
-      padding: EdgeInsets.fromLTRB(DS.containerMargin, MediaQuery.of(context).padding.top + DS.gutter, DS.containerMargin, DS.base),
-      decoration: BoxDecoration(
+    // 玻璃态：整块 shader 玻璃 hero（与我的页同款）；关闭态原渐变（零漂移）
+    return GlassSurface(
+      borderRadius: DS.radiusLg,
+      fallbackDecoration: BoxDecoration(
         gradient: DS.heroGradientBlueCurrent,
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(DS.radiusLg),
           bottomRight: Radius.circular(DS.radiusLg),
         ),
       ),
+      padding: EdgeInsets.fromLTRB(DS.containerMargin, MediaQuery.of(context).padding.top + DS.gutter, DS.containerMargin, DS.base),
       child: Column(
         children: [
           Row(
@@ -330,12 +334,14 @@ class _WishJarPageState extends State<WishJarPage>
                       child: Container(
                         padding: EdgeInsets.symmetric(vertical: DS.sm),
                         decoration: BoxDecoration(
-                          color: _tabController.index == 0 ? DS.primary : Colors.transparent,
+                          color: _tabController.index == 0 ? DS.emphasis : Colors.transparent,
                           borderRadius: BorderRadius.circular(DS.radiusFull),
                         ),
                         child: Center(
                           child: Text('进行中', style: DS.labelMd.copyWith(
-                            color: _tabController.index == 0 ? DS.onPrimary : DS.onSurface,
+                            color: _tabController.index == 0
+                                ? (DS.isDark ? DS.background : Colors.white)
+                                : DS.onSurface,
                           )),
                         ),
                       ),
@@ -347,12 +353,14 @@ class _WishJarPageState extends State<WishJarPage>
                       child: Container(
                         padding: EdgeInsets.symmetric(vertical: DS.sm),
                         decoration: BoxDecoration(
-                          color: _tabController.index == 1 ? DS.primary : Colors.transparent,
+                          color: _tabController.index == 1 ? DS.emphasis : Colors.transparent,
                           borderRadius: BorderRadius.circular(DS.radiusFull),
                         ),
                         child: Center(
                           child: Text('已实现', style: DS.labelMd.copyWith(
-                            color: _tabController.index == 1 ? DS.onPrimary : DS.onSurface,
+                            color: _tabController.index == 1
+                                ? (DS.isDark ? DS.background : Colors.white)
+                                : DS.onSurface,
                           )),
                         ),
                       ),
@@ -362,20 +370,10 @@ class _WishJarPageState extends State<WishJarPage>
               ),
             )
           else
-            GlassSegmentedControl(
-              segments: const [
-                GlassSegment(label: '进行中'),
-                GlassSegment(label: '已实现'),
-              ],
+            GlassSegmented(
+              labels: const ['进行中', '已实现'],
               selectedIndex: _tabController.index,
-              onSegmentSelected: (i) => _tabController.animateTo(i),
-              height: 34,
-              selectedTextStyle: DS.labelMd.copyWith(
-                fontWeight: FontWeight.w600,
-                color: DS.onSurface,
-              ),
-              unselectedTextStyle:
-                  DS.labelMd.copyWith(color: DS.onSurfaceVariant),
+              onSelected: (i) => _tabController.animateTo(i),
             ),
         ],
       ),

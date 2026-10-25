@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../config/api_keys.dart';
+import 'category_order_service.dart';
 import '../models/models.dart';
 
 /// AI 记账解析结果
@@ -254,7 +255,9 @@ JSON 格式:
 
   String _detectCategory(String text, String type) {
     final categories =
-        type == 'expense' ? expenseCategories : incomeCategories;
+        type == 'expense'
+            ? CategoryOrderService.instance.expense
+            : incomeCategories;
 
     // 关键词映射
     final Map<String, List<String>> keywords = {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/app_design_system.dart';
+import '../../../widgets/glass_dialog_shell.dart';
 import '../../../utils/utils.dart';
 import '../../../providers/theme_provider.dart';
 import 'package:provider/provider.dart';
@@ -23,9 +24,9 @@ class CategoryBreakdown extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return Container(
+    return GlassSurface(
       padding: EdgeInsets.all(DS.gutter),
-      decoration: DS.glassDecoration,
+      fallbackDecoration: DS.glassDecoration,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
