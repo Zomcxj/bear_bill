@@ -10,7 +10,7 @@ import '../../../utils/utils.dart' as utils;
 import '../../../providers/theme_provider.dart';
 import 'package:provider/provider.dart';
 
-/// 将 hex 颜色字符串转换为 Color
+/// Convert a hex color string to a Color
 Color _hexToColor(String hex) {
   final buffer = StringBuffer();
   if (hex.length == 6 || hex.length == 7) buffer.write('ff');
@@ -18,7 +18,7 @@ Color _hexToColor(String hex) {
   return Color(int.parse(buffer.toString(), radix: 16));
 }
 
-/// 账单分组列表 - 按日期分组，支持左滑删除
+/// Grouped bill list - grouped by date, supports swipe-to-delete
 class RecordGroupList extends StatelessWidget {
   final List<Map<String, dynamic>> groupedRecords;
   final Function(String) onDelete;
@@ -35,7 +35,7 @@ class RecordGroupList extends StatelessWidget {
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>(); // theme rebuild
     return ListView.builder(
-      // 玻璃模式底部留白：避免最后一项被浮动玻璃底栏盖住
+      // Extra bottom padding in glass mode: keeps the last item clear of the floating glass bar
       padding: EdgeInsets.only(
         left: DS.sm,
         right: DS.sm,
@@ -58,12 +58,12 @@ class RecordGroupList extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 日期标题
+          // Date header
           Container(
             padding: EdgeInsets.symmetric(
                 horizontal: DS.base, vertical: 12),
             decoration: BoxDecoration(
-              // 玻璃态：页眉转玻璃 tint（贴近整卡玻璃，不再实色压顶）
+              // Glass mode: header uses a glass tint (matches the card glass instead of a solid cap)
               color: shouldUseLiquidGlass(context)
                   ? DS.heroCardBg
                   : DS.background,
@@ -98,8 +98,8 @@ class RecordGroupList extends StatelessWidget {
                       Text(
                         '支 ¥${utils.FormatUtils.formatAmount(group['dayExpense'])}',
                         style: DS.labelSm.copyWith(
-                          // 动态支出色：浅色近黑 / 深色浅红（常量
-                          // primaryContainer 近黑，深色下黑底黑字不可见）
+                          // Dynamic expense color: near-black in light mode / light red in dark mode
+                          // (the constant primaryContainer is near-black and unreadable on dark backgrounds)
                           color: DS.chartExpense,
                         ),
                       ),
@@ -123,7 +123,7 @@ class RecordGroupList extends StatelessWidget {
             ),
           ),
 
-          // 该日期的账单列表
+          // Records for this date
           ...List.generate(
             records.length,
             (index) => Column(
@@ -152,7 +152,7 @@ class RecordGroupList extends StatelessWidget {
         children: [
           SlidableAction(
             onPressed: (context) => onDelete(record.id),
-            // 删除 = 破坏性操作，红色（常量 primaryContainer 深色下不可见）
+            // Delete = destructive action, red (the constant primaryContainer is invisible in dark mode)
             backgroundColor: const Color(0xFFE5484D),
             foregroundColor: Colors.white,
             icon: Icons.delete,
@@ -170,7 +170,7 @@ class RecordGroupList extends StatelessWidget {
           padding: EdgeInsets.all(DS.base),
           child: Row(
             children: [
-              // 分类图标
+              // Category icon
               Container(
                 width: 44,
                 height: 44,
@@ -189,7 +189,7 @@ class RecordGroupList extends StatelessWidget {
 
               SizedBox(width: DS.base),
 
-              // 分类名称和备注
+              // Category name and remark
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -231,15 +231,15 @@ class RecordGroupList extends StatelessWidget {
                 ),
               ),
 
-              // 金额
+              // Amount
               Text(
                 utils.FormatUtils.formatAmountWithSign(record.amount,
                     type: record.type),
                 style: DS.labelMd.copyWith(
                   fontSize: 17,
                   fontWeight: FontWeight.w600,
-                  // 按收支着色（与统计页一致）：支出动态红、收入绿，
-                  // 深浅色都动态可读
+                  // Colored by income/expense (same as the statistics page): dynamic red for
+                  // expense, green for income, readable in both light and dark mode
                   color: record.type == 'expense'
                       ? DS.chartExpense
                       : AppTheme.success,

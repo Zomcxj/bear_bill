@@ -5,7 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
-/// 图片管理服务 - 复制图片到 app 私有目录，确保路径持久有效
+/// Image management service - copies images into the app private directory so paths stay valid
 class ImageService {
   static final ImageService instance = ImageService._();
   ImageService._();
@@ -19,7 +19,7 @@ class ImageService {
     return dir;
   }
 
-  /// 复制图片到 app 私有目录，返回新路径
+  /// Copy an image into the app private directory and return the new path
   Future<String> copyImageToAppDir(String sourcePath) async {
     final dir = await _imageDir;
     final ext = sourcePath.split('.').last.replaceAll(RegExp(r'[^a-zA-Z0-9]'), 'jpg');
@@ -29,7 +29,7 @@ class ImageService {
     return destPath;
   }
 
-  /// 从相册选择图片并复制到 app 目录
+  /// Pick images from the gallery and copy them into the app directory
   Future<List<String>> pickAndCopyImages() async {
     final files = await FilePicker.pickFiles(
       type: FileType.image,
@@ -41,14 +41,14 @@ class ImageService {
         try {
           paths.add(await copyImageToAppDir(file.path!));
         } catch (_) {
-          // 跳过复制失败的文件
+          // Skip files that failed to copy
         }
       }
     }
     return paths;
   }
 
-  /// 拍照并复制到 app 目录
+  /// Take a photo and copy it into the app directory
   Future<String?> captureFromCamera() async {
     final xFile = await _picker.pickImage(source: ImageSource.camera);
     if (xFile == null) return null;
@@ -59,7 +59,7 @@ class ImageService {
     }
   }
 
-  /// 删除图片文件
+  /// Delete an image file
   Future<void> deleteImage(String path) async {
     try {
       final file = File(path);
@@ -69,20 +69,20 @@ class ImageService {
     }
   }
 
-  /// 批量删除图片
+  /// Delete images in bulk
   Future<void> deleteImages(List<String> paths) async {
     for (final path in paths) {
       await deleteImage(path);
     }
   }
 
-  /// 迁移旧图片：将原始平台路径的图片复制到 app 目录
-  /// 返回 {旧路径: 新路径} 映射，失败的不包含
+  /// Migrate legacy images: copy images at their original platform paths into the app directory
+  /// Returns an {old path: new path} map; failed entries are omitted
   Future<Map<String, String>> migrateOldImages(List<String> oldPaths) async {
     final mapping = <String, String>{};
     for (final oldPath in oldPaths) {
       if (oldPath.isEmpty) continue;
-      // 跳过已经在 app 目录中的图片
+      // Skip images that are already in the app directory
       if (oldPath.contains('record_images')) {
         mapping[oldPath] = oldPath;
         continue;
@@ -94,7 +94,7 @@ class ImageService {
           mapping[oldPath] = newPath;
         }
       } catch (_) {
-        // 跳过无法复制的文件
+        // Skip files that cannot be copied
       }
     }
     return mapping;

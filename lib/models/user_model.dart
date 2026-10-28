@@ -1,17 +1,17 @@
-/// 用户模型 - 本地存储版本（无云开发）
+/// User model - local storage version (no cloud backend)
 class UserModel {
-  final String id; // 本地用户ID（固定为 'local-user'）
-  final String nickname; // 昵称
-  final String avatar; // 头像URL
-  final int checkInDays; // 连续打卡天数
-  final String lastCheckIn; // 最后打卡日期 'YYYY-MM-DD'
-  final List<String> achievements; // 已解锁成就ID列表
-  final int totalRecords; // 总记账次数
-  final int level; // 等级
-  final int exp; // 经验值
-  final String defaultBookId; // 默认账本ID
+  final String id; // Local user ID (fixed to 'local-user')
+  final String nickname; // Nickname
+  final String avatar; // Avatar URL
+  final int checkInDays; // Consecutive check-in days
+  final String lastCheckIn; // Last check-in date 'YYYY-MM-DD'
+  final List<String> achievements; // Unlocked achievement IDs
+  final int totalRecords; // Total number of records
+  final int level; // Level
+  final int exp; // Experience points
+  final String defaultBookId; // Default book ID
   final DateTime createdAt;
-  final DateTime lastActiveAt; // 最后活跃时间
+  final DateTime lastActiveAt; // Last active time
   
   UserModel({
     this.id = 'local-user',
@@ -93,12 +93,12 @@ class UserModel {
     );
   }
   
-  /// 计算下一级所需经验值
+  /// Experience required for the next level
   int get expForNextLevel => level * 100;
   
-  /// 经验进度百分比
+  /// Experience progress percentage
   double get expProgress => exp / expForNextLevel;
   
-  /// 判断是否升级
+  /// Whether the user should level up
   bool get shouldLevelUp => exp >= expForNextLevel;
 }

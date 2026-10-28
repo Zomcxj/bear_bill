@@ -26,11 +26,11 @@ void main() {
     });
 
     test('getWeekday 星期几', () {
-      // 2026-06-23 是周二
+      // 2026-06-23 is a Tuesday
       expect(DateUtils.getWeekday(DateTime(2026, 6, 23)), '周二');
-      // 2026-06-22 是周一
+      // 2026-06-22 is a Monday
       expect(DateUtils.getWeekday(DateTime(2026, 6, 22)), '周一');
-      // 2026-06-28 是周日
+      // 2026-06-28 is a Sunday
       expect(DateUtils.getWeekday(DateTime(2026, 6, 28)), '周日');
     });
 

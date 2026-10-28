@@ -1,32 +1,32 @@
-/// 日期工具类
+/// Date utilities
 class DateUtils {
-  /// 格式化日期为 YYYY-MM-DD
+  /// Format a date as YYYY-MM-DD
   static String formatDate(DateTime date) {
     return '${date.year}-${_pad(date.month)}-${_pad(date.day)}';
   }
 
-  /// 格式化日期为 YYYY-MM
+  /// Format a date as YYYY-MM
   static String formatMonth(DateTime date) {
     return '${date.year}-${_pad(date.month)}';
   }
 
-  /// 获取当前月份字符串
+  /// Get the current month string
   static String getCurrentMonth() {
     return formatMonth(DateTime.now());
   }
 
-  /// 获取今天日期字符串
+  /// Get today's date string
   static String getToday() {
     return formatDate(DateTime.now());
   }
 
-  /// 获取昨天日期字符串
+  /// Get yesterday's date string
   static String getYesterday() {
     final yesterday = DateTime.now().subtract(const Duration(days: 1));
     return formatDate(yesterday);
   }
 
-  /// 中文月份格式：2024年1月
+  /// Chinese month format, e.g. "2024年1月"
   static String formatMonthCN(String month) {
     final parts = month.split('-');
     final year = int.parse(parts[0]);
@@ -34,7 +34,7 @@ class DateUtils {
     return '$year年$mon月';
   }
 
-  /// 中文日期格式：1月15日
+  /// Chinese date format, e.g. "1月15日"
   static String formatDayCN(String date) {
     final parts = date.split('-');
     final mon = int.parse(parts[1]);
@@ -42,13 +42,13 @@ class DateUtils {
     return '$mon月$day日';
   }
 
-  /// 星期几
+  /// Day of the week
   static String getWeekday(DateTime date) {
     const weekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
     return weekdays[date.weekday - 1];
   }
 
-  /// 时段问候语
+  /// Time-of-day greeting
   static String getGreeting() {
     final hour = DateTime.now().hour;
     if (hour < 6) {
@@ -68,19 +68,19 @@ class DateUtils {
     }
   }
 
-  /// 解析日期字符串
+  /// Parse a date string
   static DateTime parseDate(String dateStr) {
     return DateTime.parse(dateStr);
   }
 
-  /// 计算两个日期之间的天数差
+  /// Compute the number of days between two dates
   static int daysBetween(DateTime from, DateTime to) {
     from = DateTime(from.year, from.month, from.day);
     to = DateTime(to.year, to.month, to.day);
     return (to.difference(from).inHours / 24).round();
   }
 
-  /// 补零
+  /// Zero-pad
   static String _pad(int n) {
     return n.toString().padLeft(2, '0');
   }

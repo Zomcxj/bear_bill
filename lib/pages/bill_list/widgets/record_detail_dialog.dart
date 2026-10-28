@@ -14,10 +14,11 @@ import 'package:provider/provider.dart';
 import '../../../theme/glass_materials.dart';
 import '../../../widgets/glass_dialog_shell.dart';
 
-/// 账单详情对话框 - 显示记录的完整信息，支持编辑/删除
+/// Record detail dialog - shows the full information of a record, supports edit/delete
 ///
-/// 由账单列表与首页「今日账单」共用：点击记录弹出本窗口
-/// （原先首页 push 全屏详情页，已按产品要求改为窗口）。
+/// Shared by the bill list and the home page's "today's bills": tapping a record
+/// opens this dialog (the home page used to push a full-screen detail page, which
+/// was changed to a dialog per product requirements).
 class RecordDetailDialog extends StatefulWidget {
   final RecordModel record;
 
@@ -42,7 +43,8 @@ class _RecordDetailDialogState extends State<RecordDetailDialog> {
     );
 
     if (result == true && mounted) {
-      // 与原全屏详情页同一刷新机制：通知全局数据变更后关闭窗口
+      // Same refresh mechanism as the old full-screen detail page: notify the
+      // global data change, then close the dialog
       context.read<AppProvider>().onRecordDeleted();
       NotificationService.instance.refreshTodaySummary();
       Navigator.pop(context);
@@ -85,8 +87,9 @@ class _RecordDetailDialogState extends State<RecordDetailDialog> {
     context.watch<ThemeProvider>(); // theme rebuild
     final glass = shouldUseLiquidGlass(context);
     if (glass) {
-      // showGlassContentDialog 已用官方 GlassDialog 提供玻璃壳与图层管线，
-      // 这里只出纯内容（标题栏 + 信息 + 操作行）
+      // showGlassContentDialog already provides the glass shell and layer pipeline
+      // via the official GlassDialog, so only the plain content is returned here
+      // (title bar + info + action row)
       return _buildBody(context, glass: true);
     }
 
@@ -105,7 +108,7 @@ class _RecordDetailDialogState extends State<RecordDetailDialog> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // 标题栏
+        // Title bar
         Container(
           padding: EdgeInsets.all(DS.gutter),
           decoration: BoxDecoration(
@@ -151,8 +154,9 @@ class _RecordDetailDialogState extends State<RecordDetailDialog> {
           ),
         ),
 
-        // 内容区域（自滚动：官方玻璃壳的 Column 不可用 Flexible，
-        // 用 maxHeight 约束保证超长内容（多图）时可滚动）
+        // Content area (self-scrolling: Flexible cannot be used inside the
+        // official glass shell's Column, so a maxHeight constraint keeps very long
+        // content, e.g. many images, scrollable)
         ConstrainedBox(
           constraints: BoxConstraints(
             maxHeight: MediaQuery.sizeOf(context).height * 0.5,
@@ -162,7 +166,7 @@ class _RecordDetailDialogState extends State<RecordDetailDialog> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 金额
+                // Amount
                 _buildInfoRow(
                   label: '金额',
                   value: Text(
@@ -179,7 +183,7 @@ class _RecordDetailDialogState extends State<RecordDetailDialog> {
 
                 Divider(height: 24),
 
-                // 类型
+                // Type
                 _buildInfoRow(
                   label: '类型',
                   value: Text(
@@ -190,7 +194,7 @@ class _RecordDetailDialogState extends State<RecordDetailDialog> {
                   ),
                 ),
 
-                // 备注（如果有）
+                // Remark (if any)
                 if (record.remark != null && record.remark!.isNotEmpty) ...[
                   Divider(height: 24),
                   _buildInfoRow(
@@ -204,7 +208,7 @@ class _RecordDetailDialogState extends State<RecordDetailDialog> {
                   ),
                 ],
 
-                // 心情（如果有）
+                // Mood (if any)
                 if (record.moodEmoji != null) ...[
                   Divider(height: 24),
                   _buildInfoRow(
@@ -220,7 +224,7 @@ class _RecordDetailDialogState extends State<RecordDetailDialog> {
                   ),
                 ],
 
-                // 位置（如果有）
+                // Location (if any)
                 if (record.location != null && record.location!.isNotEmpty) ...[
                   Divider(height: 24),
                   _buildInfoRow(
@@ -234,7 +238,7 @@ class _RecordDetailDialogState extends State<RecordDetailDialog> {
                   ),
                 ],
 
-                // 图片（如果有）
+                // Images (if any)
                 if (record.images.isNotEmpty) ...[
                   Divider(height: 24),
                   Text(
@@ -269,7 +273,7 @@ class _RecordDetailDialogState extends State<RecordDetailDialog> {
                   ),
                 ],
 
-                // 标签（如果有）
+                // Tags (if any)
                 if (record.tags.isNotEmpty) ...[
                   Divider(height: 24),
                   Text(
@@ -311,7 +315,8 @@ class _RecordDetailDialogState extends State<RecordDetailDialog> {
           ),
         ),
 
-        // 操作行：编辑 / 删除（原全屏详情页的功能保留到窗口里）
+        // Action row: edit / delete (features of the old full-screen detail page
+        // are kept inside this dialog)
         Padding(
           padding: EdgeInsets.fromLTRB(
             DS.gutter,

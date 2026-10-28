@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bear_bill/pages/add_record/widgets/location_helper.dart';
 
-/// 测试宿主页面，挂载 LocationHelper
+/// Test host page that mounts LocationHelper
 class _HostPage extends StatefulWidget {
   const _HostPage();
 
@@ -23,10 +23,10 @@ void main() {
     final state = tester.state<_HostPageState>(find.byType(_HostPage));
 
     final future = state.showLocationDialog();
-    await tester.pumpAndSettle(); // 选择对话框打开
+    await tester.pumpAndSettle(); // selection dialog opens
 
     await tester.tap(find.text('手动输入'));
-    await tester.pumpAndSettle(); // 手动输入对话框打开
+    await tester.pumpAndSettle(); // manual input dialog opens
 
     await tester.enterText(find.byType(TextField), '公司楼下');
     await tester.tap(find.text('保存'));

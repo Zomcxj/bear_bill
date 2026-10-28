@@ -17,7 +17,7 @@ import '../../../theme/glass_materials.dart';
 import '../../../providers/theme_provider.dart';
 import 'package:provider/provider.dart';
 
-/// 地图选点页面 - 类似微信位置选择
+/// Map picker page - similar to WeChat's location picker
 class MapPickerPage extends StatefulWidget {
   final LatLng? initialCenter;
   final String? initialName;
@@ -35,12 +35,12 @@ class _MapPickerPageState extends State<MapPickerPage> {
   final MapController _mapController = MapController();
   final TextEditingController _searchController = TextEditingController();
 
-  LatLng _center = const LatLng(39.9042, 116.4074); // GCJ-02 坐标，用于地图显示
+  LatLng _center = const LatLng(39.9042, 116.4074); // GCJ-02 coordinates, used for map display
   String _address = '';
   String _placeName = '';
   bool _isLoading = false;
   bool _isSearching = false;
-  bool _isLocating = false; // GPS 定位进行中标记
+  bool _isLocating = false; // Flag: GPS locating in progress
   List<Map<String, dynamic>> _searchResults = [];
   Timer? _searchDebounce;
   Timer? _geocodeDebounce;
@@ -49,21 +49,21 @@ class _MapPickerPageState extends State<MapPickerPage> {
   void initState() {
     super.initState();
     if (widget.initialCenter != null) {
-      // initialCenter 来自 GPS (WGS84)，转为 GCJ-02 用于地图显示
+      // initialCenter comes from GPS (WGS84); convert to GCJ-02 for map display
       final gcj = AmapLocationService.wgs84ToGcj02(
         widget.initialCenter!.latitude,
         widget.initialCenter!.longitude,
       );
       _center = LatLng(gcj.$1, gcj.$2);
       _placeName = widget.initialName ?? '';
-      // 传入原始 WGS84 坐标用于 API 查询
+      // Pass the original WGS84 coordinates for API queries
       _reverseGeocode(widget.initialCenter!);
     } else {
       _locateMe();
     }
   }
 
-  /// 定位到当前位置
+  /// Move the map to the current location
   Future<void> _locateMe() async {
     _isLocating = true;
     setState(() => _isLoading = true);
@@ -88,11 +88,11 @@ class _MapPickerPageState extends State<MapPickerPage> {
         return;
       }
 
-      // 优先使用上次已知位置（快速返回）
+      // Prefer the last known position (returns quickly)
       Position? position = await Geolocator.getLastKnownPosition();
 
-      // 如果没有缓存位置，再请求实时定位（多次尝试，精度递减）
-      // forceAndroidLocationManager=true 避免依赖 Google Play Services（国产手机兼容性更好）
+      // Without a cached position, request a fresh fix (retries with decreasing accuracy)
+      // forceAndroidLocationManager=true avoids depending on Google Play Services (better compatibility with domestic devices)
       if (position == null) {
         final accuracies = [
           LocationAccuracy.high,
@@ -112,14 +112,14 @@ class _MapPickerPageState extends State<MapPickerPage> {
       }
 
       if (position != null) {
-        // GPS 返回 WGS84 坐标，转换为 GCJ-02 用于地图显示
+        // GPS returns WGS84 coordinates; convert to GCJ-02 for map display
         final gcj = AmapLocationService.wgs84ToGcj02(position.latitude, position.longitude);
         final latLng = LatLng(gcj.$1, gcj.$2);
         setState(() {
           _center = latLng;
         });
         _mapController.move(latLng, 16);
-        // 传入原始 WGS84 坐标用于 API 查询
+        // Pass the original WGS84 coordinates for API queries
         await _reverseGeocode(LatLng(position.latitude, position.longitude));
       } else {
         _showMsg('未获取到定位结果，请手动选择位置');
@@ -132,19 +132,19 @@ class _MapPickerPageState extends State<MapPickerPage> {
     }
   }
 
-  /// 反向地理编码：坐标 → 地址
+  /// Reverse geocoding: coordinates -> address
   Future<void> _reverseGeocode(LatLng point) async {
     try {
       String? address;
 
-      // 优先使用高德 API（中国地址精准，含附近 POI）
+      // Prefer the Amap API (accurate Chinese addresses, includes nearby POIs)
       final amap = AmapLocationService.instance;
       if (amap.isConfigured) {
         final result = await amap.reverseGeocode(point.latitude, point.longitude);
         if (result != null) {
           address = result.fullAddress;
           if (mounted && _placeName.isEmpty) {
-            // 优先用最近的 POI 名称（小区、商店、地标）
+            // Prefer the nearest POI name (residential area, shop, landmark)
             if (result.nearbyPois.isNotEmpty) {
               _placeName = result.nearbyPois.first;
             } else {
@@ -154,7 +154,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
         }
       }
 
-      // 回退: Android 原生 Geocoder
+      // Fallback: Android native Geocoder
       if ((address == null || address.trim().isEmpty) && Platform.isAndroid) {
         try {
           address = await _locationChannel.invokeMethod<String>(
@@ -164,7 +164,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
         } catch (_) {}
       }
 
-      // 回退: Nominatim
+      // Fallback: Nominatim
       if (address == null || address.trim().isEmpty) {
         final url = Uri.parse(
           'https://nominatim.openstreetmap.org/reverse'
@@ -197,7 +197,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
     }
   }
 
-  /// 搜索地点
+  /// Search for a place
   Future<void> _searchPlace(String query) async {
     if (query.trim().isEmpty) {
       setState(() => _searchResults = []);
@@ -208,10 +208,10 @@ class _MapPickerPageState extends State<MapPickerPage> {
     try {
       List<Map<String, dynamic>> results = [];
 
-      // 优先使用高德 POI 搜索（中国 POI 数据最全）
+      // Prefer Amap POI search (most complete Chinese POI data)
       final amap = AmapLocationService.instance;
       if (amap.isConfigured) {
-        // 地图中心已经是 GCJ-02，直接传给高德 API
+        // The map center is already GCJ-02, so pass it to the Amap API directly
         final pois = await amap.searchPoi(
           query,
           gcjLat: _center.latitude,
@@ -228,7 +228,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
         }
       }
 
-      // 回退: Android 原生 Geocoder（返回 WGS84，需转 GCJ-02）
+      // Fallback: Android native Geocoder (returns WGS84, needs conversion to GCJ-02)
       if (results.isEmpty && Platform.isAndroid) {
         try {
           final List<dynamic>? addresses = await _locationChannel.invokeMethod(
@@ -251,7 +251,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
         } catch (_) {}
       }
 
-      // 回退: Nominatim（返回 WGS84，需转 GCJ-02）
+      // Fallback: Nominatim (returns WGS84, needs conversion to GCJ-02)
       if (results.isEmpty) {
         final url = Uri.parse(
           'https://nominatim.openstreetmap.org/search'
@@ -287,7 +287,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
     }
   }
 
-  /// 选择搜索结果
+  /// Select a search result
   void _selectSearchResult(Map<String, dynamic> result) {
     final latLng = LatLng(result['lat'], result['lon']);
     setState(() {
@@ -300,10 +300,10 @@ class _MapPickerPageState extends State<MapPickerPage> {
     _mapController.move(latLng, 16);
   }
 
-  /// 确认选择（返回 WGS84 坐标）
+  /// Confirm the selection (returns WGS84 coordinates)
   void _confirmSelection() {
     final name = _placeName.isNotEmpty ? _placeName : _address;
-    // 地图中心是 GCJ-02，转回 WGS84 存储
+    // The map center is GCJ-02; convert back to WGS84 for storage
     final wgs84 = AmapLocationService.gcj02ToWgs84(_center.latitude, _center.longitude);
     Navigator.pop(context, {
       'name': name,
@@ -321,8 +321,8 @@ class _MapPickerPageState extends State<MapPickerPage> {
     }
   }
 
-  /// 地图之上的悬浮面板：玻璃态 = 真折射玻璃（折射下方地图），
-  /// 关闭态 = [fallback] 原实色容器（零漂移）
+  /// Floating panel above the map: glass mode = real refractive glass
+  /// (refracting the map below), disabled mode = [fallback] solid container (zero drift)
   Widget _panel({
     required Widget child,
     required BoxDecoration fallback,
@@ -362,7 +362,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
     return Scaffold(
       body: Stack(
         children: [
-          // 地图
+          // Map
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
@@ -370,7 +370,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
               initialZoom: 16,
               onPositionChanged: (pos, hasGesture) {
                 _center = pos.center;
-                // 仅在用户手动拖动地图时触发反向地理编码
+                // Only reverse geocode when the user drags the map manually
                 if (hasGesture) {
                   setState(() => _placeName = '');
                   _geocodeDebounce?.cancel();
@@ -383,7 +383,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                 }
               },
               onMapReady: () {
-                // 仅在编辑模式（有初始坐标）时立即编码，GPS 定位模式由 _locateMe() 处理
+                // Geocode immediately only in edit mode (with initial coordinates); GPS mode is handled by _locateMe()
                 if (widget.initialCenter != null && !_isLocating) {
                   final wgs84 = AmapLocationService.gcj02ToWgs84(_center.latitude, _center.longitude);
                   _reverseGeocode(LatLng(wgs84.$1, wgs84.$2));
@@ -400,7 +400,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
             ],
           ),
 
-          // 中心定位标记（固定不动）
+          // Center pin marker (fixed in place)
           Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -441,7 +441,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                     Shadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
                   ],
                 ),
-                // 底部阴影圆
+                // Shadow ellipse at the base
                 Container(
                   width: 16,
                   height: 4,
@@ -454,7 +454,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
             ),
           ),
 
-          // 顶部搜索栏
+          // Top search bar
           Positioned(
             top: MediaQuery.of(context).padding.top + 8,
             left: 16,
@@ -484,7 +484,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                         child: TextField(
                           controller: _searchController,
                           decoration: InputDecoration(
-                            // 主题实色 fill 会盖住玻璃，透明化
+                            // The theme's solid fill would cover the glass; make it transparent
                             filled: true,
                             fillColor: shouldUseLiquidGlass(context)
                                 ? Colors.transparent
@@ -521,7 +521,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                   ),
                 ),
 
-                // 搜索结果列表
+                // Search results list
                 if (_searchResults.isNotEmpty)
                   _panel(
                     radius: 16,
@@ -571,13 +571,13 @@ class _MapPickerPageState extends State<MapPickerPage> {
             ),
           ),
 
-          // 右下角按钮组
+          // Bottom-right button group
           Positioned(
             right: 16,
             bottom: 120,
             child: Column(
               children: [
-                // 定位按钮
+                // Locate button
                 _panel(
                   radius: 999,
                   fallback: BoxDecoration(
@@ -605,7 +605,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
             ),
           ),
 
-          // 底部信息栏 + 确认按钮
+          // Bottom info bar + confirm button
           Positioned(
             left: 0,
             right: 0,
@@ -696,7 +696,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
             ),
           ),
 
-          // 加载指示器
+          // Loading indicator
           if (_isLoading)
             Container(
               color: Colors.black.withOpacity(0.05),

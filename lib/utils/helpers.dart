@@ -1,8 +1,8 @@
-/// 工具函数库
+/// Utility function library
 library;
 
 
-/// 格式化金额
+/// Format an amount
 String formatAmount(double amount) {
   if (amount == amount.roundToDouble()) {
     return amount.toInt().toString().replaceAllMapped(
@@ -16,37 +16,37 @@ String formatAmount(double amount) {
   );
 }
 
-/// 格式化金额（带符号）
+/// Format an amount (with sign)
 String formatAmountWithSign(double amount, bool isExpense) {
   final sign = isExpense ? '-' : '+';
   return '$sign¥$amount';
 }
 
-/// 获取当前月份 YYYY-MM
+/// Get the current month as YYYY-MM
 String getCurrentMonth() {
   final now = DateTime.now();
   return '${now.year}-${now.month.toString().padLeft(2, '0')}';
 }
 
-/// 获取今日日期 YYYY-MM-DD
+/// Get today's date as YYYY-MM-DD
 String getTodayDate() {
   final now = DateTime.now();
   return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 }
 
-/// 格式化日期为 YYYY-MM-DD
+/// Format a date as YYYY-MM-DD
 String formatDate(DateTime date) {
   return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 }
 
-/// 格式化月份显示（中文）
+/// Format a month for display (Chinese)
 String formatMonthCN(String month) {
   final parts = month.split('-');
   if (parts.length != 2) return month;
   return '${parts[0]}年${int.parse(parts[1])}月';
 }
 
-/// 友好的日期显示（今日、昨天等）
+/// Friendly date display (today, yesterday, etc.)
 String formatDateFriendly(String dateStr) {
   final now = DateTime.now();
   final today = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
@@ -61,7 +61,7 @@ String formatDateFriendly(String dateStr) {
   return '${int.parse(parts[1])}月${int.parse(parts[2])}日';
 }
 
-/// 获取星期几
+/// Get the weekday
 String getWeekday(String dateStr) {
   final parts = dateStr.split('-');
   final date = DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
@@ -69,7 +69,7 @@ String getWeekday(String dateStr) {
   return weekdays[date.weekday % 7];
 }
 
-/// 月份偏移
+/// Month offset
 String offsetMonth(String month, int offset) {
   final parts = month.split('-');
   var year = int.parse(parts[0]);
@@ -88,7 +88,7 @@ String offsetMonth(String month, int offset) {
   return '$year-${monthNum.toString().padLeft(2, '0')}';
 }
 
-/// 金额输入处理
+/// Amount input handling
 String? handleAmountInput(String current, String key) {
   if (key == '⌫') {
     if (current.isEmpty) return null;
@@ -101,14 +101,14 @@ String? handleAmountInput(String current, String key) {
     return '$current.';
   }
   
-  // 数字键
+  // Digit key
   if (current.contains('.')) {
     final parts = current.split('.');
-    if (parts[1].length >= 2) return null; // 小数位最多2位
+    if (parts[1].length >= 2) return null; // At most 2 decimal places
     if (parts[1].isEmpty && key == '0') return '$current.';
   }
   
-  // 防止首位为0（除非是小数）
+  // Prevent a leading zero (unless it is a decimal)
   if (current == '0' && key != '.' && key != '00') {
     return key;
   }
@@ -116,7 +116,7 @@ String? handleAmountInput(String current, String key) {
   return current + key;
 }
 
-/// 获取时段问候语
+/// Get the time-of-day greeting
 String getGreeting() {
   final hour = DateTime.now().hour;
   if (hour >= 5 && hour < 11) return '早安呀～新的一天要开始啦🌸';
@@ -126,7 +126,7 @@ String getGreeting() {
   return '夜深了，今天的账单对齐了吗🌙';
 }
 
-/// 根据结余获取小熊心情
+/// Get the bear's mood from the balance
 ({String emoji, String mood}) getBearMood(double balance) {
   if (balance > 2000) return (emoji: '🥳', mood: '超级开心！结余好多呢');
   if (balance > 500) return (emoji: '😊', mood: '不错哦，继续加油！');

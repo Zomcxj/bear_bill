@@ -12,7 +12,7 @@ import '../../../widgets/glass_card.dart';
 import '../../multi_book/multi_book_page.dart';
 import '../../statistics/statistics_page.dart';
 
-/// Hero 问候卡片 — Luminous Finance 渐变风格
+/// Hero greeting card — Luminous Finance gradient style
 class GreetingCard extends StatefulWidget {
   const GreetingCard({super.key});
 
@@ -126,8 +126,8 @@ class _GreetingCardState extends State<GreetingCard>
 
   @override
   Widget build(BuildContext context) {
-    context.watch<ThemeProvider>(); // 主题变更时触发重建
-    // 玻璃态：整块 shader 玻璃 hero（与我的页同款）；关闭态原渐变（零漂移）
+    context.watch<ThemeProvider>(); // Rebuild when the theme changes
+    // Glass mode: whole hero is shader glass (same as the profile page); when off, the original gradient (zero drift)
     return GlassSurface(
       borderRadius: DS.radiusLg,
       fallbackDecoration: BoxDecoration(
@@ -146,7 +146,7 @@ class _GreetingCardState extends State<GreetingCard>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 问候行
+          // Greeting row
           Row(
             children: [
               AnimatedBuilder(
@@ -187,7 +187,7 @@ class _GreetingCardState extends State<GreetingCard>
                   ],
                 ),
               ),
-              // 打卡徽章（玻璃态真玻璃壳，关闭态原样；见 hero_chips.dart）
+              // Check-in badge (real glass shell in glass mode, unchanged when off; see hero_chips.dart)
               CheckInBadge(
                 checked: _todayChecked,
                 days: _checkInDays,
@@ -198,7 +198,7 @@ class _GreetingCardState extends State<GreetingCard>
 
           SizedBox(height: DS.sm),
 
-          // 月份 + 账本
+          // Month + book
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -206,7 +206,7 @@ class _GreetingCardState extends State<GreetingCard>
                 '$_monthLabel 概览',
                 style: DS.labelMd.copyWith(color: DS.onSurfaceVariant),
               ),
-              // 账本切换胶囊（玻璃态真玻璃壳；见 hero_chips.dart）
+              // Book switch chip (real glass shell in glass mode; see hero_chips.dart)
               BookSwitchChip(
                 icon: _currentBookIcon,
                 name: _currentBookName,
@@ -222,7 +222,7 @@ class _GreetingCardState extends State<GreetingCard>
 
           SizedBox(height: DS.sm),
 
-          // 三项汇总 — 毛玻璃卡片
+          // Three-item summary — frosted glass card
           GestureDetector(
             onTap: () {
               Navigator.push(
@@ -260,7 +260,7 @@ class _GreetingCardState extends State<GreetingCard>
 
           SizedBox(height: DS.sm),
 
-          // 预算进度
+          // Budget progress
           if (_monthlyBudget > 0)
             GestureDetector(
               onTap: _showBudgetSettings,

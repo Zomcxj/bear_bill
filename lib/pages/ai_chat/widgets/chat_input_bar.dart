@@ -8,7 +8,7 @@ import '../../../theme/glass_materials.dart';
 import '../../../providers/theme_provider.dart';
 import 'package:provider/provider.dart';
 
-/// 聊天输入栏（支持百度语音输入，微信风格：按住说话，上滑取消，松开发送，静音自动停止）
+/// Chat input bar (supports Baidu speech input; WeChat-style: press and hold to talk, swipe up to cancel, release to send, auto-stop on silence)
 class ChatInputBar extends StatefulWidget {
   final Function(String) onSend;
 
@@ -24,7 +24,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
 
   bool _isRecording = false;
   bool _isRecognizing = false;
-  bool _isCancelled = false; // 上滑取消标记
+  bool _isCancelled = false; // Swipe-up cancel flag
   Timer? _pollTimer;
   double _dragStartY = 0;
 
@@ -46,7 +46,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
       if (!mounted) return;
       setState(() => _isRecording = true);
 
-      // 轮询录音状态，静音自动停止后触发识别
+      // Poll the recording state; trigger recognition after auto-stop on silence
       _pollTimer = Timer.periodic(const Duration(milliseconds: 300), (timer) async {
         try {
           final recording = await BaiduSpeechService.instance.isRecording();
@@ -71,7 +71,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
   void _onPanUpdate(DragUpdateDetails details) {
     if (!_isRecording) return;
     final dy = _dragStartY - details.globalPosition.dy;
-    final cancelled = dy > 80; // 上滑超过 80px 视为取消
+    final cancelled = dy > 80; // Swiping up more than 80px counts as cancel
     if (cancelled != _isCancelled) {
       setState(() => _isCancelled = cancelled);
     }
@@ -83,7 +83,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
     _pollTimer = null;
 
     if (_isCancelled) {
-      // 取消录音
+      // Cancel recording
       await BaiduSpeechService.instance.cancelRecording();
       if (mounted) setState(() => _isRecording = false);
     } else {
@@ -141,14 +141,14 @@ class _ChatInputBarState extends State<ChatInputBar> {
           ),
           decoration: BoxDecoration(
             color: DS.surfaceContainerLowest,
-            // 玻璃主题无边框；关闭态原样
+            // No border in glass theme; kept as-is when disabled
             border: shouldUseLiquidGlass(context)
                 ? null
                 : Border(top: BorderSide(color: DS.outlineVariant)),
           ),
           child: Row(
             children: [
-              // 麦克风按钮（按住说话）
+              // Microphone button (press and hold to talk)
               GestureDetector(
                 onPanStart: _onPanStart,
                 onPanUpdate: _onPanUpdate,
@@ -159,7 +159,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
                   decoration: BoxDecoration(
                     color: _isRecording ? Colors.red : DS.background,
                     borderRadius: BorderRadius.circular(20),
-                    // 玻璃主题无边框；关闭态原样
+                    // No border in glass theme; kept as-is when disabled
                     border: shouldUseLiquidGlass(context)
                         ? null
                         : Border.all(
@@ -183,13 +183,13 @@ class _ChatInputBarState extends State<ChatInputBar> {
                 ),
               ),
               SizedBox(width: 8),
-              // 输入框
+              // Text field
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
                     color: DS.background,
                     borderRadius: BorderRadius.circular(DS.radiusFull),
-                    // 玻璃主题无边框；关闭态原样
+                    // No border in glass theme; kept as-is when disabled
                     border: shouldUseLiquidGlass(context)
                         ? null
                         : Border.all(color: DS.outlineVariant),
@@ -222,7 +222,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
                 ),
               ),
               SizedBox(width: 8),
-              // 发送按钮
+              // Send button
               GestureDetector(
                 onTap: _handleSend,
                 child: Container(
@@ -242,7 +242,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
             ],
           ),
         ),
-        // 录音中的全屏遮罩
+        // Full-screen overlay while recording
         if (_isRecording)
           Positioned.fill(
             child: Container(

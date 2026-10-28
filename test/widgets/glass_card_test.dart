@@ -70,7 +70,7 @@ void main() {
     });
 
     testWidgets('深色模式下背景透明度降低', (tester) async {
-      // 浅色模式
+      // Light mode
       DS.setDarkMode(false);
       await tester.pumpWidget(
         MaterialApp(
@@ -88,7 +88,7 @@ void main() {
       final lightDecoration = lightContainer.decoration as BoxDecoration;
       final lightColor = lightDecoration.color!;
 
-      // 深色模式
+      // Dark mode
       DS.setDarkMode(true);
       await tester.pumpWidget(
         MaterialApp(
@@ -106,10 +106,10 @@ void main() {
       final darkDecoration = darkContainer.decoration as BoxDecoration;
       final darkColor = darkDecoration.color!;
 
-      // 深色模式透明度应该更低
+      // Dark mode opacity should be lower
       expect(darkColor.opacity, lessThan(lightColor.opacity));
 
-      // 清理
+      // Cleanup
       DS.setDarkMode(false);
     });
   });

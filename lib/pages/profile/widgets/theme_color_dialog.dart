@@ -9,7 +9,7 @@ import '../../../theme/app_theme.dart';
 import '../../../theme/glass_materials.dart';
 import '../../../widgets/glass_dialog_shell.dart';
 
-/// 显示主题颜色选择对话框
+/// Show the theme color picker dialog
 void showThemeColorDialog(BuildContext context, ThemeProvider themeProvider) {
   showGlassDialog(
     context: context,
@@ -49,7 +49,7 @@ void showThemeColorDialog(BuildContext context, ThemeProvider themeProvider) {
                   decoration: BoxDecoration(
                     color: color,
                     shape: BoxShape.circle,
-                    // 玻璃主题无边框，选中靠对勾+光晕；关闭态原样
+                    // The glass theme has no border and uses a check mark + glow when selected; disabled state unchanged
                     border: shouldUseLiquidGlass(context)
                         ? null
                         : Border.all(
@@ -132,7 +132,7 @@ void showThemeColorDialog(BuildContext context, ThemeProvider themeProvider) {
   );
 }
 
-/// 自定义颜色选择器（HSV 色盘 + 明度条）
+/// Custom color picker (HSV wheel + brightness slider)
 void showCustomColorPicker(BuildContext context, ThemeProvider themeProvider) {
   showDialog(
     context: context,
@@ -152,7 +152,7 @@ void showCustomColorPicker(BuildContext context, ThemeProvider themeProvider) {
   );
 }
 
-/// HSV 颜色选择器对话框
+/// HSV color picker dialog
 class ColorPickerDialog extends StatefulWidget {
   final Color initialColor;
   final ValueChanged<Color> onConfirm;
@@ -189,7 +189,7 @@ class _ColorPickerDialogState extends State<ColorPickerDialog> {
           decoration: BoxDecoration(
             color: selectedColor,
             borderRadius: BorderRadius.circular(DS.radiusSm),
-            // 玻璃主题无边框；关闭态原样
+            // The glass theme has no border; disabled state unchanged
             border: shouldUseLiquidGlass(context)
                 ? null
                 : Border.all(color: DS.outlineVariant),

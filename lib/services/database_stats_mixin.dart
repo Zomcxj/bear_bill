@@ -3,7 +3,7 @@ import 'package:sqflite/sqflite.dart';
 import '../models/models.dart';
 import 'database_service.dart';
 
-/// 数据库服务 - 统计相关方法
+/// Database service - statistics-related methods
 mixin DatabaseStatsMixin on DatabaseServiceCore {
   Future<Map<String, dynamic>> getMonthStatistics(String month,
       {String? bookId}) async {

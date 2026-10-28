@@ -113,7 +113,7 @@ void main() {
       final updated = record.copyWith(amount: 100.0, remark: '晚餐');
       expect(updated.amount, 100.0);
       expect(updated.remark, '晚餐');
-      // 其他字段不变
+      // Other fields stay unchanged
       expect(updated.id, record.id);
       expect(updated.type, record.type);
       expect(updated.categoryId, record.categoryId);

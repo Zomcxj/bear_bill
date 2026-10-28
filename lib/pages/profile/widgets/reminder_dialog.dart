@@ -8,11 +8,12 @@ import '../../../services/storage_service.dart';
 import '../../../theme/app_design_system.dart';
 import '../../../theme/glass_materials.dart';
 
-/// 显示提醒设置对话框（滚动选择器）
+/// Show the reminder settings dialog (scroll picker)
 ///
-/// 玻璃哲学：底部弹起的玻璃是"托盘"，时间滚轮是托盘上的内容——
-/// 托盘用真玻璃材质（独立路由无父图层，`useOwnLayer: true`），
-/// 滚轮保持原生不玻璃化。关闭态保留原白底样式，零视觉漂移。
+/// Glass philosophy: the sheet sliding up from the bottom is the "tray", and the time
+/// wheels are the content on the tray — the tray uses real glass material (an isolated
+/// route with no parent layer, `useOwnLayer: true`), while the wheels stay native and
+/// un-glassified. The disabled state keeps the original white background, with zero visual drift.
 Future<void> showReminderDialog(BuildContext context) async {
   final storage = StorageService.instance;
   int selectedHour =
@@ -32,7 +33,7 @@ Future<void> showReminderDialog(BuildContext context) async {
     isScrollControlled: true,
     builder: (context) {
       if (!shouldUseLiquidGlass(context)) {
-        // 关闭态：原样保留（白底 + 顶部圆角）
+        // Disabled state: kept as-is (white background + rounded top corners)
         return Container(
           height: 360,
           decoration: BoxDecoration(
@@ -53,7 +54,7 @@ Future<void> showReminderDialog(BuildContext context) async {
         );
       }
 
-      // 开启态：悬浮玻璃托盘
+      // Enabled state: floating glass tray
       return SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(DS.sm),
@@ -260,7 +261,7 @@ Widget _buildContent(
   );
 }
 
-/// 玻璃托盘顶部的文字按钮（关闭提醒 / 确定）
+/// Text buttons at the top of the glass tray (disable reminder / confirm)
 class _TopAction extends StatelessWidget {
   const _TopAction({
     required this.label,

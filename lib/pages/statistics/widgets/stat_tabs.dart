@@ -10,7 +10,7 @@ import '../../../utils/utils.dart';
 import '../../../providers/theme_provider.dart';
 import 'package:provider/provider.dart';
 
-/// 统计页 Tab 切换器
+/// Statistics page tab switcher
 class StatTabs extends StatelessWidget {
   final String activeTab;
   final double totalExpense;
@@ -32,14 +32,14 @@ class StatTabs extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(DS.base),
       decoration: BoxDecoration(
-        // 玻璃主题：无底色无边框（页面玻璃底直接透出）；关闭态原样
+        // Glass theme: no background or border (the page's glass backdrop shows through); unchanged when disabled
         color: glass ? Colors.transparent : DS.surfaceContainerLowest,
         border: glass
             ? null
             : Border(bottom: BorderSide(color: DS.outlineVariant)),
       ),
-      // 按住拖动切换：指针压在左半区=支出、右半区=收入，
-      // 拖过中线即切（与底栏"按住滑动"同款自研交互）
+      // Press-and-drag switching: pointer on the left half = expense, right half = income;
+      // crossing the midline switches tabs (same custom interaction as the bottom bar's press-and-slide)
       child: Listener(
         behavior: HitTestBehavior.translucent,
         onPointerDown: (e) => _onPointer(context, e),
@@ -57,7 +57,7 @@ class StatTabs extends StatelessWidget {
                   valueListenable: _pressed,
                   builder: (_, pressed, __) => Stack(
                     children: [
-                      // 白滑块：AnimatedAlign 平滑滑动（与记一笔切换器同款）
+                      // White slider: AnimatedAlign slides smoothly (same as the Add Record switcher)
                     AnimatedAlign(
                       duration: const Duration(milliseconds: 220),
                       curve: Curves.easeOutCubic,
@@ -177,7 +177,7 @@ class StatTabs extends StatelessWidget {
   }
 
 
-  /// 关闭态 Tab（零漂移：与改版前逐像素一致）
+  /// Disabled-mode tab (zero drift: pixel-identical to the pre-redesign version)
   Widget _classicTab({
     required bool active,
     required IconData icon,
@@ -222,7 +222,7 @@ class StatTabs extends StatelessWidget {
             Icon(
               icon,
               size: 14,
-              // 深色实心选中段压强调色实心块 -> 白；轻薄档维持强调色
+              // Selected segment on the dark solid accent block -> white; lighter variants keep the accent color
               color: active
                   ? (GlassMaterials.isSolid
                       ? GlassMaterials.solidOnAccent

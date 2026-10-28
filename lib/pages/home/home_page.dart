@@ -19,7 +19,7 @@ import 'widgets/quick_entries.dart';
 import 'widgets/today_records.dart';
 import 'widgets/week_trend_chart.dart';
 
-/// 首页 — Luminous Finance 风格
+/// Home page — Luminous Finance style
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -38,7 +38,7 @@ class _HomePageState extends State<HomePage>
   @override
   void initState() {
     super.initState();
-    // WidgetsBindingObserver 由 AutoRecordConfirmMixin 注册，无需重复添加
+    // WidgetsBindingObserver is registered by AutoRecordConfirmMixin; no need to add it again
   }
 
   @override
@@ -56,19 +56,19 @@ class _HomePageState extends State<HomePage>
   @override
   void dispose() {
     routeObserver.unsubscribe(this);
-    // WidgetsBindingObserver 由 AutoRecordConfirmMixin 移除，无需重复操作
+    // WidgetsBindingObserver is removed by AutoRecordConfirmMixin; no need to handle it again
     _pollTimer?.cancel();
     super.dispose();
   }
 
-  // ---- 语音录制 ----
+  // ---- Voice recording ----
 
   Future<void> _onVoicePanStart(DragStartDetails details) async {
     if (_isRecognizing) return;
     _dragStartY = details.globalPosition.dy;
     _isCancelled = false;
 
-    // 检查语音配额
+    // Check the voice quota
     final quota = await ApiQuotaService.instance.checkVoiceQuota();
     if (!quota.allowed) {
       if (mounted) {
@@ -139,7 +139,7 @@ class _HomePageState extends State<HomePage>
 
       final text = (result['text'] as String).trim();
       if (text.isNotEmpty) {
-        // 记录语音使用次数
+        // Record voice usage count
         await ApiQuotaService.instance.recordVoiceUsage();
         Navigator.push(
           context,
@@ -163,7 +163,7 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
-    context.watch<ThemeProvider>(); // 主题变更时触发重建
+    context.watch<ThemeProvider>(); // Rebuild on theme change
     return Scaffold(
       backgroundColor: DS.background,
       body: SafeArea(
@@ -190,7 +190,7 @@ class _HomePageState extends State<HomePage>
                 ),
               ),
             ),
-            // 录音中全屏遮罩
+            // Full-screen overlay while recording
             if (_isRecording)
               Positioned.fill(
                 child: Container(
@@ -236,7 +236,7 @@ class _HomePageState extends State<HomePage>
                   ),
                 ),
               ),
-            // 识别中遮罩
+            // Overlay while recognizing
             if (_isRecognizing)
               Positioned.fill(
                 child: Container(
@@ -270,9 +270,9 @@ class _HomePageState extends State<HomePage>
           ],
         ),
       ),
-      // 悬浮按钮：话筒 + 记一笔
-      // 玻璃态下 GlassScaffold 是沉浸式布局（extendBody），玻璃底栏浮在
-      // 页面之上，FAB 需上抬让位，否则被底栏盖住。
+      // Floating buttons: microphone + Add record
+      // In glass mode, GlassScaffold uses an immersive layout (extendBody) with the
+      // glass bottom bar floating above the page, so the FAB must be raised to make room or it would be covered.
       floatingActionButton: Padding(
         padding: EdgeInsets.only(
           bottom: shouldUseLiquidGlass(context) ? 96 : 0,
@@ -291,8 +291,8 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  /// 话筒按钮：液态玻璃开启时走玻璃圆形，关闭时保持原样。
-  /// 录音手势（onPanStart/Update/End）在两态下完全一致。
+  /// Microphone button: uses a glass circle when liquid glass is enabled, otherwise unchanged.
+  /// The recording gestures (onPanStart/Update/End) are identical in both modes.
   Widget _buildVoiceButton(BuildContext context) {
     final inner = Center(
       child: _isRecognizing
@@ -313,7 +313,7 @@ class _HomePageState extends State<HomePage>
 
     final Widget circle;
     if (shouldUseLiquidGlass(context)) {
-      // 浅色下玻璃与浅底不分家：外包细描边 + 阴影立起层级
+      // On light backgrounds the glass blends into the light base: add a thin outline + shadow to lift it
       circle = DecoratedBox(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
@@ -325,8 +325,8 @@ class _HomePageState extends State<HomePage>
           height: 56,
           shape: const LiquidRoundedSuperellipse(borderRadius: 28),
           settings: GlassMaterials.navBar(),
-          // FAB 浮在滚动内容上：premium 的 texture capture 在此上下文会渲染失败，
-          // 官方推荐 interactive widgets 用 standard
+          // The FAB floats over scrolling content: premium's texture capture fails to render in this context;
+          // the official recommendation is to use standard for interactive widgets
           quality: GlassQuality.standard,
           child: inner,
         ),
@@ -355,7 +355,7 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  /// "记一笔"按钮：液态玻璃开启时走玻璃药丸，关闭时保持原 FAB。
+  /// "Add record" button: uses a glass pill when liquid glass is enabled, otherwise the original FAB.
   Widget _buildRecordButton(BuildContext context) {
     void openAddRecord() {
       Navigator.push(
@@ -365,7 +365,7 @@ class _HomePageState extends State<HomePage>
     }
 
     if (shouldUseLiquidGlass(context)) {
-      // 高度锁定 56，与话筒圆钮一致（Row 在 Padding 内居中）
+      // Height locked to 56 to match the microphone circle (the Row is centered within the Padding)
       return DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(DS.radiusFull),
@@ -376,7 +376,7 @@ class _HomePageState extends State<HomePage>
           height: 56,
           shape: const LiquidRoundedSuperellipse(borderRadius: DS.radiusFull),
           settings: GlassMaterials.navBar(),
-          // FAB 浮在滚动内容上：premium 会渲染失败，用 standard
+          // The FAB floats over scrolling content: premium fails to render, so use standard
           quality: GlassQuality.standard,
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: GestureDetector(

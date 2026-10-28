@@ -6,15 +6,16 @@ import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
 import '../theme/app_design_system.dart';
 import '../theme/glass_materials.dart';
 
-/// 统一玻璃日期选择底部托盘
+/// Unified glass date picker bottom tray
 ///
-/// 玻璃哲学：底部弹起的玻璃是"托盘"，滚轮选择器是托盘上的内容——
-/// 托盘用真玻璃材质，内容保持原生 CupertinoDatePicker 不做玻璃化，
-/// 不存在玻璃嵌套玻璃。
+/// Glass philosophy: the glass sliding up from the bottom is the "tray" and the wheel picker
+/// is the content on it—the tray uses the real glass material while the content stays the
+/// native CupertinoDatePicker without glass treatment, so there is no glass nested in glass.
 ///
-/// 开启液态玻璃：`showModalBottomSheet` + 官方 [GlassContainer]
-/// （独立路由必须 `useOwnLayer: true`，grouped 模式会忽略 per-widget settings）。
-/// 关闭态：完全复刻原白底样式（320 高 + 取消/确定 + 滚轮），零视觉漂移。
+/// Liquid glass enabled: `showModalBottomSheet` + the official [GlassContainer]
+/// (a standalone route requires `useOwnLayer: true`; grouped mode ignores per-widget settings).
+/// Disabled state: fully reproduces the original white background (320 height + cancel/confirm
+/// + wheel), zero visual drift.
 Future<DateTime?> showGlassDatePicker({
   required BuildContext context,
   required DateTime initialDate,
@@ -64,14 +65,14 @@ Future<DateTime?> showGlassDatePicker({
     context: context,
     backgroundColor: Colors.transparent,
     elevation: 0,
-    // 弹窗在独立路由里，没有父 LiquidGlassLayer，GlassContainer 自建图层
+    // The sheet lives in a standalone route with no parent LiquidGlassLayer, so GlassContainer creates its own layer
     builder: (context) => SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(DS.sm),
         child: GlassContainer(
           shape: GlassMaterials.shape(24),
           settings: GlassMaterials.bar(),
-          // 底部静态托盘 = footer 场景，用官方调校的 premium 真折射
+          // Bottom static tray = footer scene, using the official premium real refraction
           quality: GlassQuality.premium,
           useOwnLayer: true,
           width: double.infinity,
@@ -102,7 +103,7 @@ Future<DateTime?> showGlassDatePicker({
               ),
               SizedBox(
                 height: 220,
-                // 滚轮文字默认固定黑色，深色玻璃上看不清，统一染成主题色
+                // The wheel text is fixed black by default and unreadable on dark glass, so tint it with the theme color
                 child: CupertinoTheme(
                   data: const CupertinoThemeData().copyWith(
                     textTheme: const CupertinoTextThemeData().copyWith(
@@ -129,7 +130,7 @@ Future<DateTime?> showGlassDatePicker({
   );
 }
 
-/// 玻璃日期托盘顶部的文字按钮
+/// Text button at the top of the glass date tray
 class _GlassDatePickerAction extends StatelessWidget {
   const _GlassDatePickerAction({
     required this.label,

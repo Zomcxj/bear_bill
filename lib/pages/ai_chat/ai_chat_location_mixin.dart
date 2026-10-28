@@ -8,7 +8,7 @@ import '../../theme/app_design_system.dart';
 import '../add_record/widgets/map_picker_page.dart';
 import 'ai_chat_page.dart';
 
-/// AI 记账页 - 定位相关功能
+/// AI bookkeeping page - location-related features
 mixin AiChatLocationMixin on State<AiChatPage> {
   final Map<String, String?> msgLocations = {};
   final Map<String, double?> msgLat = {};
@@ -63,7 +63,7 @@ mixin AiChatLocationMixin on State<AiChatPage> {
             'latitude': position.latitude,
             'longitude': position.longitude,
           });
-          // 过滤国产 ROM 无谷歌后端时返回的"中国"级粗地址
+          // Filter out the coarse "China"-level address returned by domestic ROMs without a Google backend
           if (result != null && result.trim().length > 4) {
             address = result.trim();
           }

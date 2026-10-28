@@ -6,11 +6,11 @@ import '../pages/add_record/add_record_page.dart';
 import '../theme/app_design_system.dart';
 import 'auto_record_service.dart';
 
-/// 自动记账确认 Mixin — 检测到支付后跳转记账页面预填数据
+/// Auto-record confirm mixin — after a payment is detected, navigate to the add-record page with prefilled data
 mixin AutoRecordConfirmMixin<T extends StatefulWidget> on State<T>
     implements WidgetsBindingObserver {
   StreamSubscription<AutoRecordCandidate>? _autoRecordSub;
-  bool _navigating = false; // 防止双重触发
+  bool _navigating = false; // prevent double triggering
 
   @override
   void initState() {
@@ -40,11 +40,11 @@ mixin AutoRecordConfirmMixin<T extends StatefulWidget> on State<T>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // app 回到前台时，检查暂存的支付数据
+    // When the app returns to the foreground, check the cached payment data
     if (state == AppLifecycleState.resumed) {
-      // 先检查原生端暂存的数据
+      // First check the data cached on the native side
       AutoRecordService.instance.checkPendingPayment().then((_) {
-        // 然后检查是否有待确认的候选
+        // Then check whether there is a candidate pending confirmation
         final pending = AutoRecordService.instance.pendingCandidate;
         if (pending != null && mounted && !_navigating) {
           Future.delayed(const Duration(milliseconds: 500), () {
@@ -68,7 +68,7 @@ mixin AutoRecordConfirmMixin<T extends StatefulWidget> on State<T>
             ? '支付宝'
             : '银行';
 
-    // 跳转到记账页面，预填检测到的数据
+    // Navigate to the add-record page and prefill the detected data
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -77,12 +77,12 @@ mixin AutoRecordConfirmMixin<T extends StatefulWidget> on State<T>
         ),
       ),
     ).then((_) {
-      // 返回后清除待确认状态，重置防重入标志
+      // On return, clear the pending state and reset the re-entrancy flag
       AutoRecordService.instance.dismissRecord();
       _navigating = false;
     });
 
-    // 显示提示
+    // Show a prompt
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(

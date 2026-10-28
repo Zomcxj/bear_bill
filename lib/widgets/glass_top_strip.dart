@@ -5,13 +5,13 @@ import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
 import '../theme/app_design_system.dart';
 import '../theme/glass_materials.dart';
 
-/// 顶部玻璃悬浮条：滚动时淡入、回到顶部淡出（iOS 26 行为）
+/// Top glass floating strip: fades in on scroll, fades out back at the top (iOS 26 behavior)
 ///
-/// 现有页面头部（问候卡/月份选择等）完全不动，本组件只叠在上层，
-/// 用于在滚动时给出"内容已离开顶部"的玻璃状态条。
+/// Existing page headers (greeting card/month selector, etc.) stay untouched; this component only overlays them
+/// to show a glass status bar that signals "content has left the top" while scrolling.
 ///
-/// 纯展示组件：[opacity] 由外部驱动（见 [glassStripOpacityFor]），
-/// 滚动监听放在 [MainTabPage] 层，避免给 5 个页面各塞一个 ScrollController。
+/// Presentational only: [opacity] is driven externally (see [glassStripOpacityFor]),
+/// and the scroll listener lives in [MainTabPage], so the 5 pages do not each need a ScrollController.
 class GlassTopStrip extends StatelessWidget {
   const GlassTopStrip({
     super.key,
@@ -21,7 +21,7 @@ class GlassTopStrip extends StatelessWidget {
 
   final String title;
 
-  /// 0 = 完全隐藏（在顶部），1 = 完全显示（已滚动）
+  /// 0 = fully hidden (at the top), 1 = fully visible (scrolled)
   final double opacity;
 
   @override
@@ -58,7 +58,7 @@ class GlassTopStrip extends StatelessWidget {
   }
 }
 
-/// 由滚动偏移量换算玻璃条的显示不透明度（纯函数，便于单测）
+/// Map a scroll offset to the strip's opacity (pure function, easy to unit test)
 double glassStripOpacityFor(double scrollOffset, {double fadeDistance = 60}) {
   if (scrollOffset <= 0) return 0;
   return (scrollOffset / fadeDistance).clamp(0.0, 1.0);

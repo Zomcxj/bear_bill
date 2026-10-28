@@ -1,4 +1,4 @@
-/// 数据模型导出
+/// Data model exports
 library models;
 
 export 'achievement_model.dart';

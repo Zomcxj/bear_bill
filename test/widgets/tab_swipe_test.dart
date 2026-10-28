@@ -66,12 +66,12 @@ void main() {
         onTap: (_) {},
       ));
 
-      // 默认测试窗 800x600，底栏高 64 → y ≈ 568；起点 x=80（第 1 格中心）
+      // Default test window is 800x600 and the bar is 64 high -> y ≈ 568; start x=80 (center of slot 1)
       final gesture = await tester.startGesture(const Offset(80, 568));
-      // moveBy 一次只产生一个采样点，需分步经过第 2 格再进第 3 格
-      await gesture.moveBy(const Offset(160, 0)); // x=240 → 第 2 格
+      // A single moveBy yields only one sample point, so step through slot 2 before slot 3
+      await gesture.moveBy(const Offset(160, 0)); // x=240 -> slot 2
       await tester.pump();
-      await gesture.moveBy(const Offset(160, 0)); // x=400 → 第 3 格
+      await gesture.moveBy(const Offset(160, 0)); // x=400 -> slot 3
       await tester.pump();
       await gesture.up();
       await tester.pumpAndSettle();

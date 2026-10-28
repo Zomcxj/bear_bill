@@ -1,17 +1,17 @@
-/// 心愿罐模型
+/// Wish jar model
 class WishModel {
   final String id;
-  final String bookId; // 所属账本ID
+  final String bookId; // Owning ledger ID
   final String title;
   final String? description;
   final double targetAmount;
   final double currentAmount;
-  final int priority; // 1=普通，2=重要，3=紧急
+  final int priority; // 1 = normal, 2 = important, 3 = urgent
   final bool isCompleted;
   final DateTime createdAt;
   final DateTime? completedAt;
-  final DateTime? deadline; // 心愿截止日期
-  final List<String> depositHistory; // 存钱历史记录 'date:amount' 格式
+  final DateTime? deadline; // Wish deadline
+  final List<String> depositHistory; // Deposit history, in 'date:amount' format
 
   WishModel({
     required this.id,

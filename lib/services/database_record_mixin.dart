@@ -3,7 +3,7 @@ import 'package:sqflite/sqflite.dart';
 import '../models/models.dart';
 import 'database_service.dart';
 
-/// 数据库服务 - 账单记录相关方法
+/// Database service - bill record related methods
 mixin DatabaseRecordMixin on DatabaseServiceCore {
   Future<void> insertRecord(RecordModel record) async {
     final db = await database;
@@ -100,7 +100,7 @@ mixin DatabaseRecordMixin on DatabaseServiceCore {
     return Sqflite.firstIntValue(result) ?? 0;
   }
 
-  /// 灵活查询记录（支持分类/心情/位置/日期范围/类型筛选）
+  /// Flexible record query (supports filtering by category/mood/location/date range/type)
   Future<List<RecordModel>> queryRecords({
     String? categoryId,
     String? mood,

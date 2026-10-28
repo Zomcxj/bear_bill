@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'app_design_system.dart';
 
-/// 小熊记账本 — Luminous Finance 主题
+/// Bear Bill — Luminous Finance theme
 class AppTheme {
-  // ── 主色 ──
+  // ── Primary colors ──
   static const Color primary = DS.primary;
   static const Color primaryDark = DS.primaryContainer;
   static Color get primaryLight => DS.surfaceContainerHigh;
   static Color get primaryBg => DS.background;
 
-  // ── 辅色 ──
+  // ── Accent colors ──
   static const Color accent = DS.secondaryContainer;
   static const Color accentDark = DS.secondary;
   static const Color accentLight = Color(0xFFE0F5FF);
 
-  // ── 状态色 ──
+  // ── Status colors ──
   static const Color success = Color(0xFF4CAF50);
   static const Color successLight = Color(0xFFE8F5E9);
   static const Color info = DS.secondaryContainer;
@@ -22,13 +22,13 @@ class AppTheme {
   static const Color warning = Color(0xFFFFA726);
   static const Color warningLight = Color(0xFFFFF3E0);
 
-  // ── 文字色 ──
+  // ── Text colors ──
   static Color get textPrimary => DS.onSurface;
   static Color get textSecondary => DS.onSurfaceVariant;
   static Color get textHint => DS.outline;
   static const Color textWhite = DS.onPrimary;
 
-  // ── Hero 区域 ──
+  // ── Hero area ──
   static Color get heroTextMain => DS.onSurface;
   static Color get heroTextSub => DS.onSurface.withOpacity(0.8);
   static Color get heroTextMuted => DS.onSurface.withOpacity(0.6);
@@ -37,16 +37,16 @@ class AppTheme {
   static const Color heroBalancePos = DS.secondary;
   static const Color heroBalanceNeg = DS.error;
 
-  // ── 背景 ──
+  // ── Background ──
   static Color get bgPage => DS.background;
   static Color get bgCard => DS.surfaceContainerLowest;
   static Color get bgSection => DS.surfaceContainerLow;
 
-  // ── 边框/分割线 ──
+  // ── Borders / dividers ──
   static Color get border => DS.outlineVariant;
   static Color get divider => DS.outlineVariant;
 
-  // ── 心情色 ──
+  // ── Mood colors ──
   static const Map<String, Color> moodColors = {
     'happy': Color(0xFFFFD93D),
     'normal': Color(0xFF40C2FD),
@@ -55,7 +55,7 @@ class AppTheme {
     'surprised': Color(0xFFCE93D8),
   };
 
-  // ── 渐变 ──
+  // ── Gradients ──
   static const LinearGradient candyGradient = DS.heroGradient;
   static const LinearGradient primaryGradient = LinearGradient(
     colors: [DS.primary, DS.primaryContainer],
@@ -66,7 +66,8 @@ class AppTheme {
   // ── ThemeData ──
   static ThemeData get currentTheme => DS.isDark ? darkTheme : lightTheme;
 
-  /// 构建主题（参数化，避免读取 DS 动态 getter 导致两个主题颜色相同）
+  /// Builds a theme (parameterized to avoid reading DS dynamic getters, which
+  /// would make both themes end up with the same colors)
   static ThemeData _buildTheme({
     required Brightness brightness,
     required Color scaffoldBg,

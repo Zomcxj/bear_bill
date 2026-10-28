@@ -1,10 +1,10 @@
-/// 分类模型
+/// Category model
 class CategoryModel {
   final String id;
   final String name;
   final String icon;
   final String color;
-  final bool isExpense; // true=支出，false=收入
+  final bool isExpense; // true = expense, false = income
 
   const CategoryModel({
     required this.id,
@@ -15,9 +15,10 @@ class CategoryModel {
   });
 }
 
-/// 支出分类
-/// 顺序为默认顺序；用户可在「我的 → 分类排序」长按拖拽自定义
-/// （顺序持久化见 CategoryOrderService，此处常量表仅作默认值）
+/// Expense categories
+/// The order shown is the default; users can long-press and drag to customize it
+/// in "My → Category Order" (order persistence lives in CategoryOrderService;
+/// the constant table here serves only as the default)
 const List<CategoryModel> expenseCategories = [
   CategoryModel(
       id: 'food', name: '餐饮', icon: '🍜', color: '#FF6B6B', isExpense: true),
@@ -83,7 +84,7 @@ const List<CategoryModel> expenseCategories = [
       id: 'other', name: '其他', icon: '📦', color: '#B0B0B0', isExpense: true),
 ];
 
-/// 收入分类
+/// Income categories
 const List<CategoryModel> incomeCategories = [
   CategoryModel(
       id: 'salary', name: '工资', icon: '💼', color: '#2ECC71', isExpense: false),
@@ -119,7 +120,7 @@ const List<CategoryModel> incomeCategories = [
       isExpense: false),
 ];
 
-/// 根据ID查找分类
+/// Look up a category by ID
 CategoryModel? getCategoryById(String id, {bool isExpense = true}) {
   final list = isExpense ? expenseCategories : incomeCategories;
   return list.cast<CategoryModel?>().firstWhere(
@@ -128,7 +129,7 @@ CategoryModel? getCategoryById(String id, {bool isExpense = true}) {
       );
 }
 
-/// 心情模型
+/// Mood model
 class MoodModel {
   final String id;
   final String emoji;

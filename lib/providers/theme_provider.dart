@@ -3,7 +3,7 @@ import '../services/storage_service.dart';
 import '../theme/app_design_system.dart';
 import '../theme/glass_materials.dart';
 
-/// 主题颜色管理 - 从单一主色自动生成完整主题
+/// Theme color management - derives a full theme from a single primary color
 class ThemeProvider extends ChangeNotifier {
   static const String _storageKey = 'themePrimaryColor';
   static const String _darkModeKey = 'themeDarkMode';
@@ -20,7 +20,7 @@ class ThemeProvider extends ChangeNotifier {
   AppGlassStyle _glassStyle = AppGlassStyle.classic;
   AppGlassStyle get glassStyle => _glassStyle;
 
-  /// 兼容旧调用点：非 classic 即"玻璃已开启"
+  /// Backward-compatible for legacy call sites: anything other than classic means "glass enabled"
   bool get liquidGlassEnabled => _glassStyle != AppGlassStyle.classic;
 
   ThemeProvider() {
@@ -35,11 +35,11 @@ class ThemeProvider extends ChangeNotifier {
     final darkSaved = StorageService.instance.getInt(_darkModeKey);
     _isDarkMode = darkSaved == 1;
     DS.setDarkMode(_isDarkMode);
-    // 玻璃风格三档：优先读新键；缺失时从旧布尔键迁移
-    // （旧键 1 = 开 -> 轻薄玻璃；0/缺失 -> 经典实色），保证升级后视觉不变
+    // Three glass styles: prefer the new key; when missing, migrate from the legacy boolean key
+    // (legacy 1 = on -> thin glass; 0/missing -> classic solid), keeping the visuals unchanged after upgrade
     final styleSaved = StorageService.instance.getInt(_glassStyleKey);
-    // 旧枚举 classic(0)/thin(1)/thick(2)/solid(3)；删除 thick 后 solid 前移为 2。
-    // 旧值 3（solid）迁到 2；旧值 2（原 thick，已移除）也归并到 solid。
+    // Legacy enum classic(0)/thin(1)/thick(2)/solid(3); after removing thick, solid shifts down to 2.
+    // Legacy value 3 (solid) migrates to 2; legacy value 2 (former thick, removed) also folds into solid.
     final idx = styleSaved == 3 ? AppGlassStyle.solid.index : styleSaved;
     if (idx != null &&
         idx >= 0 &&
@@ -56,7 +56,7 @@ class ThemeProvider extends ChangeNotifier {
     _glassStyle = value;
     GlassMaterials.setStyle(value);
     StorageService.instance.setInt(_glassStyleKey, value.index);
-    // 同步旧键，保证降级安装旧版本时行为合理
+    // Update the legacy key as well so behavior stays sane when downgrading to an older version
     StorageService.instance
         .setInt(_liquidGlassKey, value == AppGlassStyle.classic ? 0 : 1);
     notifyListeners();
@@ -75,7 +75,7 @@ class ThemeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ── 派生颜色（HSL 色彩空间） ──
+  // ── Derived colors (HSL color space) ──
 
   Color get primaryDark {
     if (_isDarkMode) {
@@ -107,7 +107,7 @@ class ThemeProvider extends ChangeNotifier {
     return hsl.withLightness(0.97).withSaturation(0.4).toColor();
   }
 
-  // ── 派生边框/背景色 ──
+  // ── Derived border/background colors ──
 
   Color get border {
     if (_isDarkMode) return const Color(0xFF2A2A3E);
@@ -133,7 +133,7 @@ class ThemeProvider extends ChangeNotifier {
     return hsl.withLightness(0.96).withSaturation(0.25).toColor();
   }
 
-  // ── 渐变 ──
+  // ── Gradients ──
 
   LinearGradient get candyGradient => LinearGradient(
         colors: [_primaryColor, primaryLight, primaryBg],
@@ -177,16 +177,16 @@ class ThemeProvider extends ChangeNotifier {
         end: Alignment.topCenter,
       );
 
-  // ── 预设调色盘 ──
+  // ── Preset palette ──
 
   static const List<Color> paletteColors = [
-    Color(0xFFFF8FAB), // 蜜桃粉（默认）
-    Color(0xFF74C0FC), // 天空蓝
-    Color(0xFF6BCB77), // 薄荷绿
-    Color(0xFFFFA94D), // 活力橙
-    Color(0xFFFFD93D), // 奶油黄
-    Color(0xFFFF6B6B), // 珊瑚红
-    Color(0xFF9B59B6), // 紫罗兰
-    Color(0xFF2D3436), // 曜石黑
+    Color(0xFFFF8FAB), // Peach pink (default)
+    Color(0xFF74C0FC), // Sky blue
+    Color(0xFF6BCB77), // Mint green
+    Color(0xFFFFA94D), // Vibrant orange
+    Color(0xFFFFD93D), // Cream yellow
+    Color(0xFFFF6B6B), // Coral red
+    Color(0xFF9B59B6), // Violet
+    Color(0xFF2D3436), // Obsidian black
   ];
 }

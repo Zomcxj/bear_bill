@@ -5,15 +5,19 @@ import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import '../theme/app_design_system.dart';
 import '../theme/glass_materials.dart';
 
-/// 【临时验证页】官方包交互能力真机实验场（验证完整体删除）
+/// [Temporary verification page] On-device playground for the official
+/// package's interaction capabilities (delete it entirely once verified)
 ///
-/// 验证目标：
-/// A. `GlassButton(style: transparent)` 能否"只留物理不画玻璃"（替代手搓按压）
-/// B. `GlassMaterialize` 玻璃成形/溶解动画的观感
-/// C. `showCupertinoDialog` vs `showDialog` 弹窗进场对比 + Materialize 进场
-/// D. `SpringBuilder` 弹簧工具可用性
+/// Verification goals:
+/// A. Can `GlassButton(style: transparent)` keep only the physics without
+///    painting glass (replacing the hand-rolled press effect)?
+/// B. Look and feel of the `GlassMaterialize` form/dissolve animation
+/// C. Dialog entrance comparison: `showCupertinoDialog` vs `showDialog`,
+///    plus the Materialize entrance
+/// D. Usability of the `SpringBuilder` spring utility
 ///
-/// 本页不受"玻璃开关/零漂移"约束（验证页直接强制玻璃，发布前删除）。
+/// This page is not bound by the "glass toggle / zero drift" constraints
+/// (the verification page forces glass on; delete before release).
 class GlassLabPage extends StatefulWidget {
   const GlassLabPage({super.key});
 

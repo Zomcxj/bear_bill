@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import '../../../theme/app_design_system.dart';
 import '../../../widgets/glass_dialog_shell.dart';
 
-/// 显示使用帮助对话框
+/// Shows the usage help dialog
 void showHelpDialog(BuildContext context) {
   showGlassDialog(
     context: context,
     title: '使用帮助',
     maxWidth: 360,
-    // 内容太长会顶出屏幕，固定高度 + 内部滚动查看
+    // Long content would overflow the screen; use a fixed height with internal scrolling
     content: SizedBox(
       height: 340,
       child: SingleChildScrollView(
@@ -55,7 +55,7 @@ void showHelpDialog(BuildContext context) {
   );
 }
 
-/// 帮助项组件
+/// Help item widget
 Widget _buildHelpItem(IconData icon, String title, String content) {
   return Padding(
     padding: const EdgeInsets.only(bottom: 12),

@@ -17,7 +17,7 @@ import 'widgets/bill_filter_mixin.dart';
 import 'widgets/record_detail_dialog.dart';
 import 'widgets/record_group_list.dart';
 
-/// 账单列表页 — Luminous Finance 风格
+/// Bill list page — Luminous Finance style
 class BillListPage extends StatefulWidget {
   final String? initialCategoryId;
   final String? initialType;
@@ -145,7 +145,7 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
 
   List<Map<String, dynamic>> _getAllCategories() {
     final allCategories = <Map<String, dynamic>>[];
-    // 支出分类跟随用户自定义顺序
+    // Expense categories follow the user-defined order
     for (final cat in CategoryOrderService.instance.expense) {
       allCategories.add({'id': cat.id, 'name': cat.name, 'emoji': cat.icon});
     }
@@ -234,8 +234,8 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
                     ),
                   ),
                   SizedBox(height: DS.sm),
-                  // 玻璃态：整条日期栏 = 底部导航栏同款玻璃条（与统计页统一）；
-                  // 关闭态原样（零漂移）
+                  // Glass mode: the whole date bar uses the same glass bar as the bottom nav (unified with the statistics page);
+                  // kept as-is when disabled (zero drift)
                   GlassBarWrap(
                     child: Row(
                       children: [
@@ -247,12 +247,12 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
                             child: Container(
                               padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.xs + 2),
                               decoration: BoxDecoration(
-                                // 玻璃条本身是玻璃面，胶囊不再填充
+                                // The glass bar is itself a glass surface, so the pill no longer fills
                                 color: shouldUseLiquidGlass(context)
                                     ? Colors.transparent
                                     : DS.heroCardBg,
                                 borderRadius: BorderRadius.circular(DS.radiusFull),
-                                // 玻璃主题无边框；关闭态原样
+                                // No border in glass theme; kept as-is when disabled
                                 border: shouldUseLiquidGlass(context)
                                     ? null
                                     : Border.all(color: DS.heroCardBorder),
@@ -291,8 +291,8 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
                         Expanded(
                           child: TextField(
                             decoration: InputDecoration(
-                              // 主题全局 filled + 实色 fillColor(surfaceContainerLow)
-                              // 会把整个玻璃框填黑 —— 玻璃态必须置透明，玻璃才透出来
+                              // The theme's global filled + solid fillColor(surfaceContainerLow)
+                              // would fill the whole glass frame black — glass mode must set it transparent for the glass to show through
                               filled: true,
                               fillColor: shouldUseLiquidGlass(context)
                                   ? Colors.transparent
@@ -324,7 +324,7 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
               ),
             ),
 
-          // 与每日分组间距一致（组间也是 DS.sm），避免首组贴顶
+          // Match the spacing of daily groups (groups are also DS.sm apart) to avoid the first group sticking to the top
           SizedBox(height: DS.sm),
           Expanded(
             child: _loading
@@ -358,8 +358,8 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
     );
   }
 
-  /// 玻璃态：透明玻璃圆钮（玻璃条本身已是玻璃，不套玻璃）；
-  /// 关闭态：原填充圆钮（零漂移）
+  /// Glass mode: transparent glass round button (the bar is already glass, so no nested glass);
+  /// disabled mode: the original filled round button (zero drift)
   Widget _monthArrow(
     BuildContext context, {
     required IconData icon,
@@ -394,7 +394,7 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
   }
 
   void _pickYearMonth(BuildContext context) {
-    // 玻璃年月选择小窗（三处日期切换统一组件，见 glass_dialog_shell）
+    // Glass year-month picker sheet (a unified component for the three date switchers, see glass_dialog_shell)
     showGlassYearMonthPicker(
       context: context,
       currentMonth: _currentMonth,
@@ -406,7 +406,7 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
   }
 
   Future<void> _deleteRecord(String recordId) async {
-    // 开启液态玻璃时走玻璃弹窗（真玻璃材质），关闭时回退标准 AlertDialog
+    // Use the glass dialog (real glass material) when liquid glass is enabled; otherwise fall back to the standard AlertDialog
     final confirmed = await showGlassConfirmDialog(
       context: context,
       title: '确认删除',
@@ -431,7 +431,7 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
   }
 
   void _showRecordDetail(RecordModel record) {
-    // 玻璃态走居中小窗壳（showDialog 的紧约束会把玻璃壳撑成全屏）
+    // In glass mode, use the centered sheet shell (showDialog's tight constraints would stretch the glass shell to full screen)
     showGlassContentDialog(
       context: context,
       builder: (context) => RecordDetailDialog(record: record),

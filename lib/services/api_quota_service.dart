@@ -1,16 +1,16 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// API 配额管理服务
+/// API quota management service
 class ApiQuotaService {
   static final ApiQuotaService instance = ApiQuotaService._();
   ApiQuotaService._();
 
-  // 限额配置
+  // Limit configuration
   static const int voiceDailyLimit = 20;
   static const int voiceTotalLimit = 49960;
   static const int amapDailyLimit = 100;
 
-  /// 检查语音识别是否可用
+  /// Check whether voice recognition is available
   Future<QuotaResult> checkVoiceQuota() async {
     final prefs = await SharedPreferences.getInstance();
     final today = _getToday();
@@ -52,7 +52,7 @@ class ApiQuotaService {
     );
   }
 
-  /// 记录语音识别使用
+  /// Record one voice recognition usage
   Future<void> recordVoiceUsage() async {
     final prefs = await SharedPreferences.getInstance();
     final today = _getToday();
@@ -64,7 +64,7 @@ class ApiQuotaService {
     await prefs.setInt(totalKey, (prefs.getInt(totalKey) ?? 0) + 1);
   }
 
-  /// 检查高德地图是否可用
+  /// Check whether the Amap service is available
   Future<QuotaResult> checkAmapQuota() async {
     final prefs = await SharedPreferences.getInstance();
     final today = _getToday();
@@ -88,7 +88,7 @@ class ApiQuotaService {
     );
   }
 
-  /// 记录高德地图使用
+  /// Record one Amap usage
   Future<void> recordAmapUsage() async {
     final prefs = await SharedPreferences.getInstance();
     final today = _getToday();
@@ -97,7 +97,7 @@ class ApiQuotaService {
     await prefs.setInt(dailyKey, (prefs.getInt(dailyKey) ?? 0) + 1);
   }
 
-  /// 获取今日统计
+  /// Get today's statistics
   Future<QuotaStats> getTodayStats() async {
     final prefs = await SharedPreferences.getInstance();
     final today = _getToday();
@@ -123,7 +123,7 @@ class ApiQuotaService {
   }
 }
 
-/// 配额检查结果
+/// Quota check result
 class QuotaResult {
   final bool allowed;
   final String? message;
@@ -142,7 +142,7 @@ class QuotaResult {
   });
 }
 
-/// 配额统计
+/// Quota statistics
 class QuotaStats {
   final int voiceDaily;
   final int voiceDailyLimit;

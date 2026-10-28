@@ -12,7 +12,7 @@ import 'database_record_mixin.dart';
 import 'database_stats_mixin.dart';
 import 'database_wish_user_mixin.dart';
 
-/// 数据库服务核心 - 初始化、迁移、关闭
+/// Database service core - initialization, migration, close
 abstract class DatabaseServiceCore {
   static Database? _database;
   static String? _dbDir;
@@ -239,12 +239,12 @@ abstract class DatabaseServiceCore {
     _database = null;
   }
 
-  /// 供 mixin 内部调用
+  /// For internal use by the mixins
   Future<List<RecordModel>> getMonthRecords(String month,
       {String? bookId});
 }
 
-/// 数据库服务 - 合并所有 mixin
+/// Database service - combines all mixins
 class DatabaseService extends DatabaseServiceCore
     with
         DatabaseRecordMixin,

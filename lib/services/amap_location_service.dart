@@ -5,26 +5,26 @@ import 'package:http/http.dart' as http;
 import '../config/api_keys.dart' as config;
 import 'api_quota_service.dart';
 
-/// 高德地图 Web API 服务
-/// 使用前请到 https://lbs.amap.com 注册并申请 Web 服务 API Key
-/// 密钥配置在 lib/config/api_keys.dart（已加入 .gitignore）
+/// AMap (Gaode) Web API service
+/// Register at https://lbs.amap.com and apply for a Web Service API Key before use
+/// The key is configured in lib/config/api_keys.dart (already in .gitignore)
 class AmapLocationService {
   static final AmapLocationService instance = AmapLocationService._();
   AmapLocationService._();
 
   static String get _apiKey => config.amapApiKey;
 
-  /// GCJ-02 坐标转 WGS84 坐标（逆向转换，近似算法）
+  /// Convert GCJ-02 coordinates to WGS84 (inverse conversion, approximate algorithm)
   static (double lat, double lon) gcj02ToWgs84(double lat, double lon) {
     final gcj = wgs84ToGcj02(lat, lon);
     return (lat * 2 - gcj.$1, lon * 2 - gcj.$2);
   }
 
-  /// WGS84 坐标转 GCJ-02 坐标（国测局坐标系）
-  /// 高德 API 要求 GCJ-02 坐标，GPS 返回 WGS84 坐标
+  /// Convert WGS84 coordinates to GCJ-02 (China's national surveying coordinate system)
+  /// The AMap API requires GCJ-02, while GPS returns WGS84
   static (double lat, double lon) wgs84ToGcj02(double lat, double lon) {
-    const double a = 6378245.0; // 克拉索夫斯基椭球长半轴
-    const double ee = 0.00669342162296594; // 偏心率平方
+    const double a = 6378245.0; // Semi-major axis of the Krasovsky 1940 ellipsoid
+    const double ee = 0.00669342162296594; // Squared eccentricity
 
     double dLat = _transformLat(lon - 105.0, lat - 35.0);
     double dLon = _transformLon(lon - 105.0, lat - 35.0);
@@ -55,10 +55,10 @@ class AmapLocationService {
     return ret;
   }
 
-  /// 反向地理编码: 经纬度 → 地址（传入 WGS84 坐标，内部自动转换为 GCJ-02）
-  /// extensions=all 会返回附近 POI（小区、商店、地标等）
+  /// Reverse geocoding: coordinates → address (pass WGS84; converted to GCJ-02 internally)
+  /// extensions=all also returns nearby POIs (residential areas, shops, landmarks, etc.)
   Future<AmapAddress?> reverseGeocode(double lat, double lon) async {
-    // 检查配额
+    // Check quota
     final quota = await ApiQuotaService.instance.checkAmapQuota();
     if (!quota.allowed) {
       if (kDebugMode) print('高德 API 配额已用完: ${quota.message}');
@@ -75,7 +75,7 @@ class AmapLocationService {
       if (resp.statusCode == 200) {
         final data = json.decode(resp.body);
         if (data['status'] == '1' && data['regeocode'] != null) {
-          // 记录使用次数
+          // Record usage
           await ApiQuotaService.instance.recordAmapUsage();
           return AmapAddress.fromRegeo(data['regeocode']);
         } else {
@@ -88,10 +88,10 @@ class AmapLocationService {
     return null;
   }
 
-  /// POI 搜索: 关键词 → 地点列表
-  /// [gcjLat]/[gcjLon] 为 GCJ-02 坐标（高德坐标系），用于距离排序
+  /// POI search: keyword → list of places
+  /// [gcjLat]/[gcjLon] are GCJ-02 coordinates (AMap system) used for distance sorting
   Future<List<AmapPoi>> searchPoi(String keyword, {double? gcjLat, double? gcjLon}) async {
-    // 检查配额
+    // Check quota
     final quota = await ApiQuotaService.instance.checkAmapQuota();
     if (!quota.allowed) {
       if (kDebugMode) print('高德 API 配额已用完: ${quota.message}');
@@ -102,7 +102,7 @@ class AmapLocationService {
       String urlStr =
           'https://restapi.amap.com/v3/place/text'
           '?key=$_apiKey&keywords=${Uri.encodeComponent(keyword)}&output=json&offset=10';
-      // 直接传 GCJ-02 坐标给高德 API（无需转换）
+      // Pass GCJ-02 coordinates straight to the AMap API (no conversion needed)
       if (gcjLat != null && gcjLon != null) {
         urlStr += '&location=$gcjLon,$gcjLat&sortrule=distance';
       }
@@ -110,7 +110,7 @@ class AmapLocationService {
       if (resp.statusCode == 200) {
         final data = json.decode(resp.body);
         if (data['status'] == '1' && data['pois'] != null) {
-          // 记录使用次数
+          // Record usage
           await ApiQuotaService.instance.recordAmapUsage();
           return (data['pois'] as List).map((poi) {
             final loc = (poi['location'] ?? '').toString().split(',');
@@ -133,7 +133,7 @@ class AmapLocationService {
     return [];
   }
 
-  /// 周边搜索: 经纬度 → 附近 POI（传入 WGS84 坐标，内部自动转换为 GCJ-02）
+  /// Nearby search: coordinates → nearby POIs (pass WGS84; converted to GCJ-02 internally)
   Future<List<AmapPoi>> searchAround(double lat, double lon, {String? keyword}) async {
     try {
       final gcj = wgs84ToGcj02(lat, lon);
@@ -166,14 +166,14 @@ class AmapLocationService {
     return [];
   }
 
-  /// 是否已配置 API Key
+  /// Whether the API key is configured
   bool get isConfigured => _apiKey != 'YOUR_AMAP_API_KEY';
 }
 
-/// 安全取字符串：高德部分字段（如直辖市的 city）返回数组，统一兜底为空串
+/// Safe string access: some AMap fields (e.g. city for municipalities) return an array, so fall back to an empty string
 String _str(dynamic value) => value is String ? value : '';
 
-/// 高德地址信息
+/// AMap address info
 class AmapAddress {
   final String formattedAddress;
   final String province;
@@ -195,7 +195,7 @@ class AmapAddress {
     this.nearbyPois = const [],
   });
 
-  /// 从高德 regeo 响应解析（直辖市的 city 是空数组，需安全兜底）
+  /// Parse from the AMap regeo response (city is an empty array for municipalities, hence the safe fallback)
   factory AmapAddress.fromRegeo(Map<dynamic, dynamic> regeocode) {
     final component = (regeocode['addressComponent'] ?? {}) as Map;
     final pois = <String>[];
@@ -220,7 +220,7 @@ class AmapAddress {
     );
   }
 
-  /// 获取简短地址（不包含省、市前缀）
+  /// Get the short address (without the province/city prefix)
   String get shortAddress {
     final parts = <String>[];
     if (district.isNotEmpty) parts.add(district);
@@ -230,11 +230,11 @@ class AmapAddress {
     return parts.isEmpty ? formattedAddress : parts.join();
   }
 
-  /// 获取完整地址
+  /// Get the full address
   String get fullAddress => formattedAddress;
 }
 
-/// 高德 POI 信息
+/// AMap POI info
 class AmapPoi {
   final String name;
   final String address;

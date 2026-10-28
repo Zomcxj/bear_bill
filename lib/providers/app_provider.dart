@@ -5,29 +5,29 @@ import '../services/notification_service.dart';
 import '../services/services.dart';
 import '../utils/utils.dart';
 
-/// 全局应用状态管理 - Provider
+/// Global app state management - Provider
 class AppProvider extends ChangeNotifier {
   final DatabaseService _db = DatabaseService.instance;
 
-  // 用户信息
+  // User info
   UserModel? _user;
   UserModel? get user => _user;
 
-  // 当前账本
+  // Current book
   String _currentBookId = '';
   String get currentBookId => _currentBookId;
 
-  // 打卡状态
+  // Check-in status
   int _checkInDays = 0;
   bool _todayChecked = false;
   int get checkInDays => _checkInDays;
   bool get todayChecked => _todayChecked;
 
-  // 成就列表
+  // Achievement list
   List<String> _unlockedAchievements = [];
   List<String> get unlockedAchievements => _unlockedAchievements;
 
-  // 新解锁的成就（用于弹窗提示）
+  // Newly unlocked achievements (for the dialog prompt)
   List<AchievementModel> _newAchievements = [];
   List<AchievementModel> get newAchievements => _newAchievements;
 
@@ -35,19 +35,19 @@ class AppProvider extends ChangeNotifier {
     _init();
   }
 
-  /// 初始化 - 加载用户数据和状态
+  /// Initialize - load user data and state
   Future<void> _init() async {
     await _loadUser();
     await _loadCheckInStatus();
-    // 启动时检查升级（处理已有超额经验的情况）
+    // Check level-up on startup (handles the case of already-surplus exp)
     await levelUp();
-    // 启动时同步检查所有成就
+    // Sync-check all achievements on startup
     await _syncAllAchievements();
-    // 启动时刷新今日记账摘要（用于提醒展示总结）
+    // Refresh today's bookkeeping summary on startup (for the reminder summary)
     NotificationService.instance.refreshTodaySummary();
   }
 
-  /// 启动时同步所有成就状态
+  /// Sync all achievement states on startup
   Future<void> _syncAllAchievements() async {
     if (_user == null) return;
 
@@ -59,7 +59,7 @@ class AppProvider extends ChangeNotifier {
     final budget = book?.budget ?? 0.0;
     final hasBudget = budget > 0;
 
-    // 计算本月支出占比
+    // Compute this month's expense ratio
     double expenseRatio = 0.0;
     if (hasBudget) {
       final now = DateTime.now();
@@ -97,7 +97,7 @@ class AppProvider extends ChangeNotifier {
     }
   }
 
-  /// 加载用户信息
+  /// Load user info
   Future<void> _loadUser() async {
     _user = await _db.getDefaultUser();
     if (_user != null) {
@@ -105,19 +105,19 @@ class AppProvider extends ChangeNotifier {
       _checkInDays = _user!.checkInDays;
       _unlockedAchievements = List.from(_user!.achievements);
 
-      // 如果数据库中打卡天数为0，尝试从文件缓存恢复
+      // If the check-in days in the database are 0, try to restore from the file cache
       if (_checkInDays == 0) {
         final cachedDays = StorageService.instance.getInt('checkInDays');
         if (cachedDays != null && cachedDays > 0) {
           _checkInDays = cachedDays;
-          // 同步回数据库
+          // Sync back to the database
           final updatedUser = _user!.copyWith(checkInDays: cachedDays);
           await _db.updateUser(updatedUser);
           _user = updatedUser;
         }
       }
 
-      // 校准 totalRecords（修复历史虚高数据）
+      // Calibrate totalRecords (fix historically inflated data)
       try {
         final actualCount = await _db.getTotalRecordsCount();
         if (_user!.totalRecords != actualCount) {
@@ -131,7 +131,7 @@ class AppProvider extends ChangeNotifier {
     }
   }
 
-  /// 加载打卡状态
+  /// Load check-in status
   Future<void> _loadCheckInStatus() async {
     final today = DateUtils.getToday();
     final lastCheckIn =
@@ -140,12 +140,12 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 切换账本
+  /// Switch book
   Future<void> switchBook(String bookId) async {
     _currentBookId = bookId;
     StorageService.instance.setString('currentBookId', bookId);
 
-    // 更新用户的默认账本
+    // Update the user's default book
     if (_user != null) {
       final updatedUser = _user!.copyWith(defaultBookId: bookId);
       await _db.updateUser(updatedUser);
@@ -155,12 +155,12 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 刷新当前账本信息（用于账本名称修改后）
+  /// Refresh current book info (used after the book name is changed)
   void refreshCurrentBook() {
     notifyListeners();
   }
 
-  /// 记账后打卡
+  /// Check in after recording
   Future<List<AchievementModel>> recordCheckIn() async {
     final today = DateUtils.getToday();
     final yesterday = DateUtils.getYesterday();
@@ -175,9 +175,9 @@ class AppProvider extends ChangeNotifier {
 
     int newDays = _checkInDays;
     if (lastCheckIn == yesterday) {
-      newDays += 1; // 连续打卡
+      newDays += 1; // consecutive check-in
     } else {
-      newDays = 1; // 断签重计
+      newDays = 1; // streak broken, restart counting
     }
 
     StorageService.instance.setString('lastCheckInDate', today);
@@ -186,19 +186,19 @@ class AppProvider extends ChangeNotifier {
     _checkInDays = newDays;
     _todayChecked = true;
 
-    // 更新用户数据
+    // Update user data
     if (_user != null) {
       final updatedUser = _user!.copyWith(
         checkInDays: newDays,
         lastCheckIn: today,
-        exp: _user!.exp + 10, // 打卡获得10经验
+        exp: _user!.exp + 10, // 10 exp for checking in
       );
       await _db.updateUser(updatedUser);
       _user = updatedUser;
       await levelUp();
     }
 
-    // 检查成就
+    // Check achievements
     _newAchievements = AchievementChecker.checkCheckInAchievements(
       newDays,
       _unlockedAchievements,
@@ -218,7 +218,7 @@ class AppProvider extends ChangeNotifier {
     return _newAchievements;
   }
 
-  /// 记账后更新统计
+  /// Update stats after recording
   Future<List<AchievementModel>> onRecordAdded({
     required String type,
     required double amount,
@@ -226,7 +226,7 @@ class AppProvider extends ChangeNotifier {
     if (_user == null) return [];
 
     final newTotalRecords = _user!.totalRecords + 1;
-    final newExp = _user!.exp + 5; // 记账获得5经验
+    final newExp = _user!.exp + 5; // 5 exp for recording
 
     final updatedUser = _user!.copyWith(
       totalRecords: newTotalRecords,
@@ -236,13 +236,13 @@ class AppProvider extends ChangeNotifier {
     _user = updatedUser;
     await levelUp();
 
-    // 检查记账次数成就
+    // Check record-count achievements
     _newAchievements = AchievementChecker.checkRecordsAchievements(
       newTotalRecords,
       _unlockedAchievements,
     );
 
-    // 检查记账统计成就（图片/位置/心情/分类）
+    // Check record-stat achievements (images/location/mood/categories)
     final totalImages = await _db.getTotalImagesCount();
     final locationCount = await _db.getRecordsWithLocationCount();
     final moodCount = await _db.getRecordsWithMoodCount();
@@ -268,7 +268,7 @@ class AppProvider extends ChangeNotifier {
     return _newAchievements;
   }
 
-  /// 删除记录后更新统计
+  /// Update stats after deleting a record
   Future<void> onRecordDeleted() async {
     if (_user == null) return;
 
@@ -279,13 +279,13 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 清空新成就列表（弹窗关闭后调用）
+  /// Clear the new achievement list (called after the dialog closes)
   void clearNewAchievements() {
     _newAchievements = [];
     notifyListeners();
   }
 
-  /// 检查心愿罐成就（创建/完成心愿后调用）
+  /// Check wish jar achievements (called after creating/completing a wish)
   Future<void> checkWishAchievements() async {
     if (_user == null) return;
 
@@ -309,7 +309,7 @@ class AppProvider extends ChangeNotifier {
     }
   }
 
-  /// 检查预算成就（设置预算后调用）
+  /// Check budget achievements (called after setting a budget)
   Future<void> checkBudgetAchievements() async {
     if (_user == null) return;
 
@@ -317,7 +317,7 @@ class AppProvider extends ChangeNotifier {
     final budget = book?.budget ?? 0.0;
     final hasBudget = budget > 0;
 
-    // 计算本月支出占比
+    // Compute this month's expense ratio
     double expenseRatio = 0.0;
     if (hasBudget) {
       final now = DateTime.now();
@@ -343,7 +343,7 @@ class AppProvider extends ChangeNotifier {
     }
   }
 
-  /// 更新用户数据（用于外部更新用户统计）
+  /// Update user data (used externally to update user stats)
   Future<void> updateUserStats(UserModel updatedUser) async {
     await _db.updateUser(updatedUser);
     _user = updatedUser;
@@ -365,7 +365,7 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 获取当前账本信息
+  /// Get current book info
   Future<BookModel?> getCurrentBook() async {
     if (_currentBookId.isEmpty) return null;
     final books = await _db.getAllBooks();
@@ -375,10 +375,10 @@ class AppProvider extends ChangeNotifier {
     );
   }
 
-  /// 升级检查
+  /// Level-up check
   bool get shouldLevelUp => _user?.shouldLevelUp ?? false;
 
-  /// 执行升级（支持连续升级）
+  /// Perform level-up (supports consecutive level-ups)
   Future<void> levelUp() async {
     while (_user != null && _user!.shouldLevelUp) {
       final newLevel = _user!.level + 1;

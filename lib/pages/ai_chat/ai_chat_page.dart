@@ -16,7 +16,7 @@ import 'widgets/chat_bubble.dart';
 import 'widgets/chat_input_bar.dart';
 import '../../widgets/glass_sub_page_bar.dart';
 
-/// AI 对话式记账页面
+/// AI conversational bookkeeping page
 class AiChatPage extends StatefulWidget {
   final String? initialText;
 
@@ -33,7 +33,7 @@ class _AiChatPageState extends State<AiChatPage>
   bool _isLoading = false;
 
   final Map<String, MoodModel?> _msgMoods = {};
-  final Set<String> _confirmedMessageIds = {}; // 已确认的消息ID，防止重复记账
+  final Set<String> _confirmedMessageIds = {}; // Confirmed message IDs, prevents duplicate records
 
   @override
   List<ChatMessage> get messages => _messages;
@@ -76,11 +76,11 @@ class _AiChatPageState extends State<AiChatPage>
     });
   }
 
-  // 待补充金额的分类信息（用于连续对话）
+  // Category info pending an amount (used for multi-turn dialogue)
   Map<String, dynamic>? _pendingCategory;
 
   Future<void> _handleSend(String text) async {
-    // 添加用户消息
+    // Append the user message
     setState(() {
       _messages.add(ChatMessage(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -92,7 +92,7 @@ class _AiChatPageState extends State<AiChatPage>
     _scrollToBottom();
 
     try {
-      // 如果有待补充金额的分类，先尝试把当前输入当金额
+      // If a category is waiting for an amount, first try to read the input as an amount
       if (_pendingCategory != null) {
         final amountMatch = RegExp(r'(\d+\.?\d*)').firstMatch(text.trim());
         if (amountMatch != null) {
@@ -114,7 +114,7 @@ class _AiChatPageState extends State<AiChatPage>
             return;
           }
         }
-        // 输入不是金额，清空待补充状态，继续正常解析
+        // Input is not an amount; clear the pending state and continue normal parsing
         _pendingCategory = null;
       }
 
@@ -123,7 +123,7 @@ class _AiChatPageState extends State<AiChatPage>
       if (result.isRecord) {
         await _handleRecordResult(result);
       } else if (result.intent == 'record' && result.amount == null) {
-        // 识别到分类但没有金额，追问金额
+        // Category recognized but no amount; ask for the amount
         final category = getCategoryById(
           result.categoryId ?? 'other',
           isExpense: result.type == 'expense',
@@ -177,7 +177,7 @@ class _AiChatPageState extends State<AiChatPage>
       msgLocationLoading[msgId] = true;
     });
 
-    // 自动获取 GPS 定位
+    // Automatically fetch GPS location
     fetchLocationForMsg(msgId);
   }
 
@@ -198,7 +198,7 @@ class _AiChatPageState extends State<AiChatPage>
   }
 
   Future<void> _confirmRecord(ChatMessage msg) async {
-    // 防止重复记账
+    // Prevent duplicate records
     if (_confirmedMessageIds.contains(msg.id)) return;
     _confirmedMessageIds.add(msg.id);
 
@@ -221,7 +221,7 @@ class _AiChatPageState extends State<AiChatPage>
 
     final category = getCategoryById(categoryId, isExpense: type == 'expense');
 
-    // 读取心情和定位
+    // Read mood and location
     final mood = _msgMoods[msg.id];
     final location = msgLocations[msg.id];
     final lat = msgLat[msg.id];
@@ -251,7 +251,7 @@ class _AiChatPageState extends State<AiChatPage>
     await DatabaseService.instance.insertRecord(record);
     NotificationService.instance.refreshTodaySummary();
 
-    // 保存常去地点
+    // Save the frequently visited place
     if (location != null && lat != null && lng != null) {
       await DatabaseService.instance.upsertFavoriteLocation(
         name: location,
@@ -261,7 +261,7 @@ class _AiChatPageState extends State<AiChatPage>
       );
     }
 
-    // 清理状态
+    // Clean up state
     _msgMoods.remove(msg.id);
     msgLocations.remove(msg.id);
     msgLat.remove(msg.id);
@@ -304,25 +304,25 @@ class _AiChatPageState extends State<AiChatPage>
     final data = msg.data;
     if (data == null) return;
 
-    // 读取心情和定位（保存后再清理）
+    // Read mood and location (cleared after saving)
     final location = msgLocations[msg.id];
     final lat = msgLat[msg.id];
     final lng = msgLng[msg.id];
     final mood = _msgMoods[msg.id];
 
-    // 清理心情和定位状态
+    // Clean up mood and location state
     _msgMoods.remove(msg.id);
     msgLocations.remove(msg.id);
     msgLat.remove(msg.id);
     msgLng.remove(msg.id);
     msgLocationLoading.remove(msg.id);
 
-    // 删除确认消息
+    // Remove the confirmation message
     setState(() {
       _messages.remove(msg);
     });
 
-    // 构建临时 RecordModel，带入所有已填信息（含定位）
+    // Build a temporary RecordModel carrying all entered data (including location)
     final type = data['type'] as String? ?? 'expense';
     final amount = data['amount'] as double? ?? 0;
     final categoryId = data['categoryId'] as String? ?? 'other';
@@ -361,7 +361,7 @@ class _AiChatPageState extends State<AiChatPage>
       longitude: lng,
     );
 
-    // 跳转到记账页，带入预填数据；保存后回到首页
+    // Navigate to the add-record page with prefilled data; go back to the home page after saving
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -369,7 +369,7 @@ class _AiChatPageState extends State<AiChatPage>
       ),
     ).then((saved) {
       if (saved == true && mounted) {
-        // 保存成功，回到首页
+        // Saved successfully; go back to the home page
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
     });
@@ -383,7 +383,7 @@ class _AiChatPageState extends State<AiChatPage>
       appBar: const GlassSubPageBar(title: '🐻 AI 记账'),
       body: Column(
         children: [
-          // 提示条
+          // Notice banner
           if (!GlmService.instance.isConfigured)
             Container(
               width: double.infinity,
@@ -406,7 +406,7 @@ class _AiChatPageState extends State<AiChatPage>
                 ],
               ),
             ),
-          // 消息列表
+          // Message list
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
@@ -414,7 +414,7 @@ class _AiChatPageState extends State<AiChatPage>
               itemCount: _messages.length + (_isLoading ? 1 : 0),
               itemBuilder: (context, index) {
                 if (index == _messages.length) {
-                  // 加载指示器
+                  // Loading indicator
                   return Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Row(
@@ -437,7 +437,7 @@ class _AiChatPageState extends State<AiChatPage>
                           decoration: BoxDecoration(
                             color: DS.surfaceContainerLowest,
                             borderRadius: BorderRadius.circular(16),
-                            // 玻璃主题无边框；关闭态原样
+                            // Glass theme has no border; unchanged when off
                             border: shouldUseLiquidGlass(context)
                                 ? null
                                 : Border.all(
@@ -493,7 +493,7 @@ class _AiChatPageState extends State<AiChatPage>
               },
             ),
           ),
-          // 输入栏
+          // Input bar
           ChatInputBar(onSend: _handleSend),
         ],
       ),

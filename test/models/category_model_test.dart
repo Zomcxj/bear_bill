@@ -59,7 +59,7 @@ void main() {
     });
 
     test('在错误的列表中查找返回 null', () {
-      // food 是支出分类，在收入列表中找不到
+      // food is an expense category, so it is not found in the income list
       final cat = getCategoryById('food', isExpense: false);
       expect(cat, isNull);
     });

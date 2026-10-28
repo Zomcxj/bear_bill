@@ -10,13 +10,13 @@ import '../../../theme/app_theme.dart';
 import '../achievement_page.dart';
 import '../../../widgets/glass_dialog_shell.dart';
 
-/// 成就徽章网格
+/// Achievement badge grid
 class AchievementGrid extends StatelessWidget {
   const AchievementGrid({super.key});
 
   @override
   Widget build(BuildContext context) {
-    context.watch<ThemeProvider>(); // 主题变更时触发重建
+    context.watch<ThemeProvider>(); // rebuild when the theme changes
     return Consumer<AppProvider>(
       builder: (context, appProvider, child) {
         final unlockedIds = appProvider.unlockedAchievements;
@@ -121,7 +121,7 @@ class _AchievementBadge extends StatelessWidget {
               color:
                   isUnlocked ? DS.surfaceContainerHigh : DS.surfaceContainerLow,
               borderRadius: BorderRadius.circular(DS.radiusFull),
-              // 玻璃主题无边框；关闭态原样
+              // No border in the glass theme; unchanged when disabled
               border: shouldUseLiquidGlass(context)
                   ? null
                   : Border.all(

@@ -6,10 +6,10 @@ import '../../../theme/glass_materials.dart';
 import '../../../providers/theme_provider.dart';
 import 'package:provider/provider.dart';
 
-/// 聊天消息类型
+/// Chat message type
 enum ChatMessageType { text, recordConfirm, queryResult, error }
 
-/// 聊天消息数据
+/// Chat message data
 class ChatMessage {
   final String id;
   final String text;
@@ -26,7 +26,7 @@ class ChatMessage {
   });
 }
 
-/// 消息气泡组件
+/// Message bubble widget
 class ChatBubble extends StatelessWidget {
   final ChatMessage message;
   final VoidCallback? onConfirm;
@@ -36,7 +36,7 @@ class ChatBubble extends StatelessWidget {
   final String? location;
   final bool locationLoading;
   final VoidCallback? onLocationTap;
-  final bool confirmed; // 是否已确认
+  final bool confirmed; // Whether the record is already confirmed
 
   const ChatBubble({
     super.key,
@@ -125,7 +125,7 @@ class ChatBubble extends StatelessWidget {
           bottomLeft: Radius.circular(message.isUser ? 16 : 4),
           bottomRight: Radius.circular(message.isUser ? 4 : 16),
         ),
-        // 玻璃主题无边框；关闭态原样
+        // No border in glass theme; keep the original border when glass is off
         border: message.isUser || shouldUseLiquidGlass(context)
             ? null
             : Border.all(color: DS.outlineVariant.withOpacity(0.5)),
@@ -162,7 +162,7 @@ class ChatBubble extends StatelessWidget {
           bottomLeft: Radius.circular(4),
           bottomRight: Radius.circular(16),
         ),
-        // 玻璃主题无边框；关闭态原样
+        // No border in glass theme; keep the original border when glass is off
         border: shouldUseLiquidGlass(context)
             ? null
             : Border.all(color: DS.emphasis.withOpacity(0.3)),
@@ -170,7 +170,7 @@ class ChatBubble extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 确认标题
+          // Confirmation title
           Row(
             children: [
               Text(categoryIcon, style: TextStyle(fontSize: 20)),
@@ -186,7 +186,7 @@ class ChatBubble extends StatelessWidget {
             ],
           ),
           SizedBox(height: 10),
-          // 详情
+          // Details
           _buildDetailRow('分类', categoryName),
           _buildDetailRow(
             '金额',
@@ -197,13 +197,13 @@ class ChatBubble extends StatelessWidget {
             _buildDetailRow('备注', remark),
           _buildDetailRow('日期', _formatDateLabel(dateStr)),
           SizedBox(height: 10),
-          // 心情选择
+          // Mood selection
           _buildMoodRow(context),
           SizedBox(height: 8),
-          // 定位信息
+          // Location info
           _buildLocationRow(),
           SizedBox(height: 12),
-          // 按钮
+          // Action buttons
           Row(
             children: [
               Expanded(
@@ -263,7 +263,7 @@ class ChatBubble extends StatelessWidget {
           bottomLeft: Radius.circular(4),
           bottomRight: Radius.circular(16),
         ),
-        // 玻璃主题无边框；关闭态原样
+        // No border in glass theme; keep the original border when glass is off
         border: shouldUseLiquidGlass(context)
             ? null
             : Border.all(color: DS.secondaryContainer.withOpacity(0.3)),
@@ -354,7 +354,8 @@ class ChatBubble extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isSelected ? DS.surfaceContainerHigh : DS.background,
                   borderRadius: BorderRadius.circular(DS.radiusFull),
-                  // 玻璃主题无边框，选中靠填充；关闭态原样
+                  // No border in glass theme, selection relies on the fill;
+                  // keep the original border when glass is off
                   border: shouldUseLiquidGlass(context)
                       ? null
                       : Border.all(
@@ -452,7 +453,7 @@ class ChatBubble extends StatelessWidget {
     try {
       final date = DateTime.parse(dateStr);
       final now = DateTime.now();
-      // 同年省略年份
+      // Omit the year when it is the current year
       if (date.year == now.year) {
         return '${date.month}月${date.day}日';
       }

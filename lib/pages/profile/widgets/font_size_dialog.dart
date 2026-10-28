@@ -7,7 +7,7 @@ import '../../../theme/app_theme.dart';
 import '../../../theme/glass_materials.dart';
 import '../../../widgets/glass_dialog_shell.dart';
 
-/// 显示字号调整对话框
+/// Show the font size dialog
 Future<void> showFontSizeDialog(BuildContext context) async {
   final storage = StorageService.instance;
   String currentSize = storage.getString('fontSize') ?? '标准';
@@ -28,9 +28,9 @@ Future<void> showFontSizeDialog(BuildContext context) async {
         mainAxisSize: MainAxisSize.min,
         children: sizeOptions.map((size) {
           final selected = currentSize == size;
-          // 玻璃弹窗里没有 Material 祖先，RadioListTile 的
-          // 圆点/涟漪/高亮样式会退化（显示异常），玻璃态改为
-          // 自绘玻璃选项行；关闭态保留原 RadioListTile 零漂移。
+          // The glass dialog has no Material ancestor, so RadioListTile's
+          // dot/ripple/highlight styles degrade (render incorrectly). Glass mode
+          // draws a custom row instead; disabled mode keeps RadioListTile unchanged.
           if (!shouldUseLiquidGlass(context)) {
             return RadioListTile<String>(
               value: size,
@@ -107,7 +107,7 @@ Future<void> showFontSizeDialog(BuildContext context) async {
                       style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
                     ),
                     const Spacer(),
-                    // 自绘选中圆点（radio 隐喻）
+                    // Custom selected dot (radio metaphor)
                     Container(
                       width: 18,
                       height: 18,

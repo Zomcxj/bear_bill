@@ -3,11 +3,12 @@ import 'package:flutter/foundation.dart';
 import '../models/category_model.dart';
 import 'storage_service.dart';
 
-/// 支出分类排序服务
+/// Expense category ordering service
 ///
-/// 用户在「我的 → 分类排序」长按拖拽调整支出分类顺序，
-/// 顺序持久化到 SharedPreferences；收入分类不参与排序。
-/// 默认顺序 = [expenseCategories] 常量表顺序。
+/// Users reorder expense categories by long-press dragging in
+/// "Profile → Category order"; the order is persisted to SharedPreferences.
+/// Income categories do not take part in ordering.
+/// Default order = the order of the [expenseCategories] constant list.
 class CategoryOrderService extends ChangeNotifier {
   CategoryOrderService._();
 
@@ -15,13 +16,15 @@ class CategoryOrderService extends ChangeNotifier {
 
   static const String _key = 'expenseCategoryOrder';
 
-  /// 已排序的支出分类（[load] 之后同步可用；未 load 时回退默认顺序）
+  /// Ordered expense categories (available synchronously after [load]; falls
+  /// back to the default order when [load] has not run)
   List<CategoryModel> _expense = List.unmodifiable(expenseCategories);
 
   List<CategoryModel> get expense => _expense;
 
-  /// 启动时加载持久化顺序；持久化值与常量表不一致时（版本增删分类），
-  /// 缺失的分类按默认顺序补在末尾，多余的 id 丢弃。
+  /// Loads the persisted order at startup; when the persisted value differs from
+  /// the constant list (categories added/removed between versions), missing
+  /// categories are appended in default order and extra ids are dropped.
   Future<void> load() async {
     final saved = StorageService.instance.getString(_key);
     if (saved == null || saved.isEmpty) return;
@@ -36,14 +39,15 @@ class CategoryOrderService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 保存新顺序（id 列表），并广播给监听方（记一笔/筛选条等）
+  /// Saves the new order (a list of ids) and broadcasts it to listeners
+  /// (add-record page, filter bar, etc.)
   Future<void> saveOrder(List<String> ids) async {
     final byId = {for (final c in expenseCategories) c.id: c};
     final ordered = <CategoryModel>[
       for (final id in ids)
         if (byId[id] != null) byId[id]!,
     ];
-    if (ordered.length != expenseCategories.length) return; // 防脏数据
+    if (ordered.length != expenseCategories.length) return; // Guard against dirty data
     _expense = List.unmodifiable(ordered);
     StorageService.instance.setString(_key, ids.join(','));
     notifyListeners();

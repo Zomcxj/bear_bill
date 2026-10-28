@@ -16,7 +16,7 @@ import '../../../providers/theme_provider.dart';
 import '../../../widgets/glass_dialog_shell.dart';
 import 'package:provider/provider.dart';
 
-/// 存钱对话框
+/// Add-money dialog
 class AddMoneyDialog extends StatefulWidget {
   final WishModel wish;
   final Function(double) onAdd;
@@ -63,7 +63,7 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 心愿信息
+        // Wish info
         Container(
           width: double.infinity,
           padding: EdgeInsets.all(DS.base),
@@ -110,7 +110,7 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
 
         SizedBox(height: DS.gutter),
 
-        // 快捷金额
+        // Quick amounts
         Text(
           '快捷金额：',
           style: TextStyle(
@@ -127,8 +127,10 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
           runSpacing: 8,
           children: _quickAmounts.map((amount) {
             final selected = _amountController.text == amount.toString();
-            // 按压物理 = 官方 GlassButton 透明样式（弹簧膨胀 + 触点光晕），
-            // 不画玻璃壳——托盘已是玻璃，玻璃不套玻璃；键面仍是着色层
+            // Press physics = official GlassButton transparent style (spring
+            // scale + touch highlight), with no glass shell painted — the tray
+            // is already glass and glass is never nested in glass; the key
+            // face is still a tint layer
             return GlassButton.custom(
               style: GlassButtonStyle.transparent,
               onTap: () => _selectQuickAmount(amount),
@@ -141,8 +143,9 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  // 玻璃态：托盘上的着色层（选中 = 强调填充，亮色下深色细边显形），
-                  // 不做折射图层
+                  // Glass mode: a tint layer on the tray (selected = accent
+                  // fill; a thin dark border keeps it visible on light
+                  // backgrounds), with no refraction layer
                   color: shouldUseLiquidGlass(context)
                       ? (selected
                           ? (DS.isDark
@@ -180,7 +183,7 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
 
         SizedBox(height: DS.gutter),
 
-        // 自定义金额
+        // Custom amount
         TextField(
           controller: _amountController,
           decoration: glassDialogInputDecoration(
@@ -242,9 +245,11 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
       );
     }
 
-    // 开启液态玻璃：玻璃托盘（useOwnLayer: true，独立路由无父图层）+
-    // 自绘玻璃按钮（官方 GlassDialogAction 样式过素，「确认存入」改用
-    // GlassPanelButton 强调胶囊，与全站玻璃按钮语言一致）
+    // Liquid glass enabled: glass tray (useOwnLayer: true, since a standalone
+    // route has no parent layer) + hand-drawn glass buttons (the official
+    // GlassDialogAction looks too plain, so the confirm-deposit action uses
+    // the GlassPanelButton accent pill instead, matching the glass button
+    // language used across the app)
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),

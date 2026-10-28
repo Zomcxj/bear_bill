@@ -19,12 +19,12 @@ import 'widgets/category_selector.dart';
 import 'widgets/custom_keyboard.dart';
 import 'widgets/location_helper.dart';
 
-/// �记账页 - 支出/收入切换、分类选择、心情标签、自定义键盘
+/// �Add-record page - expense/income toggle, category selection, mood tags, custom keyboard
 class AddRecordPage extends StatefulWidget {
-  final String? preselectedCategory; // 从首页快捷入口传入的分类ID
-  final String? initialType; // 初始类型：expense | income
-  final RecordModel? editRecord; // 编辑模式：传入已有记录
-  final RecordModel? prefillRecord; // 预填模式：从AI记账传入，新建但预填数据
+  final String? preselectedCategory; // Category ID passed in from a home shortcut
+  final String? initialType; // Initial type: expense | income
+  final RecordModel? editRecord; // Edit mode: pass in an existing record
+  final RecordModel? prefillRecord; // Prefill mode: from AI recording; a new record with prefilled data
 
   const AddRecordPage({super.key, this.preselectedCategory, this.initialType, this.editRecord, this.prefillRecord});
 
@@ -52,13 +52,13 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
   @override
   void initState() {
     super.initState();
-    // 如果传入了initialType，则使用它；否则默认为expense
+    // Use initialType when provided; otherwise default to expense
     if (widget.initialType != null &&
         (widget.initialType == 'expense' || widget.initialType == 'income')) {
       _type = widget.initialType!;
     }
 
-    // 编辑模式或预填模式：用记录填充表单
+    // Edit or prefill mode: fill the form from the record
     final prefill = widget.editRecord ?? widget.prefillRecord;
     if (prefill != null) {
       _type = prefill.type;
@@ -78,7 +78,7 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
 
     _initCategories();
 
-    // 编辑模式或预填模式下，覆盖分类为记录的分类
+    // Edit or prefill mode: override the category with the record's category
     if (prefill != null) {
       final categories = _type == 'expense' ? expenseCategories : incomeCategories;
       _selectedCategory = categories.firstWhere(
@@ -192,7 +192,7 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
 
     final appProvider = context.read<AppProvider>();
 
-    // 使用 utils 中的 DateUtils，避免与 Flutter 的 DateUtils 冲突
+    // Use DateUtils from utils to avoid clashing with Flutter's DateUtils
     final dateStr = utils.DateUtils.formatDate(_selectedDate);
     final monthStr = dateStr.substring(0, 7); // 'YYYY-MM'
     final dateTs = _selectedDate.millisecondsSinceEpoch;
@@ -227,7 +227,7 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
       await DatabaseService.instance.insertRecord(record);
     }
 
-    // 保存到常去地点
+    // Save to favorite locations
     if (_location != null && _location!.isNotEmpty && _latitude != null && _longitude != null) {
       await DatabaseService.instance.upsertFavoriteLocation(
         name: _location!,
@@ -237,18 +237,18 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
       );
     }
 
-    // 更新今日记账摘要（通知显示总结）
+    // Refresh today's expense summary (shown in notifications)
     NotificationService.instance.refreshTodaySummary();
 
-    // 显示成功提示
+    // Show the success message
     if (mounted) {
       if (!isEdit) {
-        // 新记录才触发打卡和成就检查
+        // Check-in and achievement checks only run for new records
         final achievements = await appProvider.onRecordAdded(
           type: _type,
           amount: amount,
         );
-        // 自动打卡（已打卡则幂等跳过）
+        // Automatic check-in (idempotent when already checked in)
         final checkInAchievements = await appProvider.recordCheckIn();
         if (!mounted) return;
         achievements.addAll(checkInAchievements);
@@ -265,7 +265,7 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
           );
         }
 
-        // 新记录：重置表单状态，允许连续记账
+        // New record: reset the form state so the user can keep adding records
         setState(() {
           _amount = '';
           _note = '';
@@ -288,7 +288,7 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
         );
       }
 
-      // 延迟后返回
+      // Pop after a short delay
       Future.delayed(const Duration(milliseconds: 800), () {
         if (mounted) {
           Navigator.pop(context, true);
@@ -339,7 +339,7 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
         bottom: false,
         child: Column(
           children: [
-            // 玻璃态：整块 shader 玻璃 hero（与我的页同款）；关闭态原蓝渐变（零漂移）
+            // Glassy: the whole hero block uses shader glass (same as Profile); disabled state keeps the original blue gradient (zero drift)
             GlassSurface(
               borderRadius: DS.radiusLg,
               fallbackDecoration: BoxDecoration(
@@ -358,7 +358,7 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 标题 + 返回
+                  // Title + back
                   Row(
                     children: [
                       GestureDetector(
@@ -372,7 +372,7 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
                     ],
                   ),
                   SizedBox(height: DS.base),
-                  // 支出/收入切换
+                  // Expense/income toggle
                   if (!shouldUseLiquidGlass(context))
                     Container(
                       padding: EdgeInsets.all(3),
@@ -424,7 +424,7 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
                       ),
                     )
                   else
-                    // 自研一体玻璃条：与统计/心愿同款（滑块动画+按住拖动+按压放大）
+                    // Custom single-piece glass strip, same as Statistics/Wishes (sliding animation + press-and-drag + press scale)
                     GlassSegmented(
                       labels: const ['支出', '收入'],
                       selectedIndex: _type == 'expense' ? 0 : 1,
@@ -433,10 +433,10 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
                       height: 40,
                     ),
                   SizedBox(height: DS.base),
-                  // 金额 + 日期
+                  // Amount + date
                   _buildAmountRow(),
                   SizedBox(height: DS.base),
-                  // 分类选择器
+                  // Category selector
                   CategorySelector(
                     categories: categories,
                     selectedCategory: _selectedCategory,
@@ -446,7 +446,7 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
               ),
             ),
 
-          // 底部信息模块
+          // Bottom info section
           Expanded(
             child: SingleChildScrollView(
               child: Column(
@@ -489,7 +489,7 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
   }
 
   Widget _buildAmountRow() {
-    // 玻璃态：金额模块 = shader 玻璃卡；关闭态原 heroCardBg 实色卡（零漂移）
+    // Glassy: amount block = shader glass card; disabled state keeps the original solid heroCardBg card (zero drift)
     return GlassSurface(
       borderRadius: DS.radiusMd,
       fallbackDecoration: BoxDecoration(
@@ -501,7 +501,7 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 分类 + 日期标签
+          // Category + date chips
           Row(
             children: [
               Container(
@@ -529,7 +529,7 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.xs + 2),
                   decoration: BoxDecoration(
-                    // 玻璃态：白 tint 浮在玻璃卡上；关闭态原样
+                    // Glassy: white tint floats on the glass card; disabled state unchanged
                     color: shouldUseLiquidGlass(context)
                         ? Colors.white.withOpacity(0.18)
                         : DS.heroCardBg,
@@ -556,7 +556,7 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
             ],
           ),
           SizedBox(height: DS.sm),
-          // 金额
+          // Amount
           Text(
             _amount.isEmpty ? '¥0' : '¥$_amount',
             style: TextStyle(

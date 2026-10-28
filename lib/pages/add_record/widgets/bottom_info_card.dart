@@ -11,7 +11,7 @@ import '../../../theme/glass_materials.dart';
 import '../../../providers/theme_provider.dart';
 import 'package:provider/provider.dart';
 
-/// 底部信息卡片：心情选择、备注输入、照片上传、位置输入
+/// Bottom info card: mood selection, note input, photo upload, location input
 class BottomInfoCard extends StatelessWidget {
   final MoodModel? selectedMood;
   final ValueChanged<MoodModel?> onMoodChanged;
@@ -56,7 +56,7 @@ class BottomInfoCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // 1. 心情选择
+          // 1. Mood selection
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: DS.base,
@@ -94,7 +94,7 @@ class BottomInfoCard extends StatelessWidget {
                                     : DS.background,
                                 borderRadius:
                                     BorderRadius.circular(DS.radiusFull),
-                                // 玻璃主题无边框，选中靠填充；关闭态原样
+                                // No border in glass theme, selection relies on fill; unchanged when disabled
                                 border: shouldUseLiquidGlass(context)
                                     ? null
                                     : Border.all(
@@ -136,10 +136,10 @@ class BottomInfoCard extends StatelessWidget {
             ),
           ),
 
-          // 分隔线
+          // Divider
           Divider(height: 1, thickness: 1, color: DS.outlineVariant),
 
-          // 2. 备注
+          // 2. Note
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: DS.base,
@@ -165,7 +165,7 @@ class BottomInfoCard extends StatelessWidget {
                     maxLines: 1,
                     textInputAction: TextInputAction.done,
                     decoration: InputDecoration(
-                      // 主题全局实色 fill 会把玻璃卡里的输入区填黑，玻璃态置玻璃 tint
+                      // The theme's global solid fill would blacken the input inside the glass card; use a glass tint in glass mode
                       filled: true,
                       fillColor: shouldUseLiquidGlass(context)
                           ? (DS.isDark
@@ -190,10 +190,10 @@ class BottomInfoCard extends StatelessWidget {
             ),
           ),
 
-          // 分隔线
+          // Divider
           Divider(height: 1, thickness: 1, color: DS.outlineVariant),
 
-          // 3. 照片
+          // 3. Photos
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: DS.base,
@@ -210,7 +210,7 @@ class BottomInfoCard extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: 12),
-                // 添加照片（底部弹出选择）
+                // Add photo (opens a bottom sheet picker)
                 GestureDetector(
                   onTap: () => _showPhotoOptions(context),
                   child: Container(
@@ -219,7 +219,7 @@ class BottomInfoCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: DS.surfaceContainerHigh,
                       borderRadius: BorderRadius.circular(DS.radiusSm),
-                      // 玻璃主题无边框；关闭态原样
+                      // No border in glass theme; unchanged when disabled
                       border: shouldUseLiquidGlass(context)
                           ? null
                           : Border.all(
@@ -237,7 +237,7 @@ class BottomInfoCard extends StatelessWidget {
             ),
           ),
 
-          // 照片缩略图（如果有）
+          // Photo thumbnails (if any)
           if (images.isNotEmpty)
             Padding(
               padding: EdgeInsets.symmetric(horizontal: DS.base),
@@ -285,10 +285,10 @@ class BottomInfoCard extends StatelessWidget {
               ),
             ),
 
-          // 分隔线
+          // Divider
           Divider(height: 1, thickness: 1, color: DS.outlineVariant),
 
-          // 4. 位置
+          // 4. Location
           Padding(
             padding: EdgeInsets.all(DS.base),
             child: Row(
@@ -338,7 +338,7 @@ class BottomInfoCard extends StatelessWidget {
             ),
           ),
 
-          // 位置输入框（如果有定位）
+          // Location field (if a location is set)
           if (location != null && location!.isNotEmpty)
             Padding(
               padding: EdgeInsets.symmetric(
@@ -378,7 +378,7 @@ class BottomInfoCard extends StatelessWidget {
   }
 
   void _showPhotoOptions(BuildContext context) {
-    // 弹层内容：玻璃/关闭态共用
+    // Sheet content: shared by glass and disabled modes
     Widget content(BuildContext ctx) => Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -403,7 +403,7 @@ class BottomInfoCard extends StatelessWidget {
           ],
         );
 
-    // 玻璃态：官方 GlassContainer 玻璃弹层（与日期选择弹层同款范式）
+    // Glass mode: official GlassContainer sheet (same pattern as the date picker sheet)
     if (shouldUseLiquidGlass(context)) {
       showModalBottomSheet(
         context: context,
@@ -427,7 +427,7 @@ class BottomInfoCard extends StatelessWidget {
       return;
     }
 
-    // 关闭态：原实色底部弹层（零漂移）
+    // Disabled mode: original solid-color bottom sheet (zero drift)
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,

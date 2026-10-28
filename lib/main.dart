@@ -22,10 +22,10 @@ import 'theme/glass_materials.dart';
 import 'widgets/glass_top_strip.dart';
 import 'widgets/tab_swipe.dart';
 
-// 全局路由观察者（用于页面返回时刷新数据）
+// Global route observer (refreshes data when returning to a page)
 final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
 
-// 字号变更通知器
+// Font size change notifier
 class FontSizeNotifier extends ChangeNotifier {
   static final FontSizeNotifier _instance = FontSizeNotifier._();
   static FontSizeNotifier get instance => _instance;
@@ -38,10 +38,10 @@ class FontSizeNotifier extends ChangeNotifier {
 
 Future<void> _checkMonthlySummary() async {
   final now = DateTime.now();
-  if (now.day != 1) return; // 只在每月1日触发
+  if (now.day != 1) return; // Trigger only on the 1st of each month
   final monthKey = 'monthlySummary_${now.year}_${now.month.toString().padLeft(2, '0')}';
   final sent = await StorageService.instance.getStringAsync(monthKey);
-  if (sent == '1') return; // 本月已发送
+  if (sent == '1') return; // Already sent this month
   StorageService.instance.setString(monthKey, '1');
   await NotificationService.instance.showMonthlySummary();
 }
@@ -49,28 +49,28 @@ Future<void> _checkMonthlySummary() async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 初始化数据库
+  // Initialize the database
   await DatabaseService.instance.database;
 
-  // 加载本地缓存（如打卡/账本记忆、字号设置）
+  // Load local cache (e.g. check-in/ledger memory, font size settings)
   await StorageService.instance.load();
 
-  // 分类排序（用户自定义支出分类顺序，默认=常量表顺序）
+  // Category ordering (user-defined expense category order; default = constant table order)
   await CategoryOrderService.instance.load();
 
-  // 初始化主题（从缓存加载用户选择的颜色）
+  // Initialize theme (load the user-selected color from cache)
   final themeProvider = ThemeProvider();
 
-  // 初始化通知服务
+  // Initialize the notification service
   await NotificationService.instance.init();
 
-  // 初始化自动记账服务（恢复轮询状态）
+  // Initialize the auto-record service (restore polling state)
   await AutoRecordService.instance.init();
 
-  // 月度财务简报：每月1日自动推送
+  // Monthly finance summary: pushed automatically on the 1st of each month
   await _checkMonthlySummary();
 
-  // 预热液态玻璃 shader（异步 I/O，不阻塞首帧；失败会自动降级雾面路线）
+  // Warm up the liquid glass shader (async I/O, does not block the first frame; falls back to frosted mode on failure)
   await LiquidGlassWidgets.initialize(enablePerformanceMonitor: false);
 
   runApp(
@@ -97,9 +97,9 @@ class _BearBillAppState extends State<BearBillApp> {
   void initState() {
     super.initState();
     _loadFontSize();
-    // 监听字号变更通知
+    // Listen for font size change notifications
     FontSizeNotifier.instance.addListener(_loadFontSize);
-    // 监听主题变更，触发重建
+    // Listen for theme changes and trigger a rebuild
     widget.themeProvider.addListener(_onThemeChanged);
   }
 
@@ -143,9 +143,9 @@ class _BearBillAppState extends State<BearBillApp> {
         debugShowCheckedModeBanner: false,
         theme: AppTheme.currentTheme,
         builder: (context, child) {
-          // 玻璃控件（GlassDialog/GlassTabBar 等）是纯自绘、无 Material 祖先，
-          // 会继承 MaterialApp 的 _errorTextStyle 兜底样式（黄色双下划线），
-          // 根上清掉 decoration；深层 Material 各自的 DefaultTextStyle 不受影响。
+          // Glass widgets (GlassDialog/GlassTabBar, etc.) are pure custom-painted with no Material ancestor,
+          // so they inherit MaterialApp's fallback _errorTextStyle (yellow double underline);
+          // clear decoration at the root; nested Material DefaultTextStyles are unaffected.
           return MediaQuery(
             data: MediaQuery.of(context).copyWith(
               textScaler: TextScaler.linear(_textScaleFactor),
@@ -156,8 +156,8 @@ class _BearBillAppState extends State<BearBillApp> {
             ),
           );
         },
-        navigatorObservers: [routeObserver], // 注册全局路由观察者
-        // 【临时】玻璃实验室验证页（_kGlassLab=true 时直启，验证完改回 false 删除）
+        navigatorObservers: [routeObserver], // Register the global route observer
+        // [Temporary] Glass lab validation page (launches directly when _kGlassLab=true; set back to false and remove once validated)
         home: _kGlassLab
             ? const GlassLabPage()
             : MainTabPage(onFontSizeChanged: _loadFontSize),
@@ -167,11 +167,11 @@ class _BearBillAppState extends State<BearBillApp> {
   }
 }
 
-/// 主 Tab 页面
-/// 全局 Tab 切换通知器（从子页面切换底部 Tab）
+/// Main tab page
+/// Global tab switch notifier (switch the bottom tab from a child page)
 final ValueNotifier<int> tabSwitchNotifier = ValueNotifier<int>(0);
 
-/// 【临时】玻璃实验室开关：true 直启验证页，验证完改回 false 并删除实验室文件
+/// [Temporary] Glass lab switch: when true, launches the validation page directly; set back to false and delete the lab files once validated
 const bool _kGlassLab = false;
 
 class MainTabPage extends StatefulWidget {
@@ -205,8 +205,8 @@ class _MainTabPageState extends State<MainTabPage> {
     }
   }
 
-  /// 统一的 Tab 切换入口：点按、滑动都走这里，
-  /// 由 tabSwitchNotifier 作为单一真源触发 _onTabSwitch 更新状态。
+  /// Unified tab switch entry point: both taps and swipes go through here,
+  /// with tabSwitchNotifier as the single source of truth triggering _onTabSwitch to update state.
   void _goToTab(int index) {
     if (index == _currentIndex) return;
     tabSwitchNotifier.value = index;
@@ -222,19 +222,20 @@ class _MainTabPageState extends State<MainTabPage> {
 
   @override
   Widget build(BuildContext context) {
-    // 双树分叉：开启液态玻璃走官方骨架（导航层玻璃 + 沉浸式滚动），
-    // 关闭时保留原树（贴底满宽白栏 + 自研拖动），老用户体验零变化。
+    // Dual-tree split: with liquid glass enabled, use the official skeleton (nav-layer glass + immersive scrolling);
+    // when disabled, keep the original tree (flush-bottom full-width white bar + custom drag), with zero change for existing users.
     if (shouldUseLiquidGlass(context)) {
       return _buildGlassTree();
     }
     return _buildLegacyTree();
   }
 
-  /// 开启态：官方 GlassScaffold + GlassTabBar.bottom
+  /// Enabled state: official GlassScaffold + GlassTabBar.bottom
   ///
-  /// GlassScaffold 自带：内容穿到底栏下的沉浸式滚动、滚动边缘渐隐、
-  /// 状态栏图标自适应、安全区处理、bar 隔离。
-  /// 官方 GlassTabBar.bottom 原生支持按住拖动切换（jelly 物理 + magic lens）。
+  /// GlassScaffold provides: immersive scrolling with content passing under the
+  /// bottom bar, scroll-edge fade, automatic status bar icon adaptation, safe area
+  /// handling, and bar isolation.
+  /// The official GlassTabBar.bottom natively supports press-and-drag switching (jelly physics + magic lens).
   Widget _buildGlassTree() {
     return GlassScaffold(
       bottomBar: GlassTabBar.bottom(
@@ -247,24 +248,24 @@ class _MainTabPageState extends State<MainTabPage> {
         ],
         selectedIndex: _currentIndex,
         onTabSelected: _goToTab,
-        // 官方底栏专用材质（iOS 26 Apple News/Safari 调校），
-        // 自调的 surface() 会覆盖它导致药丸过透明、文字发虚
+        // Material dedicated to the official bottom bar (tuned for iOS 26 Apple News/Safari);
+        // a custom surface() would override it, making the pill too transparent and the text blurry
         settings: GlassMaterials.navBar(),
-        // 官方底栏默认 quality 就是 premium（静态 footer 适用场景）：
-        // 真折射 + 色散 + jelly 物理。此前误用 standard（轻量 shader、无折射）
-        // 导致"不够液态"。
+        // The official bottom bar's default quality is premium (suited for static footers):
+        // true refraction + dispersion + jelly physics. Using standard by mistake
+        // (lightweight shader, no refraction) made it "not liquid enough".
         quality: GlassQuality.premium,
         showIndicator: true,
         barHeight: 64,
-        // 选中图标放大倍率（官方默认 1.15，调大增强"液态"动感）
+        // Selected icon magnification (official default 1.15; larger enhances the "liquid" feel)
         magnification: 1.25,
-        // 真胶囊哨兵值：jelly 膨胀期间 shader 仍钳制为胶囊，
-        // 有限半径（如 32）在膨胀时会显方。参考案例站导航也全用胶囊（999）。
+        // True capsule sentinel value: during jelly expansion the shader still clamps to a capsule;
+        // a finite radius (e.g. 32) appears square while expanding. The reference site's navigation also uses capsules (999).
         barBorderRadius: GlassDefaults.capsuleRadius,
       ),
       body: NotificationListener<ScrollNotification>(
-        // 统一在 tab 骨架层监听滚动，驱动顶栏玻璃条淡入淡出，
-        // 5 个页面无需各自持有 ScrollController。
+        // Listen for scroll centrally at the tab skeleton level to drive the top glass strip's
+        // fade in/out, so the 5 pages don't each need their own ScrollController.
         onNotification: (n) {
           _updateStripOpacity(n.metrics.pixels);
           return false;
@@ -275,7 +276,7 @@ class _MainTabPageState extends State<MainTabPage> {
               index: _currentIndex,
               children: _pages,
             ),
-            // 顶栏玻璃悬浮条：滚动淡入、回顶淡出（iOS 26 行为）
+            // Top glass floating strip: fades in on scroll, fades out on return to top (iOS 26 behavior)
             Positioned(
               top: 0,
               left: 0,
@@ -302,7 +303,7 @@ class _MainTabPageState extends State<MainTabPage> {
     }
   }
 
-  /// 关闭态：原有树完全保留（贴底满宽白栏 + 自研按住拖动）
+  /// Disabled state: the original tree is fully preserved (flush-bottom full-width white bar + custom press-and-drag)
   Widget _buildLegacyTree() {
     return Scaffold(
       body: IndexedStack(
@@ -325,7 +326,7 @@ class _MainTabPageState extends State<MainTabPage> {
       ],
     );
 
-    // 关闭态底栏：原样保留（贴底满宽 + BackdropFilter 模糊 + 顶部细边框）
+    // Disabled-state bottom bar: kept as-is (flush-bottom full width + BackdropFilter blur + thin top border)
     final bar = ClipRRect(
       borderRadius: BorderRadius.vertical(top: Radius.circular(DS.radiusMd)),
       child: BackdropFilter(
@@ -343,8 +344,8 @@ class _MainTabPageState extends State<MainTabPage> {
       ),
     );
 
-    // 按住底栏水平滑动，实时切换到手指经过的 Tab（开启态由官方 tab bar 接管）。
-    // 与各 item 的点击手势共存（不移动 = tap；移动超阈值 = 拖动切换）。
+    // Press the bottom bar and slide horizontally to switch to the tab under the finger in real time (the official tab bar takes over in the enabled state).
+    // Coexists with each item's tap gesture (no movement = tap; movement past threshold = drag switch).
     return Builder(
       builder: (barContext) {
         return GestureDetector(

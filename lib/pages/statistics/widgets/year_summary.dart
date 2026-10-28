@@ -9,11 +9,11 @@ import '../../../widgets/glass_dialog_shell.dart';
 import '../../../utils/utils.dart';
 import '../../../providers/theme_provider.dart';
 
-/// 年度总结组件
+/// Year summary component
 class YearSummary extends StatefulWidget {
   const YearSummary({super.key, this.year});
 
-  /// 父级选中的年份（与统计页头部选择器联动）；null 时用当前年
+  /// Year selected by the parent (linked to the statistics page header picker); defaults to the current year when null
   final int? year;
 
   @override
@@ -35,7 +35,7 @@ class _YearSummaryState extends State<YearSummary> {
   @override
   void didUpdateWidget(covariant YearSummary oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // 父级切换年份时跟随刷新
+    // Refresh when the parent changes the selected year
     if (widget.year != null && widget.year != _selectedYear) {
       setState(() => _selectedYear = widget.year!);
       _loadYearStats();
@@ -72,12 +72,12 @@ class _YearSummaryState extends State<YearSummary> {
             child: Column(
               children: [
                 SizedBox(height: DS.sm),
-                // 12 月柱状图
+                // 12-month bar chart
                 _buildMonthlyChart(),
                 SizedBox(height: DS.sm),
-                // 年度分类明细
+                // Yearly category breakdown
                 _buildYearCategoryBreakdown(),
-                // 玻璃模式底部留白：避免内容被浮动玻璃底栏盖住
+                // Bottom padding in glass mode: prevents content from being covered by the floating glass bottom bar
                 SizedBox(height: DS.sm + glassBottomInset(context)),
               ],
             ),
@@ -212,7 +212,7 @@ class _YearSummaryState extends State<YearSummary> {
     );
   }
 
-  /// 格式化金额为紧凑显示
+  /// Format an amount for compact display
   String _formatCompact(double amount) {
     if (amount <= 0) return '';
     if (amount >= 10000) return '${(amount / 10000).toStringAsFixed(1)}w';
@@ -272,7 +272,7 @@ class _YearSummaryState extends State<YearSummary> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        // 金额标签：支出/收入两柱各一行（原仅支出一行）
+                        // Amount label: one line each for the expense/income bars (originally only one line for expense)
                         if (expense > 0)
                           Text(
                             _formatCompact(expense),
@@ -292,7 +292,7 @@ class _YearSummaryState extends State<YearSummary> {
                             ),
                           ),
                         if (hasData) SizedBox(height: 2),
-                        // 双柱
+                        // Dual bars
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.end,
@@ -361,7 +361,7 @@ class _YearSummaryState extends State<YearSummary> {
   Widget _buildYearCategoryBreakdown() {
     if (_expenseCategories.isEmpty) return const SizedBox.shrink();
 
-    // 计算百分比
+    // Compute the percentage
     final total =
         _expenseCategories.fold(0.0, (s, c) => s + (c['amount'] as double));
     final categoriesWithPercent = _expenseCategories.map((c) {

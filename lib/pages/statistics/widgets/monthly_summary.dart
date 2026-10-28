@@ -6,7 +6,7 @@ import '../../../utils/utils.dart';
 import '../../../providers/theme_provider.dart';
 import 'package:provider/provider.dart';
 
-/// 月度总结 - 小熊助手文案
+/// Monthly summary - Little Bear assistant text
 class MonthlySummary extends StatelessWidget {
   final double expense;
   final double income;
@@ -26,10 +26,10 @@ class MonthlySummary extends StatelessWidget {
     context.watch<ThemeProvider>(); // theme rebuild
     final lines = _generateSummary();
 
-    // 玻璃态：整块玻璃卡（此前是裸文字贴页面，与其它卡不一致）；
-    // 关闭态 = 原实色容器（零漂移）
+    // Glass state: a full glass card (previously bare text on the page, inconsistent with
+    // other cards); disabled state = the original solid container (zero drift)
     return GlassSurface(
-      // 圆角与「收支趋势」等卡一致（radiusMd）
+      // Corner radius matches cards like "Income/Expense Trend" (radiusMd)
       borderRadius: DS.radiusMd,
       fallbackDecoration: BoxDecoration(
         color: DS.background,
@@ -74,7 +74,7 @@ class MonthlySummary extends StatelessWidget {
   List<String> _generateSummary() {
     final lines = <String>[];
 
-    // 结余情况
+    // Balance situation
     if (balance > 0) {
       lines.add('本月结余 ¥${FormatUtils.formatAmount(balance)}，小熊为你鼓掌！🎉');
     } else if (balance == 0) {
@@ -83,7 +83,7 @@ class MonthlySummary extends StatelessWidget {
       lines.add('本月超支 ¥${FormatUtils.formatAmount(-balance)}，下月要省着点哦～😅');
     }
 
-    // 最高分类
+    // Top category
     if (topCategory != null && expense > 0) {
       final percent = topCategory!['percent'] as double;
       lines.add(
@@ -92,7 +92,7 @@ class MonthlySummary extends StatelessWidget {
       );
     }
 
-    // 记账建议
+    // Bookkeeping suggestion
     if (expense > income * 0.8 && income > 0) {
       lines.add('支出接近收入的80%了，记得留点钱存起来哦～💰');
     } else if (expense < income * 0.5 && income > 0) {

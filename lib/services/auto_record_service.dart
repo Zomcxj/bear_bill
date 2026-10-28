@@ -10,7 +10,7 @@ import 'database_service.dart';
 import 'glm_service.dart';
 import 'notification_service.dart';
 
-/// 自动记账检测结果（用于弹窗确认）
+/// Auto-record detection result (used for the confirmation dialog)
 class AutoRecordCandidate {
   final RecordModel record;
   final String source;
@@ -23,7 +23,7 @@ class AutoRecordCandidate {
   });
 }
 
-/// 自动记账服务 - 处理微信/支付宝支付通知
+/// Auto-record service - handles WeChat/Alipay payment notifications
 class AutoRecordService {
   static final AutoRecordService instance = AutoRecordService._();
   AutoRecordService._();
@@ -39,30 +39,30 @@ class AutoRecordService {
   String? _lastProcessedFingerprint;
   DateTime? _lastProcessedAt;
 
-  /// 待确认的候选记录（检测到支付后暂存）
+  /// Candidate record awaiting confirmation (held after a payment is detected)
   AutoRecordCandidate? _pendingCandidate;
   DateTime? _pendingCandidateAt;
   Timer? _alipayEmitTimer;
   AutoRecordCandidate? get pendingCandidate => _pendingCandidate;
 
-  /// 检测到支付后，通过 stream 通知 UI 弹窗确认
+  /// Notifies the UI through a stream after a payment is detected, so it can show the confirmation dialog
   final StreamController<AutoRecordCandidate> _candidateController =
       StreamController<AutoRecordCandidate>.broadcast();
   Stream<AutoRecordCandidate> get onCandidateDetected =>
       _candidateController.stream;
 
-  /// 初始化自动记账服务（App 启动时调用）
+  /// Initialize the auto-record service (called on app start)
   Future<void> init() async {
     if (_initialized) return;
     _initialized = true;
 
-    // 创建通知渠道
+    // Create the notification channel
     await _notifications.initialize(
       const InitializationSettings(
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
       ),
       onDidReceiveNotificationResponse: (details) {
-        // 用户点击了自动记账确认通知 → 弹出确认弹窗
+        // The user tapped the auto-record confirmation notification → show the confirmation dialog
         if (_pendingCandidate != null) {
           _candidateController.add(_pendingCandidate!);
         }
@@ -82,19 +82,19 @@ class AutoRecordService {
       );
     }
 
-    // 注册 MethodChannel 回调，接收原生 NotificationListenerService 推送
+    // Register the MethodChannel callback that receives pushes from the native NotificationListenerService
     _setupMethodCallHandler();
 
-    // 检查是否有暂存的支付数据（app 在后台时原生端存的）
+    // Check for a pending payment payload (stored natively while the app was in the background)
     _checkPendingPayment();
   }
 
-  /// 检查暂存的支付数据（公开方法，app 回前台时调用）
+  /// Check for a pending payment payload (public method, called when the app returns to the foreground)
   Future<void> checkPendingPayment() async {
     await _checkPendingPayment();
   }
 
-  /// 检查暂存的支付数据
+  /// Check for a pending payment payload
   Future<void> _checkPendingPayment() async {
     try {
       final result = await _channel.invokeMethod<Map>('getPendingPayment');
@@ -117,14 +117,14 @@ class AutoRecordService {
     }
   }
 
-  /// 注册 MethodChannel 回调（只注册一次）
+  /// Register the MethodChannel callback (registered only once)
   void _setupMethodCallHandler() {
     if (_handlerSet) return;
     _handlerSet = true;
 
     _channel.setMethodCallHandler((call) async {
       if (call.method == 'onPaymentNotification') {
-        // 检查自动记账开关（原生端因跨进程无法读取，由 Flutter 端判断）
+        // Check the auto-record switch (the native side cannot read it across processes, so Flutter decides)
         final enabled = await isAutoRecordEnabled();
         if (!enabled) {
           if (kDebugMode) print('自动记账: 开关未开启，忽略通知');
@@ -139,7 +139,7 @@ class AutoRecordService {
         if (kDebugMode) print('自动记账: 收到推送通知 [$title] $text');
         await _processPaymentNotification(title, text, source);
       } else if (call.method == 'openEditPage') {
-        // 旧原生入口统一回到自动记账解析，避免点击通知时粗解析导致错单。
+        // Legacy native entry points all route back to auto-record parsing, so tapping a notification cannot produce a wrong record through coarse parsing.
         final data = Map<String, dynamic>.from(call.arguments);
         final title = data['title'] as String? ?? '';
         final text = data['text'] as String? ?? '';
@@ -153,7 +153,7 @@ class AutoRecordService {
     if (kDebugMode) print('自动记账: MethodChannel 回调已注册');
   }
 
-  /// 检查自动记账是否已启用（通过 MethodChannel 读取原生 SharedPreferences）
+  /// Check whether auto-record is enabled (reads the native SharedPreferences through MethodChannel)
   Future<bool> isAutoRecordEnabled() async {
     try {
       final result = await _channel.invokeMethod<bool>('getAutoRecordEnabled');
@@ -163,14 +163,14 @@ class AutoRecordService {
     }
   }
 
-  /// 设置自动记账开关（通过 MethodChannel 写入原生 SharedPreferences）
+  /// Set the auto-record switch (writes the native SharedPreferences through MethodChannel)
   Future<void> setAutoRecordEnabled(bool enabled) async {
     try {
       await _channel.invokeMethod('setAutoRecordEnabled', {'enabled': enabled});
     } catch (_) {}
   }
 
-  /// 处理支付通知：解析为候选记录，由用户确认后在记账页保存
+  /// Handle a payment notification: parse it into a candidate record, saved on the add-record page once the user confirms
   Future<void> _processPaymentNotification(
     String title,
     String text,
@@ -185,7 +185,7 @@ class AutoRecordService {
       return;
     }
 
-    // 支付通知优先使用本地解析，避免自动记账依赖网络和 API 配额
+    // Parse payment notifications locally first, so auto-record does not depend on the network or API quota
     final input = '$title $text';
     var result = _parsePaymentLocally(title, text);
     result ??= await GlmService.instance.parseUserInput(input);
@@ -210,13 +210,13 @@ class AutoRecordService {
 
     await _markProcessed(fingerprint, now);
 
-    // 获取当前账本 ID
+    // Get the current book ID
     final books = await DatabaseService.instance.getAllBooks();
     final bookId = books.isNotEmpty ? books.first.id : 'default';
 
     final type = result.type ?? 'expense';
 
-    // 创建候选记录。这里只预填，不直接入库，避免误识别生成脏账单。
+    // Build the candidate record. Only prefill here, never write to the database, to avoid dirty records from mis-detection.
     final category = getCategoryById(
       result.categoryId ?? (type == 'income' ? 'other_in' : 'other'),
       isExpense: type == 'expense',
@@ -328,7 +328,7 @@ class AutoRecordService {
     try {
       await _channel.invokeMethod('clearPendingPayment');
     } catch (_) {
-      // 原生清理失败时保留内存候选，避免影响用户确认当前账单。
+      // Keep the in-memory candidate when the native cleanup fails, so the user can still confirm the current record.
     }
   }
 
@@ -338,7 +338,7 @@ class AutoRecordService {
 
     _alipayEmitTimer?.cancel();
     if (candidate.source == 'alipay') {
-      // 支付宝钱包走银行卡时，银行卡扣款通知通常会在 1 秒内补到；等一下再决定来源。
+      // When the Alipay wallet pays through a bank card, the bank debit notification usually arrives within 1 second; wait before deciding the source.
       _alipayEmitTimer = Timer(const Duration(seconds: 1), () {
         if (_pendingCandidate == candidate) {
           _candidateController.add(candidate);
@@ -435,7 +435,7 @@ class AutoRecordService {
     return raw.length > 24 ? raw.substring(0, 24) : raw;
   }
 
-  /// 用户确认后写入数据库
+  /// Write to the database after the user confirms
   Future<void> confirmRecord(RecordModel record) async {
     try {
       await DatabaseService.instance.insertRecord(record);
@@ -448,7 +448,7 @@ class AutoRecordService {
     }
   }
 
-  /// 用户取消
+  /// User cancelled
   void dismissRecord() {
     _alipayEmitTimer?.cancel();
     _pendingCandidate = null;
@@ -456,7 +456,7 @@ class AutoRecordService {
     if (kDebugMode) print('自动记账: 用户取消');
   }
 
-  /// 模拟支付通知（测试用）
+  /// Simulate a payment notification (for testing)
   Future<void> simulatePayment({
     String title = '微信支付',
     String text = '支付成功 ¥25.00 瑞幸咖啡',
@@ -466,7 +466,7 @@ class AutoRecordService {
     await _processPaymentNotification(title, text, source);
   }
 
-  /// 显示检测失败通知
+  /// Show the detection-failed notification
   Future<void> _showDetectionFailedNotification(String rawText) async {
     await _notifications.show(
       778,
@@ -486,7 +486,7 @@ class AutoRecordService {
     );
   }
 
-  /// 检查通知监听权限是否已授予
+  /// Check whether notification-listener permission is granted
   Future<bool> isNotificationListenerEnabled() async {
     try {
       final result = await _channel.invokeMethod<bool>('isListenerEnabled');
@@ -496,7 +496,7 @@ class AutoRecordService {
     }
   }
 
-  /// 检查通知监听服务是否在运行
+  /// Check whether the notification listener service is running
   Future<bool> isNotificationListenerRunning() async {
     try {
       final result = await _channel.invokeMethod<bool>('isListenerRunning');
@@ -506,7 +506,7 @@ class AutoRecordService {
     }
   }
 
-  /// 打开通知监听设置页面
+  /// Open the notification listener settings page
   Future<void> openNotificationListenerSettings() async {
     try {
       await _channel.invokeMethod('openListenerSettings');

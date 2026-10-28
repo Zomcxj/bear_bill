@@ -1,4 +1,4 @@
-/// 设置对话合集 — 按功能拆分为独立文件
+/// Settings dialogs collection — split into separate files by feature
 library;
 
 export 'budget_dialog.dart';

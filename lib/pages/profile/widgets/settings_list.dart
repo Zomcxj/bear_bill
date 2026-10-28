@@ -12,7 +12,7 @@ import 'category_order_page.dart';
 import 'auto_record_settings.dart';
 import 'settings_dialogs.dart';
 
-/// 设置列表
+/// Settings list
 class SettingsList extends StatefulWidget {
   final VoidCallback onClearData;
 
@@ -185,7 +185,7 @@ class _SettingsListState extends State<SettingsList> {
     );
   }
 
-  /// 菜单项（使用 Material Icons + DS 设计系统）
+  /// Menu item (uses Material Icons + the DS design system)
   Widget _buildMenuItem({
     required IconData icon,
     required String title,

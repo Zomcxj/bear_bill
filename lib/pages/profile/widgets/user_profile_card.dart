@@ -14,7 +14,7 @@ import '../../../widgets/glass_dialog_shell.dart';
 import '../../multi_book/multi_book_page.dart';
 import '../../../providers/theme_provider.dart';
 
-/// 用户信息卡片 - 等级、经验、打卡（Luminous Finance 风格）
+/// User info card - level, experience, check-in (Luminous Finance style)
 class UserProfileCard extends StatelessWidget {
   final int totalRecords;
   final int totalBooks;
@@ -40,8 +40,8 @@ class UserProfileCard extends StatelessWidget {
         final levelInfo = _getLevelInfo(user.level);
         final nextLevelExp = user.expForNextLevel;
 
-        // 玻璃态：整张用户卡 = shader 玻璃（文字用 DS.onSurface 动态色，
-        // 两态都可读）；关闭态 = 原蓝色渐变 hero（零漂移）
+        // Glass mode: the whole user card is shader glass (text uses the dynamic
+        // DS.onSurface color, readable in both modes); disabled = the original blue gradient hero (zero drift)
         return GlassSurface(
           borderRadius: DS.radiusLg,
           fallbackDecoration: BoxDecoration(
@@ -95,7 +95,7 @@ class UserProfileCard extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.25),
                             shape: BoxShape.circle,
-                            // 玻璃主题无边框；关闭态原样
+                            // No border in glass theme; unchanged when disabled
                             border: shouldUseLiquidGlass(context)
                                 ? null
                                 : Border.all(
@@ -207,8 +207,8 @@ class UserProfileCard extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: DS.sm),
-                  // 一体玻璃条：三枚统计合并为一条（玻璃态 = 整条玻璃；
-                  // 关闭态 = fallback 原填充盒，零漂移）
+                  // Single glass strip: the three stats merged into one bar (glass mode = one glass
+                  // strip; disabled = the original fallback fill box, zero drift)
                   GlassSurface(
                     borderRadius: DS.radiusSm,
                     fallbackDecoration: BoxDecoration(
@@ -234,8 +234,8 @@ class UserProfileCard extends StatelessWidget {
                   if (!appProvider.todayChecked)
                     shouldUseLiquidGlass(context)
                         ? GlassButton.custom(
-                            // 玻璃态：默认 filled = 玻璃壳+按压物理+光晕
-                            // （预算弹窗按钮同款，hero 玻璃面上嵌玻璃钮观感已验证）
+                            // Glass mode: default filled = glass shell + press physics + glow
+                            // (same as the budget dialog button; glass button on a glass hero verified visually)
                             onTap: () async {
                               final achievements = await appProvider.recordCheckIn();
                               if (achievements.isNotEmpty && context.mounted) {
@@ -383,7 +383,7 @@ class UserProfileCard extends StatelessWidget {
     );
   }
 
-  /// 显示打卡信息
+  /// Show check-in info
   void _showCheckInInfo(BuildContext context, AppProvider appProvider) {
     final lastCheckIn = appProvider.user?.lastCheckIn ?? '';
     showGlassDialog(
@@ -418,7 +418,7 @@ class UserProfileCard extends StatelessWidget {
     );
   }
 
-  /// 显示账本管理
+  /// Show book management
   void _showBookManagement(BuildContext context) {
     Navigator.push(
       context,
@@ -480,7 +480,7 @@ class UserProfileCard extends StatelessWidget {
                 : DS.surfaceContainerLowest,
             borderRadius: BorderRadius.circular(DS.radiusMd),
             boxShadow: DS.shadowMd,
-            // 玻璃主题无边框；关闭态原样
+            // No border in glass theme; unchanged when disabled
             border: glass
                 ? null
                 : Border.all(

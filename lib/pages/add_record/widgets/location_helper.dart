@@ -11,7 +11,7 @@ import '../../../theme/app_design_system.dart';
 import '../../../widgets/glass_dialog_shell.dart';
 import 'map_picker_page.dart';
 
-/// 位置选择结果
+/// Result of a location selection
 class LocationResult {
   final String? name;
   final double? latitude;
@@ -20,7 +20,7 @@ class LocationResult {
   const LocationResult({this.name, this.latitude, this.longitude});
 }
 
-/// 位置选择辅助类
+/// Location selection helper
 mixin LocationHelper<T extends StatefulWidget> on State<T> {
   static const _locationChannel = MethodChannel('bear_bill/location');
 
@@ -32,7 +32,7 @@ mixin LocationHelper<T extends StatefulWidget> on State<T> {
     }
   }
 
-  /// GPS 定位
+  /// Fetch the device location via GPS
   Future<LocationResult?> fetchDeviceLocation() async {
     try {
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -105,7 +105,7 @@ mixin LocationHelper<T extends StatefulWidget> on State<T> {
           );
           if (nativeResult != null &&
               nativeResult.trim().length > 4) {
-            // 过滤国产 ROM 无谷歌后端时返回的"中国"级粗地址
+            // Filter out the coarse "China"-level address returned by domestic ROMs with no Google backend
             address = nativeResult.trim();
           }
         }
@@ -125,7 +125,7 @@ mixin LocationHelper<T extends StatefulWidget> on State<T> {
     }
   }
 
-  /// 地图选点
+  /// Pick a point on the map
   Future<LocationResult?> openMapPicker({String? currentLocation}) async {
     LatLng? initialCenter;
     try {
@@ -167,9 +167,10 @@ mixin LocationHelper<T extends StatefulWidget> on State<T> {
     return null;
   }
 
-  /// 位置选择对话框
-  /// 注意：动作必须在对话框关闭后执行，不能在 onTap 里 pop 后再赋值，
-  /// 否则 showDialog 的 future 先完成，外层拿到的是 null（竞态丢失结果）
+  /// Location selection dialog
+  /// Note: the action must run after the dialog closes; do not pop in onTap and
+  /// assign afterwards, otherwise showDialog's future completes first and the
+  /// caller receives null (the result is lost to a race)
   Future<LocationResult?> showLocationDialog() async {
     final choice = await showGlassDialog<String>(
       context: context,
@@ -220,7 +221,7 @@ mixin LocationHelper<T extends StatefulWidget> on State<T> {
     return null;
   }
 
-  /// 手动输入位置
+  /// Enter a location manually
   Future<LocationResult?> showManualInputDialog({String? current}) async {
     final controller = TextEditingController(text: current ?? '');
     String? name;

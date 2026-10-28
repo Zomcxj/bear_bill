@@ -8,7 +8,7 @@ import '../../ai_chat/ai_chat_page.dart';
 import '../../../providers/theme_provider.dart';
 import 'package:provider/provider.dart';
 
-/// 快捷记账入口 — 水平滑动 + 圆形分类图标
+/// Quick entry shortcuts — horizontal scroll with circular category icons
 class QuickEntries extends StatelessWidget {
   const QuickEntries({super.key});
 
@@ -186,7 +186,7 @@ class _QuickEntryItem extends StatelessWidget {
             decoration: BoxDecoration(
               color: color.withOpacity(0.15),
               borderRadius: BorderRadius.circular(12),
-              // 玻璃主题无边框；关闭态原样
+              // No border in glass theme; unchanged when disabled
               border: shouldUseLiquidGlass(context)
                   ? null
                   : Border.all(color: color.withOpacity(0.3), width: 1),

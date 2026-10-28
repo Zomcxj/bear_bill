@@ -6,10 +6,10 @@ import '../../../services/category_order_service.dart';
 import '../../../theme/app_design_system.dart';
 import '../../../widgets/glass_sub_page_bar.dart';
 
-/// 分类排序页：长按拖拽调整「记一笔」支出分类的顺序
+/// Category order page: long-press and drag to reorder expense categories in "Add record"
 ///
-/// 顺序持久化（CategoryOrderService → SharedPreferences），
-/// 记一笔分类选择器、账单筛选、消费地图筛选即时跟随。
+/// The order is persisted (CategoryOrderService → SharedPreferences), and the
+/// category picker, bill filters and spending map filters follow it immediately.
 class CategoryOrderPage extends StatefulWidget {
   const CategoryOrderPage({super.key});
 
@@ -76,7 +76,7 @@ class _CategoryOrderPageState extends State<CategoryOrderPage> {
                   padding:
                       EdgeInsets.symmetric(horizontal: DS.base, vertical: 10),
                   decoration: DS.glassDecoration,
-                  // 整行长按即可拖动；左侧手柄按住可直接拖（无需长按）
+                  // Long-press the row to drag; hold the left handle to drag directly (no long press needed)
                   child: ReorderableDelayedDragStartListener(
                     index: index,
                     child: Row(

@@ -7,7 +7,7 @@ import '../../../theme/app_design_system.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/glass_dialog_shell.dart';
 
-/// 显示月度预算设置对话框
+/// Shows the monthly budget dialog
 Future<void> showBudgetDialog(BuildContext context) async {
   final appProvider = context.read<AppProvider>();
   final book = await appProvider.getCurrentBook();

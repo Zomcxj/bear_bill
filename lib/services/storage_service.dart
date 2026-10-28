@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
-/// 本地存储服务
+/// Local storage service
 class StorageService {
   static final StorageService instance = StorageService._init();
   StorageService._init();
@@ -11,7 +11,7 @@ class StorageService {
   final Map<String, dynamic> _cache = {};
 
   Future<void> load() async {
-    // 初始化时尝试加载常用键到内存缓存（改善打卡/账本记忆等）
+    // On init, try to load common keys into the in-memory cache (improves check-in/book memory, etc.)
     try {
       final lastCheckIn = await _loadFromFile('lastCheckInDate');
       if (lastCheckIn != null) _cache['lastCheckInDate'] = lastCheckIn;
@@ -58,14 +58,14 @@ class StorageService {
       final reminderMinute = await _loadFromFile('reminderMinute');
       if (reminderMinute != null) _cache['reminderMinute'] = reminderMinute;
     } catch (e) {
-      // 忽略加载错误，保持运行
+      // Ignore load errors and keep running
     }
   }
 
-  // String 操作
+  // String operations
   String? getString(String key) => _cache[key] as String?;
 
-  /// 异步读取：先查内存缓存，未命中再读文件（用于 load() 未预加载的动态键）
+  /// Async read: check the in-memory cache first, then fall back to the file (for dynamic keys not preloaded by load())
   Future<String?> getStringAsync(String key) async {
     final cached = _cache[key];
     if (cached != null) return cached as String;
@@ -77,7 +77,7 @@ class StorageService {
     _saveToFile(key, value);
   }
 
-  // int 操作
+  // int operations
   int? getInt(String key) => _cache[key] as int?;
 
   void setInt(String key, int value) {
@@ -85,7 +85,7 @@ class StorageService {
     _saveToFile(key, value.toString());
   }
 
-  // bool 操作
+  // bool operations
   bool? getBool(String key) => _cache[key] as bool?;
 
   void setBool(String key, bool value) {
@@ -93,7 +93,7 @@ class StorageService {
     _saveToFile(key, value.toString());
   }
 
-  // double 操作
+  // double operations
   double? getDouble(String key) {
     final val = _cache[key];
     if (val is num) return val.toDouble();
@@ -115,7 +115,7 @@ class StorageService {
       final file = File('${dir.path}/bear_bill_$key.txt');
       await file.writeAsString(value);
     } catch (e) {
-      // 忽略写入错误
+      // Ignore write errors
     }
   }
 
@@ -127,15 +127,15 @@ class StorageService {
         return await file.readAsString();
       }
     } catch (e) {
-      // 忽略读取错误
+      // Ignore read errors
     }
     return null;
   }
 }
 
-/// 导出服务
+/// Export service
 class ExportService {
-  /// 分享 CSV 数据
+  /// Share CSV data
   static Future<void> shareCSV(String csvContent, String fileName) async {
     try {
       final dir = await getTemporaryDirectory();
@@ -147,7 +147,7 @@ class ExportService {
     }
   }
 
-  /// 分享文本内容
+  /// Share text content
   static Future<void> shareText(String text) async {
     await Share.share(text, subject: '小熊记账本 🐻');
   }

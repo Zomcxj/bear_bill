@@ -1,9 +1,9 @@
 import '../models/models.dart';
 import 'database_service.dart';
 
-/// 数据库服务 - 心愿罐 & 用户相关方法
+/// Database service - wish jar & user related methods
 mixin DatabaseWishUserMixin on DatabaseServiceCore {
-  // ─── 心愿罐 CRUD ───
+  // ─── Wish jar CRUD ───
 
   Future<void> insertWish(WishModel wish) async {
     final db = await database;
@@ -42,7 +42,7 @@ mixin DatabaseWishUserMixin on DatabaseServiceCore {
     return maps.map((m) => WishModel.fromMap(m)).toList();
   }
 
-  // ─── 用户 CRUD ───
+  // ─── User CRUD ───
 
   Future<void> insertUser(UserModel user) async {
     final db = await database;

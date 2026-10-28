@@ -10,7 +10,7 @@ import '../../../widgets/glass_card.dart';
 import '../../statistics/statistics_page.dart';
 import '../../../providers/theme_provider.dart';
 
-/// 本周消费趋势图 — 玻璃卡片风格
+/// Weekly spending trend chart — glass card style
 class WeekTrendChart extends StatefulWidget {
   const WeekTrendChart({super.key});
 

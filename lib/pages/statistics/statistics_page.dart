@@ -15,7 +15,7 @@ import 'widgets/trend_line_chart.dart';
 import 'widgets/stat_tabs.dart';
 import 'widgets/year_summary.dart';
 
-/// 统计页 — Luminous Finance 风格
+/// Statistics page — Luminous Finance style
 class StatisticsPage extends StatefulWidget {
   const StatisticsPage({super.key});
 
@@ -58,7 +58,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
     List categories;
 
     if (_viewMode == 'yearly') {
-      // 年度模式：汇总整年数据（头部数字与月度同一套口径）
+      // Yearly mode: aggregate the whole year's data (header numbers use the same metric as monthly)
       final stats = await DatabaseService.instance.getYearStatistics(
         yearStr,
         bookId: appProvider.currentBookId,
@@ -104,7 +104,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
   @override
   Widget build(BuildContext context) {
-    context.watch<ThemeProvider>(); // 主题变更时触发重建
+    context.watch<ThemeProvider>(); // rebuild on theme change
     final monthTitle = '${_selectedMonth.year}年${_selectedMonth.month}月';
     final isYearly = _viewMode == 'yearly';
     final periodLabel = isYearly ? '年' : '本月';
@@ -114,11 +114,12 @@ class _StatisticsPageState extends State<StatisticsPage> {
       body: SafeArea(
         top: false,
         bottom: false,
-        // hero（含月度/年度切换器）常驻：loading 只顶掉下方内容区，
-        // 否则切换时切换器被销毁重建，滑动动画会丢
+        // hero (including the monthly/yearly switcher) stays mounted: loading only replaces
+        // the content area below, otherwise the switcher would be destroyed and rebuilt on
+        // toggle, losing the sliding animation
         child: Column(
               children: [
-                // 玻璃态 hero：整块 shader 玻璃（与我的页同款）；关闭态原渐变（零漂移）
+                // Glass hero: a single shader glass block (same as the profile page); disabled state uses the original gradient (zero drift)
                 GlassSurface(
                   borderRadius: DS.radiusLg,
                   fallbackDecoration: BoxDecoration(
@@ -207,8 +208,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
                         ),
                       ),
                       SizedBox(height: DS.sm),
-                      // 月份/年份切换
-                      // 玻璃态：整条日期栏 = 底部导航栏同款玻璃条；关闭态原样
+                      // Month/year switcher
+                      // Glass state: the whole date bar = the same glass bar as the bottom nav; disabled state as-is
                       GlassBarWrap(
                         child: Row(
                         children: [
@@ -245,7 +246,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                       ? Colors.transparent
                                       : DS.heroCardBg,
                                   borderRadius: BorderRadius.circular(DS.radiusFull),
-                                  // 玻璃主题无边框；关闭态原样
+                                  // Glass theme has no border; disabled state as-is
                                   border: shouldUseLiquidGlass(context)
                                       ? null
                                       : Border.all(color: DS.heroCardBorder),
@@ -291,7 +292,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                       ),
                       ),
                       SizedBox(height: DS.sm),
-                      // 月度/年度切换
+                      // Monthly/yearly switcher
                       if (!shouldUseLiquidGlass(context))
                         Container(
                           padding: EdgeInsets.all(3),
@@ -384,10 +385,10 @@ class _StatisticsPageState extends State<StatisticsPage> {
                               ),
                               SizedBox(height: DS.sm),
                               const TrendLineChart(),
-                              // 折线图卡下方间距收紧（原 DS.sm 过宽）
+                              // Tighten the spacing below the line chart card (the original DS.sm was too wide)
                               SizedBox(height: DS.base),
-                              // 玻璃态：支出/收入 + 分类明细 整块 = 玻璃；
-                              // 关闭态 = 原实色卡（零漂移）
+                              // Glass state: the expense/income + category breakdown block as a whole = glass;
+                              // disabled state = the original solid card (zero drift)
                               GlassSurface(
                                 borderRadius: DS.radiusMd,
                                 margin: EdgeInsets.symmetric(horizontal: DS.sm),
@@ -428,7 +429,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                   ],
                                 ),
                               ),
-                              // 玻璃模式底部留白：避免内容被浮动玻璃底栏盖住
+                              // Bottom inset in glass mode: keep content from being covered by the floating glass bottom bar
                               SizedBox(height: glassBottomInset(context)),
                             ],
                           ),
@@ -441,7 +442,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
   }
 
   void _pickYearMonth(BuildContext context) {
-    // 玻璃年月选择小窗（三处日期切换统一组件，见 glass_dialog_shell）
+    // Glass year-month picker sheet (shared component for the three date switchers, see glass_dialog_shell)
     showGlassYearMonthPicker(
       context: context,
       currentMonth:

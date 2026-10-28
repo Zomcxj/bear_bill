@@ -6,7 +6,7 @@ import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
 import '../theme/app_design_system.dart';
 import '../theme/glass_materials.dart';
 
-/// 毛玻璃卡片组件
+/// Frosted glass card widget
 class GlassCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? margin;
@@ -29,25 +29,25 @@ class GlassCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final Widget card;
     if (shouldUseLiquidGlass(context)) {
-      // 玻璃态：真实液态玻璃（与底栏/弹窗同源材质）
+      // Glass mode: real liquid glass (same source material as the bottom bar/dialogs)
       final glassCard = GlassContainer(
         shape: GlassMaterials.shape(borderRadius),
-        // 卡片材质与底栏/日期条统一（bar），保持全 App 玻璃观感一致
+        // Card material matches the bottom bar/date strip (bar), keeping the app-wide glass look consistent
         settings: GlassMaterials.bar(),
         quality: GlassQuality.standard,
-        // 页面树里没有父玻璃图层，自建图层
+        // There is no parent glass layer in the page tree, so create our own layer
         useOwnLayer: true,
         padding: padding,
         child: child,
       );
       if (!GlassMaterials.hasOuterFrame) {
-        // 轻薄档：与改造前逐像素一致
+        // Thin style: pixel-identical to before the rework
         card = Padding(
           padding: margin ?? EdgeInsets.zero,
           child: glassCard,
         );
       } else {
-        // 厚/实心档：外挂 1px 描边 + 外层阴影
+        // Thick/solid style: external 1px border + outer shadow
         card = Padding(
           padding: margin ?? EdgeInsets.zero,
           child: DecoratedBox(
@@ -61,7 +61,7 @@ class GlassCard extends StatelessWidget {
         );
       }
     } else {
-      // 关闭态：原毛玻璃卡片（零漂移）
+      // Off: the original frosted glass card (zero drift)
       card = ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius),
         child: BackdropFilter(

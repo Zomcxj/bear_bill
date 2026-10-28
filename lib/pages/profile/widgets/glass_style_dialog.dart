@@ -6,11 +6,11 @@ import '../../../theme/app_design_system.dart';
 import '../../../theme/glass_materials.dart';
 import '../../../widgets/glass_dialog_shell.dart';
 
-/// 玻璃风格选择对话框：三档并存、可即时切换
+/// Glass style selection dialog: three styles coexist and switch instantly
 ///
-/// - 经典实色：不启用玻璃（与"玻璃关闭"逐像素一致）
-/// - 轻薄玻璃：现有 iOS 26 底栏材质
-/// - 深色实心：近黑实心卡 + 细描边 + 亮色药丸
+/// - Classic solid: glass disabled (pixel-identical to "glass off")
+/// - Thin glass: the existing iOS 26 bottom bar material
+/// - Dark solid: near-black solid card + hairline border + bright pill
 void showGlassStyleDialog(BuildContext context) {
   final provider = context.read<ThemeProvider>();
   final options = <_StyleOption>[
@@ -52,7 +52,7 @@ void showGlassStyleDialog(BuildContext context) {
         ],
       ),
     ),
-    // 点选即时生效，无需确认按钮，只留一个关闭
+    // Takes effect immediately on tap; no confirm button, only a single close action
     buildActions: (dialogContext) => [
       GlassDialogButton(
         label: '关闭',

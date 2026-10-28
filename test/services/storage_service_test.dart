@@ -11,7 +11,7 @@ void main() {
 
     group('String 操作', () {
       test('getString 未设置时返回 null', () {
-        // 使用不太可能存在的 key
+        // Use a key unlikely to exist
         final val = storage.getString('_test_nonexistent_key_');
         expect(val, isNull);
       });

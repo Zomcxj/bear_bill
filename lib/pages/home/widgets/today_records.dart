@@ -12,7 +12,7 @@ import '../../../main.dart';
 import '../../bill_list/widgets/record_detail_dialog.dart';
 import '../../../providers/theme_provider.dart';
 
-/// 将 hex 颜色字符串转换为 Color
+/// Converts a hex color string to a Color
 Color _hexToColor(String hex) {
   final buffer = StringBuffer();
   if (hex.length == 6 || hex.length == 7) buffer.write('ff');
@@ -20,7 +20,7 @@ Color _hexToColor(String hex) {
   return Color(int.parse(buffer.toString(), radix: 16));
 }
 
-/// 今日账单列表 — 玻璃卡片风格
+/// Today's records list — glass card style
 class TodayRecords extends StatefulWidget {
   const TodayRecords({super.key});
 
@@ -241,9 +241,12 @@ class _TodayRecordsState extends State<TodayRecords> {
 
     return GestureDetector(
       onTap: () {
-        // 点击记录弹窗口展示（原 push 全屏详情页，按产品要求改为窗口；
-        // 窗口内保留编辑/删除，编辑页仍是全屏 AddRecordPage）
-        // 玻璃态走居中小窗壳（showDialog 的紧约束会把玻璃壳撑成全屏）
+        // Tapping a record opens a dialog (it used to push a full-screen
+        // detail page; changed to a dialog per product requirement; edit and
+        // delete stay inside the dialog, while editing is still the
+        // full-screen AddRecordPage)
+        // In glass mode use the centered small-dialog shell (showDialog's
+        // tight constraints would stretch the glass shell to full screen)
         showGlassContentDialog(
           context: context,
           builder: (context) => RecordDetailDialog(record: record),
@@ -322,7 +325,8 @@ class _TodayRecordsState extends State<TodayRecords> {
                     fontWeight: FontWeight.w700,
                     color: record.type == 'income'
                         ? DS.secondary
-                        // 支出用动态色（深色浅红），与账单页/统计页一致
+                        // Expenses use the dynamic color (light red in dark
+                        // mode), consistent with the bill/statistics pages
                         : DS.chartExpense,
                   ),
                 ),

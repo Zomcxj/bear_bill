@@ -8,7 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../config/api_keys.dart';
 
-/// 百度语音识别服务（通过 Android 原生 AudioRecord 录音，支持静音自动停止）
+/// Baidu speech recognition service (records via Android native AudioRecord, auto-stops on silence)
 class BaiduSpeechService {
   BaiduSpeechService._();
   static final instance = BaiduSpeechService._();
@@ -17,7 +17,7 @@ class BaiduSpeechService {
   String? _accessToken;
   DateTime? _tokenExpiry;
 
-  /// 获取百度 API access_token（自动缓存，过期自动刷新）
+  /// Get the Baidu API access_token (cached, auto-refreshed on expiry)
   Future<String> _getAccessToken() async {
     if (_accessToken != null &&
         _tokenExpiry != null &&
@@ -44,7 +44,7 @@ class BaiduSpeechService {
     return _accessToken!;
   }
 
-  /// 开始录音（Android 原生 AudioRecord，PCM 16kHz 16bit Mono）
+  /// Start recording (Android native AudioRecord, PCM 16kHz 16bit Mono)
   Future<void> startRecording() async {
     final permission = await Permission.microphone.request();
     if (!permission.isGranted) {
@@ -53,14 +53,14 @@ class BaiduSpeechService {
     await _channel.invokeMethod('startRecording');
   }
 
-  /// 是否正在录音
+  /// Whether recording is in progress
   Future<bool> isRecording() async {
     final result = await _channel.invokeMethod<bool>('isRecording');
     return result ?? false;
   }
 
-  /// 停止录音并返回识别结果
-  /// 返回 Map: { 'text': String, 'autoStopped': bool }
+  /// Stop recording and return the recognition result
+  /// Returns a Map: { 'text': String, 'autoStopped': bool }
   Future<Map<String, dynamic>> stopAndRecognize() async {
     final response = await _channel.invokeMethod('stopRecording');
     final path = response['path'] as String?;
@@ -80,12 +80,12 @@ class BaiduSpeechService {
     return {'text': text, 'autoStopped': autoStopped};
   }
 
-  /// 取消录音
+  /// Cancel recording
   Future<void> cancelRecording() async {
     await _channel.invokeMethod('cancelRecording');
   }
 
-  /// 调用百度语音识别 API
+  /// Call the Baidu speech recognition API
   Future<String> _recognize(List<int> audioData) async {
     final token = await _getAccessToken();
 

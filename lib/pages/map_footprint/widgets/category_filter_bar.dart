@@ -6,7 +6,7 @@ import '../../../providers/theme_provider.dart';
 import '../../../services/category_order_service.dart';
 import 'package:provider/provider.dart';
 
-/// 地图分类筛选条
+/// Map category filter bar
 class CategoryFilterBar extends StatelessWidget {
   final String? selectedCategoryId;
   final Function(String?) onFilter;
@@ -24,7 +24,7 @@ class CategoryFilterBar extends StatelessWidget {
       height: 48,
       decoration: BoxDecoration(
         color: DS.surfaceContainerLowest,
-        // 玻璃主题无边框；关闭态原样
+        // No border in glass theme; unchanged when disabled
         border: shouldUseLiquidGlass(context)
             ? null
             : Border(bottom: BorderSide(color: DS.outlineVariant)),
@@ -34,7 +34,7 @@ class CategoryFilterBar extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 8),
         children: [
           _buildChip(context, null, '全部', Icons.all_inclusive),
-          // 跟随用户自定义的分类顺序
+          // Follow the user's custom category order
           ...CategoryOrderService.instance.expense
               .map((c) => _buildChip(context, c.id, c.name, null, c.icon)),
         ],
@@ -59,7 +59,7 @@ class CategoryFilterBar extends StatelessWidget {
           decoration: BoxDecoration(
             color: isSelected ? DS.emphasis : DS.background,
             borderRadius: BorderRadius.circular(DS.radiusFull),
-            // 玻璃主题无边框，选中靠填充；关闭态原样
+            // No border in glass theme, selection shown by fill; unchanged when disabled
             border: shouldUseLiquidGlass(context)
                 ? null
                 : Border.all(

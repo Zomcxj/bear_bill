@@ -32,7 +32,7 @@ void main() {
     test('handleAmountInput 小数点', () {
       expect(FormatUtils.handleAmountInput('', '.'), '0.');
       expect(FormatUtils.handleAmountInput('5', '.'), '5.');
-      expect(FormatUtils.handleAmountInput('5.1', '.'), '5.1'); // 已有小数点
+      expect(FormatUtils.handleAmountInput('5.1', '.'), '5.1'); // Decimal point already present
     });
 
     test('handleAmountInput 删除', () {

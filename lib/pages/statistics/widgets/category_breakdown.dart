@@ -6,7 +6,7 @@ import '../../../utils/utils.dart';
 import '../../../providers/theme_provider.dart';
 import 'package:provider/provider.dart';
 
-/// 分类明细列表
+/// Category breakdown list
 class CategoryBreakdown extends StatelessWidget {
   final List<Map<String, dynamic>> categories;
   final void Function(Map<String, dynamic> category)? onCategoryTap;
@@ -74,7 +74,7 @@ class CategoryBreakdown extends StatelessWidget {
         children: [
           Row(
             children: [
-              // 分类图标和名称
+              // Category icon and name
               Row(
                 children: [
                   Text(category['icon'], style: TextStyle(fontSize: 20)),
@@ -100,7 +100,7 @@ class CategoryBreakdown extends StatelessWidget {
 
               Spacer(),
 
-              // 金额和百分比
+              // Amount and percentage
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -126,7 +126,7 @@ class CategoryBreakdown extends StatelessWidget {
 
           SizedBox(height: 8),
 
-          // 进度条
+          // Progress bar
           ClipRRect(
             borderRadius: BorderRadius.circular(DS.radiusFull),
             child: LinearProgressIndicator(

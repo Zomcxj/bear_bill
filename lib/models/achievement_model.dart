@@ -1,12 +1,12 @@
-/// 成就模型
+/// Achievement model
 class AchievementModel {
-  final String id; // 成就ID
+  final String id; // Achievement ID
   final String type; // 'checkIn' | 'records' | 'budget' | 'wish'
-  final String title; // 成就标题
-  final String description; // 成就描述
-  final String emoji; // 成就图标（Emoji）
-  final int threshold; // 达成阈值
-  final DateTime? unlockedAt; // 解锁时间
+  final String title; // Achievement title
+  final String description; // Achievement description
+  final String emoji; // Achievement icon (Emoji)
+  final int threshold; // Unlock threshold
+  final DateTime? unlockedAt; // Unlock time
   
   const AchievementModel({
     required this.id,
@@ -44,7 +44,7 @@ class AchievementModel {
     };
   }
   
-  /// 是否已解锁
+  /// Whether the achievement is unlocked
   bool get isUnlocked => unlockedAt != null;
   
   AchievementModel copyWith({
@@ -68,10 +68,10 @@ class AchievementModel {
   }
 }
 
-/// 预定义的成就列表
+/// Predefined achievement list
 class AchievementDefinitions {
   static const List<AchievementModel> all = [
-    // 连续打卡成就
+    // Consecutive check-in achievements
     AchievementModel(
       id: 'checkin_3',
       type: 'checkIn',
@@ -129,7 +129,7 @@ class AchievementDefinitions {
       threshold: 365,
     ),
     
-    // 记账次数成就
+    // Record count achievements
     AchievementModel(
       id: 'records_10',
       type: 'records',
@@ -163,7 +163,7 @@ class AchievementDefinitions {
       threshold: 500,
     ),
     
-    // 预算管理成就
+    // Budget management achievements
     AchievementModel(
       id: 'budget_1',
       type: 'budget',
@@ -181,7 +181,7 @@ class AchievementDefinitions {
       threshold: 80,
     ),
     
-    // 心愿罐成就
+    // Wish jar achievements
     AchievementModel(
       id: 'wish_1',
       type: 'wish',
@@ -207,7 +207,7 @@ class AchievementDefinitions {
       threshold: 5,
     ),
 
-    // 图片成就
+    // Image achievements
     AchievementModel(
       id: 'images_10',
       type: 'images',
@@ -225,7 +225,7 @@ class AchievementDefinitions {
       threshold: 50,
     ),
 
-    // 位置成就
+    // Location achievements
     AchievementModel(
       id: 'location_10',
       type: 'location',
@@ -243,7 +243,7 @@ class AchievementDefinitions {
       threshold: 50,
     ),
 
-    // 心情成就
+    // Mood achievements
     AchievementModel(
       id: 'mood_10',
       type: 'mood',
@@ -261,7 +261,7 @@ class AchievementDefinitions {
       threshold: 50,
     ),
 
-    // 分类成就
+    // Category achievements
     AchievementModel(
       id: 'category_10',
       type: 'category',
@@ -280,7 +280,7 @@ class AchievementDefinitions {
     ),
   ];
   
-  /// 根据ID查找成就定义
+  /// Find an achievement definition by its ID
   static AchievementModel? findById(String id) {
     try {
       return all.firstWhere((a) => a.id == id);
@@ -289,7 +289,7 @@ class AchievementDefinitions {
     }
   }
   
-  /// 获取某类型的所有成就
+  /// Get all achievements of the given type
   static List<AchievementModel> getByType(String type) {
     return all.where((a) => a.type == type).toList();
   }

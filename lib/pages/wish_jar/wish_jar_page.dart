@@ -16,7 +16,7 @@ import 'widgets/add_money_dialog.dart';
 import 'widgets/create_wish_dialog.dart';
 import 'widgets/wish_jar_card.dart';
 
-/// 心愿罐页 — Luminous Finance 渐变风格
+/// Wish jar page — Luminous Finance gradient style
 class WishJarPage extends StatefulWidget {
   const WishJarPage({super.key});
 
@@ -110,7 +110,7 @@ class _WishJarPageState extends State<WishJarPage>
   }
 
   Future<void> _deleteWish(String wishId) async {
-    // 开启液态玻璃时走玻璃弹窗，关闭时回退标准 AlertDialog
+    // Use the glass dialog when liquid glass is on, fall back to the standard AlertDialog when off
     final confirmed = await showGlassConfirmDialog(
       context: context,
       title: '确认删除',
@@ -169,7 +169,7 @@ class _WishJarPageState extends State<WishJarPage>
 
   @override
   Widget build(BuildContext context) {
-    context.watch<ThemeProvider>(); // 主题变更时触发重建
+    context.watch<ThemeProvider>(); // Rebuild when the theme changes
     final ongoingWishes = _wishes.where((w) => !w.isCompleted).toList();
     final completedWishes = _wishes.where((w) => w.isCompleted).toList();
 
@@ -194,7 +194,8 @@ class _WishJarPageState extends State<WishJarPage>
                   ],
                 ),
         ),
-      // 玻璃态下 GlassScaffold 沉浸式布局，FAB 需上抬让位（与首页"记一笔"一致）
+      // Under glass, GlassScaffold uses an immersive layout, so the FAB is lifted to make room
+      // (consistent with the "Add record" button on the home page)
       floatingActionButton: Padding(
         padding: EdgeInsets.only(
           bottom: shouldUseLiquidGlass(context) ? 96 : 0,
@@ -204,8 +205,8 @@ class _WishJarPageState extends State<WishJarPage>
             : FloatingActionButton.extended(
                 onPressed: _showCreateDialog,
                 backgroundColor: DS.secondaryContainer,
-                // 例外：墨水画在常量亮蓝 secondaryContainer 上，
-                // 近黑两态皆可读；emphasis 深色态近白会失去对比
+                // Exception: the ink is drawn on the constant light-blue secondaryContainer,
+                // readable as near-black in both states; emphasis turns near-white in dark mode and loses contrast
                 foregroundColor: DS.primary,
                 icon: Icon(Icons.auto_awesome, size: 20),
                 label: Text('创建心愿', style: DS.labelMd),
@@ -218,9 +219,10 @@ class _WishJarPageState extends State<WishJarPage>
     );
   }
 
-  /// 「创建心愿」玻璃药丸：与首页「记一笔」同款材质/尺寸（高 56）
+  /// Glass pill for the "Create wish" button: same material/size as the
+  /// "Add record" button on the home page (height 56)
   Widget _buildGlassCreateButton() {
-    // 浅色下玻璃与浅底不分家：外包细描边 + 阴影立起层级
+    // In light mode the glass blends into the light background: wrap it with a hairline border + shadow to establish hierarchy
     return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(DS.radiusFull),
@@ -272,7 +274,7 @@ class _WishJarPageState extends State<WishJarPage>
     }
 
     return ListView.builder(
-      // 玻璃模式底部留白：避免最后一张卡被浮动玻璃底栏盖住
+      // Bottom padding in glass mode: keeps the last card from being hidden behind the floating glass bottom bar
       padding: EdgeInsets.only(
         left: DS.sm,
         right: DS.sm,
@@ -291,7 +293,7 @@ class _WishJarPageState extends State<WishJarPage>
   }
 
   Widget _buildHeroBanner() {
-    // 玻璃态：整块 shader 玻璃 hero（与我的页同款）；关闭态原渐变（零漂移）
+    // Glass mode: whole hero is shader glass (same as the profile page); when off, the original gradient (zero drift)
     return GlassSurface(
       borderRadius: DS.radiusLg,
       fallbackDecoration: BoxDecoration(
@@ -326,7 +328,7 @@ class _WishJarPageState extends State<WishJarPage>
             ),
           ),
           SizedBox(height: DS.sm),
-          // Tab 切换
+          // Tab switcher
           if (!shouldUseLiquidGlass(context))
             Container(
               padding: EdgeInsets.all(3),

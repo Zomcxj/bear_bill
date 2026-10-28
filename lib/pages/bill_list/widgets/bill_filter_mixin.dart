@@ -5,7 +5,7 @@ import '../../../theme/glass_materials.dart';
 import '../../../widgets/glass_dialog_shell.dart';
 import '../bill_list_page.dart';
 
-/// 账单列表页 - 筛选相关功能
+/// Bill list page - filtering related functionality
 mixin BillFilterMixin on State<BillListPage> {
   String keyword = '';
   String filterType = 'all';
@@ -187,7 +187,7 @@ mixin BillFilterMixin on State<BillListPage> {
         decoration: BoxDecoration(
           color: selected ? DS.emphasis : DS.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(DS.radiusFull),
-          // 玻璃主题无边框，选中靠填充；关闭态原样
+          // Glass theme has no border and relies on fill for selection; disabled state as-is
           border: shouldUseLiquidGlass(context)
               ? null
               : Border.all(

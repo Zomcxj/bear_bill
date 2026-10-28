@@ -12,7 +12,7 @@ import '../../../widgets/glass_date_picker.dart';
 import '../../../widgets/glass_dialog_shell.dart';
 import 'package:provider/provider.dart';
 
-/// 创建心愿对话框
+/// Create wish dialog
 class CreateWishDialog extends StatefulWidget {
   final Function(WishModel) onCreate;
 
@@ -50,7 +50,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
 
     final wish = WishModel(
       id: const Uuid().v4(),
-      bookId: '', // 将在 Provider 中设置
+      bookId: '', // Set later in the Provider
       title: _titleController.text,
       description: _descriptionController.text.isEmpty
           ? null
@@ -78,7 +78,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 快速模板
+            // Quick templates
             Text(
               '快速选择：',
               style: TextStyle(
@@ -106,7 +106,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
                               : Colors.white.withOpacity(0.50))
                           : DS.surfaceContainerLow,
                       borderRadius: BorderRadius.circular(DS.radiusFull),
-                      // 玻璃主题无边框；关闭态原样
+                      // No border in glass theme; unchanged when disabled
                       border: shouldUseLiquidGlass(context)
                           ? null
                           : Border.all(color: DS.outlineVariant),
@@ -129,7 +129,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
 
             SizedBox(height: DS.gutter),
 
-            // 心愿名称
+            // Wish title
             TextFormField(
               controller: _titleController,
               decoration: glassDialogInputDecoration(
@@ -148,7 +148,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
 
             SizedBox(height: DS.base),
 
-            // 心愿描述（可选）
+            // Wish description (optional)
             TextFormField(
               controller: _descriptionController,
               decoration: glassDialogInputDecoration(
@@ -162,7 +162,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
 
             SizedBox(height: DS.base),
 
-            // 心愿金额
+            // Wish amount
             TextFormField(
               controller: _amountController,
               decoration: glassDialogInputDecoration(
@@ -186,7 +186,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
 
             SizedBox(height: DS.base),
 
-            // 截止日期
+            // Deadline
             GestureDetector(
               onTap: () async {
                 final picked = await showGlassDatePicker(
@@ -215,7 +215,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
                           : Colors.white.withOpacity(0.50))
                       : DS.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(DS.radiusSm),
-                  // 玻璃主题无边框；关闭态原样
+                  // No border in glass theme; unchanged when disabled
                   border: shouldUseLiquidGlass(context)
                       ? null
                       : Border.all(color: DS.outlineVariant),
@@ -295,7 +295,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
       );
     }
 
-    // 开启液态玻璃：官方 GlassDialog（真玻璃材质 + 交互光晕）
+    // Liquid glass enabled: the official GlassDialog (real glass material + interaction glow)
     return GlassDialog(
       title: '✨ 创建新心愿',
       content: form,

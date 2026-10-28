@@ -1,7 +1,7 @@
 import '../models/models.dart';
 import 'database_service.dart';
 
-/// 数据库服务 - 账本相关方法
+/// Database service - book-related methods
 mixin DatabaseBookMixin on DatabaseServiceCore {
   Future<void> insertBook(BookModel book) async {
     final db = await database;

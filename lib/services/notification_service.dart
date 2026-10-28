@@ -4,8 +4,8 @@ import 'package:permission_handler/permission_handler.dart';
 
 import 'database_service.dart';
 
-/// 本地通知服务 - 记账提醒
-/// 调度使用原生 Android AlarmManager，展示使用 flutter_local_notifications
+/// Local notification service - record reminders
+/// Uses the native Android AlarmManager for scheduling and flutter_local_notifications for display
 class NotificationService {
   static final NotificationService instance = NotificationService._();
   NotificationService._();
@@ -16,7 +16,7 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
   bool _isInitialized = false;
 
-  /// 初始化通知服务
+  /// Initialize the notification service
   Future<void> init() async {
     if (_isInitialized) return;
 
@@ -49,7 +49,7 @@ class NotificationService {
     _isInitialized = true;
   }
 
-  /// 请求通知权限（Android 13+）
+  /// Request notification permission (Android 13+)
   Future<bool> requestPermission() async {
     try {
       final status = await Permission.notification.request();
@@ -59,7 +59,7 @@ class NotificationService {
     }
   }
 
-  /// 设置每日记账提醒（通过原生 AlarmManager 调度）
+  /// Schedule the daily record reminder (dispatched through the native AlarmManager)
   Future<void> scheduleDailyReminder({
     required int hour,
     required int minute,
@@ -85,19 +85,19 @@ class NotificationService {
     }
   }
 
-  /// 取消每日提醒
+  /// Cancel the daily reminder
   Future<void> cancelDailyReminder() async {
     await init();
     await _alarmChannel.invokeMethod('cancelAlarm');
   }
 
-  /// 检查是否已设置提醒
+  /// Check whether a reminder is already scheduled
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
     await init();
     return await _notifications.pendingNotificationRequests();
   }
 
-  /// 更新今日记账摘要（闹钟触发时显示总结）
+  /// Update today's record summary (shown when the alarm fires)
   Future<void> updateTodaySummary({
     required int count,
     required double expense,
@@ -112,7 +112,7 @@ class NotificationService {
     } catch (_) {}
   }
 
-  /// 自动计算今日记录并更新摘要（记账/删账后调用）
+  /// Compute today's records and update the summary (called after adding or deleting a record)
   Future<void> refreshTodaySummary() async {
     try {
       final records = await DatabaseService.instance.getTodayRecords();
@@ -133,7 +133,7 @@ class NotificationService {
     } catch (_) {}
   }
 
-  /// 立即发送测试通知
+  /// Send a test notification immediately
   Future<void> showTestNotification() async {
     await init();
 
@@ -191,11 +191,11 @@ class NotificationService {
     );
   }
 
-  /// 显示月度财务简报通知
+  /// Show the monthly financial summary notification
   Future<void> showMonthlySummary() async {
     await init();
 
-    // 获取上个月的月份字符串
+    // Get last month's month string
     final now = DateTime.now();
     final lastMonth = DateTime(now.year, now.month - 1);
     final monthStr =
@@ -209,9 +209,9 @@ class NotificationService {
     final categories = stats['categories'] as List? ?? [];
     final records = stats['records'] as List? ?? [];
 
-    if (records.isEmpty) return; // 上月无记录不发通知
+    if (records.isEmpty) return; // No records last month, so skip the notification
 
-    // 获取最高分类
+    // Get the top category
     String topCatText = '';
     if (categories.isNotEmpty) {
       final top = categories.first;
@@ -220,7 +220,7 @@ class NotificationService {
       topCatText = '，${top['icon']}${top['name']}占比$percent%';
     }
 
-    // 构建简报内容
+    // Build the summary content
     final parts = <String>[];
     parts.add('支出¥${expense.toStringAsFixed(0)}');
     parts.add('收入¥${income.toStringAsFixed(0)}');

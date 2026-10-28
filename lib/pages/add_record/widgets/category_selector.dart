@@ -6,7 +6,7 @@ import '../../../theme/glass_materials.dart';
 import '../../../providers/theme_provider.dart';
 import 'package:provider/provider.dart';
 
-/// 将 hex 颜色字符串转换为 Color
+/// Converts a hex color string to a Color
 Color _hexToColor(String hex) {
   final buffer = StringBuffer();
   if (hex.length == 6 || hex.length == 7) buffer.write('ff');
@@ -14,7 +14,7 @@ Color _hexToColor(String hex) {
   return Color(int.parse(buffer.toString(), radix: 16));
 }
 
-/// 分类选择器
+/// Category selector
 class CategorySelector extends StatelessWidget {
   final List<CategoryModel> categories;
   final CategoryModel? selectedCategory;
@@ -53,7 +53,7 @@ class CategorySelector extends StatelessWidget {
                             ? _hexToColor(category.color).withOpacity(0.15)
                             : DS.surfaceContainerLowest,
                         borderRadius: BorderRadius.circular(12),
-                        // 玻璃主题无边框，选中靠填充；关闭态原样
+                        // Glass theme has no border, selection is shown by fill; unchanged when off
                         border: shouldUseLiquidGlass(context)
                             ? null
                             : Border.all(

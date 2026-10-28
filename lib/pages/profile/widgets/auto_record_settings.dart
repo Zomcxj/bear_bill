@@ -9,7 +9,7 @@ import '../../../providers/theme_provider.dart';
 import '../../../widgets/glass_dialog_shell.dart';
 import 'package:provider/provider.dart';
 
-/// 自动记账设置对话框
+/// Auto-record settings dialog
 Future<void> showAutoRecordDialog(BuildContext context) async {
   final enabled = await AutoRecordService.instance.isAutoRecordEnabled();
 
@@ -61,7 +61,7 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // 从系统设置页返回时重新检查权限
+    // Re-check permissions when returning from the system settings page
     if (state == AppLifecycleState.resumed) {
       _checkListenerStatus();
     }
@@ -95,9 +95,9 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
     }
 
     if (value && !_listenerEnabled) {
-      // 需要先开启通知监听权限
+      // The notification listener permission must be enabled first
       await AutoRecordService.instance.openNotificationListenerSettings();
-      // 不在这里检查，等用户从设置页返回后由 didChangeAppLifecycleState 触发
+      // Do not check here; it is triggered by didChangeAppLifecycleState once the user returns from settings
       return;
     }
 
@@ -118,7 +118,7 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
         ),
         SizedBox(height: 16),
 
-        // 通知监听权限状态
+        // Notification listener permission status
         Container(
           padding: EdgeInsets.all(12),
           decoration: BoxDecoration(
@@ -126,7 +126,7 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
                 ? AppTheme.success.withOpacity(0.1)
                 : DS.emphasis.withOpacity(0.10),
             borderRadius: BorderRadius.circular(DS.radiusSm),
-            // 玻璃主题无边框，状态靠填充；关闭态原样
+            // No border in glass theme, status relies on fill; unchanged when disabled
             border: shouldUseLiquidGlass(context)
                 ? null
                 : Border.all(
@@ -182,7 +182,7 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
         ),
         SizedBox(height: 12),
 
-        // 自动记账开关
+        // Auto-record toggle
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -202,7 +202,7 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
         ),
         SizedBox(height: 12),
 
-        // 提示
+        // Hints
         Container(
           padding: EdgeInsets.all(10),
           decoration: BoxDecoration(
@@ -246,12 +246,12 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
         ),
         SizedBox(height: 12),
 
-        // 测试按钮
+        // Test button
         SizedBox(
           width: double.infinity,
           child: OutlinedButton.icon(
             onPressed: () async {
-              Navigator.pop(context); // 关闭设置弹窗
+              Navigator.pop(context); // Close the settings dialog
               await AutoRecordService.instance.simulatePayment(
                 title: '支付宝',
                 text: '你有一笔25.00元的支出，点击查看详情',

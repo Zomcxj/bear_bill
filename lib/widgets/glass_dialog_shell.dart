@@ -15,9 +15,10 @@ import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
 import '../theme/app_design_system.dart';
 import '../theme/glass_materials.dart';
 
-/// 玻璃弹窗按钮（与官方 `GlassDialogAction` 字段对齐）
+/// Glass dialog button (fields aligned with the official `GlassDialogAction`)
 ///
-/// 关闭态转成 `TextButton`，开启态转成 `GlassDialogAction`。
+/// Renders as a `TextButton` when disabled and as a `GlassDialogAction` when
+/// enabled.
 class GlassDialogButton {
   const GlassDialogButton({
     required this.label,
@@ -32,14 +33,16 @@ class GlassDialogButton {
   final bool isDestructive;
 }
 
-/// 统一玻璃弹窗（任意内容 + 1~3 个按钮）
+/// Unified glass dialog (arbitrary content + 1~3 buttons)
 ///
-/// 开启液态玻璃时走官方 [GlassDialog]（真玻璃材质 + 交互光晕），
-/// 关闭时回退标准 [AlertDialog]（零视觉漂移）。
+/// When liquid glass is enabled it uses the official [GlassDialog] (real glass
+/// material + interaction glow); when disabled it falls back to the standard
+/// [AlertDialog] (zero visual drift).
 ///
-/// [buildActions] 接收**弹窗自身的 BuildContext**，按钮里的
-/// `Navigator.pop(ctx, value)` 必须用它，避免嵌套 Navigator 时 pop 错路由。
-/// [content] 用于表单/选择器等自定义内容；[title]/[message] 为纯文本快捷方式。
+/// [buildActions] receives **the dialog's own BuildContext**; the
+/// `Navigator.pop(ctx, value)` inside the buttons must use it to avoid popping
+/// the wrong route with nested Navigators. [content] is for custom content such
+/// as forms/pickers; [title]/[message] are plain-text shortcuts.
 Future<T?> showGlassDialog<T>({
   required BuildContext context,
   String? title,
@@ -90,17 +93,22 @@ Future<T?> showGlassDialog<T>({
         return GlassDialog(
           title: title,
           message: message,
-          // 官方 GlassDialog 走 showGeneralDialog：弹窗路由树里没有 Material
-          // 祖先。ListTile / InkWell 这类内置 Ink 的组件会在 build 期调用
-          // Material.of(context)，debug 抛断言、release 直接抛异常并被
-          // ErrorWidget 顶替（表现为整块空白灰框 + 其余内容被挤到屏幕外）。
-          // 这里给自定义内容补一层透明 Material 祖先：不绘制、不拦截点击。
+          // The official GlassDialog goes through showGeneralDialog, so the
+          // dialog route tree has no Material ancestor. Components with
+          // built-in ink such as ListTile / InkWell call Material.of(context)
+          // during build, which throws an assertion in debug and an exception
+          // in release that gets replaced by an ErrorWidget (showing as a
+          // blank grey box with the rest of the content pushed off screen).
+          // Add a transparent Material ancestor for custom content here: it
+          // paints nothing and intercepts no taps.
           content: content == null
               ? null
               : Material(
                   type: MaterialType.transparency,
-                  // 弹窗路由可能自带深色文本样式；按当前模式强制正确前景色，
-                  // 否则浅色下未显式设色的文字会变成白色看不见
+                  // The dialog route may carry a dark text style of its own;
+                  // force the correct foreground color for the current mode,
+                  // otherwise uncolored text turns white and becomes
+                  // invisible in light mode
                   child: DefaultTextStyle(
                     style: DefaultTextStyle.of(context)
                         .style
@@ -122,21 +130,25 @@ Future<T?> showGlassDialog<T>({
               .toList(),
         );
       },
-      // 进场 = iOS 26 materialize 编排（玻璃先成形、内容后清晰），
-      // 出场反向（内容先走、玻璃后溶解）；这是驱动 shader 可见性的
-      // 唯一正确玻璃淡入方式，普通 FadeTransition 会让玻璃整帧跳变。
+      // Entrance = iOS 26 materialize choreography (glass forms first, then
+      // content sharpens); exit is the reverse (content leaves first, glass
+      // dissolves after). This is the only correct way to fade glass in while
+      // driving shader visibility — a plain FadeTransition makes the glass
+      // jump for a whole frame.
       transitionBuilder: (_, animation, __, child) =>
           GlassMaterializeTransition(animation: animation, child: child),
       transitionDuration: GlassDefaults.materializeDuration,
-      // showGeneralDialog 无 reverseTransitionDuration：
-      // 出场以同长反放，GlassMaterializeTransition 依 status 自动切换为
-      // 「内容先走、玻璃后溶解」的出场编排
+      // showGeneralDialog has no reverseTransitionDuration: the exit replays
+      // over the same duration, and GlassMaterializeTransition switches
+      // automatically based on status to the 'content leaves first, glass
+      // dissolves after' exit choreography
   );
 }
 
-/// 统一玻璃确认弹窗（`showGlassDialog` 的确认场景快捷方式）
+/// Unified glass confirmation dialog (shortcut for the confirm case of
+/// `showGlassDialog`)
 ///
-/// 返回 true 表示用户点了确认，false/null 表示取消。
+/// Returns true when the user confirms, false/null when cancelled.
 Future<bool?> showGlassConfirmDialog({
   required BuildContext context,
   required String title,
@@ -164,13 +176,17 @@ Future<bool?> showGlassConfirmDialog({
   );
 }
 
-/// 玻璃面板弹窗（自定义内容 + 自定义按钮区，按钮数量不受 1~3 限制）
+/// Glass panel dialog (custom content + custom button area, with no 1~3
+/// button limit)
 ///
-/// 官方 [GlassDialog] 限制 1~3 个 action（iOS 规范）；账本管理、成就详情等
-/// 需要更多按钮或自定义布局的弹窗走这个壳：外壳是官方 [GlassContainer]，
-/// 按钮由调用方自绘（推荐 [GlassPanelButton]）。
+/// The official [GlassDialog] allows only 1~3 actions (per the iOS spec);
+/// dialogs that need more buttons or a custom layout — book management,
+/// achievement details, and so on — use this shell: the shell is the official
+/// [GlassContainer] and the buttons are drawn by the caller
+/// ([GlassPanelButton] is recommended).
 ///
-/// 开启态用真玻璃材质；关闭态回退 [AlertDialog]（[fallbackTitle] 必填）。
+/// Enabled uses real glass material; disabled falls back to [AlertDialog]
+/// ([fallbackTitle] is required).
 Future<T?> showGlassPanel<T>({
   required BuildContext context,
   required String fallbackTitle,
@@ -203,28 +219,33 @@ Future<T?> showGlassPanel<T>({
             shape: GlassMaterials.shape(24),
             settings: GlassMaterials.bar(),
             quality: GlassQuality.standard,
-            // 弹窗在独立路由里，没有父 LiquidGlassLayer：
-            // grouped 模式会忽略 per-widget settings，必须自建图层
+            // The dialog lives in a standalone route with no parent
+            // LiquidGlassLayer: grouped mode ignores per-widget settings, so
+            // the layer must be created here
             useOwnLayer: true,
             padding: padding,
             child: scrollable ? SingleChildScrollView(child: child) : child,
           ),
         ),
       ),
-      // 与 showGlassDialog 同款 materialize 进出编排
+      // Same materialize entrance/exit choreography as showGlassDialog
       transitionBuilder: (_, animation, __, child) =>
           GlassMaterializeTransition(animation: animation, child: child),
       transitionDuration: GlassDefaults.materializeDuration,
   );
 }
 
-/// 玻璃详情窗口（内容由调用方全权绘制，居中小窗 + materialize 编排）
+/// Glass detail window (the caller draws all content; centered small window +
+/// materialize choreography)
 ///
-/// 玻璃态直接用官方 [GlassDialog] 本体（真机验证可用的唯一玻璃弹窗路线，
-/// 见设置月度预算弹窗）：它自带 GlassCard + AdaptiveLiquidGlassLayer 图层
-/// 管线；裸 GlassContainer/GlassCard 自拼结构在弹窗路由里整窗不可见。
-/// [builder] 返回纯内容 Column，操作按钮由内容自绘（actions 传空）。
-/// 关闭态不做 AlertDialog 回退：[builder] 内部按 shouldUseLiquidGlass 自行分支。
+/// Glass mode uses the official [GlassDialog] itself (the only glass dialog
+/// route verified to work on device — see the monthly budget dialog): it comes
+/// with the GlassCard + AdaptiveLiquidGlassLayer pipeline; hand-assembled
+/// structures of bare GlassContainer/GlassCard are entirely invisible inside a
+/// dialog route. [builder] returns a content-only Column and the action
+/// buttons are drawn by the content (actions is passed empty). Disabled mode
+/// does not fall back to AlertDialog: [builder] branches on
+/// shouldUseLiquidGlass internally.
 Future<T?> showGlassContentDialog<T>({
   required BuildContext context,
   required WidgetBuilder builder,
@@ -249,14 +270,16 @@ Future<T?> showGlassContentDialog<T>({
       actions: const [],
       content: builder(ctx),
     ),
-    // 与 showGlassDialog / showGlassPanel 同款 materialize 进出编排
+    // Same materialize entrance/exit choreography as showGlassDialog /
+    // showGlassPanel
     transitionBuilder: (_, animation, __, child) =>
         GlassMaterializeTransition(animation: animation, child: child),
     transitionDuration: GlassDefaults.materializeDuration,
   );
 }
 
-/// 玻璃面板弹窗内的按钮（胶囊；[primary] 为强调填充，[destructive] 为红色文字）
+/// Button inside the glass panel dialog (pill; [primary] is an accent fill,
+/// [destructive] is red text)
 class GlassPanelButton extends StatelessWidget {
   const GlassPanelButton({
     super.key,
@@ -290,8 +313,10 @@ class GlassPanelButton extends StatelessWidget {
         ? const Color(0xFFFF6B6B)
         : DS.onSurface;
 
-    // 按压物理 = 官方 GlassButton 透明样式（弹簧膨胀 + 拖拽跟随 + 触点光晕），
-    // transparent 不画玻璃壳，键面仍是托盘上的着色层——玻璃不套玻璃
+    // Press physics = official GlassButton transparent style (spring scale +
+    // drag follow + touch highlight); transparent paints no glass shell, and
+    // the key face stays a tint layer on the tray — glass is never nested in
+    // glass
     return GlassButton.custom(
       style: GlassButtonStyle.transparent,
       onTap: onPressed,
@@ -308,7 +333,8 @@ class GlassPanelButton extends StatelessWidget {
                   : Colors.white.withOpacity(0.75))
               : Colors.transparent,
           borderRadius: BorderRadius.circular(DS.radiusFull),
-          // 玻璃主题无边框（老大要求）：描边取消，仅靠填充区分
+          // No border in the glass theme (per the project owner): the outline
+          // is dropped and states are distinguished by fill alone
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -332,10 +358,13 @@ class GlassPanelButton extends StatelessWidget {
   }
 }
 
-/// 玻璃圆形图标按钮（月份切换、步进器等小圆钮统一用这套）
+/// Glass round icon button (the shared set for small round buttons such as
+/// month switchers and steppers)
 ///
-/// 玻璃态 = 官方 [GlassButton] 默认样式（真玻璃壳 + 按压弹簧 + 触点光晕）；
-/// 关闭态 = 原 [GestureDetector]+填充圆钮（零漂移，由调用方决定是否回退）。
+/// Glass mode = the official [GlassButton] default style (real glass shell +
+/// press spring + touch highlight); disabled mode = the original
+/// [GestureDetector] + filled round button (zero drift; the caller decides
+/// whether to fall back).
 class GlassIconButton extends StatelessWidget {
   const GlassIconButton({
     super.key,
@@ -385,12 +414,14 @@ class GlassIconButton extends StatelessWidget {
   }
 }
 
-/// 底部导航栏同款玻璃条包装
+/// Same glass bar wrapper as the bottom navigation bar
 ///
-/// 玻璃态：child 整体包进一条 shader 玻璃（GlassContainer 胶囊条，
-/// 材质与 GlassTabBar.bottom 同源）；关闭态原样返回 child（零漂移）。
-/// 条上的按钮请用 GlassButton.custom(style: transparent)——条本身
-/// 已是玻璃，按钮只取按压物理（玻璃不套玻璃）。
+/// Glass mode: the whole child is wrapped in a single strip of shader glass
+/// (a GlassContainer pill bar whose material comes from the same source as
+/// GlassTabBar.bottom); disabled mode returns the child unchanged (zero
+/// drift). For buttons on the bar use GlassButton.custom(style: transparent)
+/// — the bar itself is already glass, so the buttons only take the press
+/// physics (glass is never nested in glass).
 class GlassBarWrap extends StatelessWidget {
   const GlassBarWrap({super.key, required this.child});
 
@@ -405,7 +436,7 @@ class GlassBarWrap extends StatelessWidget {
         shape: GlassMaterials.shape(DS.radiusFull),
         settings: GlassMaterials.bar(),
         quality: GlassQuality.standard,
-        // 页面树里没有父玻璃图层，自建图层
+        // No parent glass layer in the page tree, so create the layer here
         useOwnLayer: true,
         padding: EdgeInsets.symmetric(horizontal: DS.base, vertical: 8),
         child: child,
@@ -414,11 +445,14 @@ class GlassBarWrap extends StatelessWidget {
   }
 }
 
-/// 玻璃分段切换器（月度/年度、进行中/已实现等两段切换统一走这套）
+/// Glass segmented control (shared by two-segment switches such as
+/// monthly/yearly and in-progress/completed)
 ///
-/// 官方 [GlassSegmentedControl] 在本项目的页面树里渲染为灰底板、
-/// 无玻璃观感，故用自研模式：每段一枚玻璃壳钮（按压弹簧+光晕），
-/// 选中段强调填充。关闭态调用方自行回退（本组件仅在玻璃态使用）。
+/// The official [GlassSegmentedControl] renders as a grey base plate with no
+/// glass look in this project's page tree, so a custom approach is used: one
+/// glass shell button per segment (press spring + glow) with the selected
+/// segment in an accent fill. The caller handles the disabled fallback (this
+/// component is only used in glass mode).
 class GlassSegmented extends StatefulWidget {
   const GlassSegmented({
     super.key,
@@ -440,10 +474,11 @@ class GlassSegmented extends StatefulWidget {
 class _GlassSegmentedState extends State<GlassSegmented> {
   final _barKey = GlobalKey();
 
-  /// 按压段
+  /// Pressed segment
   int? _pressed;
 
-  /// 按住拖动换段（底栏"按住滑动"同款换算）+ 按压段放大
+  /// Hold and drag to switch segments (same math as the bottom bar's
+  /// "hold and slide") plus scaling of the pressed segment
   void _onPointer(PointerEvent event) {
     final box = _barKey.currentContext?.findRenderObject();
     if (box is! RenderBox || !box.hasSize) return;
@@ -458,7 +493,7 @@ class _GlassSegmentedState extends State<GlassSegmented> {
     if (_pressed != null) setState(() => _pressed = null);
   }
 
-  /// 目标段的对齐值
+  /// Alignment value for the target segment
   Alignment _alignmentFor(int index) => Alignment(
         widget.labels.length < 2
             ? 0
@@ -466,10 +501,11 @@ class _GlassSegmentedState extends State<GlassSegmented> {
         0,
       );
 
-  /// 滑块本体
+  /// The thumb itself
   ///
-  /// - 轻薄档：白色半透明块，高度 = widget.height - 8（与改造前逐像素一致）
-  /// - 深色实心档：强调色实心块，满高
+  /// - Light tier: translucent white block, height = widget.height - 8
+  ///   (pixel-identical to before the rework)
+  /// - Dark solid tier: solid accent-colored block at full height
   Widget _pill() {
     final solid = GlassMaterials.isSolid;
     return FractionallySizedBox(
@@ -491,8 +527,9 @@ class _GlassSegmentedState extends State<GlassSegmented> {
 
   @override
   Widget build(BuildContext context) {
-    // 一体玻璃条：整条 shader 玻璃 + 实体滑块 + 按住拖动
-    // 动画：300ms easeOutCubic、滑动中纵向鼓起
+    // One-piece glass bar: a whole strip of shader glass + a solid thumb +
+    // hold-and-drag
+    // Animation: 300ms easeOutCubic, bulging vertically while sliding
     return GlassContainer(
       shape: GlassMaterials.shape(DS.radiusFull),
       settings: GlassMaterials.bar(),
@@ -509,10 +546,11 @@ class _GlassSegmentedState extends State<GlassSegmented> {
         child: SizedBox(
           height: widget.height,
           child: Stack(
-            // 药丸滑动需溢出 Stack 之外可见
+            // The pill must be visible beyond the Stack bounds while sliding
             clipBehavior: Clip.none,
             children: [
-              // 主滑块：AnimatedAlign 真滑动（与底栏指示器同款观感）
+              // Main thumb: AnimatedAlign for a true slide (same look as the
+              // bottom bar indicator)
               AnimatedAlign(
                 duration: const Duration(milliseconds: 220),
                 curve: Curves.easeOutCubic,
@@ -526,7 +564,7 @@ class _GlassSegmentedState extends State<GlassSegmented> {
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTap: () => widget.onSelected(i),
-                        // 按压：1.06 线性（回归基线）
+                        // Press: linear 1.06 (regression baseline)
                         child: AnimatedScale(
                           scale: _pressed == i ? 1.06 : 1.0,
                           duration: const Duration(milliseconds: 120),
@@ -537,8 +575,10 @@ class _GlassSegmentedState extends State<GlassSegmented> {
                               widget.labels[i],
                               style: DS.labelMd.copyWith(
                                 fontWeight: FontWeight.w600,
-                                // 选中段：深色实心档压强调色实心块 -> 白字；
-                                // 轻薄档压白块 -> 表面色（与改造前一致）
+                                // Selected segment: on the dark solid tier it
+                                // sits on a solid accent block -> white text;
+                                // on the light tier it sits on a white block
+                                // -> surface color (unchanged from before)
                                 color: i == widget.selectedIndex
                                     ? (GlassMaterials.isSolid
                                         ? GlassMaterials.solidOnAccent
@@ -560,11 +600,13 @@ class _GlassSegmentedState extends State<GlassSegmented> {
   }
 }
 
-/// 玻璃表面容器：卡片级液态玻璃
+/// Glass surface container: card-level liquid glass
 ///
-/// 玻璃态 = shader 玻璃卡（GlassContainer + subtle 材质，自建图层）；
-/// 关闭态 = [fallbackDecoration] 原装饰原样渲染（零漂移）。
-/// 用于概览收支卡、预算卡、账单/统计汇总卡这类大面积表面。
+/// Glass mode = shader glass card (GlassContainer + subtle material, with its
+/// own layer); disabled mode = the original [fallbackDecoration] rendered
+/// as-is (zero drift). Used for large surfaces such as the overview
+/// income/expense card, the budget card, and the bill/statistics summary
+/// cards.
 class GlassSurface extends StatelessWidget {
   const GlassSurface({
     super.key,
@@ -580,7 +622,8 @@ class GlassSurface extends StatelessWidget {
   final double? width;
   final double borderRadius;
 
-  /// 关闭态的装饰（调用方把原 Container 的 decoration 原样搬进来）
+  /// Decoration used when disabled (the caller moves the original Container's
+  /// decoration in unchanged)
   final BoxDecoration? fallbackDecoration;
   final EdgeInsetsGeometry padding;
   final EdgeInsetsGeometry? margin;
@@ -598,24 +641,26 @@ class GlassSurface extends StatelessWidget {
     }
     final glassCard = GlassContainer(
       shape: GlassMaterials.shape(borderRadius),
-      // 卡片材质与底栏/日期条统一（bar），避免 subtle 在浅色下
-      // 透明到和底图融成一片（老大实测反馈）
+      // Card material matches the bottom bar/date bar (bar) so that subtle
+      // does not become so transparent in light mode that it blends into the
+      // background (feedback from the project owner's on-device testing)
       settings: GlassMaterials.bar(),
       quality: GlassQuality.standard,
-      // 页面树里没有父玻璃图层，自建图层
+      // No parent glass layer in the page tree, so create the layer here
       useOwnLayer: true,
       padding: padding,
       child: child,
     );
-    // 轻薄档：与改造前逐像素一致（不外包装饰）
+    // Light tier: pixel-identical to before the rework (no outer decoration)
     if (!GlassMaterials.hasOuterFrame) {
       return Padding(
         padding: margin ?? EdgeInsets.zero,
         child: SizedBox(width: width, child: glassCard),
       );
     }
-    // 厚/实心档：外挂 1px 描边 + 外层阴影
-    // （LiquidGlassSettings 只管折射/模糊/内高光，外描边由这里提供）
+    // Thick/solid tier: an extra 1px outline + outer shadow
+    // (LiquidGlassSettings only handles refraction/blur/inner highlight; the
+    // outer outline is provided here)
     return Padding(
       padding: margin ?? EdgeInsets.zero,
       child: SizedBox(
@@ -633,11 +678,14 @@ class GlassSurface extends StatelessWidget {
   }
 }
 
-/// 玻璃年月选择小窗（账单/统计/月份条三处统一走这套）
+/// Glass year/month picker window (shared by the bill, statistics, and month
+/// bar screens)
 ///
-/// 玻璃态 = 官方 [GlassDialog] 壳 + 玻璃化内容：年份透明玻璃步进
-/// （壳本身是玻璃，按钮只取按压物理）、月份玻璃格（选中 = 强调填充）。
-/// 关闭态 = [showGlassDialog] 自动回退标准 AlertDialog，内容用经典配色。
+/// Glass mode = the official [GlassDialog] shell + glassified content: a
+/// transparent glass stepper for the year (the shell is already glass, so the
+/// buttons only take the press physics) and glass cells for the months
+/// (selected = accent fill). Disabled mode = [showGlassDialog] automatically
+/// falls back to a standard AlertDialog with classic colors.
 Future<void> showGlassYearMonthPicker({
   required BuildContext context,
   required String currentMonth,
@@ -740,8 +788,9 @@ Future<void> showGlassYearMonthPicker({
   );
 }
 
-/// 年份步进按钮：玻璃态透明玻璃钮（弹窗壳本身已是玻璃，不套玻璃）；
-/// 关闭态原 IconButton（零漂移）
+/// Year stepper button: a transparent glass button in glass mode (the dialog
+/// shell is already glass, so glass is not nested); the original IconButton
+/// when disabled (zero drift)
 Widget _pickerStepper(BuildContext context, IconData icon, VoidCallback? onTap) {
   if (shouldUseLiquidGlass(context)) {
     return GlassButton.custom(
@@ -760,10 +809,11 @@ Widget _pickerStepper(BuildContext context, IconData icon, VoidCallback? onTap) 
   return IconButton(icon: Icon(icon), onPressed: onTap);
 }
 
-/// 玻璃弹窗内的文本输入框（统一玻璃态样式）
+/// Text input inside a glass dialog (unified glass styling)
 ///
-/// 弹窗内容是自定义 widget，默认 TextField 在深色玻璃上对比度不足，
-/// 这里统一处理边框/填充/文字色。
+/// Dialog content is a custom widget and the default TextField has
+/// insufficient contrast on dark glass, so the border/fill/text color are
+/// handled uniformly here.
 class GlassDialogField extends StatelessWidget {
   const GlassDialogField({
     super.key,
@@ -799,7 +849,8 @@ class GlassDialogField extends StatelessWidget {
   }
 }
 
-/// 玻璃弹窗内输入框的统一装饰（TextField / TextFormField 共用）
+/// Shared decoration for inputs inside glass dialogs (used by both TextField
+/// and TextFormField)
   InputDecoration glassDialogInputDecoration(
   BuildContext context, {
   String? hintText,
@@ -825,7 +876,8 @@ class GlassDialogField extends StatelessWidget {
       horizontal: DS.sm,
       vertical: DS.sm,
     ),
-    // 玻璃主题无边框：靠填充色区分输入区；关闭态保留描边（零漂移）
+    // No border in the glass theme: the input area is distinguished by fill
+    // color; the outline is kept when disabled (zero drift)
     border: glass
         ? InputBorder.none
         : OutlineInputBorder(

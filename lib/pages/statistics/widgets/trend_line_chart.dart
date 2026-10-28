@@ -8,7 +8,7 @@ import '../../../theme/app_design_system.dart';
 import '../../../theme/glass_materials.dart';
 import '../../../widgets/glass_dialog_shell.dart';
 
-/// 近6个月收支趋势折线图
+/// Line chart of the income/expense trend over the last 6 months
 class TrendLineChart extends StatefulWidget {
   const TrendLineChart({super.key});
 
@@ -58,7 +58,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
 
   @override
   Widget build(BuildContext context) {
-    context.watch<ThemeProvider>(); // 主题变更时触发重建
+    context.watch<ThemeProvider>(); // rebuild on theme change
     if (_loading) {
       return GlassSurface(
         margin: EdgeInsets.symmetric(horizontal: DS.sm),
@@ -73,7 +73,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
 
     if (_data.isEmpty) return const SizedBox.shrink();
 
-    // 找到最大值用于计算比例
+    // Find the maximum value for ratio computation
     double maxVal = 0;
     for (final d in _data) {
       final e = d['expense'] as double;
@@ -81,11 +81,11 @@ class _TrendLineChartState extends State<TrendLineChart> {
       if (e > maxVal) maxVal = e;
       if (i > maxVal) maxVal = i;
     }
-    if (maxVal == 0) maxVal = 1; // 避免除零
+    if (maxVal == 0) maxVal = 1; // avoid division by zero
 
     return GlassSurface(
       margin: EdgeInsets.symmetric(horizontal: DS.sm),
-      // 下方内距进一步收紧：底部空带过宽
+      // Tighten the bottom padding further: the bottom empty band was too wide
       padding: EdgeInsets.fromLTRB(DS.gutter, DS.gutter, DS.gutter, DS.xs),
       fallbackDecoration: DS.glassDecoration,
       child: Column(
@@ -112,8 +112,8 @@ class _TrendLineChartState extends State<TrendLineChart> {
             borderRadius: BorderRadius.circular(DS.radiusSm),
             child: Container(
               height: 160,
-              // 玻璃态：与外层卡片同一块玻璃（不再单独一块内底，避免"圈中圈"）；
-              // 关闭态 = 原实色底（零漂移）
+              // Glass state: same glass as the outer card (no separate inner background
+              // anymore, avoiding a "circle within a circle"); disabled state = the original solid background (zero drift)
               color: shouldUseLiquidGlass(context)
                   ? Colors.transparent
                   : DS.background,
@@ -122,7 +122,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
                 painter: _TrendPainter(
                   data: _data,
                   maxVal: maxVal,
-                  // 动态图表色：常量 primary 是黑色，深色模式黑底不可见
+                  // Dynamic chart color: the constant primary is black and invisible on a dark background
                   expenseColor: DS.chartExpense,
                   incomeColor: DS.chartIncome,
                   gridColor: DS.outlineVariant,
@@ -130,9 +130,9 @@ class _TrendLineChartState extends State<TrendLineChart> {
               ),
             ),
           ),
-          // 图表与月份标签间距收紧
+          // Tighten the spacing between the chart and the month labels
           SizedBox(height: 4),
-          // 月份标签
+          // Month labels
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: _data
@@ -179,7 +179,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
   }
 }
 
-/// 自定义折线画笔
+/// Custom line chart painter
 class _TrendPainter extends CustomPainter {
   final List<Map<String, dynamic>> data;
   final double maxVal;
@@ -199,14 +199,14 @@ class _TrendPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (data.isEmpty) return;
 
-    const padLeft = 16.0; // 左右留白防止圆点超出
+    const padLeft = 16.0; // horizontal padding so dots don't overflow
     const padRight = 16.0;
     final chartWidth = size.width - padLeft - padRight;
-    final chartHeight = size.height - 30; // 留出顶部空间给数值标签
+    final chartHeight = size.height - 30; // reserve top space for value labels
     const chartTop = 20.0;
     final stepX = chartWidth / (data.length - 1).clamp(1, 999);
 
-    // 画网格线
+    // Draw grid lines
     final gridPaint = Paint()
       ..color = gridColor
       ..strokeWidth = 0.5;
@@ -215,7 +215,7 @@ class _TrendPainter extends CustomPainter {
       canvas.drawLine(Offset(padLeft, y), Offset(size.width - padRight, y), gridPaint);
     }
 
-    // 画折线
+    // Draw the lines
     _drawLine(canvas, size, chartTop, chartHeight, stepX, padLeft, 'expense', expenseColor);
     _drawLine(canvas, size, chartTop, chartHeight, stepX, padLeft, 'income', incomeColor);
   }
@@ -254,10 +254,10 @@ class _TrendPainter extends CustomPainter {
         path.lineTo(x, y);
       }
 
-      // 画圆点
+      // Draw the dots
       canvas.drawCircle(Offset(x, y), 4, dotPaint);
 
-      // 画数值标签（只在有值时显示）
+      // Draw value labels (only when a value exists)
       if (value > 0) {
         final label = value >= 10000
             ? '${(value / 10000).toStringAsFixed(1)}w'
@@ -280,7 +280,7 @@ class _TrendPainter extends CustomPainter {
       }
     }
 
-    // 画折线
+    // Draw the line path
     canvas.drawPath(path, paint);
   }
 

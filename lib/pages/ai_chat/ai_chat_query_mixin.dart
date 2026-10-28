@@ -8,7 +8,7 @@ import '../../services/glm_service.dart';
 import 'ai_chat_page.dart';
 import 'widgets/chat_bubble.dart';
 
-/// AI 记账页 - 查询相关功能
+/// AI recording page - query-related features
 mixin AiChatQueryMixin on State<AiChatPage> {
   List<ChatMessage> get messages;
 

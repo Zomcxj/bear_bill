@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 
 import 'glass_materials.dart';
 
-/// Luminous Finance 设计系统 Token
+/// Luminous Finance design system tokens
 class DS {
   DS._();
 
-  // ── 深色模式 ──
+  // ── Dark mode ──
   static bool _isDark = false;
   static bool get isDark => _isDark;
   static void setDarkMode(bool value) => _isDark = value;
 
-  // ── 字体 ──
+  // ── Typography ──
   static const String fontDisplay = 'PlusJakartaSans';
   static const String fontLabel = 'Manrope';
 
-  // ── 强调色（亮色，不变） ──
+  // ── Accent colors (light, static) ──
   static const Color primary = Color(0xFF000000);
   static const Color onPrimary = Color(0xFFFFFFFF);
   static const Color primaryContainer = Color(0xFF1B1B1B);
@@ -30,7 +30,7 @@ class DS {
   static const Color error = Color(0xFFBA1A1A);
   static const Color errorContainer = Color(0xFFFFDAD6);
 
-  // ── 表面色（动态，随深色模式切换） ──
+  // ── Surface colors (dynamic, switch with dark mode) ──
   static Color get background => _isDark ? const Color(0xFF121218) : const Color(0xFFF7F9FB);
   static Color get surface => _isDark ? const Color(0xFF121218) : const Color(0xFFF7F9FB);
   static Color get surfaceBright => _isDark ? const Color(0xFF121218) : const Color(0xFFF7F9FB);
@@ -42,17 +42,17 @@ class DS {
   static Color get surfaceContainerHighest => _isDark ? const Color(0xFF2A2A36) : const Color(0xFFE0E3E5);
   static Color get surfaceVariant => _isDark ? const Color(0xFF2A2A36) : const Color(0xFFE0E3E5);
 
-  // ── 文字色（动态，随深色模式切换） ──
+  // ── Text colors (dynamic, switch with dark mode) ──
   static Color get onSurface => _isDark ? const Color(0xFFE8E8EC) : const Color(0xFF191C1E);
   static Color get onSurfaceVariant => _isDark ? const Color(0xFF9A9AA0) : const Color(0xFF4C4546);
   static Color get outline => _isDark ? const Color(0xFF6A6A72) : const Color(0xFF7E7576);
   static Color get outlineVariant => _isDark ? const Color(0xFF3A3A44) : const Color(0xFFCFC4C5);
 
-  // ── 辅助 ──
+  // ── Utility ──
   static const Color inverseSurface = Color(0xFF2D3133);
   static const Color inverseOnSurface = Color(0xFFEFF1F3);
 
-  // ── 圆角 ──
+  // ── Radii ──
   static const double radiusXs = 8;
   static const double radiusSm = 12;
   static const double radiusMd = 16;
@@ -60,7 +60,7 @@ class DS {
   static const double radiusXl = 48;
   static const double radiusFull = 999;
 
-  // ── 间距 ──
+  // ── Spacing ──
   static const double xs = 4;
   static const double base = 8;
   static const double sm = 12;
@@ -70,7 +70,7 @@ class DS {
   static const double xl = 64;
   static const double containerMargin = 20;
 
-  // ── 阴影 ──
+  // ── Shadows ──
   static List<BoxShadow> get shadowSm => [
     BoxShadow(
       color: Colors.black.withOpacity(_isDark ? 0.3 : 0.04),
@@ -95,7 +95,7 @@ class DS {
     ),
   ];
 
-  // ── 渐变 ──
+  // ── Gradients ──
   static const LinearGradient heroGradient = LinearGradient(
     colors: [Color(0xFFFFF9C4), Color(0xFFF8BBD0)],
     begin: Alignment.topLeft,
@@ -124,7 +124,7 @@ class DS {
 
   static LinearGradient get heroGradientBlueCurrent => _isDark ? heroGradientBlueDark : heroGradientBlue;
 
-  // ── Hero 卡片色（动态） ──
+  // ── Hero card colors (dynamic) ──
   static Color get heroCardBg => _isDark
       ? Colors.white.withOpacity(0.08)
       : Colors.white.withOpacity(0.6);
@@ -132,35 +132,35 @@ class DS {
       ? Colors.white.withOpacity(0.08)
       : Colors.black.withOpacity(0.08);
 
-  // ── 动态语义色 ──
+  // ── Dynamic semantic colors ──
   static Color get errorDynamic => _isDark
       ? const Color(0xFFFFB4AB)
       : const Color(0xFFBA1A1A);
 
-  // ── 图表色（动态） ──
-  // 常量 primary/primaryContainer 是近黑色，深色模式下画在黑底上不可见，
-  // 图表一律用下面这组动态色。
-  /// 图表「支出」色：浅色近黑（沿用原设计），深色浅红（黑底可读）
+  // ── Chart colors (dynamic) ──
+  // The primary/primaryContainer constants are near-black and would be invisible
+  // on a dark background, so charts always use the dynamic colors below.
+  /// Chart "expense" color: near-black in light mode (as in the original design), light red in dark mode (readable on black)
   static Color get chartExpense => _isDark
       ? const Color(0xFFFFB4AB)
       : const Color(0xFF1B1B1B);
 
-  /// 图表「收入」色：浅色深蓝，深色亮蓝
+  /// Chart "income" color: deep blue in light mode, bright blue in dark mode
   static Color get chartIncome => _isDark
       ? const Color(0xFF40C2FD)
       : const Color(0xFF00668A);
 
-  /// 强调前景（动态）：浅色近黑、深色近白。
-  /// 用于「选中态」文字/边框，替代常量 primary/primaryContainer。
+  /// Accent foreground (dynamic): near-black in light mode, near-white in dark mode.
+  /// Used for "selected state" text/borders instead of the primary/primaryContainer constants.
   static Color get emphasis => _isDark
       ? const Color(0xFFE8E8EC)
       : const Color(0xFF1B1B1B);
 
-  // ── 毛玻璃装饰 ──
+  // ── Frosted glass decorations ──
   static BoxDecoration get glassDecoration => BoxDecoration(
     color: _isDark ? Colors.white.withOpacity(0.06) : Colors.white.withOpacity(0.7),
     borderRadius: BorderRadius.circular(radiusMd),
-    // 玻璃主题下组件无边框（老大要求）；关闭态保留细边（零漂移）
+    // No borders on components in the glass theme (as requested); disabled mode keeps the hairline border (zero drift)
     border: GlassMaterials.enabled
         ? null
         : Border.all(color: _isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.08)),
@@ -174,7 +174,7 @@ class DS {
         : Border.all(color: _isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.05)),
   );
 
-  // ── 文字样式 ──
+  // ── Text styles ──
   static const TextStyle displayLg = TextStyle(
     fontFamily: fontDisplay, fontSize: 48, fontWeight: FontWeight.w800,
     height: 56 / 48, letterSpacing: -0.02,

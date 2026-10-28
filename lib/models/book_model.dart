@@ -1,12 +1,12 @@
-/// 账本模型
+/// Ledger model
 class BookModel {
   final String id;
   final String name;
-  final String icon; // Emoji 图标
-  final String color; // 主题色
-  final List<String> memberOpenids; // 成员列表（本地版本为单用户）
-  final double budget; // 月度预算
-  final int totalRecords; // 总记录数
+  final String icon; // Emoji icon
+  final String color; // Theme color
+  final List<String> memberOpenids; // Member list (local build is single-user)
+  final double budget; // Monthly budget
+  final int totalRecords; // Total number of records
   final DateTime createdAt;
   
   BookModel({

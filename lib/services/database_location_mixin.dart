@@ -1,7 +1,7 @@
 import '../models/models.dart';
 import 'database_service.dart';
 
-/// 数据库服务 - 常去地点相关方法
+/// Database service - methods related to frequently visited locations
 mixin DatabaseLocationMixin on DatabaseServiceCore {
   Future<void> insertFavoriteLocation(FavoriteLocationModel loc) async {
     final db = await database;

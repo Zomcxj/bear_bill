@@ -12,7 +12,7 @@ import '../../theme/glass_materials.dart';
 import '../../widgets/glass_dialog_shell.dart';
 import '../../../providers/theme_provider.dart';
 
-/// 将 hex 颜色字符串转换为 Color
+/// Convert a hex color string to a Color
 Color _hexToColor(String hex) {
   final buffer = StringBuffer();
   if (hex.length == 6 || hex.length == 7) buffer.write('ff');
@@ -20,7 +20,7 @@ Color _hexToColor(String hex) {
   return Color(int.parse(buffer.toString(), radix: 16));
 }
 
-/// 多账本管理页 - 创建/切换/删除账本
+/// Multi-book management page - create/switch/delete books
 class MultiBookPage extends StatefulWidget {
   const MultiBookPage({super.key});
 
@@ -59,7 +59,7 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
 
   @override
   void didPopNext() {
-    // 从其他页面返回时刷新数据
+    // Refresh data when returning from another page
     _loadBooks();
   }
 
@@ -68,7 +68,7 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
 
     final books = await DatabaseService.instance.getAllBooks();
 
-    // 查询每个账本的记录数
+    // Count the records in each book
     final countMap = <String, int>{};
     for (final book in books) {
       final count = await DatabaseService.instance.getTotalRecordsCount(
@@ -137,7 +137,7 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
           ),
         );
 
-        // 延迟返回，让用户看到提示
+        // Pop after a delay so the user can read the message
         Future.delayed(const Duration(milliseconds: 500), () {
           if (mounted) {
             Navigator.pop(context, true);
@@ -209,7 +209,7 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
                                     : Colors.white.withOpacity(0.40))
                                 : DS.surfaceContainerLow),
                         borderRadius: BorderRadius.circular(DS.radiusSm),
-                        // 玻璃主题无边框，选中靠填充；关闭态原样
+                        // The glass theme has no border and relies on fill when selected; disabled state unchanged
                         border: shouldUseLiquidGlass(context)
                             ? null
                             : Border.all(
@@ -270,7 +270,7 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
       if (!mounted) return;
       _loadBooks();
 
-      // 通知 AppProvider 刷新，以更新首页的账本名称显示
+      // Notify AppProvider to refresh so the home page shows the new book name
       final appProvider = context.read<AppProvider>();
       appProvider.refreshCurrentBook();
 
@@ -295,9 +295,9 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
     );
 
     if (confirmed == true) {
-      // 先清空账单
+      // Clear the records first
       await DatabaseService.instance.clearRecordsByBook(book.id);
-      // 再删除账本
+      // Then delete the book
       await DatabaseService.instance.deleteBook(book.id);
       _loadBooks();
 
@@ -319,8 +319,8 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
         bottom: false,
         child: Column(
           children: [
-            // 渐变 Hero 头部
-            // 玻璃态：头部 = shader 玻璃（与我的页统一）；关闭态原渐变
+            // Gradient hero header
+            // Glassy: header = shader glass (unified with Profile); disabled state keeps the original gradient
             GlassSurface(
               borderRadius: DS.radiusLg,
               fallbackDecoration: BoxDecoration(
@@ -353,14 +353,14 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
                       padding: EdgeInsets.symmetric(
                           horizontal: DS.sm, vertical: DS.xs + 2),
                       decoration: BoxDecoration(
-                        // 玻璃态头部本身是玻璃面，胶囊用淡填充
+                        // The glassy header is itself a glass surface, so the capsule uses a light fill
                         color: shouldUseLiquidGlass(context)
                             ? (DS.isDark
                                 ? Colors.white.withOpacity(0.14)
                                 : Colors.white.withOpacity(0.55))
                             : DS.heroCardBg,
                         borderRadius: BorderRadius.circular(DS.radiusFull),
-                        // 玻璃主题无边框；关闭态原样
+                        // The glass theme has no border; disabled state unchanged
                         border: shouldUseLiquidGlass(context)
                             ? null
                             : Border.all(color: DS.heroCardBorder),
@@ -478,7 +478,7 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
   }
 }
 
-/// 账本卡片
+/// Book card
 class _BookCard extends StatelessWidget {
   final BookModel book;
   final int recordCount;
@@ -516,7 +516,7 @@ class _BookCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              // 账本图标
+              // Book icon
               Container(
                 width: 56,
                 height: 56,
@@ -534,7 +534,7 @@ class _BookCard extends StatelessWidget {
 
               SizedBox(width: DS.gutter),
 
-              // 账本信息
+              // Book info
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -581,7 +581,7 @@ class _BookCard extends StatelessWidget {
                 ),
               ),
 
-              // 操作按钮
+              // Action buttons
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -593,7 +593,7 @@ class _BookCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: DS.surfaceContainerLow,
                         borderRadius: BorderRadius.circular(DS.radiusFull),
-                        // 玻璃主题无边框；关闭态原样
+                        // The glass theme has no border; disabled state unchanged
                         border: shouldUseLiquidGlass(context)
                             ? null
                             : Border.all(color: DS.outlineVariant),
@@ -611,7 +611,7 @@ class _BookCard extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: DS.surfaceContainerLow,
                             borderRadius: BorderRadius.circular(DS.radiusFull),
-                            // 玻璃主题无边框；关闭态原样
+                            // The glass theme has no border; disabled state unchanged
                             border: shouldUseLiquidGlass(context)
                                 ? null
                                 : Border.all(color: DS.outlineVariant),

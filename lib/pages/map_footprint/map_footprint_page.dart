@@ -18,7 +18,7 @@ import 'widgets/category_filter_bar.dart';
 import '../../../providers/theme_provider.dart';
 import '../../widgets/glass_sub_page_bar.dart';
 
-/// 消费地图足迹页面
+/// Spending map footprint page
 class MapFootprintPage extends StatefulWidget {
   const MapFootprintPage({super.key});
 
@@ -55,13 +55,13 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
   void _updateClusters() {
     var records = _allRecords;
 
-    // 分类筛选
+    // Category filter
     if (_selectedCategoryId != null) {
       records =
           records.where((r) => r.categoryId == _selectedCategoryId).toList();
     }
 
-    // 聚类: 100m 内的记录合并
+    // Clustering: merge records within 100m
     final clusters = <_MapCluster>[];
     final used = <int>{};
 
@@ -91,7 +91,7 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
         }
       }
 
-      // 计算聚类中心（WGS84）
+      // Compute the cluster center (WGS84)
       final avgLat =
           clusterRecords.map((r) => r.latitude!).reduce((a, b) => a + b) /
               clusterRecords.length;
@@ -99,7 +99,7 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
           clusterRecords.map((r) => r.longitude!).reduce((a, b) => a + b) /
               clusterRecords.length;
 
-      // 转换为 GCJ-02 用于地图显示（Amap 瓦片使用 GCJ-02）
+      // Convert to GCJ-02 for map display (Amap tiles use GCJ-02)
       final gcj = AmapLocationService.wgs84ToGcj02(avgLat, avgLng);
 
       clusters.add(_MapCluster(
@@ -111,10 +111,10 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
     setState(() => _clusters = clusters);
   }
 
-  /// Haversine 公式计算两点距离（米）
+  /// Haversine formula to compute the distance between two points (meters)
   double _haversineDistance(
       double lat1, double lon1, double lat2, double lon2) {
-    const R = 6371000.0; // 地球半径（米）
+    const R = 6371000.0; // Earth radius (meters)
     final dLat = _toRad(lat2 - lat1);
     final dLon = _toRad(lon2 - lon1);
     final a = sin(dLat / 2) * sin(dLat / 2) +
@@ -149,12 +149,12 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                // 分类筛选条
+                // Category filter bar
                 CategoryFilterBar(
                   selectedCategoryId: _selectedCategoryId,
                   onFilter: _onCategoryFilter,
                 ),
-                // 地图
+                // Map
                 Expanded(
                   child: FlutterMap(
                     mapController: _mapController,
@@ -185,8 +185,8 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
                                 decoration: BoxDecoration(
                                   color: DS.emphasis,
                                   shape: BoxShape.circle,
-                                  // 地图标记白圈 = 与底图的对比功能性描边
-                                  // （同键盘键面边豁免），两态保留
+                                  // White ring on the map marker = a functional outline for contrast against the base map
+                                  // (exempt like keyboard key borders); kept in both modes
                                   border: Border.all(
                                     color: Colors.white,
                                     width: 2,
@@ -224,7 +224,7 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
                     ],
                   ),
                 ),
-                // 底部统计
+                // Bottom statistics
                 _buildBottomStats(),
               ],
             ),
@@ -247,7 +247,7 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
       ),
       decoration: BoxDecoration(
         color: DS.surfaceContainerLowest,
-        // 玻璃主题无边框；关闭态原样
+        // No border in glass theme; kept as-is when disabled
         border: shouldUseLiquidGlass(context)
             ? null
             : Border(top: BorderSide(color: DS.outlineVariant)),
@@ -292,7 +292,7 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
   }
 }
 
-/// 地图聚类数据
+/// Map cluster data
 class _MapCluster {
   final LatLng center;
   final List<RecordModel> records;
@@ -300,7 +300,7 @@ class _MapCluster {
   const _MapCluster({required this.center, required this.records});
 }
 
-/// 聚类详情底部弹窗
+/// Cluster detail bottom sheet
 class _ClusterDetailSheet extends StatelessWidget {
   final _MapCluster cluster;
 
@@ -320,7 +320,7 @@ class _ClusterDetailSheet extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 拖拽指示器
+          // Drag handle
           Container(
             margin: EdgeInsets.only(top: 8),
             width: 36,

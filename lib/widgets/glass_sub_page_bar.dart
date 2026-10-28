@@ -5,14 +5,17 @@ import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
 import '../theme/app_design_system.dart';
 import '../theme/glass_materials.dart';
 
-/// 子页面玻璃顶栏（导航层）
+/// Glass top bar for sub pages (navigation layer)
 ///
-/// 官方设计哲学：玻璃只用于导航/控制层，顶栏属于导航层。
-/// 开启玻璃时用真玻璃材质渲染「返回键 + 标题 + 操作区」；
-/// 关闭时回退标准 [AppBar]，零视觉漂移。
+/// Official design philosophy: glass is only used for navigation/control
+/// layers, and the top bar belongs to the navigation layer. When glass is
+/// enabled, render the back button + title + actions with real glass
+/// material; when disabled, fall back to the standard [AppBar] with zero
+/// visual drift.
 ///
-/// 用 [standard] 而非 [GlassQuality.premium]：顶栏浮在滚动内容之上，
-/// 与 FAB 同理——premium 的 texture capture 在此上下文不可用。
+/// Uses [standard] rather than [GlassQuality.premium]: the top bar floats
+/// above scrolling content, so — as with the FAB — premium's texture capture
+/// is unavailable in this context.
 class GlassSubPageBar extends StatelessWidget implements PreferredSizeWidget {
   const GlassSubPageBar({
     super.key,
@@ -26,13 +29,14 @@ class GlassSubPageBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final List<Widget>? actions;
 
-  /// 关闭态 AppBar 背景色（null → 跟随主题，修复深色模式常量黑问题）
+  /// AppBar background color when disabled (null → follow the theme, which
+  /// fixes the constant-black issue in dark mode)
   final Color? fallbackBackground;
 
-  /// 关闭态 AppBar 前景色（null → 跟随主题）
+  /// AppBar foreground color when disabled (null → follow the theme)
   final Color? fallbackForeground;
 
-  /// 自定义返回区（null → 默认返回键）
+  /// Custom back area (null → default back button)
   final Widget? leading;
 
   @override
@@ -67,7 +71,8 @@ class GlassSubPageBar extends StatelessWidget implements PreferredSizeWidget {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              // 标题真居中：不随左右按钮宽度偏移
+              // Truly centered title: it does not shift with the width of the
+              // buttons on either side
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 56),
                 child: Text(

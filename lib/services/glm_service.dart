@@ -7,21 +7,21 @@ import '../config/api_keys.dart';
 import 'category_order_service.dart';
 import '../models/models.dart';
 
-/// AI 记账解析结果
+/// AI record parsing result
 class AiParseResult {
   final String intent; // 'record' | 'query' | 'unknown'
   final String? type; // 'expense' | 'income'
   final double? amount;
   final String? categoryId;
   final String? remark;
-  final String? date; // 'YYYY-MM-DD'，为空时默认今天
+  final String? date; // 'YYYY-MM-DD', defaults to today when empty
   final String? queryPeriod; // 'today' | 'week' | 'month' | 'year'
-  // 查询筛选条件
-  final String? queryCategoryId; // 按分类查询
-  final String? queryMood; // 按心情查询
-  final String? queryLocation; // 按位置关键词查询
-  final String? queryStartDate; // 自定义开始日期
-  final String? queryEndDate; // 自定义结束日期
+  // Query filter conditions
+  final String? queryCategoryId; // Query by category
+  final String? queryMood; // Query by mood
+  final String? queryLocation; // Query by location keyword
+  final String? queryStartDate; // Custom start date
+  final String? queryEndDate; // Custom end date
 
   const AiParseResult({
     required this.intent,
@@ -41,7 +41,7 @@ class AiParseResult {
   bool get isRecord => intent == 'record' && amount != null && amount! > 0;
   bool get isQuery => intent == 'query';
 
-  /// 获取解析后的日期，默认今天
+  /// Get the resolved date, defaults to today
   DateTime get resolvedDate {
     if (date != null && date!.length == 10) {
       try {
@@ -52,14 +52,14 @@ class AiParseResult {
   }
 }
 
-/// GLM AI 服务 - 对话式记账核心
+/// GLM AI service - the core of conversational recording
 class GlmService {
   static final GlmService instance = GlmService._();
   GlmService._();
 
   bool get isConfigured => aiApiKey.isNotEmpty;
 
-  /// 解析用户输入（优先 API，降级本地）
+  /// Parse user input (API first, local fallback)
   Future<AiParseResult> parseUserInput(String input) async {
     if (isConfigured) {
       try {
@@ -72,7 +72,7 @@ class GlmService {
     return _localParse(input);
   }
 
-  /// 调用 GLM-4-Flash API
+  /// Call the GLM-4-Flash API
   Future<AiParseResult?> _callGlmApi(String input) async {
     final expenseList = expenseCategories
         .map((c) => '${c.id}:${c.name}(${c.icon})')
@@ -150,7 +150,7 @@ JSON 格式:
     final content = data['choices']?[0]?['message']?['content'] as String?;
     if (content == null) return null;
 
-    // 提取 JSON 部分
+    // Extract the JSON part
     final jsonMatch = RegExp(r'\{[^}]+\}').firstMatch(content);
     if (jsonMatch == null) return null;
 
@@ -173,21 +173,21 @@ JSON 格式:
     );
   }
 
-  /// 本地关键词降级解析（仅在 API 不可用时使用，尽量保守）
+  /// Local keyword fallback parsing (used only when the API is unavailable, kept conservative)
   AiParseResult _localParse(String input) {
     final text = input.trim();
 
-    // 检测是否有金额
+    // Detect whether an amount is present
     final amountMatch = RegExp(r'(\d+\.?\d*)').firstMatch(text);
     if (amountMatch == null) {
-      // 无金额 → 可能是查询
+      // No amount → possibly a query
       if (_isQueryIntent(text)) {
         return AiParseResult(
           intent: 'query',
           queryPeriod: _detectQueryPeriod(text),
         );
       }
-      // 无金额也无查询关键词 → 尝试识别为分类追问
+      // No amount and no query keyword → try to interpret it as a category follow-up
       final type = _detectType(text);
       final categoryId = _detectCategory(text, type);
       if (categoryId != 'other') {
@@ -204,7 +204,7 @@ JSON 格式:
     final amount = double.parse(amountMatch.group(1)!);
     if (amount <= 0) return const AiParseResult(intent: 'unknown');
 
-    // 有金额 → 必须同时有明确的记账意图词或分类词才认为是记账
+    // Amount present → require an explicit record intent word or category word to treat it as a record
     final hasRecordIntent = RegExp(r'(花|消费|支出|记|买了|付|充值|转|收入|赚|工资|奖金)')
         .hasMatch(text);
     final type = _detectType(text);
@@ -212,7 +212,7 @@ JSON 格式:
     final hasCategory = categoryId != 'other';
 
     if (!hasRecordIntent && !hasCategory) {
-      // 有数字但不像记账 → 可能是查询
+      // Has a number but does not look like a record → possibly a query
       if (_isQueryIntent(text)) {
         return AiParseResult(
           intent: 'query',
@@ -244,7 +244,7 @@ JSON 格式:
     if (text.contains('今天') || text.contains('今日')) return 'today';
     if (text.contains('本周') || text.contains('这周')) return 'week';
     if (text.contains('今年')) return 'year';
-    return 'month'; // 默认本月
+    return 'month'; // Default to this month
   }
 
   String _detectType(String text) {
@@ -259,7 +259,7 @@ JSON 格式:
             ? CategoryOrderService.instance.expense
             : incomeCategories;
 
-    // 关键词映射
+    // Keyword mapping
     final Map<String, List<String>> keywords = {
       'food': ['吃饭', '餐', '饭', '外卖', '食堂', '午餐', '晚餐', '早餐', '火锅', '烧烤', '餐厅'],
       'milk_tea': ['奶茶', '咖啡', '星巴克', '饮料', '果汁', '茶'],
@@ -287,7 +287,7 @@ JSON 格式:
 
     for (final entry in keywords.entries) {
       if (entry.value.any((k) => text.contains(k))) {
-        // 确保该分类存在
+        // Make sure the category exists
         if (categories.any((c) => c.id == entry.key)) {
           return entry.key;
         }
@@ -298,9 +298,9 @@ JSON 格式:
   }
 
   String? _extractRemark(String text, double amount) {
-    // 移除金额数字，保留有意义的文字
+    // Remove the amount digits and keep the meaningful text
     var remark = text.replaceAll(RegExp(r'\d+\.?\d*元?'), '').trim();
-    // 移除常见无意义词
+    // Remove common meaningless words
     remark = remark
         .replaceAll(RegExp(r'(记|记一笔|花了|消费|支出|收入|赚了)'), '')
         .trim();
@@ -308,7 +308,7 @@ JSON 格式:
     return remark.length > 20 ? remark.substring(0, 20) : remark;
   }
 
-  /// 检测日期（今天/昨天/前天/大前天/上周X）
+  /// Detect the date (today/yesterday/the day before/the day 3 days ago/X last week)
   String? _detectDate(String text) {
     final now = DateTime.now();
 
@@ -328,19 +328,19 @@ JSON 格式:
       return _formatDate(now);
     }
 
-    // 上周X
+    // X last week
     final weekdayMatch = RegExp(r'上周([一二三四五六日天])').firstMatch(text);
     if (weekdayMatch != null) {
       final weekdayMap = {'一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '日': 7, '天': 7};
       final targetDay = weekdayMap[weekdayMatch.group(1)]!;
       final currentWeekday = now.weekday;
-      // 上周一 = 当前日期 - 当前星期几 - 6
+      // Last Monday = current date - current weekday - 6
       final daysAgo = currentWeekday + 7 - targetDay;
       final d = now.subtract(Duration(days: daysAgo));
       return _formatDate(d);
     }
 
-    // X天前
+    // X days ago
     final daysAgoMatch = RegExp(r'(\d+)天前').firstMatch(text);
     if (daysAgoMatch != null) {
       final days = int.tryParse(daysAgoMatch.group(1)!) ?? 0;
@@ -350,7 +350,7 @@ JSON 格式:
       }
     }
 
-    // 没有日期信息，返回 null（默认今天）
+    // No date info; return null (defaults to today)
     return null;
   }
 

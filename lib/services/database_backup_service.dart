@@ -12,13 +12,13 @@ import 'package:path_provider/path_provider.dart';
 import '../services/database_service.dart';
 import '../widgets/glass_dialog_shell.dart';
 
-/// 数据库备份服务 - 完整数据导出/导入（数据库 + 图片 + 头像 + 打卡）
+/// Database backup service - full data export/import (database + images + avatar + check-in)
 class DatabaseBackupService {
   static final DatabaseBackupService instance = DatabaseBackupService._();
   DatabaseBackupService._();
   static const MethodChannel _fileChannel = MethodChannel('bear_bill/files');
 
-  /// 完整备份：数据库 + 图片 + 头像 → ZIP 文件
+  /// Full backup: database + images + avatar -> ZIP file
   Future<bool> exportDatabase(BuildContext context) async {
     try {
       final dbPath = await DatabaseService.instance.databasePath;
@@ -33,13 +33,13 @@ class DatabaseBackupService {
       if (!context.mounted) return false;
       _showSnackBar(context, '正在打包数据...');
 
-      // 创建临时目录
+      // Create a temporary directory
       final tempDir = await getTemporaryDirectory();
       final exportDir = Directory('${tempDir.path}/bear_bill_export');
       if (await exportDir.exists()) await exportDir.delete(recursive: true);
       await exportDir.create(recursive: true);
 
-      // 1. 复制数据库文件
+      // 1. Copy the database file
       await dbFile.copy('${exportDir.path}/bear_bill.db');
       for (final suffix in ['-wal', '-shm']) {
         final f = File('$dbPath$suffix');
@@ -48,7 +48,7 @@ class DatabaseBackupService {
         }
       }
 
-      // 2. 收集所有图片路径并复制
+      // 2. Collect all image paths and copy them
       final imageMapping = <String, String>{};
       try {
         final db = await DatabaseService.instance.database;
@@ -71,7 +71,7 @@ class DatabaseBackupService {
         }
       } catch (_) {}
 
-      // 3. 复制头像
+      // 3. Copy the avatar
       String? avatarNewName;
       try {
         final db = await DatabaseService.instance.database;
@@ -89,7 +89,7 @@ class DatabaseBackupService {
         }
       } catch (_) {}
 
-      // 4. 复制 StorageService 的 key-value 文件
+      // 4. Copy the StorageService key-value files
       try {
         final docsDir = await getApplicationDocumentsDirectory();
         final files = docsDir.listSync().whereType<File>();
@@ -103,7 +103,7 @@ class DatabaseBackupService {
         }
       } catch (_) {}
 
-      // 5. 创建清单文件
+      // 5. Create the manifest file
       final manifest = {
         'version': 1,
         'app': 'bear_bill',
@@ -114,7 +114,7 @@ class DatabaseBackupService {
       await File('${exportDir.path}/manifest.json')
           .writeAsString(jsonEncode(manifest));
 
-      // 6. 打包为 ZIP
+      // 6. Pack into a ZIP
       final now = DateTime.now();
       final timestamp = DateFormat('yyyyMMdd_HHmmss').format(now);
       final zipFileName = 'bear_bill_backup_$timestamp.zip';
@@ -122,13 +122,13 @@ class DatabaseBackupService {
 
       await _createZip(exportDir.path, zipPath);
 
-      // 7. 通过系统文件选择器保存
+      // 7. Save through the system file picker
       final targetPath = await _exportFile(
         sourcePath: zipPath,
         suggestedFileName: zipFileName,
       );
 
-      // 清理临时文件
+      // Clean up temporary files
       try {
         await exportDir.delete(recursive: true);
         await File(zipPath).delete();
@@ -146,7 +146,7 @@ class DatabaseBackupService {
     }
   }
 
-  /// 从 ZIP 导入完整数据
+  /// Import full data from a ZIP
   Future<bool> importDatabase(BuildContext context) async {
     try {
       final sourcePath = await _pickImportFile();
@@ -175,12 +175,12 @@ class DatabaseBackupService {
         return false;
       }
 
-      // 旧版 .db 文件直接导入
+      // Legacy .db files are imported directly
       if (isDb) {
         return await _importLegacyDb(context, sourceFile);
       }
 
-      // 新版 .zip 文件完整导入
+      // Full import for newer .zip files
       return await _importZip(context, sourceFile);
     } catch (e) {
       if (!context.mounted) return false;
@@ -189,7 +189,7 @@ class DatabaseBackupService {
     }
   }
 
-  /// 导入旧版 .db 文件（兼容）
+  /// Import a legacy .db file (compatibility)
   Future<bool> _importLegacyDb(BuildContext context, File sourceFile) async {
     final fileSize = await sourceFile.length();
     if (!context.mounted) return false;
@@ -206,7 +206,7 @@ class DatabaseBackupService {
     await DatabaseService.instance.close();
     await Future.delayed(const Duration(milliseconds: 300));
 
-    // 备份当前数据库
+    // Back up the current database
     final dbFile = File(dbPath);
     if (await dbFile.exists()) {
       try {
@@ -225,12 +225,12 @@ class DatabaseBackupService {
     return true;
   }
 
-  /// 导入新版 .zip 文件（完整恢复）
+  /// Import a newer .zip file (full restore)
   Future<bool> _importZip(BuildContext context, File sourceFile) async {
     final confirmed = await _confirmImport(context, sourceFile);
     if (confirmed != true) return false;
 
-    // 解压 ZIP
+    // Extract the ZIP
     final bytes = await sourceFile.readAsBytes();
     final archive = ZipDecoder().decodeBytes(bytes);
 
@@ -241,24 +241,24 @@ class DatabaseBackupService {
 
     for (final file in archive) {
       if (file.isFile) {
-        // 防止 Zip Slip 路径穿越攻击
+        // Guard against Zip Slip path traversal attacks
         final fileName = file.name;
         if (fileName.contains('..') ||
             fileName.startsWith('/') ||
             fileName.startsWith('\\')) {
-          continue; // 跳过可疑路径
+          continue; // Skip suspicious paths
         }
         final outFile = File('${extractDir.path}/$fileName');
         final canonicalOut = outFile.path;
         if (!canonicalOut.startsWith(extractDir.path)) {
-          continue; // 路径逃逸，跳过
+          continue; // Path escape; skip
         }
         await outFile.parent.create(recursive: true);
         await outFile.writeAsBytes(file.content as List<int>);
       }
     }
 
-    // 读取清单
+    // Read the manifest
     final manifestFile = File('${extractDir.path}/manifest.json');
     Map<String, dynamic> manifest = {};
     if (await manifestFile.exists()) {
@@ -269,14 +269,14 @@ class DatabaseBackupService {
         manifest['imageMapping'] as Map<String, dynamic>? ?? {};
     final avatarName = manifest['avatar'] as String?;
 
-    // 关闭当前数据库
+    // Close the current database
     await DatabaseService.instance.close();
     await Future.delayed(const Duration(milliseconds: 300));
 
     final dbPath = await DatabaseService.instance.databasePath;
     final dbFile = File(dbPath);
 
-    // 备份当前数据库
+    // Back up the current database
     if (await dbFile.exists()) {
       try {
         final ts = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
@@ -284,14 +284,14 @@ class DatabaseBackupService {
       } catch (_) {}
     }
 
-    // 1. 恢复数据库
+    // 1. Restore the database
     final exportedDb = File('${extractDir.path}/bear_bill.db');
     if (await exportedDb.exists()) {
       await dbFile.parent.create(recursive: true);
       await dbFile.writeAsBytes(await exportedDb.readAsBytes(), flush: true);
     }
 
-    // 2. 恢复图片文件
+    // 2. Restore image files
     final docsDir = await getApplicationDocumentsDirectory();
     final imagesDir = Directory('${docsDir.path}/bear_bill_images');
     if (!await imagesDir.exists()) await imagesDir.create(recursive: true);
@@ -305,7 +305,7 @@ class DatabaseBackupService {
       }
     }
 
-    // 3. 恢复头像
+    // 3. Restore the avatar
     if (avatarName != null) {
       final srcAvatar = File('${extractDir.path}/$avatarName');
       if (await srcAvatar.exists()) {
@@ -314,7 +314,7 @@ class DatabaseBackupService {
       }
     }
 
-    // 4. 恢复 StorageService 文件
+    // 4. Restore StorageService files
     for (final file in archive) {
       if (file.isFile &&
           file.name.startsWith('bear_bill_') &&
@@ -324,12 +324,12 @@ class DatabaseBackupService {
       }
     }
 
-    // 5. 更新数据库中的图片路径和头像路径
+    // 5. Update image and avatar paths in the database
     DatabaseService.instance.resetConnection();
     try {
       final db = await DatabaseService.instance.database;
 
-      // 更新记录中的图片路径
+      // Update image paths in records
       if (imageMapping.isNotEmpty) {
         final records = await db.query('records', columns: ['id', 'images']);
         for (final row in records) {
@@ -353,13 +353,13 @@ class DatabaseBackupService {
         }
       }
 
-      // 更新头像路径
+      // Update the avatar path
       if (avatarName != null) {
         await db.update('users', {'avatar': '${imagesDir.path}/$avatarName'});
       }
     } catch (_) {}
 
-    // 清理
+    // Clean up
     try {
       await extractDir.delete(recursive: true);
     } catch (_) {}
@@ -398,7 +398,7 @@ class DatabaseBackupService {
     );
   }
 
-  /// 创建 ZIP 文件
+  /// Creates a ZIP file
   Future<void> _createZip(String sourceDir, String zipPath) async {
     final archive = Archive();
     final dir = Directory(sourceDir);
@@ -428,7 +428,7 @@ class DatabaseBackupService {
       );
     }
 
-    // file_picker 13: saveFile 需要直接提供 bytes，返回 Uri?
+    // file_picker 13: saveFile requires bytes directly and returns a Uri?
     final bytes = await File(sourcePath).readAsBytes();
     final targetUri = await FilePicker.saveFile(
       dialogTitle: '选择导出位置',
@@ -447,7 +447,7 @@ class DatabaseBackupService {
       return _fileChannel.invokeMethod<String>('pickFile');
     }
 
-    // file_picker 13: 单选请用 pickFile（pickFiles 为多选，且无 allowMultiple 参数）
+    // file_picker 13: use pickFile for single selection (pickFiles is multi-select and has no allowMultiple parameter)
     final file = await FilePicker.pickFile(
       dialogTitle: '选择备份文件',
       type: FileType.any,

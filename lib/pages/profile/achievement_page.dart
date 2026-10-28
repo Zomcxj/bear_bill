@@ -43,13 +43,13 @@ class _AchievementPageState extends State<AchievementPage> {
     final moodCount = await db.getRecordsWithMoodCount();
     final uniqueCategories = await db.getUniqueCategoriesCount();
 
-    // 从当前账本读取预算（与首页一致）
+    // Read the budget from the current book (consistent with the home page)
     final appProvider = context.read<AppProvider>();
     final book = await appProvider.getCurrentBook();
     final budget = book?.budget ?? 0.0;
     final hasBudget = budget > 0;
 
-    // 计算本月支出占比
+    // Compute this month's expense ratio
     double expenseRatio = 0.0;
     if (hasBudget) {
       final now = DateTime.now();
@@ -139,7 +139,7 @@ class _AchievementPageState extends State<AchievementPage> {
     if (isUnlocked) return 1.0;
 
     switch (achievement.id) {
-      // 打卡
+      // Check-in
       case 'checkin_3':
       case 'checkin_7':
       case 'checkin_14':
@@ -148,39 +148,39 @@ class _AchievementPageState extends State<AchievementPage> {
       case 'checkin_100':
       case 'checkin_365':
         return (checkInDays / achievement.threshold).clamp(0.0, 1.0);
-      // 记账次数
+      // Record count
       case 'records_10':
       case 'records_50':
       case 'records_100':
       case 'records_500':
         return (totalRecords / achievement.threshold).clamp(0.0, 1.0);
-      // 预算
+      // Budget
       case 'budget_1':
         return hasBudget ? 1.0 : 0.0;
       case 'budget_save':
         if (!hasBudget) return 0.0;
         if (expenseRatio <= 80) return 1.0;
         return (80.0 / expenseRatio).clamp(0.0, 0.99);
-      // 心愿
+      // Wish
       case 'wish_1':
         return totalWishes >= 1 ? 1.0 : 0.0;
       case 'wish_complete':
         return completedWishes >= 1 ? 1.0 : 0.0;
       case 'wish_5':
         return (completedWishes / 5).clamp(0.0, 1.0);
-      // 图片
+      // Images
       case 'images_10':
       case 'images_50':
         return (_totalImages / achievement.threshold).clamp(0.0, 1.0);
-      // 位置
+      // Location
       case 'location_10':
       case 'location_50':
         return (_locationCount / achievement.threshold).clamp(0.0, 1.0);
-      // 心情
+      // Mood
       case 'mood_10':
       case 'mood_50':
         return (_moodCount / achievement.threshold).clamp(0.0, 1.0);
-      // 分类
+      // Category
       case 'category_10':
       case 'category_50':
         return (_uniqueCategories / achievement.threshold).clamp(0.0, 1.0);
@@ -212,7 +212,7 @@ class _AchievementCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: DS.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(DS.radiusSm),
-          // 玻璃主题无边框，解锁靠填充；关闭态原样
+          // Glass theme has no border, unlocked state is shown by fill; unchanged when off
           border: shouldUseLiquidGlass(context)
               ? null
               : Border.all(
@@ -231,7 +231,7 @@ class _AchievementCard extends StatelessWidget {
                     ? DS.surfaceContainerHigh
                     : DS.surfaceContainerLow,
                 borderRadius: BorderRadius.circular(DS.radiusFull),
-                // 玻璃主题无边框；关闭态原样
+                // Glass theme has no border; unchanged when off
                 border: shouldUseLiquidGlass(context)
                     ? null
                     : Border.all(
@@ -261,7 +261,7 @@ class _AchievementCard extends StatelessWidget {
               ),
             ),
             SizedBox(height: 2),
-            // 进度条
+            // Progress bar
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 4),
               child: ClipRRect(

@@ -10,7 +10,7 @@ import '../../../widgets/glass_card.dart';
 import '../../../providers/theme_provider.dart';
 import 'package:provider/provider.dart';
 
-/// 心愿罐卡片 — 玻璃风格 + Material Icons
+/// Wish jar card — glass style + Material Icons
 class WishJarCard extends StatelessWidget {
   final WishModel wish;
   final VoidCallback onAddMoney;
@@ -44,7 +44,7 @@ class WishJarCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: themeColor.withOpacity(0.15),
                   shape: BoxShape.circle,
-                  // 玻璃主题无边框；关闭态原样
+                  // No border in the glass theme; unchanged when disabled
                   border: shouldUseLiquidGlass(context)
                       ? null
                       : Border.all(color: themeColor.withOpacity(0.3)),
@@ -175,9 +175,11 @@ class WishJarCard extends StatelessWidget {
               ),
             )
           else
-            // 按压物理 = 官方 GlassButton 透明样式（弹簧膨胀 + 拖拽跟随 +
-            // 触点光晕），不画玻璃壳——卡片本身已是玻璃，玻璃不套玻璃；
-            // 键面仍是「完成」键同款玻璃着色层
+            // Press physics = official GlassButton transparent style (spring
+            // scale + drag follow + touch highlight), with no glass shell
+            // painted — the card itself is already glass and glass is never
+            // nested in glass; the key face still uses the same glass tint
+            // layer as the Done key on the record keypad
             GlassButton.custom(
               style: GlassButtonStyle.transparent,
               onTap: onAddMoney,
@@ -187,9 +189,11 @@ class WishJarCard extends StatelessWidget {
               child: Container(
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(vertical: DS.sm),
-                // 玻璃态：与记一笔键盘「完成」键同款玻璃片样式
-                // （高光渐变 + 深/浅色描边 + 轻投影），不建折射图层——
-                // 卡片本身已是玻璃，玻璃不套玻璃；关闭态保留实心主色胶囊
+                // Glass mode: same glass sheet style as the Done key on the
+                // record keypad (highlight gradient + dark/light border + soft
+                // shadow), with no refraction layer — the card itself is
+                // already glass and glass is never nested in glass; when
+                // disabled, keep the solid accent pill
                 decoration: BoxDecoration(
                   gradient: shouldUseLiquidGlass(context)
                       ? LinearGradient(
@@ -260,12 +264,12 @@ class WishJarCard extends StatelessWidget {
 
   Color _getThemeColor(String id) {
     const colors = [
-      Color(0xFF40C2FD), // 天蓝
-      Color(0xFFD3579A), // 粉色
-      Color(0xFF00668A), // 深蓝
-      Color(0xFFFFA726), // 橙色
-      Color(0xFF7E57C2), // 紫色
-      Color(0xFF66BB6A), // 绿色
+      Color(0xFF40C2FD), // sky blue
+      Color(0xFFD3579A), // pink
+      Color(0xFF00668A), // deep blue
+      Color(0xFFFFA726), // orange
+      Color(0xFF7E57C2), // purple
+      Color(0xFF66BB6A), // green
     ];
     return colors[id.hashCode.abs() % colors.length];
   }

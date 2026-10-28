@@ -1,8 +1,8 @@
-/// 账单记录模型
+/// Bill record model
 class RecordModel {
   final String id;
   final String bookId;
-  final String type; // 'expense' 或 'income'
+  final String type; // 'expense' or 'income'
   final double amount;
   final String categoryId;
   final String categoryName;
@@ -140,13 +140,13 @@ class RecordModel {
     );
   }
   
-  /// 判断是否为支出
+  /// Whether this is an expense
   bool get isExpense => type == 'expense';
   
-  /// 判断是否为收入
+  /// Whether this is an income
   bool get isIncome => type == 'income';
   
-  /// 判断是否为今天
+  /// Whether this record belongs to today
   bool get isToday {
     final now = DateTime.now();
     final today = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';

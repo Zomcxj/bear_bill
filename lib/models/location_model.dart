@@ -1,4 +1,4 @@
-/// 常去地点模型
+/// Frequently visited location model
 class FavoriteLocationModel {
   final String id;
   final String name;

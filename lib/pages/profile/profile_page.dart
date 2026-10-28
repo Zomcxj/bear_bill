@@ -12,7 +12,7 @@ import 'widgets/achievement_grid.dart';
 import 'widgets/settings_list.dart';
 import 'widgets/user_profile_card.dart';
 
-/// 个人中心页 — Luminous Finance 风格
+/// Profile page — Luminous Finance style
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -36,7 +36,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    context.watch<ThemeProvider>(); // 主题变更时触发重建
+    context.watch<ThemeProvider>(); // Rebuild when the theme changes
     return Scaffold(
       backgroundColor: DS.background,
       body: SafeArea(
@@ -64,7 +64,7 @@ class _ProfilePageState extends State<ProfilePage> {
               const AchievementGrid(),
               SizedBox(height: DS.base),
               SettingsList(onClearData: _clearAllData),
-              // 玻璃模式底部留白：避免设置项被浮动玻璃底栏盖住
+              // Bottom spacing in glass mode: keeps settings from being covered by the floating glass tab bar
               SizedBox(height: glassBottomInset(context)),
             ],
           ),

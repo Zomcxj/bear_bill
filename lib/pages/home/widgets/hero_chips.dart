@@ -5,10 +5,11 @@ import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
 import '../../../theme/app_design_system.dart';
 import '../../../theme/glass_materials.dart';
 
-/// 首页 hero 上的打卡徽章（连续签到）
+/// Check-in badge on the home hero (consecutive check-ins)
 ///
-/// 玻璃态：官方 GlassButton 真玻璃壳（按压弹簧 + 拖拽跟随 + 触点光晕）；
-/// 关闭态 / 已打卡：原 [GestureDetector]+填充胶囊（零漂移，含禁用态）。
+/// Glass state: official GlassButton with a real glass shell (press spring + drag follow +
+/// touch-point glow); disabled state / already checked in: the original [GestureDetector] +
+/// filled pill (zero drift, including the disabled state).
 class CheckInBadge extends StatelessWidget {
   const CheckInBadge({
     super.key,
@@ -85,9 +86,9 @@ class CheckInBadge extends StatelessWidget {
   }
 }
 
-/// 首页 hero 上的账本切换胶囊
+/// Book switch pill on the home hero
 ///
-/// 玻璃态：真玻璃壳按钮（点进去换账本）；关闭态：原填充胶囊。
+/// Glass state: real glass shell button (tap to switch books); disabled state: the original filled pill.
 class BookSwitchChip extends StatelessWidget {
   const BookSwitchChip({
     super.key,
