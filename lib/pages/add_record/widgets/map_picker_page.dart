@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
+    show GlassContainer, GlassQuality;
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
@@ -11,6 +13,7 @@ import 'package:latlong2/latlong.dart';
 
 import '../../../services/amap_location_service.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../theme/glass_materials.dart';
 import '../../../providers/theme_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -318,6 +321,41 @@ class _MapPickerPageState extends State<MapPickerPage> {
     }
   }
 
+  /// 地图之上的悬浮面板：玻璃态 = 真折射玻璃（折射下方地图），
+  /// 关闭态 = [fallback] 原实色容器（零漂移）
+  Widget _panel({
+    required Widget child,
+    required BoxDecoration fallback,
+    double radius = 24,
+    EdgeInsetsGeometry padding = EdgeInsets.zero,
+    EdgeInsetsGeometry? margin,
+    double? maxHeight,
+  }) {
+    final constraints =
+        maxHeight != null ? BoxConstraints(maxHeight: maxHeight) : null;
+    if (!shouldUseLiquidGlass(context)) {
+      return Container(
+        margin: margin,
+        padding: padding,
+        constraints: constraints,
+        decoration: fallback,
+        child: child,
+      );
+    }
+    return Container(
+      margin: margin,
+      constraints: constraints,
+      child: GlassContainer(
+        shape: GlassMaterials.shape(radius),
+        settings: GlassMaterials.bar(),
+        quality: GlassQuality.premium,
+        useOwnLayer: true,
+        padding: padding,
+        child: child,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>(); // theme rebuild
@@ -367,9 +405,10 @@ class _MapPickerPageState extends State<MapPickerPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
+                _panel(
+                  radius: 12,
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
+                  fallback: BoxDecoration(
                     color: DS.surfaceContainerLowest,
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
@@ -422,8 +461,9 @@ class _MapPickerPageState extends State<MapPickerPage> {
             right: 16,
             child: Column(
               children: [
-                Container(
-                  decoration: BoxDecoration(
+                _panel(
+                  radius: 24,
+                  fallback: BoxDecoration(
                     color: DS.surfaceContainerLowest,
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
@@ -443,11 +483,17 @@ class _MapPickerPageState extends State<MapPickerPage> {
                       Expanded(
                         child: TextField(
                           controller: _searchController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
+                            // 主题实色 fill 会盖住玻璃，透明化
+                            filled: true,
+                            fillColor: shouldUseLiquidGlass(context)
+                                ? Colors.transparent
+                                : null,
                             hintText: '搜索地点',
                             border: InputBorder.none,
-                            hintStyle: TextStyle(fontSize: 15),
-                            contentPadding: EdgeInsets.symmetric(vertical: 12),
+                            hintStyle: const TextStyle(fontSize: 15),
+                            contentPadding:
+                                const EdgeInsets.symmetric(vertical: 12),
                           ),
                           textInputAction: TextInputAction.search,
                           onSubmitted: _searchPlace,
@@ -477,10 +523,11 @@ class _MapPickerPageState extends State<MapPickerPage> {
 
                 // 搜索结果列表
                 if (_searchResults.isNotEmpty)
-                  Container(
+                  _panel(
+                    radius: 16,
                     margin: EdgeInsets.only(top: 4),
-                    constraints: const BoxConstraints(maxHeight: 240),
-                    decoration: BoxDecoration(
+                    maxHeight: 240,
+                    fallback: BoxDecoration(
                       color: DS.surfaceContainerLowest,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
@@ -531,8 +578,9 @@ class _MapPickerPageState extends State<MapPickerPage> {
             child: Column(
               children: [
                 // 定位按钮
-                Container(
-                  decoration: BoxDecoration(
+                _panel(
+                  radius: 999,
+                  fallback: BoxDecoration(
                     color: DS.surfaceContainerLowest,
                     shape: BoxShape.circle,
                     boxShadow: [
@@ -562,14 +610,15 @@ class _MapPickerPageState extends State<MapPickerPage> {
             left: 0,
             right: 0,
             bottom: 0,
-            child: Container(
+            child: _panel(
+              radius: 24,
               padding: EdgeInsets.fromLTRB(
                 20,
                 16,
                 20,
                 MediaQuery.of(context).padding.bottom + 16,
               ),
-              decoration: BoxDecoration(
+              fallback: BoxDecoration(
                 color: DS.surfaceContainerLowest,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                 boxShadow: [

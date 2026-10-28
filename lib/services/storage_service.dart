@@ -46,6 +46,12 @@ class StorageService {
         if (parsed != null) _cache['liquidGlassEnabled'] = parsed;
       }
 
+      final glassStyle = await _loadFromFile('glassStyle');
+      if (glassStyle != null) {
+        final parsed = int.tryParse(glassStyle);
+        if (parsed != null) _cache['glassStyle'] = parsed;
+      }
+
       final reminderHour = await _loadFromFile('reminderHour');
       if (reminderHour != null) _cache['reminderHour'] = reminderHour;
 

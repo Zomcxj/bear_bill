@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
@@ -58,20 +60,59 @@ class StatTabs extends StatelessWidget {
                     children: [
                       // 白滑块：AnimatedAlign 平滑滑动（与记一笔切换器同款）
                     AnimatedAlign(
-                      duration: const Duration(milliseconds: 220),
+                      // 厚档 300ms（对齐参考实测）；轻薄档 220ms（现状）
+                      duration: Duration(
+                        milliseconds: GlassMaterials.isThick ? 300 : 220,
+                      ),
                       curve: Curves.easeOutCubic,
                       alignment: Alignment(activeTab == 'expense' ? -1 : 1, 0),
                       child: FractionallySizedBox(
                         widthFactor: 0.5,
-                        child: Container(
-                          height: 56,
-                          margin: const EdgeInsets.symmetric(horizontal: 2),
-                          decoration: BoxDecoration(
-                            color: DS.isDark
-                                ? Colors.white.withOpacity(0.22)
-                                : Colors.white.withOpacity(0.65),
-                            borderRadius:
-                                BorderRadius.circular(DS.radiusFull),
+                        // 厚档：滑动中纵向鼓起（sin 峰），落定回 1.0
+                        child: TweenAnimationBuilder<double>(
+                          key: ValueKey(activeTab),
+                          tween: Tween<double>(begin: 0, end: 1),
+                          duration: Duration(
+                            milliseconds: GlassMaterials.isThick ? 300 : 0,
+                          ),
+                          builder: (_, v, child) => Transform.scale(
+                            scaleY: GlassMaterials.isThick
+                                ? 1.0 + 0.22 * math.sin(v * math.pi)
+                                : 1.0,
+                            child: child,
+                          ),
+                          child: Container(
+                            height: 56,
+                            margin: const EdgeInsets.symmetric(horizontal: 2),
+                            decoration: BoxDecoration(
+                              color: GlassMaterials.isThick
+                                  ? null
+                                  : (DS.isDark
+                                      ? Colors.white.withOpacity(0.22)
+                                      : Colors.white.withOpacity(0.65)),
+                              gradient: GlassMaterials.isThick
+                                  ? LinearGradient(
+                                      begin: Alignment.centerLeft,
+                                      end: Alignment.centerRight,
+                                      colors: [
+                                        DS.secondaryContainer.withOpacity(0.88),
+                                        DS.secondaryContainer,
+                                      ],
+                                    )
+                                  : null,
+                              borderRadius:
+                                  BorderRadius.circular(DS.radiusFull),
+                              boxShadow: GlassMaterials.isThick
+                                  ? [
+                                      BoxShadow(
+                                        color: DS.secondaryContainer
+                                            .withOpacity(0.36),
+                                        blurRadius: 12,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ]
+                                  : null,
+                            ),
                           ),
                         ),
                       ),
@@ -219,7 +260,12 @@ class StatTabs extends StatelessWidget {
             Icon(
               icon,
               size: 14,
-              color: active ? DS.emphasis : DS.onSurfaceVariant,
+              // 厚档选中段压主题色实心药丸 -> 白；轻薄档维持强调色（现状）
+              color: active
+                  ? (GlassMaterials.isThick
+                      ? DS.onSecondaryContainer
+                      : DS.emphasis)
+                  : DS.onSurfaceVariant,
             ),
             SizedBox(width: 4),
             Text(
@@ -227,7 +273,11 @@ class StatTabs extends StatelessWidget {
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
-                color: active ? DS.emphasis : DS.onSurfaceVariant,
+                color: active
+                    ? (GlassMaterials.isThick
+                        ? DS.onSecondaryContainer
+                        : DS.emphasis)
+                    : DS.onSurfaceVariant,
               ),
             ),
           ],
@@ -238,7 +288,11 @@ class StatTabs extends StatelessWidget {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: active ? DS.emphasis : DS.onSurface,
+            color: active
+                ? (GlassMaterials.isThick
+                    ? DS.onSecondaryContainer
+                    : DS.emphasis)
+                : DS.onSurface,
           ),
         ),
       ],

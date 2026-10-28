@@ -5,6 +5,7 @@ import '../../../providers/theme_provider.dart';
 import '../../../services/database_backup_service.dart';
 import '../../../services/storage_service.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../theme/glass_materials.dart';
 import '../../../widgets/glass_dialog_shell.dart';
 import '../../map_footprint/map_footprint_page.dart';
 import 'category_order_page.dart';
@@ -110,12 +111,13 @@ class _SettingsListState extends State<SettingsList> {
           _buildDivider(),
           _buildMenuItem(
             icon: Icons.blur_circular_rounded,
-            title: '主题模式',
-            trailing:
-                context.watch<ThemeProvider>().liquidGlassEnabled
-                    ? '已开启'
-                    : '已关闭',
-            onTap: () => context.read<ThemeProvider>().toggleLiquidGlass(),
+            title: '玻璃风格',
+            trailing: switch (context.watch<ThemeProvider>().glassStyle) {
+              AppGlassStyle.classic => '经典实色',
+              AppGlassStyle.thin => '轻薄玻璃',
+              AppGlassStyle.thick => '厚玻璃',
+            },
+            onTap: () => showGlassStyleDialog(context),
           ),
           _buildDivider(),
           _buildMenuItem(

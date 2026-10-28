@@ -5,6 +5,7 @@ import '../../../providers/app_provider.dart';
 import '../../../providers/theme_provider.dart';
 import '../../../services/database_service.dart';
 import '../../../theme/app_design_system.dart';
+import '../../../theme/glass_materials.dart';
 import '../../../widgets/glass_dialog_shell.dart';
 
 /// 近6个月收支趋势折线图
@@ -84,7 +85,8 @@ class _TrendLineChartState extends State<TrendLineChart> {
 
     return GlassSurface(
       margin: EdgeInsets.symmetric(horizontal: DS.sm),
-      padding: EdgeInsets.all(DS.gutter),
+      // 下方内距进一步收紧：底部空带过宽
+      padding: EdgeInsets.fromLTRB(DS.gutter, DS.gutter, DS.gutter, DS.xs),
       fallbackDecoration: DS.glassDecoration,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,7 +112,11 @@ class _TrendLineChartState extends State<TrendLineChart> {
             borderRadius: BorderRadius.circular(DS.radiusSm),
             child: Container(
               height: 160,
-              color: DS.background,
+              // 玻璃态：与外层卡片同一块玻璃（不再单独一块内底，避免"圈中圈"）；
+              // 关闭态 = 原实色底（零漂移）
+              color: shouldUseLiquidGlass(context)
+                  ? Colors.transparent
+                  : DS.background,
               child: CustomPaint(
                 size: const Size(double.infinity, 160),
                 painter: _TrendPainter(
@@ -124,7 +130,8 @@ class _TrendLineChartState extends State<TrendLineChart> {
               ),
             ),
           ),
-          SizedBox(height: 8),
+          // 图表与月份标签间距收紧
+          SizedBox(height: 4),
           // 月份标签
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

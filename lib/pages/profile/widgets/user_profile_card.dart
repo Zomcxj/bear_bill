@@ -207,44 +207,29 @@ class UserProfileCard extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: DS.sm),
-                  // 玻璃态：三枚独立玻璃钮（按压弹簧+光晕，预算弹窗按钮同款）；
-                  // 关闭态：原填充盒（零漂移）
-                  if (shouldUseLiquidGlass(context))
-                    Row(
+                  // 一体玻璃条：三枚统计合并为一条（玻璃态 = 整条玻璃；
+                  // 关闭态 = fallback 原填充盒，零漂移）
+                  GlassSurface(
+                    borderRadius: DS.radiusSm,
+                    fallbackDecoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(DS.radiusSm),
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _buildStatGlassButton(Icons.edit_note, '$totalRecords',
+                        _buildStatItem(Icons.edit_note, '$totalRecords',
                             '记账次数', onTap: onRecordTap),
-                        _buildStatGlassButton(Icons.local_fire_department,
+                        _buildStatItem(Icons.local_fire_department,
                             '${appProvider.checkInDays}', '连续打卡',
                             onTap: () =>
                                 _showCheckInInfo(context, appProvider)),
-                        _buildStatGlassButton(Icons.book, '$totalBooks',
-                            '账本数',
+                        _buildStatItem(Icons.book, '$totalBooks', '账本数',
                             onTap: () => _showBookManagement(context)),
                       ],
-                    )
-                  else
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(DS.radiusSm),
-                      ),
-                      padding: EdgeInsets.symmetric(vertical: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          _buildStatItem(Icons.edit_note, '$totalRecords',
-                              '记账次数', onTap: onRecordTap),
-                          _buildStatItem(Icons.local_fire_department,
-                              '${appProvider.checkInDays}', '连续打卡',
-                              onTap: () =>
-                                  _showCheckInInfo(context, appProvider)),
-                          _buildStatItem(Icons.book, '$totalBooks', '账本数',
-                              onTap: () => _showBookManagement(context)),
-                        ],
-                      ),
                     ),
+                  ),
                   SizedBox(height: DS.base),
                   if (!appProvider.todayChecked)
                     shouldUseLiquidGlass(context)
@@ -366,22 +351,6 @@ class UserProfileCard extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-
-  /// 玻璃态统计钮：玻璃壳 + 按压物理（hero 玻璃面上嵌玻璃钮，
-  /// 与预算弹窗的按钮同款观感）
-  Widget _buildStatGlassButton(IconData icon, String value, String label,
-      {VoidCallback? onTap}) {
-    return GlassButton.custom(
-      onTap: onTap ?? () {},
-      interactionScale: 1.05,
-      stretch: 0.12,
-      shape: const LiquidRoundedSuperellipse(borderRadius: 999),
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: DS.sm),
-        child: _buildStatItem(icon, value, label),
-      ),
     );
   }
 

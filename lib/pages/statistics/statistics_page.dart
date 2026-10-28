@@ -380,17 +380,18 @@ class _StatisticsPageState extends State<StatisticsPage> {
                               ),
                               SizedBox(height: DS.sm),
                               const TrendLineChart(),
-                              SizedBox(height: DS.sm),
-                              Container(
+                              // 折线图卡下方间距收紧（原 DS.sm 过宽）
+                              SizedBox(height: DS.base),
+                              // 玻璃态：支出/收入 + 分类明细 整块 = 玻璃；
+                              // 关闭态 = 原实色卡（零漂移）
+                              GlassSurface(
+                                borderRadius: DS.radiusMd,
                                 margin: EdgeInsets.symmetric(horizontal: DS.sm),
                                 padding: EdgeInsets.all(DS.sm),
-                                decoration: BoxDecoration(
+                                fallbackDecoration: BoxDecoration(
                                   color: DS.surfaceContainerLowest,
                                   borderRadius: BorderRadius.circular(DS.radiusMd),
-                                  // 玻璃主题无边框；关闭态原样
-                                  border: shouldUseLiquidGlass(context)
-                                      ? null
-                                      : Border.all(color: DS.outlineVariant),
+                                  border: Border.all(color: DS.outlineVariant),
                                   boxShadow: DS.shadowSm,
                                 ),
                                 child: Column(

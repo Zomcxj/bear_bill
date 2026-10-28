@@ -30,19 +30,36 @@ class GlassCard extends StatelessWidget {
     final Widget card;
     if (shouldUseLiquidGlass(context)) {
       // 玻璃态：真实液态玻璃（与底栏/弹窗同源材质）
-      card = Padding(
-        padding: margin ?? EdgeInsets.zero,
-        child: GlassContainer(
-          shape: GlassMaterials.shape(borderRadius),
-          // 卡片材质与底栏/日期条统一（bar），保持全 App 玻璃观感一致
-          settings: GlassMaterials.bar(),
-          quality: GlassQuality.standard,
-          // 页面树里没有父玻璃图层，自建图层
-          useOwnLayer: true,
-          padding: padding,
-          child: child,
-        ),
+      final glassCard = GlassContainer(
+        shape: GlassMaterials.shape(borderRadius),
+        // 卡片材质与底栏/日期条统一（bar），保持全 App 玻璃观感一致
+        settings: GlassMaterials.bar(),
+        quality: GlassQuality.standard,
+        // 页面树里没有父玻璃图层，自建图层
+        useOwnLayer: true,
+        padding: padding,
+        child: child,
       );
+      if (!GlassMaterials.isThick) {
+        // 轻薄档：与改造前逐像素一致
+        card = Padding(
+          padding: margin ?? EdgeInsets.zero,
+          child: glassCard,
+        );
+      } else {
+        // 厚档：外挂 1px 描边 + 双层阴影
+        card = Padding(
+          padding: margin ?? EdgeInsets.zero,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(borderRadius),
+              border: Border.all(color: GlassMaterials.thickBorderColor),
+              boxShadow: GlassMaterials.thickShadows,
+            ),
+            child: glassCard,
+          ),
+        );
+      }
     } else {
       // 关闭态：原毛玻璃卡片（零漂移）
       card = ClipRRect(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/app_design_system.dart';
-import '../../../theme/glass_materials.dart';
+import '../../../widgets/glass_dialog_shell.dart';
 import '../../../utils/utils.dart';
 import '../../../providers/theme_provider.dart';
 import 'package:provider/provider.dart';
@@ -26,16 +26,16 @@ class MonthlySummary extends StatelessWidget {
     context.watch<ThemeProvider>(); // theme rebuild
     final lines = _generateSummary();
 
-    return Container(
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
+    // 玻璃态：整块玻璃卡（此前是裸文字贴页面，与其它卡不一致）；
+    // 关闭态 = 原实色容器（零漂移）
+    return GlassSurface(
+      borderRadius: DS.radiusLg,
+      fallbackDecoration: BoxDecoration(
         color: DS.background,
         borderRadius: BorderRadius.circular(DS.radiusLg),
-        // 玻璃主题无边框；关闭态原样
-        border: shouldUseLiquidGlass(context)
-            ? null
-            : Border.all(color: DS.outlineVariant, width: 2),
+        border: Border.all(color: DS.outlineVariant, width: 2),
       ),
+      padding: EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

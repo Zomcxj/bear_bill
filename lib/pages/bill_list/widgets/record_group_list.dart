@@ -44,12 +44,12 @@ class RecordGroupList extends StatelessWidget {
       itemCount: groupedRecords.length,
       itemBuilder: (context, index) {
         final group = groupedRecords[index];
-        return _buildDateGroup(group);
+        return _buildDateGroup(context, group);
       },
     );
   }
 
-  Widget _buildDateGroup(Map<String, dynamic> group) {
+  Widget _buildDateGroup(BuildContext context, Map<String, dynamic> group) {
     final records = group['records'] as List<RecordModel>;
 
     return GlassSurface(
@@ -63,7 +63,10 @@ class RecordGroupList extends StatelessWidget {
             padding: EdgeInsets.symmetric(
                 horizontal: DS.base, vertical: 12),
             decoration: BoxDecoration(
-              color: DS.background,
+              // 玻璃态：页眉转玻璃 tint（贴近整卡玻璃，不再实色压顶）
+              color: shouldUseLiquidGlass(context)
+                  ? DS.heroCardBg
+                  : DS.background,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(DS.radiusMd),
                 topRight: Radius.circular(DS.radiusMd),

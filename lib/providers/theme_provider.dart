@@ -8,6 +8,7 @@ class ThemeProvider extends ChangeNotifier {
   static const String _storageKey = 'themePrimaryColor';
   static const String _darkModeKey = 'themeDarkMode';
   static const String _liquidGlassKey = 'liquidGlassEnabled';
+  static const String _glassStyleKey = 'glassStyle';
   static const int _defaultPrimary = 0xFFFF8FAB;
 
   Color _primaryColor = const Color(_defaultPrimary);
@@ -16,8 +17,11 @@ class ThemeProvider extends ChangeNotifier {
   bool _isDarkMode = false;
   bool get isDarkMode => _isDarkMode;
 
-  bool _liquidGlassEnabled = false;
-  bool get liquidGlassEnabled => _liquidGlassEnabled;
+  AppGlassStyle _glassStyle = AppGlassStyle.classic;
+  AppGlassStyle get glassStyle => _glassStyle;
+
+  /// 兼容旧调用点：非 classic 即"玻璃已开启"
+  bool get liquidGlassEnabled => _glassStyle != AppGlassStyle.classic;
 
   ThemeProvider() {
     _loadFromStorage();
@@ -31,16 +35,27 @@ class ThemeProvider extends ChangeNotifier {
     final darkSaved = StorageService.instance.getInt(_darkModeKey);
     _isDarkMode = darkSaved == 1;
     DS.setDarkMode(_isDarkMode);
-    // 液态玻璃默认关闭：老用户保持既有视觉，主动开启后才切换
-    _liquidGlassEnabled =
-        StorageService.instance.getInt(_liquidGlassKey) == 1;
-    GlassMaterials.setEnabled(_liquidGlassEnabled);
+    // 玻璃风格三档：优先读新键；缺失时从旧布尔键迁移
+    // （旧键 1 = 开 -> 轻薄玻璃；0/缺失 -> 经典实色），保证升级后视觉不变
+    final styleSaved = StorageService.instance.getInt(_glassStyleKey);
+    if (styleSaved != null &&
+        styleSaved >= 0 &&
+        styleSaved < AppGlassStyle.values.length) {
+      _glassStyle = AppGlassStyle.values[styleSaved];
+    } else {
+      final legacy = StorageService.instance.getInt(_liquidGlassKey);
+      _glassStyle = legacy == 1 ? AppGlassStyle.thin : AppGlassStyle.classic;
+    }
+    GlassMaterials.setStyle(_glassStyle);
   }
 
-  void toggleLiquidGlass() {
-    _liquidGlassEnabled = !_liquidGlassEnabled;
-    GlassMaterials.setEnabled(_liquidGlassEnabled);
-    StorageService.instance.setInt(_liquidGlassKey, _liquidGlassEnabled ? 1 : 0);
+  void setGlassStyle(AppGlassStyle value) {
+    _glassStyle = value;
+    GlassMaterials.setStyle(value);
+    StorageService.instance.setInt(_glassStyleKey, value.index);
+    // 同步旧键，保证降级安装旧版本时行为合理
+    StorageService.instance
+        .setInt(_liquidGlassKey, value == AppGlassStyle.classic ? 0 : 1);
     notifyListeners();
   }
 

@@ -290,11 +290,18 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
                         SizedBox(width: DS.sm),
                         Expanded(
                           child: TextField(
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
+                              // 主题全局 filled + 实色 fillColor(surfaceContainerLow)
+                              // 会把整个玻璃框填黑 —— 玻璃态必须置透明，玻璃才透出来
+                              filled: true,
+                              fillColor: shouldUseLiquidGlass(context)
+                                  ? Colors.transparent
+                                  : null,
                               hintText: '搜索分类、备注...',
                               border: InputBorder.none,
                               isDense: true,
-                              contentPadding: EdgeInsets.symmetric(vertical: 10),
+                              contentPadding:
+                                  const EdgeInsets.symmetric(vertical: 10),
                             ),
                             style: DS.labelMd,
                             onChanged: (value) {

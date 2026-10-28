@@ -23,6 +23,13 @@ import 'app_design_system.dart';
 ///
 /// 折射与色散属于 Premium(Shader) 路线，只在 Impeller 生效；
 /// Skia/Web/测试环境自动落到雾面 BackdropFilter 路线，其余参数照常生效。
+/// 玻璃风格三档：经典实色 / 轻薄玻璃 / 厚玻璃
+///
+/// - [classic]：不启用玻璃，走各页面的关闭态（零漂移）
+/// - [thin]：现有轻薄玻璃（bar() 逐值等于改造前）
+/// - [thick]：厚玻璃（更强模糊/饱和 + 1px 描边 + 内高光 + 双层阴影）
+enum AppGlassStyle { classic, thin, thick }
+
 abstract final class GlassMaterials {
   /// 文档要求"写死，不要自由发挥"的公共材质基值
   static const double blur = 20;
@@ -42,10 +49,18 @@ abstract final class GlassMaterials {
   static const Color tintLight = Color(0x1FFFFFFF); // rgba(255,255,255,0.12)
   static const Color tintDark = Color(0x26000000); // rgba(0,0,0,0.15)
 
-  /// 玻璃层是否可用：受设置页开关控制
-  static bool _enabled = false;
-  static bool get enabled => _enabled;
-  static void setEnabled(bool value) => _enabled = value;
+  /// 当前玻璃风格（三档），由设置页控制
+  static AppGlassStyle _style = AppGlassStyle.classic;
+  static AppGlassStyle get style => _style;
+  static void setStyle(AppGlassStyle value) => _style = value;
+
+  /// 是否厚玻璃档
+  static bool get isThick => _style == AppGlassStyle.thick;
+
+  /// 玻璃层是否可用（兼容旧调用点）：classic 即"玻璃未开启"
+  static bool get enabled => _style != AppGlassStyle.classic;
+  static void setEnabled(bool value) => _style =
+      value ? AppGlassStyle.thin : AppGlassStyle.classic;
 
   /// 运行时渲染后端是否支持 Shader 折射（Skia/测试环境为 false，自动走雾面）
   static bool get supportsRefraction =>
@@ -94,6 +109,24 @@ abstract final class GlassMaterials {
   /// 之前用 [surface] 覆盖它导致药丸过透明、文字发虚。
   /// 仅额外保留项目设计规范要求的顶部高光描边（[rimLight]）。
   static LiquidGlassSettings bar() {
+    // 厚玻璃档：更强模糊/饱和 + 更强高光与阴影（描边与双层阴影由外层
+    // DecoratedBox 提供，见 thickBorderColor / thickShadows）
+    if (isThick) {
+      return LiquidGlassSettings(
+        glassColor: tintBar,
+        blur: 16,
+        saturation: 1.5,
+        thickness: 30,
+        refractiveIndex: 1.59,
+        chromaticAberration: 0.3,
+        lightAngle: 0.75 * math.pi,
+        lightIntensity: 0.6,
+        ambientStrength: 1,
+        rimLight: 0.5,
+        shadowElevation: 2.0,
+      );
+    }
+    // 轻薄档：逐值等于改造前（勿"顺手优化"，此为回归基线）
     return LiquidGlassSettings(
       glassColor: tintBar,
       blur: 3,
@@ -109,9 +142,28 @@ abstract final class GlassMaterials {
     );
   }
 
-  /// 底栏底色：官方 24% 白；深色模式压暗避免发白
-  static Color get tintBar =>
-      DS.isDark ? const Color(0x26FFFFFF) : const Color(0x3DFFFFFF);
+  /// 底栏底色：轻薄档 = 官方 24% 白；厚档 = 更实一档
+  static Color get tintBar => isThick
+      ? (DS.isDark ? const Color(0x3DFFFFFF) : const Color(0x66FFFFFF))
+      : (DS.isDark ? const Color(0x26FFFFFF) : const Color(0x3DFFFFFF));
+
+  /// 厚档外描边色（1px）
+  static Color get thickBorderColor =>
+      DS.isDark ? const Color(0x29FFFFFF) : const Color(0xE6FFFFFF);
+
+  /// 厚档外层双层阴影（接触 + 环境）
+  static List<BoxShadow> get thickShadows => [
+        BoxShadow(
+          color: Colors.black.withOpacity(DS.isDark ? 0.38 : 0.13),
+          blurRadius: 28,
+          offset: const Offset(0, 12),
+        ),
+        BoxShadow(
+          color: Colors.black.withOpacity(DS.isDark ? 0.16 : 0.06),
+          blurRadius: 6,
+          offset: const Offset(0, 2),
+        ),
+      ];
 
   /// 同心圆角：内圆角 = 外圆角 - padding（文档"形状规则"）
   static BorderRadius concentricRadius(

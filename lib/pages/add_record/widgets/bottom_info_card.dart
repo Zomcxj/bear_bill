@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
+    show GlassContainer, GlassQuality;
 
 import '../../../models/models.dart';
 import '../../../theme/app_design_system.dart';
@@ -163,6 +165,13 @@ class BottomInfoCard extends StatelessWidget {
                     maxLines: 1,
                     textInputAction: TextInputAction.done,
                     decoration: InputDecoration(
+                      // 主题全局实色 fill 会把玻璃卡里的输入区填黑，玻璃态置玻璃 tint
+                      filled: true,
+                      fillColor: shouldUseLiquidGlass(context)
+                          ? (DS.isDark
+                              ? Colors.white.withOpacity(0.10)
+                              : Colors.white.withOpacity(0.55))
+                          : null,
                       hintText: '点这里补一句备注',
                       hintStyle: TextStyle(
                         color: DS.outline,
@@ -369,20 +378,12 @@ class BottomInfoCard extends StatelessWidget {
   }
 
   void _showPhotoOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).padding.bottom),
-        decoration: BoxDecoration(
-          color: DS.surfaceContainerLowest,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(DS.radiusMd)),
-        ),
-        child: Column(
+    // 弹层内容：玻璃/关闭态共用
+    Widget content(BuildContext ctx) => Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Icon(Icons.photo_library, color: DS.emphasis),
+              leading: Icon(Icons.photo_library, color: DS.secondaryContainer),
               title: Text('从相册选择'),
               onTap: () {
                 Navigator.pop(ctx);
@@ -400,7 +401,43 @@ class BottomInfoCard extends StatelessWidget {
               ),
             SizedBox(height: DS.sm),
           ],
+        );
+
+    // 玻璃态：官方 GlassContainer 玻璃弹层（与日期选择弹层同款范式）
+    if (shouldUseLiquidGlass(context)) {
+      showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        builder: (ctx) => SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(DS.sm),
+            child: GlassContainer(
+              shape: GlassMaterials.shape(24),
+              settings: GlassMaterials.bar(),
+              quality: GlassQuality.premium,
+              useOwnLayer: true,
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: DS.sm),
+              child: Builder(builder: content),
+            ),
+          ),
         ),
+      );
+      return;
+    }
+
+    // 关闭态：原实色底部弹层（零漂移）
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).padding.bottom),
+        decoration: BoxDecoration(
+          color: DS.surfaceContainerLowest,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(DS.radiusMd)),
+        ),
+        child: content(ctx),
       ),
     );
   }
