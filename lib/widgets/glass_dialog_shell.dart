@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
@@ -98,7 +97,17 @@ Future<T?> showGlassDialog<T>({
           // 这里给自定义内容补一层透明 Material 祖先：不绘制、不拦截点击。
           content: content == null
               ? null
-              : Material(type: MaterialType.transparency, child: content),
+              : Material(
+                  type: MaterialType.transparency,
+                  // 弹窗路由可能自带深色文本样式；按当前模式强制正确前景色，
+                  // 否则浅色下未显式设色的文字会变成白色看不见
+                  child: DefaultTextStyle(
+                    style: DefaultTextStyle.of(context)
+                        .style
+                        .copyWith(color: DS.onSurface),
+                    child: content,
+                  ),
+                ),
           quality: GlassQuality.standard,
           maxWidth: maxWidth,
           actions: actions
@@ -279,9 +288,7 @@ class GlassPanelButton extends StatelessWidget {
 
     final Color fg = destructive
         ? const Color(0xFFFF6B6B)
-        : (primary && GlassMaterials.isThick
-            ? DS.onSecondaryContainer
-            : DS.onSurface);
+        : DS.onSurface;
 
     // 按压物理 = 官方 GlassButton 透明样式（弹簧膨胀 + 拖拽跟随 + 触点光晕），
     // transparent 不画玻璃壳，键面仍是托盘上的着色层——玻璃不套玻璃
@@ -296,22 +303,11 @@ class GlassPanelButton extends StatelessWidget {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: primary
-              ? (GlassMaterials.isThick
-                  ? DS.secondaryContainer
-                  : (DS.isDark
-                      ? Colors.white.withOpacity(0.22)
-                      : Colors.white.withOpacity(0.75)))
+              ? (DS.isDark
+                  ? Colors.white.withOpacity(0.22)
+                  : Colors.white.withOpacity(0.75))
               : Colors.transparent,
           borderRadius: BorderRadius.circular(DS.radiusFull),
-          boxShadow: primary && GlassMaterials.isThick
-              ? [
-                  BoxShadow(
-                    color: DS.secondaryContainer.withOpacity(0.36),
-                    blurRadius: 12,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
           // 玻璃主题无边框（老大要求）：描边取消，仅靠填充区分
         ),
         child: Row(
@@ -441,43 +437,11 @@ class GlassSegmented extends StatefulWidget {
   State<GlassSegmented> createState() => _GlassSegmentedState();
 }
 
-class _GlassSegmentedState extends State<GlassSegmented>
-    with SingleTickerProviderStateMixin {
+class _GlassSegmentedState extends State<GlassSegmented> {
   final _barKey = GlobalKey();
 
-  /// 滑块位移动画（位移由 AnimatedAlign 驱动；本控制器只驱动纵向鼓起）
-  late final AnimationController _slide;
-
-  /// 按压段（弹簧过冲用）
+  /// 按压段
   int? _pressed;
-
-  @override
-  void initState() {
-    super.initState();
-    _slide = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 320),
-      value: 1,
-    );
-  }
-
-  @override
-  void didUpdateWidget(covariant GlassSegmented oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.selectedIndex != widget.selectedIndex) {
-      // 鼓起动画时长按风格分叉（位移本身由 AnimatedAlign 负责）
-      _slide.duration = Duration(
-        milliseconds: GlassMaterials.isThick ? 320 : 10,
-      );
-      _slide.forward(from: 0);
-    }
-  }
-
-  @override
-  void dispose() {
-    _slide.dispose();
-    super.dispose();
-  }
 
   /// 按住拖动换段（底栏"按住滑动"同款换算）+ 按压段放大
   void _onPointer(PointerEvent event) {
@@ -502,43 +466,24 @@ class _GlassSegmentedState extends State<GlassSegmented>
         0,
       );
 
-  /// 滑块本体：位移中纵向鼓起，落定回弹
+  /// 滑块本体
   ///
   /// - 轻薄档：白色半透明块，高度 = widget.height - 8（与改造前逐像素一致）
-  /// - 厚档：主题色实心渐变 + 同色光晕，满高（上下溢出底槽 = 参考观感）
+  /// - 深色实心档：强调色实心块，满高
   Widget _pill() {
-    final thick = GlassMaterials.isThick;
+    final solid = GlassMaterials.isSolid;
     return FractionallySizedBox(
         widthFactor: 1 / widget.labels.length,
         child: Container(
-          height: thick ? null : widget.height - 8,
+          height: solid ? null : widget.height - 8,
           margin: const EdgeInsets.symmetric(horizontal: 2),
           decoration: BoxDecoration(
-            color: thick
-                ? null
+            color: solid
+                ? GlassMaterials.solidAccent
                 : (DS.isDark
                     ? Colors.white.withOpacity(0.22)
                     : Colors.white.withOpacity(0.65)),
-            gradient: thick
-                ? LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [
-                      DS.secondaryContainer.withOpacity(0.88),
-                      DS.secondaryContainer,
-                    ],
-                  )
-                : null,
             borderRadius: BorderRadius.circular(DS.radiusFull),
-            boxShadow: thick
-                ? [
-                    BoxShadow(
-                      color: DS.secondaryContainer.withOpacity(0.36),
-                      blurRadius: 12,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                : null,
           ),
         ),
     );
@@ -547,7 +492,7 @@ class _GlassSegmentedState extends State<GlassSegmented>
   @override
   Widget build(BuildContext context) {
     // 一体玻璃条：整条 shader 玻璃 + 实体滑块 + 按住拖动
-    // 动画对齐 FlClash 实测：300ms easeOutCubic、滑动中纵向鼓起、液态拖尾
+    // 动画：300ms easeOutCubic、滑动中纵向鼓起
     return GlassContainer(
       shape: GlassMaterials.shape(DS.radiusFull),
       settings: GlassMaterials.bar(),
@@ -563,72 +508,51 @@ class _GlassSegmentedState extends State<GlassSegmented>
         onPointerCancel: (_) => _pressEnd(),
         child: SizedBox(
           height: widget.height,
-          child: AnimatedBuilder(
-            animation: _slide,
-            builder: (context, _) {
-              final thick = GlassMaterials.isThick;
-              final t = Curves.easeOutCubic.transform(_slide.value);
-              // 鼓起曲线：位移中段最高（sin 峰），落定回 1.0
-              // 仅厚档有形变（轻薄档必须与改造前一致）
-              final bulge =
-                  thick ? 1.0 + 0.22 * math.sin(t * math.pi) : 1.0;
-              return Stack(
-                // 药丸鼓起需溢出 Stack 之外可见
-                clipBehavior: Clip.none,
+          child: Stack(
+            // 药丸滑动需溢出 Stack 之外可见
+            clipBehavior: Clip.none,
+            children: [
+              // 主滑块：AnimatedAlign 真滑动（与底栏指示器同款观感）
+              AnimatedAlign(
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOutCubic,
+                alignment: _alignmentFor(widget.selectedIndex),
+                child: _pill(),
+              ),
+              Row(
                 children: [
-                  // 主滑块：AnimatedAlign 真滑动（与底栏指示器同款观感），
-                  // 位移中纵向鼓起。不用「旧片淡出」拖尾，避免看成渐变切换
-                  AnimatedAlign(
-                    duration: Duration(milliseconds: thick ? 320 : 220),
-                    curve: thick ? Curves.easeOutCirc : Curves.easeOutCubic,
-                    alignment: _alignmentFor(widget.selectedIndex),
-                    child: Transform.scale(scaleY: bulge, child: _pill()),
-                  ),
-                  Row(
-                    children: [
-                      for (int i = 0; i < widget.labels.length; i++)
-                        Expanded(
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () => widget.onSelected(i),
-                            // 按压：厚档弹簧式放大（1.14，过冲）；
-                            // 轻薄档保持 1.06 线性（回归基线）
-                            child: AnimatedScale(
-                              scale: _pressed == i
-                                  ? (GlassMaterials.isThick ? 1.14 : 1.06)
-                                  : 1.0,
-                              duration: Duration(
-                                milliseconds: _pressed == i
-                                    ? (GlassMaterials.isThick ? 180 : 120)
-                                    : (GlassMaterials.isThick ? 260 : 120),
-                              ),
-                              curve: _pressed == i && GlassMaterials.isThick
-                                  ? Curves.easeOutBack
-                                  : Curves.easeOut,
-                              child: Container(
-                                alignment: Alignment.center,
-                                child: Text(
-                                  widget.labels[i],
-                                  style: DS.labelMd.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    // 选中段：厚档压主题色实心药丸 -> 白字；
-                                    // 轻薄档压白块 -> 表面色（与改造前一致）
-                                    color: i == widget.selectedIndex
-                                        ? (GlassMaterials.isThick
-                                            ? DS.onSecondaryContainer
-                                            : DS.onSurface)
-                                        : DS.onSurfaceVariant,
-                                  ),
-                                ),
+                  for (int i = 0; i < widget.labels.length; i++)
+                    Expanded(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => widget.onSelected(i),
+                        // 按压：1.06 线性（回归基线）
+                        child: AnimatedScale(
+                          scale: _pressed == i ? 1.06 : 1.0,
+                          duration: const Duration(milliseconds: 120),
+                          curve: Curves.easeOut,
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: Text(
+                              widget.labels[i],
+                              style: DS.labelMd.copyWith(
+                                fontWeight: FontWeight.w600,
+                                // 选中段：深色实心档压强调色实心块 -> 白字；
+                                // 轻薄档压白块 -> 表面色（与改造前一致）
+                                color: i == widget.selectedIndex
+                                    ? (GlassMaterials.isSolid
+                                        ? GlassMaterials.solidOnAccent
+                                        : DS.onSurface)
+                                    : DS.onSurfaceVariant,
                               ),
                             ),
                           ),
                         ),
-                    ],
-                  ),
+                      ),
+                    ),
                 ],
-              );
-            },
+              ),
+            ],
           ),
         ),
       ),
@@ -684,13 +608,13 @@ class GlassSurface extends StatelessWidget {
       child: child,
     );
     // 轻薄档：与改造前逐像素一致（不外包装饰）
-    if (!GlassMaterials.isThick) {
+    if (!GlassMaterials.hasOuterFrame) {
       return Padding(
         padding: margin ?? EdgeInsets.zero,
         child: SizedBox(width: width, child: glassCard),
       );
     }
-    // 厚档：外挂 1px 描边 + 双层阴影
+    // 厚/实心档：外挂 1px 描边 + 外层阴影
     // （LiquidGlassSettings 只管折射/模糊/内高光，外描边由这里提供）
     return Padding(
       padding: margin ?? EdgeInsets.zero,
@@ -699,8 +623,8 @@ class GlassSurface extends StatelessWidget {
         child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(borderRadius),
-            border: Border.all(color: GlassMaterials.thickBorderColor),
-            boxShadow: GlassMaterials.thickShadows,
+            border: Border.all(color: GlassMaterials.outerBorderColor),
+            boxShadow: GlassMaterials.outerShadows,
           ),
           child: glassCard,
         ),
@@ -783,10 +707,8 @@ Future<void> showGlassYearMonthPicker({
                             ? DS.emphasis
                             : (glass
                                 ? (DS.isDark
-                                    ? Colors.white.withOpacity(
-                                        GlassMaterials.isThick ? 0.14 : 0.08)
-                                    : Colors.white.withOpacity(
-                                        GlassMaterials.isThick ? 0.62 : 0.5))
+                                    ? Colors.white.withOpacity(0.08)
+                                    : Colors.white.withOpacity(0.5))
                                 : DS.surfaceContainerLow),
                         borderRadius: BorderRadius.circular(DS.radiusSm),
                       ),
@@ -896,8 +818,8 @@ class GlassDialogField extends StatelessWidget {
     filled: true,
     fillColor: glass
         ? (DS.isDark
-            ? Colors.white.withOpacity(GlassMaterials.isThick ? 0.16 : 0.10)
-            : Colors.white.withOpacity(GlassMaterials.isThick ? 0.70 : 0.55))
+            ? Colors.white.withOpacity(0.10)
+            : Colors.white.withOpacity(0.55))
         : DS.surfaceContainerLow,
     contentPadding: const EdgeInsets.symmetric(
       horizontal: DS.sm,

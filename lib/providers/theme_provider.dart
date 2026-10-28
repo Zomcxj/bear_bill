@@ -38,10 +38,13 @@ class ThemeProvider extends ChangeNotifier {
     // 玻璃风格三档：优先读新键；缺失时从旧布尔键迁移
     // （旧键 1 = 开 -> 轻薄玻璃；0/缺失 -> 经典实色），保证升级后视觉不变
     final styleSaved = StorageService.instance.getInt(_glassStyleKey);
-    if (styleSaved != null &&
-        styleSaved >= 0 &&
-        styleSaved < AppGlassStyle.values.length) {
-      _glassStyle = AppGlassStyle.values[styleSaved];
+    // 旧枚举 classic(0)/thin(1)/thick(2)/solid(3)；删除 thick 后 solid 前移为 2。
+    // 旧值 3（solid）迁到 2；旧值 2（原 thick，已移除）也归并到 solid。
+    final idx = styleSaved == 3 ? AppGlassStyle.solid.index : styleSaved;
+    if (idx != null &&
+        idx >= 0 &&
+        idx < AppGlassStyle.values.length) {
+      _glassStyle = AppGlassStyle.values[idx];
     } else {
       final legacy = StorageService.instance.getInt(_liquidGlassKey);
       _glassStyle = legacy == 1 ? AppGlassStyle.thin : AppGlassStyle.classic;

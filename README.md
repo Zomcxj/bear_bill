@@ -73,10 +73,10 @@ cp lib/config/api_keys.dart.template lib/config/api_keys.dart
 ### 构建应用
 
 ```bash
-flutter build apk --release --target-platform android-arm64 --split-per-abi
+flutter build apk --release
 ```
 
-APK 输出位置：`build/app/outputs/flutter-apk/app-arm64-v8a-release.apk`
+APK 输出位置：`build/app/outputs/flutter-apk/app-release.apk`
 
 > ⚠️ Windows 用户名包含中文时需先配置环境变量。详见 [docs/CONFIGURATION.md](docs/CONFIGURATION.md#中文路径问题)
 

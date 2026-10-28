@@ -220,10 +220,17 @@ class _WishJarPageState extends State<WishJarPage>
 
   /// 「创建心愿」玻璃药丸：与首页「记一笔」同款材质/尺寸（高 56）
   Widget _buildGlassCreateButton() {
-    return GlassContainer(
+    // 浅色下玻璃与浅底不分家：外包细描边 + 阴影立起层级
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(DS.radiusFull),
+        border: Border.all(color: GlassMaterials.fabBorderColor),
+        boxShadow: GlassMaterials.fabShadows,
+      ),
+      child: GlassContainer(
       height: 56,
       shape: const LiquidRoundedSuperellipse(borderRadius: DS.radiusFull),
-      settings: GlassMaterials.bar(),
+      settings: GlassMaterials.navBar(),
       quality: GlassQuality.standard,
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: GestureDetector(
@@ -245,6 +252,7 @@ class _WishJarPageState extends State<WishJarPage>
             ),
           ],
         ),
+      ),
       ),
     );
   }

@@ -40,21 +40,21 @@ class GlassCard extends StatelessWidget {
         padding: padding,
         child: child,
       );
-      if (!GlassMaterials.isThick) {
+      if (!GlassMaterials.hasOuterFrame) {
         // 轻薄档：与改造前逐像素一致
         card = Padding(
           padding: margin ?? EdgeInsets.zero,
           child: glassCard,
         );
       } else {
-        // 厚档：外挂 1px 描边 + 双层阴影
+        // 厚/实心档：外挂 1px 描边 + 外层阴影
         card = Padding(
           padding: margin ?? EdgeInsets.zero,
           child: DecoratedBox(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(borderRadius),
-              border: Border.all(color: GlassMaterials.thickBorderColor),
-              boxShadow: GlassMaterials.thickShadows,
+              border: Border.all(color: GlassMaterials.outerBorderColor),
+              boxShadow: GlassMaterials.outerShadows,
             ),
             child: glassCard,
           ),

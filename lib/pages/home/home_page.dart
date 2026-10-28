@@ -313,15 +313,23 @@ class _HomePageState extends State<HomePage>
 
     final Widget circle;
     if (shouldUseLiquidGlass(context)) {
-      circle = GlassContainer(
-        width: 56,
-        height: 56,
-        shape: const LiquidRoundedSuperellipse(borderRadius: 28),
-        settings: GlassMaterials.bar(),
-        // FAB 浮在滚动内容上：premium 的 texture capture 在此上下文会渲染失败，
-        // 官方推荐 interactive widgets 用 standard
-        quality: GlassQuality.standard,
-        child: inner,
+      // 浅色下玻璃与浅底不分家：外包细描边 + 阴影立起层级
+      circle = DecoratedBox(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: GlassMaterials.fabBorderColor),
+          boxShadow: GlassMaterials.fabShadows,
+        ),
+        child: GlassContainer(
+          width: 56,
+          height: 56,
+          shape: const LiquidRoundedSuperellipse(borderRadius: 28),
+          settings: GlassMaterials.navBar(),
+          // FAB 浮在滚动内容上：premium 的 texture capture 在此上下文会渲染失败，
+          // 官方推荐 interactive widgets 用 standard
+          quality: GlassQuality.standard,
+          child: inner,
+        ),
       );
     } else {
       circle = Container(
@@ -358,31 +366,38 @@ class _HomePageState extends State<HomePage>
 
     if (shouldUseLiquidGlass(context)) {
       // 高度锁定 56，与话筒圆钮一致（Row 在 Padding 内居中）
-      return GlassContainer(
-        height: 56,
-        shape: const LiquidRoundedSuperellipse(borderRadius: DS.radiusFull),
-        settings: GlassMaterials.bar(),
-        // FAB 浮在滚动内容上：premium 会渲染失败，用 standard
-        quality: GlassQuality.standard,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: GestureDetector(
-          onTap: openAddRecord,
-          behavior: HitTestBehavior.opaque,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.edit, size: 20, color: DS.onSurface),
-              const SizedBox(width: 8),
-              Text(
-                '记一笔',
-                style: TextStyle(
-                  fontFamily: DS.fontLabel,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: DS.onSurface,
+      return DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(DS.radiusFull),
+          border: Border.all(color: GlassMaterials.fabBorderColor),
+          boxShadow: GlassMaterials.fabShadows,
+        ),
+        child: GlassContainer(
+          height: 56,
+          shape: const LiquidRoundedSuperellipse(borderRadius: DS.radiusFull),
+          settings: GlassMaterials.navBar(),
+          // FAB 浮在滚动内容上：premium 会渲染失败，用 standard
+          quality: GlassQuality.standard,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: GestureDetector(
+            onTap: openAddRecord,
+            behavior: HitTestBehavior.opaque,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.edit, size: 20, color: DS.onSurface),
+                const SizedBox(width: 8),
+                Text(
+                  '记一笔',
+                  style: TextStyle(
+                    fontFamily: DS.fontLabel,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: DS.onSurface,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );

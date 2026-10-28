@@ -134,7 +134,7 @@ android.enableJetifier=true
 当前项目仅导出 arm64 APK：
 
 ```text
-build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+build/app/outputs/flutter-apk/app-release.apk
 ```
 
 发布归档目录：
@@ -188,5 +188,5 @@ flutter doctor -v
 flutter pub deps --style=compact
 flutter pub outdated
 flutter test
-flutter build apk --release --target-platform android-arm64 --split-per-abi
+flutter build apk --release
 ```

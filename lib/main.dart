@@ -249,7 +249,7 @@ class _MainTabPageState extends State<MainTabPage> {
         onTabSelected: _goToTab,
         // 官方底栏专用材质（iOS 26 Apple News/Safari 调校），
         // 自调的 surface() 会覆盖它导致药丸过透明、文字发虚
-        settings: GlassMaterials.bar(),
+        settings: GlassMaterials.navBar(),
         // 官方底栏默认 quality 就是 premium（静态 footer 适用场景）：
         // 真折射 + 色散 + jelly 物理。此前误用 standard（轻量 shader、无折射）
         // 导致"不够液态"。

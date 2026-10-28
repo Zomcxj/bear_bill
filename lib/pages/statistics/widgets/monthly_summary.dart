@@ -29,10 +29,11 @@ class MonthlySummary extends StatelessWidget {
     // 玻璃态：整块玻璃卡（此前是裸文字贴页面，与其它卡不一致）；
     // 关闭态 = 原实色容器（零漂移）
     return GlassSurface(
-      borderRadius: DS.radiusLg,
+      // 圆角与「收支趋势」等卡一致（radiusMd）
+      borderRadius: DS.radiusMd,
       fallbackDecoration: BoxDecoration(
         color: DS.background,
-        borderRadius: BorderRadius.circular(DS.radiusLg),
+        borderRadius: BorderRadius.circular(DS.radiusMd),
         border: Border.all(color: DS.outlineVariant, width: 2),
       ),
       padding: EdgeInsets.all(12),

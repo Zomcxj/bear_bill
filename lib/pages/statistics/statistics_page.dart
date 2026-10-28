@@ -114,9 +114,9 @@ class _StatisticsPageState extends State<StatisticsPage> {
       body: SafeArea(
         top: false,
         bottom: false,
-        child: _loading
-          ? const Center(child: CircularProgressIndicator(color: DS.secondaryContainer))
-          : Column(
+        // hero（含月度/年度切换器）常驻：loading 只顶掉下方内容区，
+        // 否则切换时切换器被销毁重建，滑动动画会丢
+        child: Column(
               children: [
                 // 玻璃态 hero：整块 shader 玻璃（与我的页同款）；关闭态原渐变（零漂移）
                 GlassSurface(
@@ -362,9 +362,13 @@ class _StatisticsPageState extends State<StatisticsPage> {
                 ),
                 SizedBox(height: DS.base),
                 Expanded(
-                  child: _viewMode == 'yearly'
-                      ? YearSummary(year: _selectedMonth.year)
-                      : SingleChildScrollView(
+                  child: _loading
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                              color: DS.secondaryContainer))
+                      : _viewMode == 'yearly'
+                          ? YearSummary(year: _selectedMonth.year)
+                          : SingleChildScrollView(
                           child: Column(
                             children: [
                               Padding(

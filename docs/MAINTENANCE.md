@@ -9,7 +9,7 @@
 ```bash
 flutter pub get
 flutter test
-flutter build apk --release --target-platform android-arm64 --split-per-abi
+flutter build apk --release
 ```
 
 当前项目测试基线应保持全绿。
@@ -41,13 +41,13 @@ Remove-Item <YOUR_GRADLE_CACHE>/caches/* -Recurse -Force
 当前 release 包只构建 arm64：
 
 ```bash
-flutter build apk --release --target-platform android-arm64 --split-per-abi
+flutter build apk --release
 ```
 
 输出路径：
 
 ```text
-build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+build/app/outputs/flutter-apk/app-release.apk
 ```
 
 ### 若 release 构建失败，优先检查
@@ -76,10 +76,10 @@ release 包安装后一直白屏、logcat 报 `Unable to get provider androidx.s
 
 详见 `docs/CONFIGURATION.md` 的“代码压缩与 R8 规则接线”。
 
-### ABI 未生效（包体积异常）
+### 包体积异常
 
-- 只带 `--target-platform android-arm64` 时产物是 universal 胖包 `app-release.apk`，`lib/` 下会混有 armeabi-v7a / x86_64 的插件 `.so`，且 `libflutter.so`、`libapp.so` 体积也会因 Flutter 引擎构建方式变化而波动
-- 需要严格单 ABI 出包时加 `--split-per-abi`，产物为 `app-arm64-v8a-release.apk`
+- 单包构建产物是 universal `app-release.apk`（含各 ABI 的 `.so`），体积随 Flutter 引擎构建方式变化而波动属正常
+- 若产物名带 ABI 后缀（如 `app-arm64-v8a-release.apk`），说明误加了 `--split-per-abi`，请改用 `flutter build apk --release`
 
 ### 真机安装注意事项（adb）
 

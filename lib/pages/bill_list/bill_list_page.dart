@@ -324,7 +324,8 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
               ),
             ),
 
-          SizedBox(height: DS.base),
+          // 与每日分组间距一致（组间也是 DS.sm），避免首组贴顶
+          SizedBox(height: DS.sm),
           Expanded(
             child: _loading
                 ? const Center(child: CircularProgressIndicator(color: DS.secondaryContainer))

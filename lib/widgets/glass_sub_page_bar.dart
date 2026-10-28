@@ -61,7 +61,7 @@ class GlassSubPageBar extends StatelessWidget implements PreferredSizeWidget {
         ),
         child: GlassContainer(
           shape: const LiquidRoundedSuperellipse(borderRadius: DS.radiusFull),
-          settings: GlassMaterials.bar(),
+          settings: GlassMaterials.navBar(),
           quality: GlassQuality.standard,
           padding: const EdgeInsets.symmetric(horizontal: DS.xs),
           child: Stack(

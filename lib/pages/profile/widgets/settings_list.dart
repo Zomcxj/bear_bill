@@ -115,7 +115,7 @@ class _SettingsListState extends State<SettingsList> {
             trailing: switch (context.watch<ThemeProvider>().glassStyle) {
               AppGlassStyle.classic => '经典实色',
               AppGlassStyle.thin => '轻薄玻璃',
-              AppGlassStyle.thick => '厚玻璃',
+              AppGlassStyle.solid => '深色实心',
             },
             onTap: () => showGlassStyleDialog(context),
           ),
@@ -129,7 +129,7 @@ class _SettingsListState extends State<SettingsList> {
           _buildMenuItem(
             icon: Icons.info_outline,
             title: '关于',
-            trailing: 'v1.3.8',
+            trailing: 'v1.4.0',
             onTap: () {
               showGlassDialog(
                 context: context,
@@ -148,7 +148,7 @@ class _SettingsListState extends State<SettingsList> {
                     ),
                     SizedBox(height: DS.xs),
                     Text(
-                      'v1.3.8',
+                      'v1.4.0',
                       style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
                     ),
                     SizedBox(height: DS.sm),

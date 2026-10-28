@@ -118,7 +118,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
                         SizedBox(width: 4),
                         Text(
                           tpl['name'],
-                          style: TextStyle(fontSize: 12),
+                          style: TextStyle(fontSize: 12, color: DS.onSurface),
                         ),
                       ],
                     ),

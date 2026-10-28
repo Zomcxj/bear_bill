@@ -10,7 +10,7 @@ import '../../../widgets/glass_dialog_shell.dart';
 ///
 /// - 经典实色：不启用玻璃（与"玻璃关闭"逐像素一致）
 /// - 轻薄玻璃：现有 iOS 26 底栏材质
-/// - 厚玻璃：强模糊 + 1px 描边 + 双层阴影 + 实心主题色选中态
+/// - 深色实心：近黑实心卡 + 细描边 + 亮色药丸
 void showGlassStyleDialog(BuildContext context) {
   final provider = context.read<ThemeProvider>();
   final options = <_StyleOption>[
@@ -25,9 +25,9 @@ void showGlassStyleDialog(BuildContext context) {
       subtitle: 'iOS 26 底栏材质 · 克制通透',
     ),
     const _StyleOption(
-      style: AppGlassStyle.thick,
-      title: '厚玻璃',
-      subtitle: '强模糊 + 描边 + 双层阴影',
+      style: AppGlassStyle.solid,
+      title: '深色实心',
+      subtitle: '近黑实心卡 · 细描边 · 亮色药丸',
     ),
   ];
 

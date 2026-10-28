@@ -42,7 +42,7 @@ class GlassTopStrip extends StatelessWidget {
             vertical: DS.sm,
           ),
           shape: const LiquidRoundedSuperellipse(borderRadius: DS.radiusFull),
-          settings: GlassMaterials.bar(),
+          settings: GlassMaterials.navBar(),
           quality: GlassQuality.premium,
           child: Row(
             children: [

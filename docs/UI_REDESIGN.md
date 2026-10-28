@@ -100,13 +100,13 @@
 当前发布构建规则：
 
 ```bash
-flutter build apk --release --target-platform android-arm64 --split-per-abi
+flutter build apk --release
 ```
 
 当前产物路径：
 
 ```text
-build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+build/app/outputs/flutter-apk/app-release.apk
 ```
 
 发布归档命名规则：

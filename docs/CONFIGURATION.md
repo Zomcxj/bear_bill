@@ -97,21 +97,13 @@ if (File("${project.projectDir}/proguard-rules.pro").exists()) {
 
 ### ABI 控制
 
-插件在未开启 split 时，会把 `abiFilters` 设为 Flutter 支持的全部 ABI（arm64-v8a / armeabi-v7a / x86_64），此时 `--target-platform android-arm64` 只限制 AOT 编译目标，**不会**从 APK 中剔除插件依赖带来的其他 ABI `.so`。
+**只出单一 APK**：直接 `flutter build apk --release`，产物 `app-release.apk`（universal，含 Flutter 支持的全部 ABI `.so`）。不要加 `--split-per-abi` / `--target-platform`，那会产出按 ABI 拆分的多个包。
 
-- 只出 arm64 单包：加 `--split-per-abi`，产物为 `app-arm64-v8a-release.apk`
-- 只出 universal 胖包：不加该参数，产物为 `app-release.apk`（含 3 个 ABI 的 `.so`）
+### versionCode
 
-### versionCode 与 ABI 编码（重要）
+单包构建下 APK 内 versionCode 始终等于 `pubspec.yaml` 的 build 号，不做 ABI 编码改写。
 
-`--split-per-abi` 默认会把 versionCode 改写为 `abiCode * 1000 + versionCode`（arm64-v8a 的 abiCode = 2），即 `pubspec.yaml` 的 `1.3.7+11` 在 APK 里会变成 **2011**：
-
-| 构建方式 | APK 内 versionCode | 说明 |
-|---|---|---|
-| `--target-platform android-arm64`（不带 split） | `11` | 与 `pubspec.yaml` 一致 |
-| `--split-per-abi`（未设该开关时） | `2011` | 与 build 号脱钩 |
-
-一旦手机上装过 `2011` 的 split 包，再装 `11` 的包会被系统判为版本降级而拒绝安装（`INSTALL_FAILED_VERSION_DOWNGRADE`），只能先卸载。`android/gradle.properties` 因此设置了 `force-version-code-ignoring-abi=true`，强制忽略 ABI 编码，使所有 APK 的 versionCode 始终等于 `pubspec.yaml` 的 build 号，保持版本号规则单一来源。该开关仅在 `--split-per-abi` 时生效，不影响其他构建。
+（历史备注：`android/gradle.properties` 里的 `force-version-code-ignoring-abi=true` 只在 `--split-per-abi` 时生效，单包构建下为惰性开关，保留无害。）
 
 出包后务必核对：
 
@@ -211,16 +203,16 @@ flutter test
 ### 构建 arm64 Release APK
 
 ```bash
-flutter build apk --release --target-platform android-arm64 --split-per-abi
+flutter build apk --release
 ```
 
 输出文件：
 
 ```text
-build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+build/app/outputs/flutter-apk/app-release.apk
 ```
 
-注意：若漏掉 `--split-per-abi`，产物名为 `app-release.apk`，且 APK 内会混入 armeabi-v7a / x86_64 的插件 `.so`。
+注意：产物即单一 `app-release.apk`（universal，含各 ABI 的 `.so`）；若产物名带 ABI 后缀，说明误加了 `--split-per-abi`。
 
 发布归档命名规则：
 
@@ -274,5 +266,5 @@ bear_bill/
 flutter doctor -v
 flutter pub get
 flutter test
-flutter build apk --release --target-platform android-arm64 --split-per-abi
+flutter build apk --release
 ```
