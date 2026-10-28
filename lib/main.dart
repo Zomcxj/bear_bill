@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:provider/provider.dart';
 
-import 'dev/glass_lab_page.dart';
 import 'pages/bill_list/bill_list_page.dart';
 import 'pages/home/home_page.dart';
 import 'pages/profile/profile_page.dart';
@@ -157,10 +156,7 @@ class _BearBillAppState extends State<BearBillApp> {
           );
         },
         navigatorObservers: [routeObserver], // Register the global route observer
-        // [Temporary] Glass lab validation page (launches directly when _kGlassLab=true; set back to false and remove once validated)
-        home: _kGlassLab
-            ? const GlassLabPage()
-            : MainTabPage(onFontSizeChanged: _loadFontSize),
+        home: MainTabPage(onFontSizeChanged: _loadFontSize),
       ),
       ),
     );
@@ -170,9 +166,6 @@ class _BearBillAppState extends State<BearBillApp> {
 /// Main tab page
 /// Global tab switch notifier (switch the bottom tab from a child page)
 final ValueNotifier<int> tabSwitchNotifier = ValueNotifier<int>(0);
-
-/// [Temporary] Glass lab switch: when true, launches the validation page directly; set back to false and delete the lab files once validated
-const bool _kGlassLab = false;
 
 class MainTabPage extends StatefulWidget {
   final VoidCallback? onFontSizeChanged;
