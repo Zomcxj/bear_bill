@@ -49,22 +49,42 @@ mixin AiChatQueryMixin on State<AiChatPage> {
           break;
         case 'month':
         default:
-          startDate =
-              '${now.year}-${now.month.toString().padLeft(2, '0')}-01';
-          endDate =
-              '${now.year}-${now.month.toString().padLeft(2, '0')}-31';
+          startDate = _formatDate(DateTime(now.year, now.month, 1));
+          endDate = _formatDate(DateTime(now.year, now.month + 1, 0));
           periodLabel = '${now.month}月';
       }
     }
 
-    List<RecordModel> records = await DatabaseService.instance.queryRecords(
-      startDate: startDate,
-      endDate: endDate,
-      categoryId: result.queryCategoryId,
-      mood: result.queryMood,
-      locationKeyword: result.queryLocation,
-      bookId: bookId,
-    );
+    // "有定位的消费": filter by the presence of coordinates
+    List<RecordModel> records = result.queryRequireLocation
+        ? await DatabaseService.instance.getRecordsWithLocation(
+            bookId: bookId,
+          )
+        : await DatabaseService.instance.queryRecords(
+            startDate: startDate,
+            endDate: endDate,
+            categoryId: result.queryCategoryId,
+            mood: result.queryMood,
+            locationKeyword: result.queryLocation,
+            bookId: bookId,
+          );
+
+    if (result.queryRequireLocation) {
+      records = records.where((r) {
+        if (r.date.compareTo(startDate ?? '') < 0) return false;
+        if (r.date.compareTo(endDate ?? '9999-12-31') > 0) return false;
+        if (result.queryCategoryId != null &&
+            r.categoryId != result.queryCategoryId) {
+          return false;
+        }
+        if (result.queryMood != null && r.mood != result.queryMood) return false;
+        if (result.queryLocation != null &&
+            !(r.location ?? '').contains(result.queryLocation!)) {
+          return false;
+        }
+        return true;
+      }).toList();
+    }
 
     double totalExpense = 0;
     double totalIncome = 0;
@@ -90,9 +110,11 @@ mixin AiChatQueryMixin on State<AiChatPage> {
 
     String filterDesc = '';
     if (result.queryCategoryId != null) {
-      final cat =
-          getCategoryById(result.queryCategoryId!, isExpense: true);
-      filterDesc += '${cat?.icon ?? ''} ${cat?.name ?? result.queryCategoryId} ';
+      final id = result.queryCategoryId!;
+      // Category ids may live in either the expense or the income list
+      final cat = getCategoryById(id, isExpense: true) ??
+          getCategoryById(id, isExpense: false);
+      filterDesc += '${cat?.icon ?? ''} ${cat?.name ?? id} ';
     }
     if (result.queryMood != null) {
       final mood = moods.where((m) => m.id == result.queryMood).firstOrNull;
@@ -100,6 +122,9 @@ mixin AiChatQueryMixin on State<AiChatPage> {
     }
     if (result.queryLocation != null) {
       filterDesc += '📍${result.queryLocation} ';
+    }
+    if (result.queryRequireLocation) {
+      filterDesc += '📍有定位 ';
     }
 
     final msgId = DateTime.now().millisecondsSinceEpoch.toString();
@@ -119,6 +144,10 @@ mixin AiChatQueryMixin on State<AiChatPage> {
         },
       ));
     });
+  }
+
+  String _formatDate(DateTime d) {
+    return '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
   }
 
   String _formatDateRangeLabel(String? start, String? end) {

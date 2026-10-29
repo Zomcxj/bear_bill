@@ -103,9 +103,15 @@ class _ChatInputBarState extends State<ChatInputBar> {
       if (!mounted) return;
       setState(() => _isRecognizing = false);
 
-      final text = result['text'] as String;
-      if (text.trim().isNotEmpty) {
-        widget.onSend(text.trim());
+      final recognized = result['text'] as String;
+      // Fill the input box instead of sending directly, so the user can fix
+      // any recognition error before submitting
+      if (recognized.trim().isNotEmpty) {
+        _controller.text = recognized.trim();
+        _controller.selection = TextSelection.fromPosition(
+          TextPosition(offset: _controller.text.length),
+        );
+        _focusNode.requestFocus();
       }
     } catch (e) {
       if (!mounted) return;

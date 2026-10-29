@@ -92,53 +92,57 @@ class _AiChatPageState extends State<AiChatPage>
     _scrollToBottom();
 
     try {
-      // If a category is waiting for an amount, first try to read the input as an amount
+      // A pending category waits for an amount. Accept it only when the reply
+      // is basically just a number (optionally with a unit/date); anything
+      // else is a brand-new sentence and must not inherit the old context.
       if (_pendingCategory != null) {
-        final amountMatch = RegExp(r'(\d+\.?\d*)').firstMatch(text.trim());
-        if (amountMatch != null) {
-          final amount = double.parse(amountMatch.group(1)!);
-          if (amount > 0) {
-            final pending = _pendingCategory!;
-            _pendingCategory = null;
-            final result = AiParseResult(
-              intent: 'record',
-              type: pending['type'] as String,
-              amount: amount,
-              categoryId: pending['categoryId'] as String,
-              remark: pending['remark'] as String?,
-              date: pending['date'] as String?,
-            );
-            await _handleRecordResult(result);
-            setState(() => _isLoading = false);
-            _scrollToBottom();
-            return;
-          }
-        }
-        // Input is not an amount; clear the pending state and continue normal parsing
+        final pending = _pendingCategory;
         _pendingCategory = null;
+        final amount = _amountOnlyReply(text);
+        if (amount != null) {
+          await _handleRecordResult(AiParseResult(
+            intent: 'record',
+            type: pending!['type'] as String,
+            amount: amount,
+            categoryId: pending['categoryId'] as String,
+            remark: pending['remark'] as String?,
+            date: pending['date'] as String?,
+          ));
+          setState(() => _isLoading = false);
+          _scrollToBottom();
+          return;
+        }
       }
 
       final result = await GlmService.instance.parseUserInput(text);
 
-      if (result.isRecord) {
-        await _handleRecordResult(result);
-      } else if (result.intent == 'record' && result.amount == null) {
+      // One sentence may contain several records (multi-item result)
+      final multi = result.items.where((e) => e.isRecord).toList();
+      final primary = result.items.isNotEmpty ? result.items.first : result;
+
+      if (multi.isNotEmpty) {
+        for (final item in multi) {
+          await _handleRecordResult(item);
+        }
+      } else if (primary.isRecord) {
+        await _handleRecordResult(primary);
+      } else if (primary.intent == 'record' && primary.amount == null) {
         // Category recognized but no amount; ask for the amount
         final category = getCategoryById(
-          result.categoryId ?? 'other',
-          isExpense: result.type == 'expense',
+          primary.categoryId ?? 'other',
+          isExpense: primary.type == 'expense',
         );
         final icon = category?.icon ?? '📦';
         final name = category?.name ?? '消费';
         _pendingCategory = {
-          'type': result.type ?? 'expense',
-          'categoryId': result.categoryId ?? 'other',
-          'remark': result.remark,
-          'date': result.date,
+          'type': primary.type ?? 'expense',
+          'categoryId': primary.categoryId ?? 'other',
+          'remark': primary.remark,
+          'date': primary.date,
         };
         _addBotMessage('$icon 请问${name}花了多少钱？');
-      } else if (result.isQuery) {
-        await _handleQueryResult(result);
+      } else if (primary.isQuery) {
+        await _handleQueryResult(primary);
       } else {
         _addBotMessage(
             '抱歉，我没有理解你的意思 😅\n\n试试这样说：\n• "午餐花了25"\n• "打车18元"\n• "交通"（然后告诉我金额）');
@@ -149,6 +153,26 @@ class _AiChatPageState extends State<AiChatPage>
       setState(() => _isLoading = false);
       _scrollToBottom();
     }
+  }
+
+  /// Parse a reply that is essentially just an amount ("30", "30块", "三十").
+  /// Returns null for anything longer, so full sentences are re-parsed fresh.
+  double? _amountOnlyReply(String text) {
+    final t = text
+        .replaceAll(RegExp(r'[元块圆钱]'), '')
+        .replaceAll(RegExp(r'[\s,，。．.]'), '')
+        .trim();
+    if (t.isEmpty) return null;
+    // Digits only, or a short pure-Chinese numeral
+    if (RegExp(r'^\d+(\.\d+)?$').hasMatch(t)) {
+      final v = double.tryParse(t);
+      return (v != null && v > 0) ? v : null;
+    }
+    if (RegExp(r'^[零一二两三四五六七八九十百千万]{1,8}$').hasMatch(t)) {
+      final v = GlmService.instance.parseChineseNumber(t);
+      return v > 0 ? v.toDouble() : null;
+    }
+    return null;
   }
 
   Future<void> _handleRecordResult(AiParseResult result) async {
