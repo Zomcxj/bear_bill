@@ -97,7 +97,9 @@ if (File("${project.projectDir}/proguard-rules.pro").exists()) {
 
 ### ABI 控制
 
-**只出单一 APK**：直接 `flutter build apk --release`，产物 `app-release.apk`（universal，含 Flutter 支持的全部 ABI `.so`）。不要加 `--split-per-abi` / `--target-platform`，那会产出按 ABI 拆分的多个包。
+**只出单一 APK**：`flutter build apk --release --target-platform android-arm64`，产物为单个 `app-release.apk`（约 11MB）。`--target-platform android-arm64` 只编译 arm64 的 AOT 产物；不要加 `--split-per-abi`，那会产出按 ABI 拆分的多个包。
+
+插件自带的 `.so` 通过 `android/app/build.gradle` 的 `packaging { jniLibs { useLegacyPackaging = true } }` 压缩存储，体积约为不压缩时的一半；移除该配置会让 APK 涨到约 22MB。
 
 ### versionCode
 
@@ -203,7 +205,7 @@ flutter test
 ### 构建 arm64 Release APK
 
 ```bash
-flutter build apk --release
+flutter build apk --release --target-platform android-arm64
 ```
 
 输出文件：
@@ -266,5 +268,5 @@ bear_bill/
 flutter doctor -v
 flutter pub get
 flutter test
-flutter build apk --release
+flutter build apk --release --target-platform android-arm64
 ```

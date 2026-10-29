@@ -188,5 +188,5 @@ flutter doctor -v
 flutter pub deps --style=compact
 flutter pub outdated
 flutter test
-flutter build apk --release
+flutter build apk --release --target-platform android-arm64
 ```

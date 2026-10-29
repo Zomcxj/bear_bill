@@ -70,6 +70,14 @@ android {
         }
     }
 
+    // 压缩 so 存储：AGP 9 默认 extractNativeLibs=false 会让 so 以未压缩方式
+    // （STORED）打进 APK，体积翻倍。打开压缩后 so 走 deflate，约省 40%。
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
     // 注意：不要手写 splits.abi。
     // Flutter Gradle 插件在未检测到 -Psplit-per-abi 时会强制覆盖 ndk.abiFilters
     // 为全部平台 ABI，与手写 splits 冲突（AGP 8.11+ 报 "Conflicting configuration"）。

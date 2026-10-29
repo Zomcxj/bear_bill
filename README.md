@@ -73,7 +73,7 @@ cp lib/config/api_keys.dart.template lib/config/api_keys.dart
 ### 构建应用
 
 ```bash
-flutter build apk --release
+flutter build apk --release --target-platform android-arm64
 ```
 
 APK 输出位置：`build/app/outputs/flutter-apk/app-release.apk`

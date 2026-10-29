@@ -100,7 +100,7 @@
 当前发布构建规则：
 
 ```bash
-flutter build apk --release
+flutter build apk --release --target-platform android-arm64
 ```
 
 当前产物路径：

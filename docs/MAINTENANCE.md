@@ -9,7 +9,7 @@
 ```bash
 flutter pub get
 flutter test
-flutter build apk --release
+flutter build apk --release --target-platform android-arm64
 ```
 
 当前项目测试基线应保持全绿。
@@ -41,7 +41,7 @@ Remove-Item <YOUR_GRADLE_CACHE>/caches/* -Recurse -Force
 当前 release 包只构建 arm64：
 
 ```bash
-flutter build apk --release
+flutter build apk --release --target-platform android-arm64
 ```
 
 输出路径：
@@ -79,7 +79,7 @@ release 包安装后一直白屏、logcat 报 `Unable to get provider androidx.s
 ### 包体积异常
 
 - 单包构建产物是 universal `app-release.apk`（含各 ABI 的 `.so`），体积随 Flutter 引擎构建方式变化而波动属正常
-- 若产物名带 ABI 后缀（如 `app-arm64-v8a-release.apk`），说明误加了 `--split-per-abi`，请改用 `flutter build apk --release`
+- 若产物名带 ABI 后缀（如 `app-arm64-v8a-release.apk`），说明误加了 `--split-per-abi`，请改用 `flutter build apk --release --target-platform android-arm64`
 
 ### 真机安装注意事项（adb）
 
