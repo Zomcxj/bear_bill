@@ -269,21 +269,57 @@ void main() {
     });
   });
 
-  group('parseUserInput — local fallback keeps lastError clean', () {
-    test('an unconfigured service returns a local parse', () async {
-      // aiApiKey is empty in the test environment, so no network call happens.
+  group('parseUserInput — API path and local fallback', () {
+    // The network round trip is injected so these stay deterministic whether or
+    // not a real API key is present (CI has one, so a real call must not happen).
+    tearDown(() => svc.apiOverrideForTest = null);
+
+    test('a successful API parse is returned and lastError stays null', () async {
+      svc.apiOverrideForTest = (_) async => const AiParseResult(
+            intent: 'record',
+            type: 'expense',
+            amount: 30,
+            categoryId: 'food',
+          );
+      final r = await svc.parseUserInput('午餐30');
+      expect(r.amount, 30);
+      expect(r.categoryId, 'food');
+      expect(svc.lastError, isNull);
+    });
+
+    test('an API exception falls back to the local parse', () async {
+      svc.apiOverrideForTest = (_) async => throw Exception('boom');
       final r = await svc.parseUserInput('午餐花了25');
       expect(r.isRecord, isTrue);
       expect(r.amount, 25);
       expect(r.categoryId, 'food');
+      expect(svc.lastError, isNotNull);
     });
 
-    test('a successful parse clears lastError', () async {
+    test('an API null reply falls back to the local parse', () async {
+      svc.apiOverrideForTest = (_) async => null;
+      final r = await svc.parseUserInput('午餐花了25');
+      expect(r.isRecord, isTrue);
+      expect(r.amount, 25);
+    });
+
+    test('a stale lastError is cleared by the next parse', () async {
+      svc.apiOverrideForTest = (_) async => throw Exception('boom');
       await svc.parseUserInput('午餐花了25');
+      expect(svc.lastError, isNotNull);
+
+      svc.apiOverrideForTest = (_) async => const AiParseResult(
+            intent: 'record',
+            type: 'expense',
+            amount: 12,
+            categoryId: 'food',
+          );
+      await svc.parseUserInput('午餐12');
       expect(svc.lastError, isNull);
     });
 
     test('empty input yields unknown intent', () async {
+      svc.apiOverrideForTest = (_) async => null;
       final r = await svc.parseUserInput('   ');
       expect(r.intent, 'unknown');
     });

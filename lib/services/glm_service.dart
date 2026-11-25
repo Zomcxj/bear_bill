@@ -73,7 +73,7 @@ class GlmService {
   /// Parse user input (API first, local fallback)
   Future<AiParseResult> parseUserInput(String input) async {
     _lastError = null;
-    if (isConfigured) {
+    if (isConfigured || apiOverrideForTest != null) {
       try {
         final result = await _callGlmApi(input);
         if (result != null) {
@@ -87,6 +87,11 @@ class GlmService {
     }
     return _localParse(input);
   }
+
+  /// Exposed for unit tests: replace the network round trip so [parseUserInput]
+  /// can be exercised deterministically without a real API key or network.
+  @visibleForTesting
+  Future<AiParseResult?> Function(String input)? apiOverrideForTest;
 
   /// Exposed for unit tests: run only the offline keyword parser.
   @visibleForTesting
@@ -116,6 +121,10 @@ class GlmService {
   /// Call the GLM-4-Flash API
   Future<AiParseResult?> _callGlmApi(String input) async {
     _lastError = null;
+    // Unit tests inject a fake round trip so no network or API key is needed.
+    final override = apiOverrideForTest;
+    if (override != null) return override(input);
+
     final expenseList = expenseCategories
         .map((c) => '${c.id}:${c.name}(${c.icon})')
         .join(', ');
