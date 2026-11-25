@@ -4,8 +4,8 @@
 
 小熊记账本是一个基于 Flutter 开发的 Android 记账应用，当前 UI 基线为 `Luminous Finance` 玻璃态设计系统。
 
-当前版本：`v1.3.7`
-当前应用版本号来源：`pubspec.yaml` 中的 `version: 1.3.7+11`
+当前版本：`v1.4.0`
+当前应用版本号来源：`pubspec.yaml` 中的 `version: 1.4.0+15`
 
 ## 核心能力
 
@@ -133,11 +133,11 @@ D:/Softwaredata/Android/SDK/build-tools/<ver>/aapt2 dump badging <apk> | grep ve
 Android 版本号从 `pubspec.yaml` 自动解析：
 
 ```yaml
-version: 1.3.7+11
+version: 1.4.0+15
 ```
 
-- `1.3.7` 对应 `versionName`
-- `11` 对应 `versionCode`
+- `1.4.0` 对应 `versionName`
+- `15` 对应 `versionCode`
 
 说明：
 
@@ -214,7 +214,7 @@ flutter build apk --release --target-platform android-arm64
 build/app/outputs/flutter-apk/app-release.apk
 ```
 
-注意：产物即单一 `app-release.apk`（universal，含各 ABI 的 `.so`）；若产物名带 ABI 后缀，说明误加了 `--split-per-abi`。
+注意：产物即单一 `app-release.apk`（arm64-v8a，约 11MB）；若产物名带 ABI 后缀，说明误加了 `--split-per-abi`。
 
 发布归档命名规则：
 

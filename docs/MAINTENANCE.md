@@ -78,7 +78,7 @@ release 包安装后一直白屏、logcat 报 `Unable to get provider androidx.s
 
 ### 包体积异常
 
-- 单包构建产物是 universal `app-release.apk`（含各 ABI 的 `.so`），体积随 Flutter 引擎构建方式变化而波动属正常
+- 单包构建产物是 arm64-v8a `app-release.apk`（约 11MB），体积随 Flutter 引擎和 so 压缩配置变化而波动
 - 若产物名带 ABI 后缀（如 `app-arm64-v8a-release.apk`），说明误加了 `--split-per-abi`，请改用 `flutter build apk --release --target-platform android-arm64`
 
 ### 真机安装注意事项（adb）
