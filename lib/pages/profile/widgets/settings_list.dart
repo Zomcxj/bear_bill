@@ -129,7 +129,7 @@ class _SettingsListState extends State<SettingsList> {
           _buildMenuItem(
             icon: Icons.info_outline,
             title: '关于',
-            trailing: 'v1.4.0',
+            trailing: 'v1.4.1',
             onTap: () {
               showGlassDialog(
                 context: context,
@@ -148,7 +148,7 @@ class _SettingsListState extends State<SettingsList> {
                     ),
                     const SizedBox(height: DS.xs),
                     Text(
-                      'v1.4.0',
+                      'v1.4.1',
                       style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
                     ),
                     const SizedBox(height: DS.sm),
