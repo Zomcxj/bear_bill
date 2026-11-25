@@ -115,6 +115,7 @@ class _AiChatPageState extends State<AiChatPage>
       }
 
       final result = await GlmService.instance.parseUserInput(text);
+      final apiError = GlmService.instance.lastError;
 
       // One sentence may contain several records (multi-item result)
       final multi = result.items.where((e) => e.isRecord).toList();
@@ -146,6 +147,9 @@ class _AiChatPageState extends State<AiChatPage>
       } else {
         _addBotMessage(
             '抱歉，我没有理解你的意思 😅\n\n试试这样说：\n• "午餐花了25"\n• "打车18元"\n• "交通"（然后告诉我金额）');
+      }
+      if (apiError != null) {
+        _addBotMessage('本地解析：$apiError', type: ChatMessageType.error);
       }
     } catch (e) {
       _addBotMessage('出了点问题，请稍后再试 😢', type: ChatMessageType.error);
@@ -411,13 +415,13 @@ class _AiChatPageState extends State<AiChatPage>
           if (!GlmService.instance.isConfigured)
             Container(
               width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               color: DS.surfaceContainerHigh,
               child: Row(
                 children: [
                   Icon(Icons.info_outline,
                       size: 14, color: DS.emphasis),
-                  SizedBox(width: 6),
+                  const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       '未配置 GLM API Key，使用本地关键词解析（精度较低）',
@@ -434,13 +438,13 @@ class _AiChatPageState extends State<AiChatPage>
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
-              padding: EdgeInsets.symmetric(vertical: 12),
+              padding: const EdgeInsets.symmetric(vertical: 12),
               itemCount: _messages.length + (_isLoading ? 1 : 0),
               itemBuilder: (context, index) {
                 if (index == _messages.length) {
                   // Loading indicator
                   return Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Row(
                       children: [
                         Container(
@@ -454,9 +458,9 @@ class _AiChatPageState extends State<AiChatPage>
                             child: Text('🐻', style: TextStyle(fontSize: 20)),
                           ),
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Container(
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                               horizontal: 14, vertical: 10),
                           decoration: BoxDecoration(
                             color: DS.surfaceContainerLowest,
@@ -465,7 +469,7 @@ class _AiChatPageState extends State<AiChatPage>
                             border: shouldUseLiquidGlass(context)
                                 ? null
                                 : Border.all(
-                                    color: DS.outlineVariant.withOpacity(0.5)),
+                                    color: DS.outlineVariant.withValues(alpha: 0.5)),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -478,7 +482,7 @@ class _AiChatPageState extends State<AiChatPage>
                                   color: DS.emphasis,
                                 ),
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               Text(
                                 '思考中...',
                                 style: TextStyle(

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -65,13 +66,22 @@ class GlmService {
 
   bool get isConfigured => aiApiKey.isNotEmpty;
 
+/// Last API failure reason (null after a successful parse).
+  String? _lastError;
+  String? get lastError => _lastError;
+
   /// Parse user input (API first, local fallback)
   Future<AiParseResult> parseUserInput(String input) async {
+    _lastError = null;
     if (isConfigured) {
       try {
         final result = await _callGlmApi(input);
-        if (result != null) return result;
+        if (result != null) {
+          _lastError = null;
+          return result;
+        }
       } catch (e) {
+        _lastError = 'AI 请求失败: $e';
         if (kDebugMode) print('GLM API 异常，降级本地解析: $e');
       }
     }
@@ -82,12 +92,30 @@ class GlmService {
   @visibleForTesting
   AiParseResult parseLocalForTest(String input) => _localParse(input);
 
+  /// Exposed for unit tests: run the model-JSON mapper (nested items included).
+  @visibleForTesting
+  AiParseResult parseJsonForTest(Map<String, dynamic> json) => _fromJson(json);
+
+  /// Exposed for unit tests: apply keyword overrides on top of a model result.
+  @visibleForTesting
+  AiParseResult correctForTest(String input, AiParseResult r) =>
+      _correct(input, r);
+
+  /// Exposed for unit tests: coerce a JSON amount (num or string) to double.
+  @visibleForTesting
+  double? toDoubleForTest(dynamic value) => _toDouble(value);
+
+  /// Exposed for unit tests: normalise the model remark field.
+  @visibleForTesting
+  String? cleanRemarkForTest(dynamic value) => _cleanRemark(value);
+
   /// Convert a Chinese numeral string ("二十五", "一百二") to an int.
   /// Used by the amount follow-up in the AI chat page.
   int parseChineseNumber(String s) => _chineseToInt(s);
 
   /// Call the GLM-4-Flash API
   Future<AiParseResult?> _callGlmApi(String input) async {
+    _lastError = null;
     final expenseList = expenseCategories
         .map((c) => '${c.id}:${c.name}(${c.icon})')
         .join(', ');
@@ -153,35 +181,78 @@ JSON 格式:
 或
 {"intent":"unknown"}''';
 
-    final response = await http.post(
-      Uri.parse(aiBaseUrl),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $aiApiKey',
-      },
-      body: jsonEncode({
-        'model': aiModel,
-        'messages': [
-          {'role': 'system', 'content': systemPrompt},
-          {'role': 'user', 'content': input},
-        ],
-        'temperature': 0.1,
-      }),
-    );
+    final payload = jsonEncode({
+      'model': aiModel,
+      'messages': [
+        {'role': 'system', 'content': systemPrompt},
+        {'role': 'user', 'content': input},
+      ],
+      'temperature': 0.1,
+      'max_tokens': 512,
+    });
 
-    if (response.statusCode != 200) return null;
+    http.Response? response;
+    for (var attempt = 0; attempt < 2; attempt++) {
+      try {
+        response = await http
+            .post(
+              Uri.parse(aiBaseUrl),
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer $aiApiKey',
+              },
+              body: payload,
+            )
+            .timeout(const Duration(seconds: 20));
+        if (response.statusCode == 200) {
+          _lastError = null;
+          break;
+        }
 
-    final data = jsonDecode(response.body);
-    final content = data['choices']?[0]?['message']?['content'] as String?;
-    if (content == null) return null;
+        _lastError = 'HTTP ${response.statusCode}';
+        if ((response.statusCode == 429 || response.statusCode >= 500) &&
+            attempt == 0) {
+          await Future.delayed(const Duration(milliseconds: 600));
+          continue;
+        }
+        return null;
+      } on TimeoutException {
+        _lastError = '请求超时';
+      } catch (e) {
+        _lastError = '网络异常: $e';
+      }
+      if (attempt == 0) {
+        await Future.delayed(const Duration(milliseconds: 600));
+      }
+    }
+    if (response == null || response.statusCode != 200) return null;
 
-    // Extract the JSON part
-    final jsonMatch = RegExp(r'\{[^}]+\}').firstMatch(content);
-    if (jsonMatch == null) return null;
+    try {
+      final data = jsonDecode(response.body);
+      final content = data['choices']?[0]?['message']?['content'] as String?;
+      if (content == null) {
+        _lastError = '响应缺少内容';
+        return null;
+      }
 
-    final parsed = jsonDecode(jsonMatch.group(0)!);
-    if (parsed is! Map) return null;
-    return _correct(input, _fromJson(Map<String, dynamic>.from(parsed)));
+      // Extract the first JSON object, including nested items
+      final start = content.indexOf('{');
+      final end = content.lastIndexOf('}');
+      if (start < 0 || end <= start) {
+        _lastError = '响应不是 JSON';
+        return null;
+      }
+
+      final parsed = jsonDecode(content.substring(start, end + 1));
+      if (parsed is! Map) {
+        _lastError = '响应 JSON 类型错误';
+        return null;
+      }
+      return _correct(input, _fromJson(Map<String, dynamic>.from(parsed)));
+    } catch (e) {
+      _lastError = '解析失败: $e';
+      return null;
+    }
   }
 
   /// Keyword words that unambiguously pin a category.
@@ -228,24 +299,39 @@ JSON 格式:
   };
 
   /// Apply keyword overrides on top of the model result.
-  AiParseResult _correct(String input, AiParseResult r) {
+  ///
+  /// [allowSplit] is false when correcting the nested items of a multi-record
+  /// result: splitting the whole sentence again would overwrite every item with
+  /// the same split and wipe its amount.
+  AiParseResult _correct(String input, AiParseResult r,
+      {bool allowSplit = true}) {
     if (r.items.isNotEmpty) {
       return AiParseResult(
         intent: r.intent,
-        items: r.items.map((e) => _correct(input, e)).toList(),
+        items: r.items
+            .map((e) => _correct(input, e, allowSplit: false))
+            .toList(),
       );
     }
     if (r.intent != 'record') return r;
 
     // The model often merges "早餐10块午餐25" into one record; split it here
-    final split = _splitMultiRecord(input);
-    if (split != null) return split;
+    if (allowSplit) {
+      final split = _splitMultiRecord(input);
+      if (split != null) return split;
+    }
+
+    // Nested items are matched against their own remark only; the full sentence
+    // would let one item's keyword leak into every other item.
+    final keywordSource =
+        allowSplit ? input : (r.remark ?? '');
+    if (keywordSource.isEmpty) return r;
 
     // Longest matching strong keyword wins
     String? forced;
     var bestLen = 0;
     for (final entry in _strongCategory.entries) {
-      if (input.contains(entry.key) && entry.key.length > bestLen) {
+      if (keywordSource.contains(entry.key) && entry.key.length > bestLen) {
         bestLen = entry.key.length;
         forced = entry.value;
       }
@@ -328,7 +414,7 @@ JSON 格式:
       type: parsed['type'],
       amount: _toDouble(parsed['amount']),
       categoryId: parsed['categoryId'],
-      remark: parsed['remark'],
+      remark: _cleanRemark(parsed['remark']),
       date: parsed['date'] as String?,
       queryPeriod: parsed['queryPeriod'],
       queryCategoryId: parsed['queryCategoryId'],
@@ -345,6 +431,17 @@ JSON 格式:
     if (value == null) return null;
     if (value is num) return value.toDouble();
     return double.tryParse(value.toString());
+  }
+
+  /// Trim whitespace and trailing punctuation the model tends to leave behind
+  /// (e.g. "打车，" from "打车25块，奶茶15"); returns null when nothing is left.
+  String? _cleanRemark(dynamic value) {
+    if (value == null) return null;
+    final text = value.toString().trim();
+    if (text.isEmpty) return null;
+    final cleaned =
+        text.replaceFirst(RegExp(r'[\s,，。;；、:：!！?？]+$'), '').trim();
+    return cleaned.isEmpty ? null : cleaned;
   }
 
   /// Local keyword fallback parsing (used only when the API is unavailable)
