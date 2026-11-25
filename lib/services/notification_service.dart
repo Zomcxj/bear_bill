@@ -91,12 +91,6 @@ class NotificationService {
     await _alarmChannel.invokeMethod('cancelAlarm');
   }
 
-  /// Check whether a reminder is already scheduled
-  Future<List<PendingNotificationRequest>> getPendingNotifications() async {
-    await init();
-    return await _notifications.pendingNotificationRequests();
-  }
-
   /// Update today's record summary (shown when the alarm fires)
   Future<void> updateTodaySummary({
     required int count,
@@ -131,64 +125,6 @@ class NotificationService {
         income: income,
       );
     } catch (_) {}
-  }
-
-  /// Send a test notification immediately
-  Future<void> showTestNotification() async {
-    await init();
-
-    final records = await DatabaseService.instance.getTodayRecords();
-    double expense = 0;
-    double income = 0;
-    for (final r in records) {
-      if (r.type == 'expense') {
-        expense += r.amount;
-      } else {
-        income += r.amount;
-      }
-    }
-
-    final String title;
-    final String content;
-    if (records.isNotEmpty) {
-      title = '🐼 今日记账总结';
-      final parts = <String>[];
-      parts.add('${records.length}笔记录');
-      if (expense > 0) parts.add('支出¥${expense.toStringAsFixed(2)}');
-      if (income > 0) parts.add('收入¥${income.toStringAsFixed(2)}');
-      final suffix = expense >= 5000
-          ? '简直壕气！💰'
-          : expense >= 1000
-              ? '太有实力了！💪'
-              : expense >= 500
-                  ? '花得不少呢～😅'
-                  : expense > 0
-                      ? '继续保持～'
-                      : '今天没有支出，攒钱达人！🌟';
-      content = '${parts.join('，')}。$suffix';
-    } else {
-      title = '🐼 记账提醒';
-      content = '今天还没记账哦，快来记录一笔吧～';
-    }
-
-    await _notifications.show(
-      999,
-      title,
-      content,
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'test_channel',
-          '测试通知',
-          channelDescription: '用于测试通知功能',
-          importance: Importance.high,
-          priority: Priority.high,
-          icon: '@mipmap/ic_notification',
-          color: Color(0xFFFF8FAB),
-          visibility: NotificationVisibility.secret,
-        ),
-        iOS: DarwinNotificationDetails(),
-      ),
-    );
   }
 
   /// Show the monthly financial summary notification

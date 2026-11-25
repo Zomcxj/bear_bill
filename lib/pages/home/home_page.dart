@@ -141,6 +141,7 @@ class _HomePageState extends State<HomePage>
       if (text.isNotEmpty) {
         // Record voice usage count
         await ApiQuotaService.instance.recordVoiceUsage();
+        if (!mounted) return;
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -174,17 +175,17 @@ class _HomePageState extends State<HomePage>
               onRefresh: () async {},
               color: DS.secondaryContainer,
               child: SingleChildScrollView(
-                physics: AlwaysScrollableScrollPhysics(),
+                physics: const AlwaysScrollableScrollPhysics(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    GreetingCard(),
-                    SizedBox(height: DS.base),
-                    WeekTrendChart(),
-                    SizedBox(height: DS.base),
-                    QuickEntries(),
-                    SizedBox(height: DS.base),
-                    TodayRecords(),
+                    const GreetingCard(),
+                    const SizedBox(height: DS.base),
+                    const WeekTrendChart(),
+                    const SizedBox(height: DS.base),
+                    const QuickEntries(),
+                    const SizedBox(height: DS.base),
+                    const TodayRecords(),
                     SizedBox(height: 100 + glassBottomInset(context)),
                   ],
                 ),
@@ -194,7 +195,7 @@ class _HomePageState extends State<HomePage>
             if (_isRecording)
               Positioned.fill(
                 child: Container(
-                  color: Colors.black.withOpacity(0.45),
+                  color: Colors.black.withValues(alpha: 0.45),
                   child: Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -204,8 +205,8 @@ class _HomePageState extends State<HomePage>
                           height: 80,
                           decoration: BoxDecoration(
                             color: _isCancelled
-                                ? Colors.grey.withOpacity(0.3)
-                                : DS.error.withOpacity(0.2),
+                                ? Colors.grey.withValues(alpha: 0.3)
+                                : DS.error.withValues(alpha: 0.2),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -214,20 +215,20 @@ class _HomePageState extends State<HomePage>
                             color: _isCancelled ? Colors.white : DS.error,
                           ),
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         Text(
                           _isCancelled ? '松开取消' : '松开发送，上滑取消',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 17,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           _isCancelled ? '' : '静音 2 秒自动停止',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.6),
+                            color: Colors.white.withValues(alpha: 0.6),
                             fontSize: 13,
                           ),
                         ),
@@ -240,7 +241,7 @@ class _HomePageState extends State<HomePage>
             if (_isRecognizing)
               Positioned.fill(
                 child: Container(
-                  color: Colors.black.withOpacity(0.45),
+                  color: Colors.black.withValues(alpha: 0.45),
                   child: const Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -282,7 +283,7 @@ class _HomePageState extends State<HomePage>
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             _buildVoiceButton(context),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             _buildRecordButton(context),
           ],
         ),
@@ -409,10 +410,10 @@ class _HomePageState extends State<HomePage>
         onPressed: openAddRecord,
         backgroundColor: DS.onSurface,
         foregroundColor: DS.background,
-        icon: Icon(Icons.edit, size: 20),
-        label: Text(
+        icon: const Icon(Icons.edit, size: 20),
+        label: const Text(
           '记一笔',
-          style: TextStyle(
+          style: const TextStyle(
             fontFamily: DS.fontLabel,
             fontSize: 16,
             fontWeight: FontWeight.w600,

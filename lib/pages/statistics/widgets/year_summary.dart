@@ -5,8 +5,8 @@ import '../../../providers/app_provider.dart';
 import '../../../services/database_service.dart';
 import '../../../theme/app_design_system.dart';
 import '../../../theme/glass_materials.dart';
-import '../../../widgets/glass_dialog_shell.dart';
 import '../../../utils/utils.dart';
+import '../../../widgets/glass_dialog_shell.dart';
 import '../../../providers/theme_provider.dart';
 
 /// Year summary component
@@ -71,10 +71,10 @@ class _YearSummaryState extends State<YearSummary> {
         : SingleChildScrollView(
             child: Column(
               children: [
-                SizedBox(height: DS.sm),
+                const SizedBox(height: DS.sm),
                 // 12-month bar chart
                 _buildMonthlyChart(),
-                SizedBox(height: DS.sm),
+                const SizedBox(height: DS.sm),
                 // Yearly category breakdown
                 _buildYearCategoryBreakdown(),
                 // Bottom padding in glass mode: prevents content from being covered by the floating glass bottom bar
@@ -82,134 +82,6 @@ class _YearSummaryState extends State<YearSummary> {
               ],
             ),
           );
-  }
-
-  Widget _buildYearSelector() {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          GestureDetector(
-            onTap: () {
-              setState(() => _selectedYear--);
-              _loadYearStats();
-            },
-            child: Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: DS.background,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(Icons.chevron_left, size: 24, color: DS.emphasis),
-            ),
-          ),
-          SizedBox(width: 16),
-          GestureDetector(
-            onTap: _pickYear,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '$_selectedYear 年',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: DS.onSurface,
-                  ),
-                ),
-                Icon(Icons.unfold_more, size: 18, color: DS.outline),
-              ],
-            ),
-          ),
-          SizedBox(width: 16),
-          GestureDetector(
-            onTap: _selectedYear < DateTime.now().year
-                ? () {
-                    setState(() => _selectedYear++);
-                    _loadYearStats();
-                  }
-                : null,
-            child: Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: DS.background,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.chevron_right,
-                size: 24,
-                color: _selectedYear < DateTime.now().year
-                    ? DS.emphasis
-                    : DS.outline,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _pickYear() {
-    int tempYear = _selectedYear;
-    showGlassDialog(
-      context: context,
-      maxWidth: 300,
-      content: StatefulBuilder(
-        builder: (ctx, setDialogState) {
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.chevron_left, color: DS.onSurface),
-                    onPressed: () => setDialogState(() => tempYear--),
-                  ),
-                  Text(
-                    '$tempYear 年',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: DS.onSurface,
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.chevron_right, color: DS.onSurface),
-                    onPressed: tempYear < DateTime.now().year
-                        ? () => setDialogState(() => tempYear++)
-                        : null,
-                  ),
-                ],
-              ),
-              Text(
-                '选择年份查看年度总结',
-                textAlign: TextAlign.center,
-                style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
-              ),
-            ],
-          );
-        },
-      ),
-      buildActions: (ctx) => [
-        GlassDialogButton(
-          label: '取消',
-          onPressed: () => Navigator.pop(ctx),
-        ),
-        GlassDialogButton(
-          label: '确认',
-          isPrimary: true,
-          onPressed: () {
-            setState(() => _selectedYear = tempYear);
-            Navigator.pop(ctx);
-            _loadYearStats();
-          },
-        ),
-      ],
-    );
   }
 
   /// Format an amount for compact display
@@ -230,8 +102,8 @@ class _YearSummaryState extends State<YearSummary> {
         .reduce((a, b) => a > b ? a : b);
 
     return GlassSurface(
-      margin: EdgeInsets.symmetric(horizontal: DS.sm),
-      padding: EdgeInsets.all(DS.gutter),
+      margin: const EdgeInsets.symmetric(horizontal: DS.sm),
+      padding: const EdgeInsets.all(DS.gutter),
       fallbackDecoration: DS.glassDecoration,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -239,7 +111,7 @@ class _YearSummaryState extends State<YearSummary> {
           Row(
             children: [
               Icon(Icons.bar_chart, size: 18, color: DS.emphasis),
-              SizedBox(width: 6),
+              const SizedBox(width: 6),
               Text(
                 '月度趋势',
                 style: TextStyle(
@@ -250,7 +122,7 @@ class _YearSummaryState extends State<YearSummary> {
               ),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           SizedBox(
             height: 180,
             child: Row(
@@ -268,7 +140,7 @@ class _YearSummaryState extends State<YearSummary> {
 
                 return Expanded(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 2),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -291,7 +163,7 @@ class _YearSummaryState extends State<YearSummary> {
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                        if (hasData) SizedBox(height: 2),
+                        if (hasData) const SizedBox(height: 2),
                         // Dual bars
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -307,7 +179,7 @@ class _YearSummaryState extends State<YearSummary> {
                                 borderRadius: BorderRadius.circular(2),
                               ),
                             ),
-                            SizedBox(width: 2),
+                            const SizedBox(width: 2),
                             Container(
                               width: 6,
                               height: hasData ? barHeight * incomeRatio : 2,
@@ -320,7 +192,7 @@ class _YearSummaryState extends State<YearSummary> {
                             ),
                           ],
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
                           '${i + 1}',
                           style: TextStyle(
@@ -338,17 +210,17 @@ class _YearSummaryState extends State<YearSummary> {
               }),
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(width: 10, height: 10, color: DS.chartExpense),
-              SizedBox(width: 4),
+              const SizedBox(width: 4),
               Text('支出',
                   style: TextStyle(fontSize: 11, color: DS.onSurfaceVariant)),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               Container(width: 10, height: 10, color: DS.chartIncome),
-              SizedBox(width: 4),
+              const SizedBox(width: 4),
               Text('收入',
                   style: TextStyle(fontSize: 11, color: DS.onSurfaceVariant)),
             ],
@@ -372,8 +244,8 @@ class _YearSummaryState extends State<YearSummary> {
     }).toList();
 
     return GlassSurface(
-      margin: EdgeInsets.symmetric(horizontal: DS.sm),
-      padding: EdgeInsets.all(DS.gutter),
+      margin: const EdgeInsets.symmetric(horizontal: DS.sm),
+      padding: const EdgeInsets.all(DS.gutter),
       fallbackDecoration: DS.glassDecoration,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -381,7 +253,7 @@ class _YearSummaryState extends State<YearSummary> {
           Row(
             children: [
               Icon(Icons.bar_chart, size: 18, color: DS.emphasis),
-              SizedBox(width: 6),
+              const SizedBox(width: 6),
               Text(
                 '年度支出分类 Top ${categoriesWithPercent.length > 5 ? 5 : categoriesWithPercent.length}',
                 style: TextStyle(
@@ -392,7 +264,7 @@ class _YearSummaryState extends State<YearSummary> {
               ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           ...categoriesWithPercent.take(5).map((c) => _buildCategoryItem(c)),
         ],
       ),
@@ -405,11 +277,11 @@ class _YearSummaryState extends State<YearSummary> {
     final count = category['count'] as int? ?? 0;
 
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Text(category['icon'] ?? '📦', style: TextStyle(fontSize: 18)),
-          SizedBox(width: 8),
+          Text(category['icon'] ?? '📦', style: const TextStyle(fontSize: 18)),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
               category['name'],
@@ -424,7 +296,7 @@ class _YearSummaryState extends State<YearSummary> {
             '$count笔',
             style: TextStyle(fontSize: 11, color: DS.outline),
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Text(
             '¥${FormatUtils.formatAmount(amount)}',
             style: TextStyle(
@@ -433,7 +305,7 @@ class _YearSummaryState extends State<YearSummary> {
               color: DS.onSurface,
             ),
           ),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           Text(
             '${percent.toStringAsFixed(1)}%',
             style: TextStyle(fontSize: 11, color: DS.onSurfaceVariant),

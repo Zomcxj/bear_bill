@@ -30,8 +30,8 @@ class AppTheme {
 
   // ── Hero area ──
   static Color get heroTextMain => DS.onSurface;
-  static Color get heroTextSub => DS.onSurface.withOpacity(0.8);
-  static Color get heroTextMuted => DS.onSurface.withOpacity(0.6);
+  static Color get heroTextSub => DS.onSurface.withValues(alpha: 0.8);
+  static Color get heroTextMuted => DS.onSurface.withValues(alpha: 0.6);
   static const Color heroExpense = DS.error;
   static const Color heroIncome = DS.secondary;
   static const Color heroBalancePos = DS.secondary;
@@ -171,28 +171,4 @@ class AppTheme {
     outline: const Color(0xFF6A6A72),
     textButtonColor: DS.secondaryContainer,
   );
-}
-
-class AppRadius {
-  static const double sm = DS.radiusSm;
-  static const double md = DS.radiusMd;
-  static const double lg = DS.radiusLg;
-  static const double xl = DS.radiusXl;
-  static const double full = DS.radiusFull;
-}
-
-class AppSpacing {
-  static const double xs = DS.xs;
-  static const double sm = DS.base;
-  static const double md = DS.gutter;
-  static const double lg = DS.md;
-  static const double xl = DS.lg;
-  static const double xxl = DS.xl;
-}
-
-class AppShadow {
-  static List<BoxShadow> get card => DS.shadowSm;
-  static List<BoxShadow> get deep => DS.shadowMd;
-  static List<BoxShadow> get float => DS.shadowLg;
-  static List<BoxShadow> get navbar => DS.shadowSm;
 }

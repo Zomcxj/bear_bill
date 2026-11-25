@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 
 /// Local storage service
 class StorageService {
@@ -130,25 +129,5 @@ class StorageService {
       // Ignore read errors
     }
     return null;
-  }
-}
-
-/// Export service
-class ExportService {
-  /// Share CSV data
-  static Future<void> shareCSV(String csvContent, String fileName) async {
-    try {
-      final dir = await getTemporaryDirectory();
-      final file = File('${dir.path}/$fileName.csv');
-      await file.writeAsString(csvContent);
-      await Share.shareXFiles([XFile(file.path)], text: '小熊记账本导出数据 🐻');
-    } catch (e) {
-      throw Exception('导出失败: $e');
-    }
-  }
-
-  /// Share text content
-  static Future<void> shareText(String text) async {
-    await Share.share(text, subject: '小熊记账本 🐻');
   }
 }

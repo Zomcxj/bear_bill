@@ -133,39 +133,6 @@ class AmapLocationService {
     return [];
   }
 
-  /// Nearby search: coordinates → nearby POIs (pass WGS84; converted to GCJ-02 internally)
-  Future<List<AmapPoi>> searchAround(double lat, double lon, {String? keyword}) async {
-    try {
-      final gcj = wgs84ToGcj02(lat, lon);
-      String urlStr =
-          'https://restapi.amap.com/v3/place/around'
-          '?key=$_apiKey&location=${gcj.$2},${gcj.$1}&output=json&offset=20&sortrule=distance';
-      if (keyword != null && keyword.isNotEmpty) {
-        urlStr += '&keywords=${Uri.encodeComponent(keyword)}';
-      }
-      final resp = await http.get(Uri.parse(urlStr)).timeout(const Duration(seconds: 8));
-      if (resp.statusCode == 200) {
-        final data = json.decode(resp.body);
-        if (data['status'] == '1' && data['pois'] != null) {
-          return (data['pois'] as List).map((poi) {
-            final loc = (poi['location'] ?? '').toString().split(',');
-            return AmapPoi(
-              name: poi['name'] ?? '',
-              address: poi['address'] ?? '',
-              type: poi['type'] ?? '',
-              lon: double.tryParse(loc.isNotEmpty ? loc[0] : '0') ?? 0,
-              lat: double.tryParse(loc.length > 1 ? loc[1] : '0') ?? 0,
-              distance: poi['distance']?.toString() ?? '',
-            );
-          }).toList();
-        }
-      }
-    } catch (e) {
-      if (kDebugMode) print('高德周边搜索异常: $e');
-    }
-    return [];
-  }
-
   /// Whether the API key is configured
   bool get isConfigured => _apiKey != 'YOUR_AMAP_API_KEY';
 }

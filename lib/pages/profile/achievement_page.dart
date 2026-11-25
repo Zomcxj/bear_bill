@@ -37,6 +37,9 @@ class _AchievementPageState extends State<AchievementPage> {
 
   Future<void> _loadData() async {
     final db = DatabaseService.instance;
+    // Read the provider before any await so no BuildContext is used across async gaps
+    final appProvider = context.read<AppProvider>();
+
     final wishes = await db.getAllWishes();
     final totalImages = await db.getTotalImagesCount();
     final locationCount = await db.getRecordsWithLocationCount();
@@ -44,7 +47,6 @@ class _AchievementPageState extends State<AchievementPage> {
     final uniqueCategories = await db.getUniqueCategoriesCount();
 
     // Read the budget from the current book (consistent with the home page)
-    final appProvider = context.read<AppProvider>();
     final book = await appProvider.getCurrentBook();
     final budget = book?.budget ?? 0.0;
     final hasBudget = budget > 0;
@@ -60,6 +62,7 @@ class _AchievementPageState extends State<AchievementPage> {
       expenseRatio = (expense / budget) * 100;
     }
 
+    if (!mounted) return;
     setState(() {
       _totalWishes = wishes.length;
       _completedWishes = wishes.where((w) => w.isCompleted).length;
@@ -92,7 +95,7 @@ class _AchievementPageState extends State<AchievementPage> {
           body: _loading
               ? const Center(child: CircularProgressIndicator())
               : GridView.builder(
-                  padding: EdgeInsets.all(DS.gutter),
+                  padding: const EdgeInsets.all(DS.gutter),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 4,
                     crossAxisSpacing: DS.base,
@@ -208,7 +211,7 @@ class _AchievementCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => _showDetail(context),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
         decoration: BoxDecoration(
           color: DS.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(DS.radiusSm),
@@ -249,7 +252,7 @@ class _AchievementCard extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               achievement.title,
               maxLines: 1,
@@ -260,10 +263,10 @@ class _AchievementCard extends StatelessWidget {
                 color: isUnlocked ? DS.onSurface : DS.outline,
               ),
             ),
-            SizedBox(height: 2),
+            const SizedBox(height: 2),
             // Progress bar
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 4),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(DS.radiusFull),
                 child: LinearProgressIndicator(
@@ -276,7 +279,7 @@ class _AchievementCard extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 2),
+            const SizedBox(height: 2),
             Text(
               isUnlocked ? '已完成' : '$percent%',
               style: TextStyle(

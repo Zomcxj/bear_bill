@@ -329,8 +329,8 @@ class GlassPanelButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: primary
               ? (DS.isDark
-                  ? Colors.white.withOpacity(0.22)
-                  : Colors.white.withOpacity(0.75))
+                  ? Colors.white.withValues(alpha: 0.22)
+                  : Colors.white.withValues(alpha: 0.75))
               : Colors.transparent,
           borderRadius: BorderRadius.circular(DS.radiusFull),
           // No border in the glass theme (per the project owner): the outline
@@ -358,62 +358,6 @@ class GlassPanelButton extends StatelessWidget {
   }
 }
 
-/// Glass round icon button (the shared set for small round buttons such as
-/// month switchers and steppers)
-///
-/// Glass mode = the official [GlassButton] default style (real glass shell +
-/// press spring + touch highlight); disabled mode = the original
-/// [GestureDetector] + filled round button (zero drift; the caller decides
-/// whether to fall back).
-class GlassIconButton extends StatelessWidget {
-  const GlassIconButton({
-    super.key,
-    required this.icon,
-    required this.onTap,
-    this.size = 36,
-    this.iconSize = 22,
-    this.iconColor,
-  });
-
-  final IconData icon;
-  final VoidCallback onTap;
-  final double size;
-  final double iconSize;
-  final Color? iconColor;
-
-  @override
-  Widget build(BuildContext context) {
-    final glass = shouldUseLiquidGlass(context);
-    if (!glass) {
-      return GestureDetector(
-        onTap: onTap,
-        child: Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            color: DS.surfaceContainerLow,
-            borderRadius: BorderRadius.circular(DS.radiusFull),
-          ),
-          child: Icon(icon, size: iconSize, color: iconColor ?? DS.onSurfaceVariant),
-        ),
-      );
-    }
-
-    return GlassButton.custom(
-      onTap: onTap,
-      interactionScale: 1.06,
-      stretch: 0.2,
-      shape: const LiquidRoundedSuperellipse(borderRadius: 999),
-      child: Container(
-        width: size,
-        height: size,
-        alignment: Alignment.center,
-        child: Icon(icon, size: iconSize, color: iconColor ?? DS.onSurface),
-      ),
-    );
-  }
-}
-
 /// Same glass bar wrapper as the bottom navigation bar
 ///
 /// Glass mode: the whole child is wrapped in a single strip of shader glass
@@ -431,14 +375,14 @@ class GlassBarWrap extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!shouldUseLiquidGlass(context)) return child;
     return Padding(
-      padding: EdgeInsets.fromLTRB(DS.base, 4, DS.base, 4),
+      padding: const EdgeInsets.fromLTRB(DS.base, 4, DS.base, 4),
       child: GlassContainer(
         shape: GlassMaterials.shape(DS.radiusFull),
         settings: GlassMaterials.bar(),
         quality: GlassQuality.standard,
         // No parent glass layer in the page tree, so create the layer here
         useOwnLayer: true,
-        padding: EdgeInsets.symmetric(horizontal: DS.base, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: DS.base, vertical: 8),
         child: child,
       ),
     );
@@ -517,8 +461,8 @@ class _GlassSegmentedState extends State<GlassSegmented> {
             color: solid
                 ? GlassMaterials.solidAccent
                 : (DS.isDark
-                    ? Colors.white.withOpacity(0.22)
-                    : Colors.white.withOpacity(0.65)),
+                    ? Colors.white.withValues(alpha: 0.22)
+                    : Colors.white.withValues(alpha: 0.65)),
             borderRadius: BorderRadius.circular(DS.radiusFull),
           ),
         ),
@@ -755,8 +699,8 @@ Future<void> showGlassYearMonthPicker({
                             ? DS.emphasis
                             : (glass
                                 ? (DS.isDark
-                                    ? Colors.white.withOpacity(0.08)
-                                    : Colors.white.withOpacity(0.5))
+                                    ? Colors.white.withValues(alpha: 0.08)
+                                    : Colors.white.withValues(alpha: 0.5))
                                 : DS.surfaceContainerLow),
                         borderRadius: BorderRadius.circular(DS.radiusSm),
                       ),
@@ -869,8 +813,8 @@ class GlassDialogField extends StatelessWidget {
     filled: true,
     fillColor: glass
         ? (DS.isDark
-            ? Colors.white.withOpacity(0.10)
-            : Colors.white.withOpacity(0.55))
+            ? Colors.white.withValues(alpha: 0.10)
+            : Colors.white.withValues(alpha: 0.55))
         : DS.surfaceContainerLow,
     contentPadding: const EdgeInsets.symmetric(
       horizontal: DS.sm,
@@ -894,7 +838,7 @@ class GlassDialogField extends StatelessWidget {
         ? InputBorder.none
         : OutlineInputBorder(
             borderRadius: BorderRadius.circular(DS.radiusSm),
-            borderSide: BorderSide(color: DS.secondary, width: 1.5),
+            borderSide: const BorderSide(color: DS.secondary, width: 1.5),
           ),
   );
 }

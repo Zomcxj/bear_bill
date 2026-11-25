@@ -6,4 +6,3 @@ export 'font_size_dialog.dart';
 export 'glass_style_dialog.dart';
 export 'help_dialog.dart';
 export 'reminder_dialog.dart';
-export 'theme_color_dialog.dart';

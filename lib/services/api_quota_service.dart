@@ -16,7 +16,7 @@ class ApiQuotaService {
     final today = _getToday();
 
     final dailyKey = 'voice_daily_$today';
-    final totalKey = 'voice_total';
+    const totalKey = 'voice_total';
 
     final dailyCount = prefs.getInt(dailyKey) ?? 0;
     final totalCount = prefs.getInt(totalKey) ?? 0;
@@ -58,7 +58,7 @@ class ApiQuotaService {
     final today = _getToday();
 
     final dailyKey = 'voice_daily_$today';
-    final totalKey = 'voice_total';
+    const totalKey = 'voice_total';
 
     await prefs.setInt(dailyKey, (prefs.getInt(dailyKey) ?? 0) + 1);
     await prefs.setInt(totalKey, (prefs.getInt(totalKey) ?? 0) + 1);
@@ -97,29 +97,9 @@ class ApiQuotaService {
     await prefs.setInt(dailyKey, (prefs.getInt(dailyKey) ?? 0) + 1);
   }
 
-  /// Get today's statistics
-  Future<QuotaStats> getTodayStats() async {
-    final prefs = await SharedPreferences.getInstance();
-    final today = _getToday();
-
-    return QuotaStats(
-      voiceDaily: prefs.getInt('voice_daily_$today') ?? 0,
-      voiceDailyLimit: voiceDailyLimit,
-      voiceTotal: prefs.getInt('voice_total') ?? 0,
-      voiceTotalLimit: voiceTotalLimit,
-      amapDaily: prefs.getInt('amap_daily_$today') ?? 0,
-      amapDailyLimit: amapDailyLimit,
-    );
-  }
-
   String _getToday() {
     final now = DateTime.now();
     return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-  }
-
-  String _getMonth() {
-    final now = DateTime.now();
-    return '${now.year}-${now.month.toString().padLeft(2, '0')}';
   }
 }
 
@@ -139,24 +119,5 @@ class QuotaResult {
     required this.dailyLimit,
     this.totalUsed,
     this.totalLimit,
-  });
-}
-
-/// Quota statistics
-class QuotaStats {
-  final int voiceDaily;
-  final int voiceDailyLimit;
-  final int voiceTotal;
-  final int voiceTotalLimit;
-  final int amapDaily;
-  final int amapDailyLimit;
-
-  QuotaStats({
-    required this.voiceDaily,
-    required this.voiceDailyLimit,
-    required this.voiceTotal,
-    required this.voiceTotalLimit,
-    required this.amapDaily,
-    required this.amapDailyLimit,
   });
 }
