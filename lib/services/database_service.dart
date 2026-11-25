@@ -87,9 +87,16 @@ abstract class DatabaseServiceCore {
 
     return await openDatabase(
       dbPath,
-      version: 3,
+      version: 4,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
+      onConfigure: (db) async {
+        await db.execute('PRAGMA foreign_keys = ON');
+      },
+      onOpen: (db) async {
+        await db.rawQuery('PRAGMA journal_mode=WAL');
+        await db.execute('PRAGMA synchronous=NORMAL');
+      },
     );
   }
 
@@ -195,6 +202,21 @@ abstract class DatabaseServiceCore {
       defaultBookId: 'default_book',
     );
     await db.insert('users', defaultUser.toMap());
+
+    await _createIndexes(db);
+  }
+
+  Future<void> _createIndexes(Database db) async {
+    await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_records_dateTs ON records(dateTs)');
+    await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_records_book_date ON records(bookId, dateTs)');
+    await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_records_month ON records(month)');
+    await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_records_category ON records(categoryId)');
+    await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_wishes_book ON wishes(bookId)');
   }
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
@@ -216,6 +238,9 @@ abstract class DatabaseServiceCore {
           createdAt INTEGER NOT NULL
         )
       ''');
+    }
+    if (oldVersion < 4) {
+      await _createIndexes(db);
     }
   }
 

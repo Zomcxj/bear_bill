@@ -73,20 +73,29 @@ mixin DatabaseStatsMixin on DatabaseServiceCore {
       whereArgs.add(bookId);
     }
 
-    final maps = await db.query('records',
-        where: whereClause, whereArgs: whereArgs);
+    // Aggregate in SQLite instead of loading all records into Dart
+    final monthlyRows = await db.rawQuery(
+      'SELECT month, type, SUM(amount) AS total '
+      'FROM records WHERE $whereClause GROUP BY month, type',
+      whereArgs,
+    );
+    final categoryRows = await db.rawQuery(
+      'SELECT categoryId, categoryName, categoryIcon, type, '
+      'SUM(amount) AS total, COUNT(*) AS cnt '
+      'FROM records WHERE $whereClause '
+      'GROUP BY categoryId, categoryName, categoryIcon, type',
+      whereArgs,
+    );
 
     double totalExpense = 0;
     double totalIncome = 0;
     Map<String, double> monthlyExpense = {};
     Map<String, double> monthlyIncome = {};
-    Map<String, Map<String, dynamic>> categoryMap = {};
 
-    for (final m in maps) {
-      final type = m['type'] as String;
-      final amount = (m['amount'] as num).toDouble();
-      final month = m['month'] as String;
-
+    for (final row in monthlyRows) {
+      final type = row['type'] as String? ?? 'expense';
+      final amount = (row['total'] as num?)?.toDouble() ?? 0;
+      final month = row['month'] as String? ?? '';
       if (type == 'expense') {
         totalExpense += amount;
         monthlyExpense[month] = (monthlyExpense[month] ?? 0) + amount;
@@ -94,22 +103,27 @@ mixin DatabaseStatsMixin on DatabaseServiceCore {
         totalIncome += amount;
         monthlyIncome[month] = (monthlyIncome[month] ?? 0) + amount;
       }
+    }
 
-      final catId = m['categoryId'] as String;
+    final categoryMap = <String, Map<String, dynamic>>{};
+    for (final row in categoryRows) {
+      final catId = row['categoryId'] as String? ?? '';
+      final amount = (row['total'] as num?)?.toDouble() ?? 0;
+      final count = (row['cnt'] as num?)?.toInt() ?? 0;
       if (!categoryMap.containsKey(catId)) {
         categoryMap[catId] = {
           'id': catId,
-          'name': m['categoryName'],
-          'icon': m['categoryIcon'],
+          'name': row['categoryName'] as String? ?? '',
+          'icon': row['categoryIcon'] as String? ?? '',
           'amount': 0.0,
           'count': 0,
-          'type': type,
+          'type': row['type'] as String? ?? 'expense',
         };
       }
       categoryMap[catId]!['amount'] =
           (categoryMap[catId]!['amount'] as double) + amount;
       categoryMap[catId]!['count'] =
-          (categoryMap[catId]!['count'] as int) + 1;
+          (categoryMap[catId]!['count'] as int) + count;
     }
 
     final monthlyData = List.generate(12, (i) {

@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -29,28 +28,33 @@ class ImageService {
     return destPath;
   }
 
-  /// Pick images from the gallery and copy them into the app directory
+  /// Pick images from the gallery (downscaled before copy)
   Future<List<String>> pickAndCopyImages() async {
-    final files = await FilePicker.pickFiles(
-      type: FileType.image,
+    final files = await _picker.pickMultiImage(
+      maxWidth: 1920,
+      maxHeight: 1920,
+      imageQuality: 85,
     );
     if (files.isEmpty) return [];
     final paths = <String>[];
     for (final file in files) {
-      if (file.path != null) {
-        try {
-          paths.add(await copyImageToAppDir(file.path!));
-        } catch (_) {
-          // Skip files that failed to copy
-        }
+      try {
+        paths.add(await copyImageToAppDir(file.path));
+      } catch (_) {
+        // Skip files that failed to copy
       }
     }
     return paths;
   }
 
-  /// Take a photo and copy it into the app directory
+  /// Take a photo (downscaled before copy)
   Future<String?> captureFromCamera() async {
-    final xFile = await _picker.pickImage(source: ImageSource.camera);
+    final xFile = await _picker.pickImage(
+      source: ImageSource.camera,
+      maxWidth: 1920,
+      maxHeight: 1920,
+      imageQuality: 85,
+    );
     if (xFile == null) return null;
     try {
       return await copyImageToAppDir(xFile.path);
