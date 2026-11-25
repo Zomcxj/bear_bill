@@ -132,9 +132,9 @@ class _GreetingCardState extends State<GreetingCard>
       borderRadius: DS.radiusLg,
       fallbackDecoration: BoxDecoration(
         gradient: DS.heroGradientBlueCurrent,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(DS.radiusLg),
-          bottomRight: Radius.circular(DS.radiusLg),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: const Radius.circular(DS.radiusLg),
+          bottomRight: const Radius.circular(DS.radiusLg),
         ),
       ),
       padding: EdgeInsets.fromLTRB(
@@ -166,11 +166,11 @@ class _GreetingCardState extends State<GreetingCard>
                     border: Border.all(color: DS.heroCardBorder),
                   ),
                   child: Center(
-                    child: Text(_bearEmoji, style: TextStyle(fontSize: 28)),
+                    child: Text(_bearEmoji, style: const TextStyle(fontSize: 28)),
                   ),
                 ),
               ),
-              SizedBox(width: DS.sm),
+              const SizedBox(width: DS.sm),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,7 +179,7 @@ class _GreetingCardState extends State<GreetingCard>
                       _greeting,
                       style: DS.headlineSm.copyWith(color: DS.onSurface),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
                       _bearMood,
                       style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
@@ -196,7 +196,7 @@ class _GreetingCardState extends State<GreetingCard>
             ],
           ),
 
-          SizedBox(height: DS.sm),
+          const SizedBox(height: DS.sm),
 
           // Month + book
           Row(
@@ -220,7 +220,7 @@ class _GreetingCardState extends State<GreetingCard>
             ],
           ),
 
-          SizedBox(height: DS.sm),
+          const SizedBox(height: DS.sm),
 
           // Three-item summary — frosted glass card
           GestureDetector(
@@ -231,7 +231,7 @@ class _GreetingCardState extends State<GreetingCard>
               );
             },
             child: GlassCard(
-              padding: EdgeInsets.symmetric(vertical: DS.gutter),
+              padding: const EdgeInsets.symmetric(vertical: DS.gutter),
               child: IntrinsicHeight(
                 child: Row(
                   children: [
@@ -258,14 +258,14 @@ class _GreetingCardState extends State<GreetingCard>
             ),
           ),
 
-          SizedBox(height: DS.sm),
+          const SizedBox(height: DS.sm),
 
           // Budget progress
           if (_monthlyBudget > 0)
             GestureDetector(
               onTap: _showBudgetSettings,
               child: GlassCard(
-                padding: EdgeInsets.all(DS.gutter),
+                padding: const EdgeInsets.all(DS.gutter),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -275,8 +275,8 @@ class _GreetingCardState extends State<GreetingCard>
                         Row(
                           children: [
                             Icon(Icons.pie_chart_outline, size: 16, color: DS.onSurface),
-                            SizedBox(width: DS.xs),
-                            Text('本月预算', style: DS.labelMd),
+                            const SizedBox(width: DS.xs),
+                            const Text('本月预算', style: DS.labelMd),
                           ],
                         ),
                         Text(
@@ -285,7 +285,7 @@ class _GreetingCardState extends State<GreetingCard>
                         ),
                       ],
                     ),
-                    SizedBox(height: DS.sm),
+                    const SizedBox(height: DS.sm),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(DS.radiusFull),
                       child: LinearProgressIndicator(
@@ -301,7 +301,7 @@ class _GreetingCardState extends State<GreetingCard>
                         minHeight: 8,
                       ),
                     ),
-                    SizedBox(height: DS.xs),
+                    const SizedBox(height: DS.xs),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -353,7 +353,7 @@ class _GreetingCardState extends State<GreetingCard>
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          SizedBox(height: DS.xs),
+          const SizedBox(height: DS.xs),
           Text(
             label,
             style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
@@ -367,7 +367,7 @@ class _GreetingCardState extends State<GreetingCard>
     return Container(
       width: 1,
       color: DS.outlineVariant,
-      margin: EdgeInsets.symmetric(vertical: 4),
+      margin: const EdgeInsets.symmetric(vertical: 4),
     );
   }
 
@@ -394,18 +394,18 @@ class _GreetingCardState extends State<GreetingCard>
         backgroundColor: Colors.transparent,
         elevation: 0,
         child: GlassCard(
-          padding: EdgeInsets.symmetric(horizontal: DS.md, vertical: DS.gutter),
+          padding: const EdgeInsets.symmetric(horizontal: DS.md, vertical: DS.gutter),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.emoji_events, size: 40, color: DS.secondaryContainer),
-              SizedBox(width: DS.gutter),
+              const Icon(Icons.emoji_events, size: 40, color: DS.secondaryContainer),
+              const SizedBox(width: DS.gutter),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text('成就解锁！', style: DS.labelSm.copyWith(color: DS.outline)),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
                     first.title ?? '新成就',
                     style: DS.headlineSm.copyWith(color: DS.onSurface),
@@ -473,8 +473,8 @@ class _GreetingCardState extends State<GreetingCard>
               if (!ctx.mounted) return;
               Navigator.pop(ctx);
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('预算已更新'),
+                const SnackBar(
+                  content: const Text('预算已更新'),
                   backgroundColor: DS.secondary,
                 ),
               );

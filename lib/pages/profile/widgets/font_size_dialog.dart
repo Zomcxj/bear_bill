@@ -46,7 +46,7 @@ Future<void> showFontSizeDialog(BuildContext context) async {
                       color: DS.onSurface,
                     ),
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Text(
                     '($size)',
                     style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
@@ -76,19 +76,19 @@ Future<void> showFontSizeDialog(BuildContext context) async {
                     end: Alignment.bottomCenter,
                     colors: DS.isDark
                         ? [
-                            Colors.white.withOpacity(selected ? 0.28 : 0.10),
-                            Colors.white.withOpacity(selected ? 0.10 : 0.04),
+                            Colors.white.withValues(alpha: selected ? 0.28 : 0.10),
+                            Colors.white.withValues(alpha: selected ? 0.10 : 0.04),
                           ]
                         : [
-                            Colors.white.withOpacity(selected ? 0.70 : 0.35),
-                            Colors.white.withOpacity(selected ? 0.40 : 0.15),
+                            Colors.white.withValues(alpha: selected ? 0.70 : 0.35),
+                            Colors.white.withValues(alpha: selected ? 0.40 : 0.15),
                           ],
                   ),
                   borderRadius: BorderRadius.circular(DS.radiusFull),
                   border: Border.all(
                     color: DS.isDark
-                        ? Colors.white.withOpacity(0.18)
-                        : Colors.black.withOpacity(0.10),
+                        ? Colors.white.withValues(alpha: 0.18)
+                        : Colors.black.withValues(alpha: 0.10),
                   ),
                 ),
                 child: Row(
@@ -117,8 +117,8 @@ Future<void> showFontSizeDialog(BuildContext context) async {
                           color: selected
                               ? DS.onSurface
                               : (DS.isDark
-                                  ? Colors.white.withOpacity(0.35)
-                                  : Colors.black.withOpacity(0.25)),
+                                  ? Colors.white.withValues(alpha: 0.35)
+                                  : Colors.black.withValues(alpha: 0.25)),
                           width: 1.5,
                         ),
                         color: selected ? DS.onSurface : Colors.transparent,

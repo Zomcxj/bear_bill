@@ -26,8 +26,8 @@ class _SettingsListState extends State<SettingsList> {
   @override
   Widget build(BuildContext context) {
     return GlassSurface(
-      margin: EdgeInsets.symmetric(horizontal: DS.sm),
-      padding: EdgeInsets.all(DS.gutter),
+      margin: const EdgeInsets.symmetric(horizontal: DS.sm),
+      padding: const EdgeInsets.all(DS.gutter),
       fallbackDecoration: DS.glassDecoration,
       child: Column(
         children: [
@@ -137,8 +137,8 @@ class _SettingsListState extends State<SettingsList> {
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('🐻', style: TextStyle(fontSize: 48)),
-                    SizedBox(height: DS.sm),
+                    const Text('🐻', style: const TextStyle(fontSize: 48)),
+                    const SizedBox(height: DS.sm),
                     Text(
                       '小熊记账本',
                       style: DS.headlineSm.copyWith(
@@ -146,17 +146,17 @@ class _SettingsListState extends State<SettingsList> {
                         color: DS.onSurface,
                       ),
                     ),
-                    SizedBox(height: DS.xs),
+                    const SizedBox(height: DS.xs),
                     Text(
                       'v1.4.0',
                       style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
                     ),
-                    SizedBox(height: DS.sm),
+                    const SizedBox(height: DS.sm),
                     Text(
                       '轻盈通透的记账应用',
                       style: DS.labelMd.copyWith(color: DS.onSurface),
                     ),
-                    SizedBox(height: DS.xs),
+                    const SizedBox(height: DS.xs),
                     Text(
                       '让记账更自然、更省心',
                       style: DS.labelMd.copyWith(color: DS.onSurface),
@@ -197,14 +197,14 @@ class _SettingsListState extends State<SettingsList> {
       onTap: onTap,
       borderRadius: BorderRadius.circular(DS.radiusSm),
       child: Padding(
-        padding: EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
           horizontal: DS.sm,
           vertical: 14,
         ),
         child: Row(
           children: [
             Icon(icon, size: 20, color: DS.onSurface),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
                 title,
@@ -220,11 +220,11 @@ class _SettingsListState extends State<SettingsList> {
                 trailing,
                 style: DS.labelSm.copyWith(color: DS.outline),
               ),
-            SizedBox(width: 4),
+            const SizedBox(width: 4),
             Icon(
               Icons.chevron_right,
               size: 18,
-              color: DS.outline.withOpacity(0.6),
+              color: DS.outline.withValues(alpha: 0.6),
             ),
           ],
         ),

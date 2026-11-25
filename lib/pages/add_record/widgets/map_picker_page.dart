@@ -407,13 +407,13 @@ class _MapPickerPageState extends State<MapPickerPage> {
               children: [
                 _panel(
                   radius: 12,
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   fallback: BoxDecoration(
                     color: DS.surfaceContainerLowest,
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
+                        color: Colors.black.withValues(alpha: 0.15),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -432,7 +432,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Icon(
                   Icons.location_on,
                   color: DS.emphasis,
@@ -446,7 +446,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                   width: 16,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.15),
+                    color: Colors.black.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
@@ -468,7 +468,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.12),
+                        color: Colors.black.withValues(alpha: 0.12),
                         blurRadius: 12,
                         offset: const Offset(0, 2),
                       ),
@@ -525,14 +525,14 @@ class _MapPickerPageState extends State<MapPickerPage> {
                 if (_searchResults.isNotEmpty)
                   _panel(
                     radius: 16,
-                    margin: EdgeInsets.only(top: 4),
+                    margin: const EdgeInsets.only(top: 4),
                     maxHeight: 240,
                     fallback: BoxDecoration(
                       color: DS.surfaceContainerLowest,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -540,9 +540,9 @@ class _MapPickerPageState extends State<MapPickerPage> {
                     ),
                     child: ListView.separated(
                       shrinkWrap: true,
-                      padding: EdgeInsets.symmetric(vertical: 4),
+                      padding: const EdgeInsets.symmetric(vertical: 4),
                       itemCount: _searchResults.length,
-                      separatorBuilder: (_, __) => Divider(height: 1),
+                      separatorBuilder: (_, __) => const Divider(height: 1),
                       itemBuilder: (context, index) {
                         final r = _searchResults[index];
                         return ListTile(
@@ -550,7 +550,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                           leading: Icon(Icons.place, color: DS.emphasis, size: 20),
                           title: Text(
                             r['name'] ?? '',
-                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -585,17 +585,17 @@ class _MapPickerPageState extends State<MapPickerPage> {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.12),
+                        color: Colors.black.withValues(alpha: 0.12),
                         blurRadius: 8,
                       ),
                     ],
                   ),
                   child: IconButton(
                     icon: _isLoading
-                        ? SizedBox(
+                        ? const SizedBox(
                             width: 20,
                             height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                            child: const CircularProgressIndicator(strokeWidth: 2),
                           )
                         : Icon(Icons.my_location, color: DS.emphasis),
                     onPressed: _isLoading ? null : _locateMe,
@@ -620,10 +620,10 @@ class _MapPickerPageState extends State<MapPickerPage> {
               ),
               fallback: BoxDecoration(
                 color: DS.surfaceContainerLowest,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                borderRadius: const BorderRadius.vertical(top: const Radius.circular(20)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 16,
                     offset: const Offset(0, -4),
                   ),
@@ -636,7 +636,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
                   Row(
                     children: [
                       Icon(Icons.place, color: DS.emphasis, size: 20),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -666,12 +666,12 @@ class _MapPickerPageState extends State<MapPickerPage> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     '坐标: ${_center.latitude.toStringAsFixed(5)}, ${_center.longitude.toStringAsFixed(5)}',
                     style: TextStyle(fontSize: 11, color: DS.outline),
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,
                     height: 44,
@@ -685,9 +685,9 @@ class _MapPickerPageState extends State<MapPickerPage> {
                         ),
                         elevation: 0,
                       ),
-                      child: Text(
+                      child: const Text(
                         '确认选择此位置',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ),
@@ -699,17 +699,17 @@ class _MapPickerPageState extends State<MapPickerPage> {
           // Loading indicator
           if (_isLoading)
             Container(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               child: Center(
                 child: Card(
                   child: Padding(
-                    padding: EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(20),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         CircularProgressIndicator(color: DS.emphasis),
-                        SizedBox(height: 12),
-                        Text('正在定位...', style: TextStyle(fontSize: 14)),
+                        const SizedBox(height: 12),
+                        const Text('正在定位...', style: const TextStyle(fontSize: 14)),
                       ],
                     ),
                   ),

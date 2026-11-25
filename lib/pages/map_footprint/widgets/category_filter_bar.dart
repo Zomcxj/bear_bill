@@ -31,7 +31,7 @@ class CategoryFilterBar extends StatelessWidget {
       ),
       child: ListView(
         scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
         children: [
           _buildChip(context, null, '全部', Icons.all_inclusive),
           // Follow the user's custom category order
@@ -51,11 +51,11 @@ class CategoryFilterBar extends StatelessWidget {
   ]) {
     final isSelected = id == selectedCategoryId;
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
       child: GestureDetector(
         onTap: () => onFilter(isSelected ? null : id),
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             color: isSelected ? DS.emphasis : DS.background,
             borderRadius: BorderRadius.circular(DS.radiusFull),
@@ -70,7 +70,7 @@ class CategoryFilterBar extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (emoji != null)
-                Text(emoji, style: TextStyle(fontSize: 14))
+                Text(emoji, style: const TextStyle(fontSize: 14))
               else if (icon != null)
                 Icon(
                     icon,
@@ -78,7 +78,7 @@ class CategoryFilterBar extends StatelessWidget {
                     color: isSelected
                         ? (DS.isDark ? DS.background : Colors.white)
                         : DS.onSurfaceVariant),
-              SizedBox(width: 4),
+              const SizedBox(width: 4),
               Text(
                 label,
                 style: TextStyle(

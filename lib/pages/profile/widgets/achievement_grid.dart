@@ -22,8 +22,8 @@ class AchievementGrid extends StatelessWidget {
         final unlockedIds = appProvider.unlockedAchievements;
 
         return GlassSurface(
-          margin: EdgeInsets.symmetric(horizontal: DS.sm),
-          padding: EdgeInsets.all(DS.gutter),
+          margin: const EdgeInsets.symmetric(horizontal: DS.sm),
+          padding: const EdgeInsets.all(DS.gutter),
           fallbackDecoration: DS.glassDecorationLight,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,7 +34,7 @@ class AchievementGrid extends StatelessWidget {
                   Row(
                     children: [
                       Icon(Icons.emoji_events, size: 18, color: DS.onSurface),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Text(
                         '成就徽章',
                         style: DS.labelMd.copyWith(color: DS.onSurface),
@@ -57,7 +57,7 @@ class AchievementGrid extends StatelessWidget {
                           style:
                               DS.labelSm.copyWith(color: DS.onSurfaceVariant),
                         ),
-                        SizedBox(width: 2),
+                        const SizedBox(width: 2),
                         Icon(
                           Icons.chevron_right,
                           size: 16,
@@ -68,14 +68,14 @@ class AchievementGrid extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               SizedBox(
                 height: 76,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
                   itemCount: AchievementDefinitions.all.length,
-                  separatorBuilder: (context, index) => SizedBox(width: 8),
+                  separatorBuilder: (context, index) => const SizedBox(width: 8),
                   itemBuilder: (context, index) {
                     final achievement = AchievementDefinitions.all[index];
                     final isUnlocked = unlockedIds.contains(achievement.id);
@@ -139,7 +139,7 @@ class _AchievementBadge extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 2),
+          const SizedBox(height: 2),
           Text(
             achievement.title,
             textAlign: TextAlign.center,

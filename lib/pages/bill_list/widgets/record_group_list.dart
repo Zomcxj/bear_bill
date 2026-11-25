@@ -53,23 +53,23 @@ class RecordGroupList extends StatelessWidget {
     final records = group['records'] as List<RecordModel>;
 
     return GlassSurface(
-      margin: EdgeInsets.only(bottom: DS.sm),
+      margin: const EdgeInsets.only(bottom: DS.sm),
       fallbackDecoration: DS.glassDecoration,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Date header
           Container(
-            padding: EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
                 horizontal: DS.base, vertical: 12),
             decoration: BoxDecoration(
               // Glass mode: header uses a glass tint (matches the card glass instead of a solid cap)
               color: shouldUseLiquidGlass(context)
                   ? DS.heroCardBg
                   : DS.background,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(DS.radiusMd),
-                topRight: Radius.circular(DS.radiusMd),
+              borderRadius: const BorderRadius.only(
+                topLeft: const Radius.circular(DS.radiusMd),
+                topRight: const Radius.circular(DS.radiusMd),
               ),
             ),
             child: Row(
@@ -83,7 +83,7 @@ class RecordGroupList extends StatelessWidget {
                         color: DS.onSurface,
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Text(
                       group['weekday'],
                       style: DS.labelSm.copyWith(
@@ -105,7 +105,7 @@ class RecordGroupList extends StatelessWidget {
                       ),
                     if (group['dayExpense'] > 0 && group['dayIncome'] > 0)
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 6),
                         child: Text('|',
                             style: TextStyle(
                                 color: DS.outline, fontSize: 12)),
@@ -167,7 +167,7 @@ class RecordGroupList extends StatelessWidget {
           }
         },
         child: Container(
-          padding: EdgeInsets.all(DS.base),
+          padding: const EdgeInsets.all(DS.base),
           child: Row(
             children: [
               // Category icon
@@ -176,18 +176,18 @@ class RecordGroupList extends StatelessWidget {
                 height: 44,
                 decoration: BoxDecoration(
                   color: _hexToColor(category?.color ?? '#B0B0B0')
-                      .withOpacity(0.2),
+                      .withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(DS.radiusXs),
                 ),
                 child: Center(
                   child: Text(
                     category?.icon ?? '📦',
-                    style: TextStyle(fontSize: 22),
+                    style: const TextStyle(fontSize: 22),
                   ),
                 ),
               ),
 
-              SizedBox(width: DS.base),
+              const SizedBox(width: DS.base),
 
               // Category name and remark
               Expanded(
@@ -202,7 +202,7 @@ class RecordGroupList extends StatelessWidget {
                       ),
                     ),
                     if (record.remark != null && record.remark!.isNotEmpty) ...[
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text(
                         record.remark!,
                         style: DS.labelSm.copyWith(
@@ -213,11 +213,11 @@ class RecordGroupList extends StatelessWidget {
                       ),
                     ],
                     if (record.images.isNotEmpty) ...[
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Row(
                         children: [
                           Icon(Icons.image, size: 12, color: DS.outline),
-                          SizedBox(width: 2),
+                          const SizedBox(width: 2),
                           Text(
                             '${record.images.length}张图片',
                             style: DS.labelSm.copyWith(

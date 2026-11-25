@@ -124,9 +124,9 @@ class _StatisticsPageState extends State<StatisticsPage> {
                   borderRadius: DS.radiusLg,
                   fallbackDecoration: BoxDecoration(
                     gradient: DS.heroGradientBlueCurrent,
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(DS.radiusLg),
-                      bottomRight: Radius.circular(DS.radiusLg),
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: const Radius.circular(DS.radiusLg),
+                      bottomRight: const Radius.circular(DS.radiusLg),
                     ),
                   ),
                   padding: EdgeInsets.fromLTRB(DS.containerMargin, MediaQuery.of(context).padding.top + DS.gutter, DS.containerMargin, DS.base),
@@ -135,13 +135,13 @@ class _StatisticsPageState extends State<StatisticsPage> {
                       Row(
                         children: [
                           Icon(Icons.leaderboard, size: 22, color: DS.onSurface),
-                          SizedBox(width: DS.sm),
-                          Text('统计报表', style: DS.headlineMd),
+                          const SizedBox(width: DS.sm),
+                          const Text('统计报表', style: DS.headlineMd),
                         ],
                       ),
-                      SizedBox(height: DS.sm),
+                      const SizedBox(height: DS.sm),
                       GlassSurface(
-                        padding: EdgeInsets.symmetric(vertical: DS.gutter),
+                        padding: const EdgeInsets.symmetric(vertical: DS.gutter),
                         fallbackDecoration: BoxDecoration(
                           color: DS.heroCardBg,
                           borderRadius: BorderRadius.circular(DS.radiusMd),
@@ -154,10 +154,10 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                 child: Column(
                                   children: [
                                     Text('$periodLabel支出', style: DS.labelSm),
-                                    SizedBox(height: DS.xs),
+                                    const SizedBox(height: DS.xs),
                                     Text(
                                       '¥${FormatUtils.formatAmount(_totalExpense)}',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontFamily: DS.fontDisplay,
                                         fontSize: 20,
                                         fontWeight: FontWeight.w800,
@@ -172,10 +172,10 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                 child: Column(
                                   children: [
                                     Text('$periodLabel收入', style: DS.labelSm),
-                                    SizedBox(height: DS.xs),
+                                    const SizedBox(height: DS.xs),
                                     Text(
                                       '¥${FormatUtils.formatAmount(_totalIncome)}',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontFamily: DS.fontDisplay,
                                         fontSize: 20,
                                         fontWeight: FontWeight.w800,
@@ -189,8 +189,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
                               Expanded(
                                 child: Column(
                                   children: [
-                                    Text('结余', style: DS.labelSm),
-                                    SizedBox(height: DS.xs),
+                                    const Text('结余', style: DS.labelSm),
+                                    const SizedBox(height: DS.xs),
                                     Text(
                                       '¥${FormatUtils.formatAmount(_balance)}',
                                       style: TextStyle(
@@ -207,7 +207,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                           ),
                         ),
                       ),
-                      SizedBox(height: DS.sm),
+                      const SizedBox(height: DS.sm),
                       // Month/year switcher
                       // Glass state: the whole date bar = the same glass bar as the bottom nav; disabled state as-is
                       GlassBarWrap(
@@ -235,12 +235,12 @@ class _StatisticsPageState extends State<StatisticsPage> {
                               child: Icon(Icons.chevron_left, size: 18, color: DS.onSurface),
                             ),
                           ),
-                          SizedBox(width: DS.xs),
+                          const SizedBox(width: DS.xs),
                           Expanded(
                             child: GestureDetector(
                               onTap: () => _pickYearMonth(context),
                               child: Container(
-                                padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.xs + 2),
+                                padding: const EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.xs + 2),
                                 decoration: BoxDecoration(
                                   color: shouldUseLiquidGlass(context)
                                       ? Colors.transparent
@@ -258,14 +258,14 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                       _viewMode == 'monthly' ? monthTitle : '${_selectedMonth.year}年',
                                       style: DS.labelMd.copyWith(color: DS.onSurface),
                                     ),
-                                    SizedBox(width: DS.xs),
+                                    const SizedBox(width: DS.xs),
                                     Icon(Icons.unfold_more, size: 14, color: DS.outline),
                                   ],
                                 ),
                               ),
                             ),
                           ),
-                          SizedBox(width: DS.xs),
+                          const SizedBox(width: DS.xs),
                           GestureDetector(
                             onTap: () {
                               setState(() {
@@ -291,11 +291,11 @@ class _StatisticsPageState extends State<StatisticsPage> {
                         ],
                       ),
                       ),
-                      SizedBox(height: DS.sm),
+                      const SizedBox(height: DS.sm),
                       // Monthly/yearly switcher
                       if (!shouldUseLiquidGlass(context))
                         Container(
-                          padding: EdgeInsets.all(3),
+                          padding: const EdgeInsets.all(3),
                           decoration: BoxDecoration(
                             color: DS.heroCardBg,
                             borderRadius: BorderRadius.circular(DS.radiusFull),
@@ -310,7 +310,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                     _loadStats();
                                   },
                                   child: Container(
-                                    padding: EdgeInsets.symmetric(vertical: DS.sm),
+                                    padding: const EdgeInsets.symmetric(vertical: DS.sm),
                                     decoration: BoxDecoration(
                                       color: _viewMode == 'monthly' ? DS.emphasis : Colors.transparent,
                                       borderRadius: BorderRadius.circular(DS.radiusFull),
@@ -331,7 +331,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                     _loadStats();
                                   },
                                   child: Container(
-                                    padding: EdgeInsets.symmetric(vertical: DS.sm),
+                                    padding: const EdgeInsets.symmetric(vertical: DS.sm),
                                     decoration: BoxDecoration(
                                       color: _viewMode == 'yearly' ? DS.emphasis : Colors.transparent,
                                       borderRadius: BorderRadius.circular(DS.radiusFull),
@@ -361,7 +361,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                     ],
                   ),
                 ),
-                SizedBox(height: DS.base),
+                const SizedBox(height: DS.base),
                 Expanded(
                   child: _loading
                       ? const Center(
@@ -373,7 +373,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                           child: Column(
                             children: [
                               Padding(
-                                padding: EdgeInsets.symmetric(horizontal: DS.sm),
+                                padding: const EdgeInsets.symmetric(horizontal: DS.sm),
                                 child: MonthlySummary(
                                   expense: _totalExpense,
                                   income: _totalIncome,
@@ -383,16 +383,16 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                       : null,
                                 ),
                               ),
-                              SizedBox(height: DS.sm),
+                              const SizedBox(height: DS.sm),
                               const TrendLineChart(),
                               // Tighten the spacing below the line chart card (the original DS.sm was too wide)
-                              SizedBox(height: DS.base),
+                              const SizedBox(height: DS.base),
                               // Glass state: the expense/income + category breakdown block as a whole = glass;
                               // disabled state = the original solid card (zero drift)
                               GlassSurface(
                                 borderRadius: DS.radiusMd,
-                                margin: EdgeInsets.symmetric(horizontal: DS.sm),
-                                padding: EdgeInsets.all(DS.sm),
+                                margin: const EdgeInsets.symmetric(horizontal: DS.sm),
+                                padding: const EdgeInsets.all(DS.sm),
                                 fallbackDecoration: BoxDecoration(
                                   color: DS.surfaceContainerLowest,
                                   borderRadius: BorderRadius.circular(DS.radiusMd),
@@ -409,7 +409,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                                         setState(() => _activeTab = tab);
                                       },
                                     ),
-                                    SizedBox(height: DS.sm),
+                                    const SizedBox(height: DS.sm),
                                     CategoryBreakdown(
                                       categories: _activeTab == 'expense'
                                           ? _expenseCategories

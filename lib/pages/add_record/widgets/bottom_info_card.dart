@@ -48,7 +48,7 @@ class BottomInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>(); // theme rebuild
     return GlassSurface(
-      margin: EdgeInsets.symmetric(horizontal: DS.sm),
+      margin: const EdgeInsets.symmetric(horizontal: DS.sm),
       fallbackDecoration: BoxDecoration(
         color: DS.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(DS.radiusSm),
@@ -58,7 +58,7 @@ class BottomInfoCard extends StatelessWidget {
         children: [
           // 1. Mood selection
           Padding(
-            padding: EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
               horizontal: DS.base,
               vertical: 10,
             ),
@@ -72,7 +72,7 @@ class BottomInfoCard extends StatelessWidget {
                     color: DS.onSurfaceVariant,
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -80,11 +80,11 @@ class BottomInfoCard extends StatelessWidget {
                       children: moods.map((mood) {
                         final isSelected = selectedMood?.id == mood.id;
                         return Padding(
-                          padding: EdgeInsets.only(right: 6),
+                          padding: const EdgeInsets.only(right: 6),
                           child: GestureDetector(
                             onTap: () => onMoodChanged(mood),
                             child: Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                 horizontal: 10,
                                 vertical: 6,
                               ),
@@ -108,9 +108,9 @@ class BottomInfoCard extends StatelessWidget {
                                 children: [
                                   Text(
                                     mood.emoji,
-                                    style: TextStyle(fontSize: 14),
+                                    style: const TextStyle(fontSize: 14),
                                   ),
-                                  SizedBox(width: 3),
+                                  const SizedBox(width: 3),
                                   Text(
                                     mood.label,
                                     style: TextStyle(
@@ -141,7 +141,7 @@ class BottomInfoCard extends StatelessWidget {
 
           // 2. Note
           Padding(
-            padding: EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
               horizontal: DS.base,
               vertical: 10,
             ),
@@ -156,7 +156,7 @@ class BottomInfoCard extends StatelessWidget {
                     color: DS.onSurfaceVariant,
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: TextField(
                     controller: noteController,
@@ -169,8 +169,8 @@ class BottomInfoCard extends StatelessWidget {
                       filled: true,
                       fillColor: shouldUseLiquidGlass(context)
                           ? (DS.isDark
-                              ? Colors.white.withOpacity(0.10)
-                              : Colors.white.withOpacity(0.55))
+                              ? Colors.white.withValues(alpha: 0.10)
+                              : Colors.white.withValues(alpha: 0.55))
                           : null,
                       hintText: '点这里补一句备注',
                       hintStyle: TextStyle(
@@ -179,10 +179,10 @@ class BottomInfoCard extends StatelessWidget {
                       ),
                       border: InputBorder.none,
                       isDense: true,
-                      contentPadding: EdgeInsets.only(left: 8),
+                      contentPadding: const EdgeInsets.only(left: 8),
                       counterText: '',
                     ),
-                    style: TextStyle(fontSize: 14),
+                    style: const TextStyle(fontSize: 14),
                     onChanged: onNoteChanged,
                   ),
                 ),
@@ -195,7 +195,7 @@ class BottomInfoCard extends StatelessWidget {
 
           // 3. Photos
           Padding(
-            padding: EdgeInsets.symmetric(
+            padding: const EdgeInsets.symmetric(
               horizontal: DS.base,
               vertical: 10,
             ),
@@ -209,7 +209,7 @@ class BottomInfoCard extends StatelessWidget {
                     color: DS.onSurfaceVariant,
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 // Add photo (opens a bottom sheet picker)
                 GestureDetector(
                   onTap: () => _showPhotoOptions(context),
@@ -223,7 +223,7 @@ class BottomInfoCard extends StatelessWidget {
                       border: shouldUseLiquidGlass(context)
                           ? null
                           : Border.all(
-                              color: DS.emphasis.withOpacity(0.3),
+                              color: DS.emphasis.withValues(alpha: 0.3),
                               width: 1,
                             ),
                     ),
@@ -240,7 +240,7 @@ class BottomInfoCard extends StatelessWidget {
           // Photo thumbnails (if any)
           if (images.isNotEmpty)
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: DS.base),
+              padding: const EdgeInsets.symmetric(horizontal: DS.base),
               child: SizedBox(
                 height: 64,
                 child: ListView.builder(
@@ -251,7 +251,7 @@ class BottomInfoCard extends StatelessWidget {
                     return Stack(
                       children: [
                         Container(
-                          margin: EdgeInsets.only(right: DS.base),
+                          margin: const EdgeInsets.only(right: DS.base),
                           width: 64,
                           height: 64,
                           decoration: BoxDecoration(
@@ -273,7 +273,7 @@ class BottomInfoCard extends StatelessWidget {
                               decoration: BoxDecoration(
                                   color: Colors.black45,
                                   borderRadius: BorderRadius.circular(12)),
-                              child: Icon(Icons.close,
+                              child: const Icon(Icons.close,
                                   size: 16, color: Colors.white),
                             ),
                           ),
@@ -290,7 +290,7 @@ class BottomInfoCard extends StatelessWidget {
 
           // 4. Location
           Padding(
-            padding: EdgeInsets.all(DS.base),
+            padding: const EdgeInsets.all(DS.base),
             child: Row(
               children: [
                 Text(
@@ -301,30 +301,30 @@ class BottomInfoCard extends StatelessWidget {
                     color: DS.onSurfaceVariant,
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 GestureDetector(
                   onTap: onLocationDialog,
                   child: Container(
-                    padding: EdgeInsets.symmetric(
+                    padding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: DS.secondaryContainer.withOpacity(0.15),
+                      color: DS.secondaryContainer.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(DS.radiusFull),
                     ),
-                    child: Row(
+                    child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.location_on,
                           size: 16,
                           color: DS.secondaryContainer,
                         ),
-                        SizedBox(width: 4),
-                        Text(
+                        const SizedBox(width: 4),
+                        const Text(
                           '添加位置',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 13,
                             color: DS.secondaryContainer,
                             fontWeight: FontWeight.w500,
@@ -341,10 +341,10 @@ class BottomInfoCard extends StatelessWidget {
           // Location field (if a location is set)
           if (location != null && location!.isNotEmpty)
             Padding(
-              padding: EdgeInsets.symmetric(
+              padding: const EdgeInsets.symmetric(
                   horizontal: DS.base, vertical: 8),
               child: Container(
-                padding: EdgeInsets.all(DS.base),
+                padding: const EdgeInsets.all(DS.base),
                 decoration: BoxDecoration(
                   color: DS.background,
                   borderRadius: BorderRadius.circular(DS.radiusXs),
@@ -353,7 +353,7 @@ class BottomInfoCard extends StatelessWidget {
                   children: [
                     Icon(Icons.location_on,
                         size: 16, color: DS.emphasis),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         location!,
@@ -383,8 +383,8 @@ class BottomInfoCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Icon(Icons.photo_library, color: DS.secondaryContainer),
-              title: Text('从相册选择'),
+              leading: const Icon(Icons.photo_library, color: DS.secondaryContainer),
+              title: const Text('从相册选择'),
               onTap: () {
                 Navigator.pop(ctx);
                 onPickImages();
@@ -392,14 +392,14 @@ class BottomInfoCard extends StatelessWidget {
             ),
             if (onCaptureImage != null)
               ListTile(
-                leading: Icon(Icons.camera_alt, color: DS.secondaryContainer),
-                title: Text('拍照'),
+                leading: const Icon(Icons.camera_alt, color: DS.secondaryContainer),
+                title: const Text('拍照'),
                 onTap: () {
                   Navigator.pop(ctx);
                   onCaptureImage!();
                 },
               ),
-            SizedBox(height: DS.sm),
+            const SizedBox(height: DS.sm),
           ],
         );
 
@@ -435,7 +435,7 @@ class BottomInfoCard extends StatelessWidget {
         padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).padding.bottom),
         decoration: BoxDecoration(
           color: DS.surfaceContainerLowest,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(DS.radiusMd)),
+          borderRadius: const BorderRadius.vertical(top: const Radius.circular(DS.radiusMd)),
         ),
         child: content(ctx),
       ),

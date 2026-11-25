@@ -56,12 +56,12 @@ class CustomKeyboard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: _keys.map((row) {
             return Padding(
-              padding: EdgeInsets.only(bottom: 3),
+              padding: const EdgeInsets.only(bottom: 3),
               child: Row(
                 children: row.map((key) {
                   return Expanded(
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: DS.xs / 2),
+                      padding: const EdgeInsets.symmetric(horizontal: DS.xs / 2),
                       child: _KeyButton(
                         label: key,
                         onTap: () => onKeyTap(key),
@@ -82,7 +82,7 @@ class CustomKeyboard extends StatelessWidget {
     return Container(
       padding: EdgeInsets.fromLTRB(DS.xs, DS.xs, DS.xs, bottomPadding + DS.xs),
       decoration: BoxDecoration(
-        color: DS.surfaceContainerLow.withOpacity(0.95),
+        color: DS.surfaceContainerLow.withValues(alpha: 0.95),
         border: Border(
           top: BorderSide(color: DS.outlineVariant, width: 0.5),
         ),
@@ -91,12 +91,12 @@ class CustomKeyboard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: _keys.map((row) {
           return Padding(
-            padding: EdgeInsets.only(bottom: 3),
+            padding: const EdgeInsets.only(bottom: 3),
             child: Row(
               children: row.map((key) {
                 return Expanded(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: DS.xs / 2),
+                    padding: const EdgeInsets.symmetric(horizontal: DS.xs / 2),
                     child: _KeyButton(
                       label: key,
                       onTap: () => onKeyTap(key),
@@ -219,14 +219,14 @@ class _GlassKeyFace extends StatelessWidget {
     return Container(
       height: 44,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(lit.clamp(0.0, 1.0)),
+        color: Colors.white.withValues(alpha: lit.clamp(0.0, 1.0)),
         // Top highlight gradient: simulates light hitting the top edge of the glass chip, with the tray showing through at the bottom
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            Colors.white.withOpacity((lit + 0.14).clamp(0.0, 1.0)),
-            Colors.white.withOpacity((lit - 0.10).clamp(0.0, 1.0)),
+            Colors.white.withValues(alpha: (lit + 0.14).clamp(0.0, 1.0)),
+            Colors.white.withValues(alpha: (lit - 0.10).clamp(0.0, 1.0)),
           ],
         ),
         borderRadius: BorderRadius.circular(
@@ -235,13 +235,13 @@ class _GlassKeyFace extends StatelessWidget {
         border: Border.all(
           // In light mode a dark thin border is needed to render (a pure white border disappears on light glass)
           color: DS.isDark
-              ? Colors.white.withOpacity(0.16)
-              : Colors.black.withOpacity(0.10),
+              ? Colors.white.withValues(alpha: 0.16)
+              : Colors.black.withValues(alpha: 0.10),
         ),
         // Slight lift: a hint of shadow layering between the glass chip and the tray
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(
+            color: Colors.black.withValues(alpha: 
               DS.isDark ? 0.20 : 0.06,
             ),
             blurRadius: 4,
@@ -256,7 +256,7 @@ class _GlassKeyFace extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.check, size: 18, color: contentColor),
-                  SizedBox(width: DS.xs),
+                  const SizedBox(width: DS.xs),
                   Text(
                     '完成',
                     style: TextStyle(
@@ -329,7 +329,7 @@ class _LegacyKeyFace extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.check, size: 18, color: contentColor),
-                  SizedBox(width: DS.xs),
+                  const SizedBox(width: DS.xs),
                   Text(
                     '完成',
                     style: TextStyle(

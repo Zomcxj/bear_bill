@@ -184,8 +184,8 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('账本图标', style: DS.labelMd),
-              SizedBox(height: DS.sm),
+              const Text('账本图标', style: DS.labelMd),
+              const SizedBox(height: DS.sm),
               Wrap(
                 spacing: DS.sm,
                 runSpacing: DS.sm,
@@ -200,13 +200,13 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
                         color: isSelected
                             ? (shouldUseLiquidGlass(context)
                                 ? (DS.isDark
-                                    ? Colors.white.withOpacity(0.22)
-                                    : Colors.white.withOpacity(0.75))
+                                    ? Colors.white.withValues(alpha: 0.22)
+                                    : Colors.white.withValues(alpha: 0.75))
                                 : DS.secondaryContainer)
                             : (shouldUseLiquidGlass(context)
                                 ? (DS.isDark
-                                    ? Colors.white.withOpacity(0.08)
-                                    : Colors.white.withOpacity(0.40))
+                                    ? Colors.white.withValues(alpha: 0.08)
+                                    : Colors.white.withValues(alpha: 0.40))
                                 : DS.surfaceContainerLow),
                         borderRadius: BorderRadius.circular(DS.radiusSm),
                         // The glass theme has no border and relies on fill when selected; disabled state unchanged
@@ -220,14 +220,14 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
                               ),
                       ),
                       child: Center(
-                          child: Text(emoji, style: TextStyle(fontSize: 20))),
+                          child: Text(emoji, style: const TextStyle(fontSize: 20))),
                     ),
                   );
                 }).toList(),
               ),
-              SizedBox(height: DS.gutter),
-              Text('账本名称', style: DS.labelMd),
-              SizedBox(height: DS.sm),
+              const SizedBox(height: DS.gutter),
+              const Text('账本名称', style: DS.labelMd),
+              const SizedBox(height: DS.sm),
               TextField(
                 controller: controller,
                 style: DS.bodyMd.copyWith(color: DS.onSurface),
@@ -325,9 +325,9 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
               borderRadius: DS.radiusLg,
               fallbackDecoration: BoxDecoration(
                 gradient: DS.heroGradientBlueCurrent,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(DS.radiusLg),
-                  bottomRight: Radius.circular(DS.radiusLg),
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: const Radius.circular(DS.radiusLg),
+                  bottomRight: const Radius.circular(DS.radiusLg),
                 ),
               ),
               padding: EdgeInsets.fromLTRB(
@@ -342,22 +342,22 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
                     child: Icon(Icons.arrow_back_ios,
                         size: 20, color: DS.onSurface),
                   ),
-                  SizedBox(width: DS.sm),
+                  const SizedBox(width: DS.sm),
                   Icon(Icons.book, size: 22, color: DS.onSurface),
-                  SizedBox(width: DS.sm),
-                  Text('账本管理', style: DS.headlineMd),
-                  Spacer(),
+                  const SizedBox(width: DS.sm),
+                  const Text('账本管理', style: DS.headlineMd),
+                  const Spacer(),
                   GestureDetector(
                     onTap: _showCreateDialog,
                     child: Container(
-                      padding: EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                           horizontal: DS.sm, vertical: DS.xs + 2),
                       decoration: BoxDecoration(
                         // The glassy header is itself a glass surface, so the capsule uses a light fill
                         color: shouldUseLiquidGlass(context)
                             ? (DS.isDark
-                                ? Colors.white.withOpacity(0.14)
-                                : Colors.white.withOpacity(0.55))
+                                ? Colors.white.withValues(alpha: 0.14)
+                                : Colors.white.withValues(alpha: 0.55))
                             : DS.heroCardBg,
                         borderRadius: BorderRadius.circular(DS.radiusFull),
                         // The glass theme has no border; disabled state unchanged
@@ -368,8 +368,8 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
                       child: Row(
                         children: [
                           Icon(Icons.add, size: 16, color: DS.onSurface),
-                          SizedBox(width: DS.xs),
-                          Text('新建', style: DS.labelSm),
+                          const SizedBox(width: DS.xs),
+                          const Text('新建', style: DS.labelSm),
                         ],
                       ),
                     ),
@@ -377,7 +377,7 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
                 ],
               ),
             ),
-            SizedBox(height: DS.base),
+            const SizedBox(height: DS.base),
             Expanded(
               child: _loading
                   ? const Center(
@@ -386,7 +386,7 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
                   : _books.isEmpty
                       ? _buildEmptyState()
                       : ListView.builder(
-                          padding: EdgeInsets.only(
+                          padding: const EdgeInsets.only(
                               left: DS.base, right: DS.base, bottom: DS.base),
                           itemCount: _books.length,
                           itemBuilder: (context, index) {
@@ -420,12 +420,12 @@ class _MultiBookPageState extends State<MultiBookPage> with RouteAware {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.menu_book, size: 64, color: DS.outlineVariant),
-          SizedBox(height: DS.gutter),
+          const SizedBox(height: DS.gutter),
           Text(
             '还没有其他账本',
             style: DS.headlineSm.copyWith(color: DS.onSurface),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             '点击右上角 + 创建新账本',
             style: DS.bodyMd.copyWith(color: DS.onSurfaceVariant),
@@ -500,11 +500,11 @@ class _BookCard extends StatelessWidget {
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>(); // theme rebuild
     return GlassSurface(
-      margin: EdgeInsets.only(bottom: DS.base),
-      padding: EdgeInsets.all(DS.gutter),
+      margin: const EdgeInsets.only(bottom: DS.base),
+      padding: const EdgeInsets.all(DS.gutter),
       fallbackDecoration: BoxDecoration(
         color: isCurrent
-            ? _hexToColor(book.color).withOpacity(0.1)
+            ? _hexToColor(book.color).withValues(alpha: 0.1)
             : DS.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(DS.radiusSm),
         border: Border.all(
@@ -521,18 +521,18 @@ class _BookCard extends StatelessWidget {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: _hexToColor(book.color).withOpacity(0.2),
+                  color: _hexToColor(book.color).withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(DS.radiusSm),
                 ),
                 child: Center(
                   child: Text(
                     book.icon,
-                    style: TextStyle(fontSize: 28),
+                    style: const TextStyle(fontSize: 28),
                   ),
                 ),
               ),
 
-              SizedBox(width: DS.gutter),
+              const SizedBox(width: DS.gutter),
 
               // Book info
               Expanded(
@@ -549,9 +549,9 @@ class _BookCard extends StatelessWidget {
                           ),
                         ),
                         if (isCurrent) ...[
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                               horizontal: 8,
                               vertical: 2,
                             ),
@@ -560,9 +560,9 @@ class _BookCard extends StatelessWidget {
                               borderRadius:
                                   BorderRadius.circular(DS.radiusFull),
                             ),
-                            child: Text(
+                            child: const Text(
                               '当前',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                                 color: Colors.white,
@@ -572,7 +572,7 @@ class _BookCard extends StatelessWidget {
                         ],
                       ],
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       '$recordCount 条记录',
                       style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
@@ -602,7 +602,7 @@ class _BookCard extends StatelessWidget {
                     ),
                   ),
                   if (!isCurrent) ...[
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     GestureDetector(
                       onTap: onDelete,
                       child: Container(
@@ -625,7 +625,7 @@ class _BookCard extends StatelessWidget {
             ],
           ),
           if (!isCurrent) ...[
-            SizedBox(height: DS.gutter),
+            const SizedBox(height: DS.gutter),
             SizedBox(
               width: double.infinity,
               child: GlassButton.custom(
@@ -634,13 +634,13 @@ class _BookCard extends StatelessWidget {
                 stretch: 0.1,
                 shape: const LiquidRoundedSuperellipse(borderRadius: 999),
                 child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 10),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.swap_horiz, size: 18,
                           color: _hexToColor(book.color)),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Text('切换到此账本',
                           style: TextStyle(
                               color: _hexToColor(book.color),

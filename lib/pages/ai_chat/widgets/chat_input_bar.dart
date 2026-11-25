@@ -173,10 +173,10 @@ class _ChatInputBarState extends State<ChatInputBar> {
                           ),
                   ),
                   child: _isRecognizing
-                      ? SizedBox(
+                      ? const SizedBox(
                           width: 20,
                           height: 20,
-                          child: CircularProgressIndicator(
+                          child: const CircularProgressIndicator(
                             strokeWidth: 2,
                             color: Colors.white,
                           ),
@@ -188,7 +188,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
                         ),
                 ),
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               // Text field
               Expanded(
                 child: Container(
@@ -217,17 +217,17 @@ class _ChatInputBarState extends State<ChatInputBar> {
                         fontSize: 14,
                       ),
                       border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(
+                      contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 10,
                       ),
                     ),
-                    style: TextStyle(fontSize: 15),
+                    style: const TextStyle(fontSize: 15),
                     onSubmitted: (_) => _handleSend(),
                   ),
                 ),
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               // Send button
               GestureDetector(
                 onTap: _handleSend,
@@ -252,7 +252,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
         if (_isRecording)
           Positioned.fill(
             child: Container(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha: 0.3),
               child: Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -262,20 +262,20 @@ class _ChatInputBarState extends State<ChatInputBar> {
                       size: 64,
                       color: _isCancelled ? Colors.white : Colors.red,
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     Text(
                       _isCancelled ? '松开取消' : '松开发送，上滑取消',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
                       _isCancelled ? '' : '静音 2 秒自动停止',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
+                        color: Colors.white.withValues(alpha: 0.7),
                         fontSize: 13,
                       ),
                     ),

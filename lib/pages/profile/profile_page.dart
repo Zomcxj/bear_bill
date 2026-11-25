@@ -60,9 +60,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   );
                 },
               ),
-              SizedBox(height: DS.base),
+              const SizedBox(height: DS.base),
               const AchievementGrid(),
-              SizedBox(height: DS.base),
+              const SizedBox(height: DS.base),
               SettingsList(onClearData: _clearAllData),
               // Bottom spacing in glass mode: keeps settings from being covered by the floating glass tab bar
               SizedBox(height: glassBottomInset(context)),
@@ -110,8 +110,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('已清空当前账本的账单数据'),
+          const SnackBar(
+            content: Text('已清空当前账本的账单数据'),
             backgroundColor: DS.inverseSurface,
           ),
         );

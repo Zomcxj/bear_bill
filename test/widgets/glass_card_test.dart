@@ -10,7 +10,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: GlassCard(
-              child: Text('测试文本'),
+              child: const Text('测试文本'),
             ),
           ),
         ),
@@ -27,7 +27,7 @@ void main() {
           home: Scaffold(
             body: GlassCard(
               onTap: () => tapped = true,
-              child: Text('可点击'),
+              child: const Text('可点击'),
             ),
           ),
         ),
@@ -42,7 +42,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: GlassCard(
-              child: Text('不可点击'),
+              child: const Text('不可点击'),
             ),
           ),
         ),
@@ -59,7 +59,7 @@ void main() {
           home: Scaffold(
             body: GlassCard(
               padding: customPadding,
-              child: Text('自定义内边距'),
+              child: const Text('自定义内边距'),
             ),
           ),
         ),
@@ -75,7 +75,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: GlassCard(opacity: 0.7, child: Text('浅色')),
+            body: GlassCard(opacity: 0.7, child: const Text('浅色')),
           ),
         ),
       );
@@ -93,7 +93,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: GlassCard(opacity: 0.7, child: Text('深色')),
+            body: GlassCard(opacity: 0.7, child: const Text('深色')),
           ),
         ),
       );
@@ -107,7 +107,7 @@ void main() {
       final darkColor = darkDecoration.color!;
 
       // Dark mode opacity should be lower
-      expect(darkColor.opacity, lessThan(lightColor.opacity));
+      expect(darkColor.a, lessThan(lightColor.a));
 
       // Cleanup
       DS.setDarkMode(false);

@@ -87,7 +87,7 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
       if (!notificationAllowed) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('请先允许通知权限，自动记账才能弹出确认提醒')),
+            const SnackBar(content: const Text('请先允许通知权限，自动记账才能弹出确认提醒')),
           );
         }
         return;
@@ -116,23 +116,23 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
           '监听支付宝/银行卡通知，识别后跳转记账页确认',
           style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
 
         // Notification listener permission status
         Container(
-          padding: EdgeInsets.all(12),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: _listenerEnabled
-                ? AppTheme.success.withOpacity(0.1)
-                : DS.emphasis.withOpacity(0.10),
+                ? AppTheme.success.withValues(alpha: 0.1)
+                : DS.emphasis.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(DS.radiusSm),
             // No border in glass theme, status relies on fill; unchanged when disabled
             border: shouldUseLiquidGlass(context)
                 ? null
                 : Border.all(
                     color: _listenerEnabled
-                        ? AppTheme.success.withOpacity(0.3)
-                        : DS.emphasis.withOpacity(0.30),
+                        ? AppTheme.success.withValues(alpha: 0.3)
+                        : DS.emphasis.withValues(alpha: 0.30),
                   ),
           ),
           child: Row(
@@ -142,7 +142,7 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
                 size: 20,
                 color: _listenerEnabled ? AppTheme.success : DS.emphasis,
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -180,7 +180,7 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
             ],
           ),
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
 
         // Auto-record toggle
         Row(
@@ -200,16 +200,16 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
             ),
           ],
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
 
         // Hints
         Container(
-          padding: EdgeInsets.all(10),
+          padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: shouldUseLiquidGlass(context)
                 ? (DS.isDark
-                    ? Colors.white.withOpacity(0.06)
-                    : Colors.white.withOpacity(0.40))
+                    ? Colors.white.withValues(alpha: 0.06)
+                    : Colors.white.withValues(alpha: 0.40))
                 : DS.background,
             borderRadius: BorderRadius.circular(DS.radiusXs),
           ),
@@ -223,12 +223,12 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
                   color: DS.onSurfaceVariant,
                 ),
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
                 '• 支付宝（交易提醒弹窗）\n• 主流银行 App（通知栏消息）',
                 style: DS.labelSm.copyWith(color: DS.outline),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 '识别的内容',
                 style: DS.labelSm.copyWith(
@@ -236,7 +236,7 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
                   color: DS.onSurfaceVariant,
                 ),
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
                 '• 支付成功通知\n• 转账/红包通知',
                 style: DS.labelSm.copyWith(color: DS.outline),
@@ -244,7 +244,7 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
             ],
           ),
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
 
         // Test button
         SizedBox(
@@ -259,12 +259,12 @@ class _AutoRecordDialogContentState extends State<_AutoRecordDialogContent>
               );
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('已模拟支付宝支付，请查看是否跳转记账页面')),
+                  const SnackBar(content: const Text('已模拟支付宝支付，请查看是否跳转记账页面')),
                 );
               }
             },
-            icon: Icon(Icons.bug_report, size: 16),
-            label: Text('发送测试通知'),
+            icon: const Icon(Icons.bug_report, size: 16),
+            label: const Text('发送测试通知'),
           ),
         ),
       ],

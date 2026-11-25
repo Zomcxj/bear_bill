@@ -84,7 +84,7 @@ abstract final class GlassMaterials {
   /// Outer shadow of the solid tier
   static List<BoxShadow> get solidShadows => [
         BoxShadow(
-          color: Colors.black.withOpacity(DS.isDark ? 0.35 : 0.08),
+          color: Colors.black.withValues(alpha: DS.isDark ? 0.35 : 0.08),
           blurRadius: 18,
           offset: const Offset(0, 8),
         ),
@@ -108,7 +108,7 @@ abstract final class GlassMaterials {
   /// Glass floating action button shadow (heavier in light mode to separate it from the background)
   static List<BoxShadow> get fabShadows => [
         BoxShadow(
-          color: Colors.black.withOpacity(DS.isDark ? 0.30 : 0.14),
+          color: Colors.black.withValues(alpha: DS.isDark ? 0.30 : 0.14),
           blurRadius: 16,
           offset: const Offset(0, 6),
         ),

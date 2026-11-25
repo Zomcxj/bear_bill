@@ -193,7 +193,7 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.2),
+                                      color: Colors.black.withValues(alpha: 0.2),
                                       blurRadius: 6,
                                       offset: const Offset(0, 2),
                                     ),
@@ -203,7 +203,7 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
                                   child: isSingle
                                       ? Text(
                                           cluster.records.first.categoryIcon,
-                                          style: TextStyle(fontSize: 18),
+                                          style: const TextStyle(fontSize: 18),
                                         )
                                       : Text(
                                           '${cluster.records.length}',
@@ -276,7 +276,7 @@ class _MapFootprintPageState extends State<MapFootprintPage> {
             color: DS.onSurface,
           ),
         ),
-        SizedBox(height: 2),
+        const SizedBox(height: 2),
         Text(
           label,
           style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
@@ -315,27 +315,27 @@ class _ClusterDetailSheet extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: DS.surfaceContainerLowest,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: const BorderRadius.vertical(top: const Radius.circular(20)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           // Drag handle
           Container(
-            margin: EdgeInsets.only(top: 8),
+            margin: const EdgeInsets.only(top: 8),
             width: 36,
             height: 4,
             decoration: BoxDecoration(
-              color: DS.outline.withOpacity(0.3),
+              color: DS.outline.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
           Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Row(
               children: [
                 Icon(Icons.place, color: DS.emphasis, size: 20),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Text(
                   '${cluster.records.length} 条记录',
                   style: DS.bodyMd.copyWith(
@@ -343,7 +343,7 @@ class _ClusterDetailSheet extends StatelessWidget {
                     color: DS.onSurface,
                   ),
                 ),
-                Spacer(),
+                const Spacer(),
                 Text(
                   '¥${cluster.records.fold<double>(0, (s, r) => s + r.amount).toStringAsFixed(2)}',
                   style: DS.bodyMd.copyWith(
@@ -371,7 +371,7 @@ class _ClusterDetailSheet extends StatelessWidget {
                     ),
                     child: Center(
                       child:
-                          Text(r.categoryIcon, style: TextStyle(fontSize: 20)),
+                          Text(r.categoryIcon, style: const TextStyle(fontSize: 20)),
                     ),
                   ),
                   title: Text(

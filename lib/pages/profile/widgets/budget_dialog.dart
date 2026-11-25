@@ -28,7 +28,7 @@ Future<void> showBudgetDialog(BuildContext context) async {
       children: [
         Text('设置当月消费预算上限，超支时会提醒。',
             style: DS.bodyMd.copyWith(color: DS.onSurfaceVariant)),
-        SizedBox(height: DS.base),
+        const SizedBox(height: DS.base),
         TextField(
           controller: controller,
           keyboardType: const TextInputType.numberWithOptions(decimal: false),
@@ -40,7 +40,7 @@ Future<void> showBudgetDialog(BuildContext context) async {
           ),
         ),
         if (currentBudget > 0) ...[
-          SizedBox(height: DS.sm),
+          const SizedBox(height: DS.sm),
           Text(
             '当前预算：¥${currentBudget.toStringAsFixed(0)}',
             style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),

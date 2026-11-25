@@ -36,14 +36,14 @@ class MonthlySummary extends StatelessWidget {
         borderRadius: BorderRadius.circular(DS.radiusMd),
         border: Border.all(color: DS.outlineVariant, width: 2),
       ),
-      padding: EdgeInsets.all(12),
+      padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Icon(Icons.auto_awesome, size: 20, color: DS.emphasis),
-              SizedBox(width: 6),
+              const SizedBox(width: 6),
               Text(
                 '小熊助手报告',
                 style: TextStyle(
@@ -54,9 +54,9 @@ class MonthlySummary extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           ...lines.map((line) => Padding(
-                padding: EdgeInsets.only(bottom: 6),
+                padding: const EdgeInsets.only(bottom: 6),
                 child: Text(
                   line,
                   style: TextStyle(

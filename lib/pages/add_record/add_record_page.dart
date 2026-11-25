@@ -306,7 +306,7 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
         mainAxisSize: MainAxisSize.min,
         children: achievements.map((a) {
           return ListTile(
-            leading: Text(a.emoji, style: TextStyle(fontSize: 32)),
+            leading: Text(a.emoji, style: const TextStyle(fontSize: 32)),
             title: Text(a.title),
             subtitle: Text(a.description),
           );
@@ -344,9 +344,9 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
               borderRadius: DS.radiusLg,
               fallbackDecoration: BoxDecoration(
                 gradient: DS.heroGradientBlueCurrent,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(DS.radiusLg),
-                  bottomRight: Radius.circular(DS.radiusLg),
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: const Radius.circular(DS.radiusLg),
+                  bottomRight: const Radius.circular(DS.radiusLg),
                 ),
               ),
               padding: EdgeInsets.fromLTRB(
@@ -365,17 +365,17 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
                         onTap: () => Navigator.pop(context),
                         child: Icon(Icons.arrow_back_ios, size: 20, color: DS.onSurface),
                       ),
-                      SizedBox(width: DS.sm),
+                      const SizedBox(width: DS.sm),
                       Icon(Icons.edit, size: 20, color: DS.onSurface),
-                      SizedBox(width: DS.xs),
-                      Text('记一笔', style: DS.headlineMd),
+                      const SizedBox(width: DS.xs),
+                      const Text('记一笔', style: DS.headlineMd),
                     ],
                   ),
-                  SizedBox(height: DS.base),
+                  const SizedBox(height: DS.base),
                   // Expense/income toggle
                   if (!shouldUseLiquidGlass(context))
                     Container(
-                      padding: EdgeInsets.all(3),
+                      padding: const EdgeInsets.all(3),
                       decoration: BoxDecoration(
                         color: DS.heroCardBg,
                         borderRadius: BorderRadius.circular(DS.radiusFull),
@@ -386,7 +386,7 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
                             child: GestureDetector(
                               onTap: () => _switchType('expense'),
                               child: Container(
-                                padding: EdgeInsets.symmetric(vertical: DS.sm),
+                                padding: const EdgeInsets.symmetric(vertical: DS.sm),
                                 decoration: BoxDecoration(
                                   color: _type == 'expense' ? DS.emphasis : Colors.transparent,
                                   borderRadius: BorderRadius.circular(DS.radiusFull),
@@ -405,7 +405,7 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
                             child: GestureDetector(
                               onTap: () => _switchType('income'),
                               child: Container(
-                                padding: EdgeInsets.symmetric(vertical: DS.sm),
+                                padding: const EdgeInsets.symmetric(vertical: DS.sm),
                                 decoration: BoxDecoration(
                                   color: _type == 'income' ? DS.emphasis : Colors.transparent,
                                   borderRadius: BorderRadius.circular(DS.radiusFull),
@@ -432,10 +432,10 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
                           _switchType(i == 0 ? 'expense' : 'income'),
                       height: 40,
                     ),
-                  SizedBox(height: DS.base),
+                  const SizedBox(height: DS.base),
                   // Amount + date
                   _buildAmountRow(),
-                  SizedBox(height: DS.base),
+                  const SizedBox(height: DS.base),
                   // Category selector
                   CategorySelector(
                     categories: categories,
@@ -452,7 +452,7 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: DS.base),
+                  const SizedBox(height: DS.base),
                   BottomInfoCard(
                     selectedMood: _selectedMood,
                     onMoodChanged: (mood) => setState(() => _selectedMood = mood),
@@ -474,7 +474,7 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
                     onLocationDialog: _handleLocationDialog,
                   ),
 
-                  SizedBox(height: DS.gutter),
+                  const SizedBox(height: DS.gutter),
                 ],
               ),
             ),
@@ -497,7 +497,7 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
         borderRadius: BorderRadius.circular(DS.radiusMd),
         border: Border.all(color: DS.heroCardBorder),
       ),
-      padding: EdgeInsets.all(DS.gutter),
+      padding: const EdgeInsets.all(DS.gutter),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -505,7 +505,7 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
           Row(
             children: [
               Container(
-                padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.xs + 2),
+                padding: const EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.xs + 2),
                 decoration: BoxDecoration(
                   color: DS.emphasis,
                   borderRadius: BorderRadius.circular(DS.radiusFull),
@@ -513,8 +513,8 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(_selectedCategory?.icon ?? '🍜', style: TextStyle(fontSize: 14)),
-                    SizedBox(width: DS.xs),
+                    Text(_selectedCategory?.icon ?? '🍜', style: const TextStyle(fontSize: 14)),
+                    const SizedBox(width: DS.xs),
                     Text(
                       _selectedCategory?.name ?? '餐饮',
                       style: DS.labelSm.copyWith(
@@ -523,15 +523,15 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
                   ],
                 ),
               ),
-              SizedBox(width: DS.sm),
+              const SizedBox(width: DS.sm),
               GestureDetector(
                 onTap: _selectDate,
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.xs + 2),
+                  padding: const EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.xs + 2),
                   decoration: BoxDecoration(
                     // Glassy: white tint floats on the glass card; disabled state unchanged
                     color: shouldUseLiquidGlass(context)
-                        ? Colors.white.withOpacity(0.18)
+                        ? Colors.white.withValues(alpha: 0.18)
                         : DS.heroCardBg,
                     borderRadius: BorderRadius.circular(DS.radiusFull),
                     border: shouldUseLiquidGlass(context)
@@ -542,12 +542,12 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.calendar_today, size: 14, color: DS.onSurface),
-                      SizedBox(width: DS.xs),
+                      const SizedBox(width: DS.xs),
                       Text(
                         '${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}',
                         style: DS.labelSm.copyWith(color: DS.onSurface),
                       ),
-                      SizedBox(width: 2),
+                      const SizedBox(width: 2),
                       Icon(Icons.chevron_right, size: 14, color: DS.outline),
                     ],
                   ),
@@ -555,7 +555,7 @@ class _AddRecordPageState extends State<AddRecordPage> with LocationHelper {
               ),
             ],
           ),
-          SizedBox(height: DS.sm),
+          const SizedBox(height: DS.sm),
           // Amount
           Text(
             _amount.isEmpty ? '¥0' : '¥$_amount',

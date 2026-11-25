@@ -25,7 +25,7 @@ class CategoryBreakdown extends StatelessWidget {
     }
 
     return GlassSurface(
-      padding: EdgeInsets.all(DS.gutter),
+      padding: const EdgeInsets.all(DS.gutter),
       fallbackDecoration: DS.glassDecoration,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,7 +33,7 @@ class CategoryBreakdown extends StatelessWidget {
           Row(
             children: [
               Icon(Icons.pie_chart, size: 18, color: DS.emphasis),
-              SizedBox(width: 6),
+              const SizedBox(width: 6),
               Text(
                 '分类明细',
                 style: TextStyle(
@@ -44,7 +44,7 @@ class CategoryBreakdown extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: DS.base),
+          const SizedBox(height: DS.base),
           ...categories.map((category) => _buildCategoryItem(category)),
         ],
       ),
@@ -68,7 +68,7 @@ class CategoryBreakdown extends StatelessWidget {
       onTap: onCategoryTap != null ? () => onCategoryTap!(category) : null,
       behavior: HitTestBehavior.opaque,
       child: Padding(
-      padding: EdgeInsets.only(bottom: DS.base),
+      padding: const EdgeInsets.only(bottom: DS.base),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -77,8 +77,8 @@ class CategoryBreakdown extends StatelessWidget {
               // Category icon and name
               Row(
                 children: [
-                  Text(category['icon'], style: TextStyle(fontSize: 20)),
-                  SizedBox(width: 8),
+                  Text(category['icon'], style: const TextStyle(fontSize: 20)),
+                  const SizedBox(width: 8),
                   Text(
                     category['name'],
                     style: TextStyle(
@@ -87,7 +87,7 @@ class CategoryBreakdown extends StatelessWidget {
                       color: DS.onSurface,
                     ),
                   ),
-                  SizedBox(width: 4),
+                  const SizedBox(width: 4),
                   Text(
                     '($count笔)',
                     style: TextStyle(
@@ -98,7 +98,7 @@ class CategoryBreakdown extends StatelessWidget {
                 ],
               ),
 
-              Spacer(),
+              const Spacer(),
 
               // Amount and percentage
               Column(
@@ -124,7 +124,7 @@ class CategoryBreakdown extends StatelessWidget {
             ],
           ),
 
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
 
           // Progress bar
           ClipRRect(

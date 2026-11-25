@@ -69,8 +69,8 @@ mixin BillFilterMixin on State<BillListPage> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('收支类型', style: DS.labelMd),
-                  SizedBox(height: DS.sm),
+                  const Text('收支类型', style: DS.labelMd),
+                  const SizedBox(height: DS.sm),
                   Wrap(
                     spacing: DS.sm,
                     children: [
@@ -79,9 +79,9 @@ mixin BillFilterMixin on State<BillListPage> {
                       _buildFilterChip(label: '收入', selected: filterType == 'income', onTap: () => setDialogState(() => filterType = 'income')),
                     ],
                   ),
-                  SizedBox(height: DS.gutter),
-                  Text('分类', style: DS.labelMd),
-                  SizedBox(height: DS.sm),
+                  const SizedBox(height: DS.gutter),
+                  const Text('分类', style: DS.labelMd),
+                  const SizedBox(height: DS.sm),
                   Wrap(
                     spacing: DS.sm,
                     runSpacing: DS.sm,
@@ -103,9 +103,9 @@ mixin BillFilterMixin on State<BillListPage> {
                       }),
                     ],
                   ),
-                  SizedBox(height: DS.gutter),
-                  Text('金额范围', style: DS.labelMd),
-                  SizedBox(height: DS.sm),
+                  const SizedBox(height: DS.gutter),
+                  const Text('金额范围', style: DS.labelMd),
+                  const SizedBox(height: DS.sm),
                   Row(
                     children: [
                       Expanded(
@@ -130,9 +130,9 @@ mixin BillFilterMixin on State<BillListPage> {
                       ),
                     ],
                   ),
-                  SizedBox(height: DS.gutter),
-                  Text('位置', style: DS.labelMd),
-                  SizedBox(height: DS.sm),
+                  const SizedBox(height: DS.gutter),
+                  const Text('位置', style: DS.labelMd),
+                  const SizedBox(height: DS.sm),
                   TextField(
                     controller: locationController,
                     decoration: const InputDecoration(
@@ -183,7 +183,7 @@ mixin BillFilterMixin on State<BillListPage> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: DS.sm, vertical: 6),
         decoration: BoxDecoration(
           color: selected ? DS.emphasis : DS.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(DS.radiusFull),

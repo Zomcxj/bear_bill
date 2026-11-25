@@ -73,7 +73,7 @@ class DS {
   // ── Shadows ──
   static List<BoxShadow> get shadowSm => [
     BoxShadow(
-      color: Colors.black.withOpacity(_isDark ? 0.3 : 0.04),
+      color: Colors.black.withValues(alpha: _isDark ? 0.3 : 0.04),
       blurRadius: 8,
       offset: const Offset(0, 2),
     ),
@@ -81,7 +81,7 @@ class DS {
 
   static List<BoxShadow> get shadowMd => [
     BoxShadow(
-      color: Colors.black.withOpacity(_isDark ? 0.4 : 0.08),
+      color: Colors.black.withValues(alpha: _isDark ? 0.4 : 0.08),
       blurRadius: 16,
       offset: const Offset(0, 4),
     ),
@@ -89,7 +89,7 @@ class DS {
 
   static List<BoxShadow> get shadowLg => [
     BoxShadow(
-      color: Colors.black.withOpacity(_isDark ? 0.5 : 0.12),
+      color: Colors.black.withValues(alpha: _isDark ? 0.5 : 0.12),
       blurRadius: 24,
       offset: const Offset(0, 8),
     ),
@@ -126,11 +126,11 @@ class DS {
 
   // ── Hero card colors (dynamic) ──
   static Color get heroCardBg => _isDark
-      ? Colors.white.withOpacity(0.08)
-      : Colors.white.withOpacity(0.6);
+      ? Colors.white.withValues(alpha: 0.08)
+      : Colors.white.withValues(alpha: 0.6);
   static Color get heroCardBorder => _isDark
-      ? Colors.white.withOpacity(0.08)
-      : Colors.black.withOpacity(0.08);
+      ? Colors.white.withValues(alpha: 0.08)
+      : Colors.black.withValues(alpha: 0.08);
 
   // ── Dynamic semantic colors ──
   static Color get errorDynamic => _isDark
@@ -158,20 +158,20 @@ class DS {
 
   // ── Frosted glass decorations ──
   static BoxDecoration get glassDecoration => BoxDecoration(
-    color: _isDark ? Colors.white.withOpacity(0.06) : Colors.white.withOpacity(0.7),
+    color: _isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white.withValues(alpha: 0.7),
     borderRadius: BorderRadius.circular(radiusMd),
     // No borders on components in the glass theme (as requested); disabled mode keeps the hairline border (zero drift)
     border: GlassMaterials.enabled
         ? null
-        : Border.all(color: _isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.08)),
+        : Border.all(color: _isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.08)),
   );
 
   static BoxDecoration get glassDecorationLight => BoxDecoration(
-    color: _isDark ? Colors.white.withOpacity(0.04) : Colors.white.withOpacity(0.6),
+    color: _isDark ? Colors.white.withValues(alpha: 0.04) : Colors.white.withValues(alpha: 0.6),
     borderRadius: BorderRadius.circular(radiusMd),
     border: GlassMaterials.enabled
         ? null
-        : Border.all(color: _isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.05)),
+        : Border.all(color: _isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.05)),
   );
 
   // ── Text styles ──

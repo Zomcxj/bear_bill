@@ -67,15 +67,15 @@ class _RecordDetailDialogState extends State<RecordDetailDialog> {
       context.read<AppProvider>().onRecordDeleted();
       NotificationService.instance.refreshTodaySummary();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Row(
             children: [
-              const Icon(Icons.delete_outline, size: 18, color: Colors.white),
-              const SizedBox(width: 6),
-              const Text('已删除'),
+              Icon(Icons.delete_outline, size: 18, color: Colors.white),
+              SizedBox(width: 6),
+              Text('已删除'),
             ],
           ),
-          duration: const Duration(seconds: 1),
+          duration: Duration(seconds: 1),
         ),
       );
       Navigator.pop(context);
@@ -110,23 +110,23 @@ class _RecordDetailDialogState extends State<RecordDetailDialog> {
       children: [
         // Title bar
         Container(
-          padding: EdgeInsets.all(DS.gutter),
+          padding: const EdgeInsets.all(DS.gutter),
           decoration: BoxDecoration(
             color: record.isExpense
-                ? DS.chartExpense.withOpacity(0.12)
-                : AppTheme.success.withOpacity(0.12),
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(DS.radiusMd),
-              topRight: Radius.circular(DS.radiusMd),
+                ? DS.chartExpense.withValues(alpha: 0.12)
+                : AppTheme.success.withValues(alpha: 0.12),
+            borderRadius: const BorderRadius.only(
+              topLeft: const Radius.circular(DS.radiusMd),
+              topRight: const Radius.circular(DS.radiusMd),
             ),
           ),
           child: Row(
             children: [
               Text(
                 record.categoryIcon,
-                style: TextStyle(fontSize: 32),
+                style: const TextStyle(fontSize: 32),
               ),
-              SizedBox(width: DS.base),
+              const SizedBox(width: DS.base),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,7 +162,7 @@ class _RecordDetailDialogState extends State<RecordDetailDialog> {
             maxHeight: MediaQuery.sizeOf(context).height * 0.5,
           ),
           child: SingleChildScrollView(
-            padding: EdgeInsets.all(DS.gutter),
+            padding: const EdgeInsets.all(DS.gutter),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -181,7 +181,7 @@ class _RecordDetailDialogState extends State<RecordDetailDialog> {
                   ),
                 ),
 
-                Divider(height: 24),
+                const Divider(height: 24),
 
                 // Type
                 _buildInfoRow(
@@ -196,7 +196,7 @@ class _RecordDetailDialogState extends State<RecordDetailDialog> {
 
                 // Remark (if any)
                 if (record.remark != null && record.remark!.isNotEmpty) ...[
-                  Divider(height: 24),
+                  const Divider(height: 24),
                   _buildInfoRow(
                     label: '备注',
                     value: Text(
@@ -210,14 +210,14 @@ class _RecordDetailDialogState extends State<RecordDetailDialog> {
 
                 // Mood (if any)
                 if (record.moodEmoji != null) ...[
-                  Divider(height: 24),
+                  const Divider(height: 24),
                   _buildInfoRow(
                     label: '心情',
                     value: Row(
                       children: [
                         Text(
                           record.moodEmoji!,
-                          style: TextStyle(fontSize: 22),
+                          style: const TextStyle(fontSize: 22),
                         ),
                       ],
                     ),
@@ -226,7 +226,7 @@ class _RecordDetailDialogState extends State<RecordDetailDialog> {
 
                 // Location (if any)
                 if (record.location != null && record.location!.isNotEmpty) ...[
-                  Divider(height: 24),
+                  const Divider(height: 24),
                   _buildInfoRow(
                     label: '位置',
                     value: Text(
@@ -240,14 +240,14 @@ class _RecordDetailDialogState extends State<RecordDetailDialog> {
 
                 // Images (if any)
                 if (record.images.isNotEmpty) ...[
-                  Divider(height: 24),
+                  const Divider(height: 24),
                   Text(
                     '图片',
                     style: DS.labelMd.copyWith(
                       color: DS.onSurface,
                     ),
                   ),
-                  SizedBox(height: DS.base),
+                  const SizedBox(height: DS.base),
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -275,28 +275,28 @@ class _RecordDetailDialogState extends State<RecordDetailDialog> {
 
                 // Tags (if any)
                 if (record.tags.isNotEmpty) ...[
-                  Divider(height: 24),
+                  const Divider(height: 24),
                   Text(
                     '标签',
                     style: DS.labelMd.copyWith(
                       color: DS.onSurface,
                     ),
                   ),
-                  SizedBox(height: DS.base),
+                  const SizedBox(height: DS.base),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: record.tags.map((tag) {
                       return Container(
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                           horizontal: 12,
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
                           color: glass
                               ? (DS.isDark
-                                  ? Colors.white.withOpacity(0.12)
-                                  : Colors.white.withOpacity(0.60))
+                                  ? Colors.white.withValues(alpha: 0.12)
+                                  : Colors.white.withValues(alpha: 0.60))
                               : DS.surfaceContainerHigh,
                           borderRadius: BorderRadius.circular(DS.radiusXs),
                         ),
@@ -318,7 +318,7 @@ class _RecordDetailDialogState extends State<RecordDetailDialog> {
         // Action row: edit / delete (features of the old full-screen detail page
         // are kept inside this dialog)
         Padding(
-          padding: EdgeInsets.fromLTRB(
+          padding: const EdgeInsets.fromLTRB(
             DS.gutter,
             DS.sm,
             DS.gutter,
@@ -333,7 +333,7 @@ class _RecordDetailDialogState extends State<RecordDetailDialog> {
                   onPressed: _editRecord,
                 ),
               ),
-              SizedBox(width: DS.sm),
+              const SizedBox(width: DS.sm),
               Expanded(
                 child: GlassPanelButton(
                   label: '删除',

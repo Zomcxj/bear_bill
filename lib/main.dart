@@ -321,17 +321,17 @@ class _MainTabPageState extends State<MainTabPage> {
 
     // Disabled-state bottom bar: kept as-is (flush-bottom full width + BackdropFilter blur + thin top border)
     final bar = ClipRRect(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(DS.radiusMd)),
+      borderRadius: const BorderRadius.vertical(top: const Radius.circular(DS.radiusMd)),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
         child: Container(
           decoration: BoxDecoration(
-            color: DS.surfaceContainerLowest.withOpacity(0.85),
+            color: DS.surfaceContainerLowest.withValues(alpha: 0.85),
             border: Border(
               top: BorderSide(color: DS.outlineVariant, width: 0.5),
             ),
           ),
-          padding: EdgeInsets.only(bottom: 8, top: 4),
+          padding: const EdgeInsets.only(bottom: 8, top: 4),
           child: items,
         ),
       ),
@@ -362,7 +362,7 @@ class _MainTabPageState extends State<MainTabPage> {
       onTap: () => _goToTab(index),
       behavior: HitTestBehavior.opaque,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         child: isActive
             ? Container(
                 width: 48,
@@ -380,7 +380,7 @@ class _MainTabPageState extends State<MainTabPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(icon, color: DS.outline, size: 24),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
                     label,
                     style: TextStyle(

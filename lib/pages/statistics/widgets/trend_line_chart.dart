@@ -61,12 +61,12 @@ class _TrendLineChartState extends State<TrendLineChart> {
     context.watch<ThemeProvider>(); // rebuild on theme change
     if (_loading) {
       return GlassSurface(
-        margin: EdgeInsets.symmetric(horizontal: DS.sm),
-        padding: EdgeInsets.all(DS.gutter),
+        margin: const EdgeInsets.symmetric(horizontal: DS.sm),
+        padding: const EdgeInsets.all(DS.gutter),
         fallbackDecoration: DS.glassDecoration,
-        child: SizedBox(
+        child: const SizedBox(
           height: 260,
-          child: Center(child: CircularProgressIndicator()),
+          child: const Center(child: const CircularProgressIndicator()),
         ),
       );
     }
@@ -84,9 +84,9 @@ class _TrendLineChartState extends State<TrendLineChart> {
     if (maxVal == 0) maxVal = 1; // avoid division by zero
 
     return GlassSurface(
-      margin: EdgeInsets.symmetric(horizontal: DS.sm),
+      margin: const EdgeInsets.symmetric(horizontal: DS.sm),
       // Tighten the bottom padding further: the bottom empty band was too wide
-      padding: EdgeInsets.fromLTRB(DS.gutter, DS.gutter, DS.gutter, DS.xs),
+      padding: const EdgeInsets.fromLTRB(DS.gutter, DS.gutter, DS.gutter, DS.xs),
       fallbackDecoration: DS.glassDecoration,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,7 +94,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
           Row(
             children: [
               Icon(Icons.show_chart, size: 18, color: DS.emphasis),
-              SizedBox(width: 6),
+              const SizedBox(width: 6),
               Text(
                 '收支趋势',
                 style: TextStyle(
@@ -103,11 +103,11 @@ class _TrendLineChartState extends State<TrendLineChart> {
                   color: DS.onSurface,
                 ),
               ),
-              Spacer(),
+              const Spacer(),
               _buildLegend(),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           ClipRRect(
             borderRadius: BorderRadius.circular(DS.radiusSm),
             child: Container(
@@ -131,7 +131,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
             ),
           ),
           // Tighten the spacing between the chart and the month labels
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           // Month labels
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -161,9 +161,9 @@ class _TrendLineChartState extends State<TrendLineChart> {
             shape: BoxShape.circle,
           ),
         ),
-        SizedBox(width: 4),
+        const SizedBox(width: 4),
         Text('支出', style: TextStyle(fontSize: 11, color: DS.onSurfaceVariant)),
-        SizedBox(width: 12),
+        const SizedBox(width: 12),
         Container(
           width: 10,
           height: 10,
@@ -172,7 +172,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
             shape: BoxShape.circle,
           ),
         ),
-        SizedBox(width: 4),
+        const SizedBox(width: 4),
         Text('收入', style: TextStyle(fontSize: 11, color: DS.onSurfaceVariant)),
       ],
     );

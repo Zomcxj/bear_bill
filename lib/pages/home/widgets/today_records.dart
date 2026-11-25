@@ -76,7 +76,7 @@ class _TodayRecordsState extends State<TodayRecords> {
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>(); // theme rebuild
     return GlassCard(
-      margin: EdgeInsets.symmetric(horizontal: DS.sm),
+      margin: const EdgeInsets.symmetric(horizontal: DS.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -86,12 +86,12 @@ class _TodayRecordsState extends State<TodayRecords> {
               Row(
                 children: [
                   Icon(Icons.receipt_long, size: 18, color: DS.onSurface),
-                  SizedBox(width: DS.xs),
-                  Text('今日账单', style: DS.headlineSm),
+                  const SizedBox(width: DS.xs),
+                  const Text('今日账单', style: DS.headlineSm),
                   if (!_loading && _records.isNotEmpty)
                     Container(
-                      margin: EdgeInsets.only(left: DS.sm),
-                      padding: EdgeInsets.symmetric(
+                      margin: const EdgeInsets.only(left: DS.sm),
+                      padding: const EdgeInsets.symmetric(
                         horizontal: DS.sm,
                         vertical: 3,
                       ),
@@ -101,7 +101,7 @@ class _TodayRecordsState extends State<TodayRecords> {
                       ),
                       child: Text(
                         '-¥${utils.FormatUtils.formatAmount(_todayExpense)}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontFamily: DS.fontLabel,
                           fontSize: 12,
                           color: DS.error,
@@ -119,7 +119,7 @@ class _TodayRecordsState extends State<TodayRecords> {
                 child: Row(
                   children: [
                     Text('全部', style: DS.labelSm.copyWith(color: DS.secondary)),
-                    Icon(Icons.chevron_right, size: 14, color: DS.secondary),
+                    const Icon(Icons.chevron_right, size: 14, color: DS.secondary),
                   ],
                 ),
               ),
@@ -138,11 +138,11 @@ class _TodayRecordsState extends State<TodayRecords> {
 
   Widget _buildSkeleton() {
     return Padding(
-      padding: EdgeInsets.only(top: DS.gutter),
+      padding: const EdgeInsets.only(top: DS.gutter),
       child: Column(
         children: List.generate(3, (_) {
           return Padding(
-            padding: EdgeInsets.symmetric(vertical: 10),
+            padding: const EdgeInsets.symmetric(vertical: 10),
             child: Row(
               children: [
                 Container(
@@ -153,7 +153,7 @@ class _TodayRecordsState extends State<TodayRecords> {
                     borderRadius: BorderRadius.circular(DS.radiusSm),
                   ),
                 ),
-                SizedBox(width: DS.gutter),
+                const SizedBox(width: DS.gutter),
                 Expanded(
                   child: Column(
                     children: [
@@ -165,7 +165,7 @@ class _TodayRecordsState extends State<TodayRecords> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
-                      SizedBox(height: DS.sm),
+                      const SizedBox(height: DS.sm),
                       Container(
                         height: 10,
                         width: 120,
@@ -187,11 +187,11 @@ class _TodayRecordsState extends State<TodayRecords> {
 
   Widget _buildEmpty() {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: DS.gutter),
+      padding: const EdgeInsets.symmetric(vertical: DS.gutter),
       child: Column(
         children: [
           Icon(Icons.receipt_long, size: 32, color: DS.outlineVariant),
-          SizedBox(height: DS.xs),
+          const SizedBox(height: DS.xs),
           Text(
             '今天还没记账呢',
             style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
@@ -205,7 +205,7 @@ class _TodayRecordsState extends State<TodayRecords> {
     final displayRecords = _records.take(5).toList();
 
     return Padding(
-      padding: EdgeInsets.only(top: DS.xs),
+      padding: const EdgeInsets.only(top: DS.xs),
       child: Column(
         children: [
           for (int i = 0; i < displayRecords.length; i++) ...[
@@ -220,7 +220,7 @@ class _TodayRecordsState extends State<TodayRecords> {
                 tabSwitchNotifier.value = 1;
               },
               child: Padding(
-                padding: EdgeInsets.only(top: DS.sm),
+                padding: const EdgeInsets.only(top: DS.sm),
                 child: Center(
                   child: Text(
                     '还有 ${_records.length - 5} 条，点击查看全部 ›',
@@ -254,24 +254,24 @@ class _TodayRecordsState extends State<TodayRecords> {
       },
       behavior: HitTestBehavior.opaque,
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: DS.sm),
+        padding: const EdgeInsets.symmetric(vertical: DS.sm),
         child: Row(
           children: [
             Container(
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: catColor.withOpacity(0.15),
+                color: catColor.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(DS.radiusSm),
               ),
               child: Center(
                 child: Text(
                   category?.icon ?? '📦',
-                  style: TextStyle(fontSize: 20),
+                  style: const TextStyle(fontSize: 20),
                 ),
               ),
             ),
-            SizedBox(width: DS.gutter),
+            const SizedBox(width: DS.gutter),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -285,7 +285,7 @@ class _TodayRecordsState extends State<TodayRecords> {
                   ),
                   if (record.remark != null && record.remark!.isNotEmpty)
                     Padding(
-                      padding: EdgeInsets.only(top: 2),
+                      padding: const EdgeInsets.only(top: 2),
                       child: Text(
                         record.remark!,
                         style: DS.labelSm.copyWith(color: DS.outline),
@@ -295,11 +295,11 @@ class _TodayRecordsState extends State<TodayRecords> {
                     ),
                   if (record.location != null && record.location!.isNotEmpty)
                     Padding(
-                      padding: EdgeInsets.only(top: 2),
+                      padding: const EdgeInsets.only(top: 2),
                       child: Row(
                         children: [
                           Icon(Icons.location_on, size: 12, color: DS.outline),
-                          SizedBox(width: 2),
+                          const SizedBox(width: 2),
                           Expanded(
                             child: Text(
                               record.location!,

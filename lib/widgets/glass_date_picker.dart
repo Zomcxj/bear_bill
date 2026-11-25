@@ -37,11 +37,11 @@ Future<DateTime?> showGlassDatePicker({
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 CupertinoButton(
-                  child: Text('取消'),
+                  child: const Text('取消'),
                   onPressed: () => Navigator.pop(context),
                 ),
                 CupertinoButton(
-                  child: Text('确定', style: TextStyle(fontWeight: FontWeight.w600)),
+                  child: const Text('确定', style: const TextStyle(fontWeight: FontWeight.w600)),
                   onPressed: () => Navigator.pop(context, tempDate),
                 ),
               ],

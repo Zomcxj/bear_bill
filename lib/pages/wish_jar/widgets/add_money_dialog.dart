@@ -66,12 +66,12 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
         // Wish info
         Container(
           width: double.infinity,
-          padding: EdgeInsets.all(DS.base),
+          padding: const EdgeInsets.all(DS.base),
           decoration: BoxDecoration(
             color: shouldUseLiquidGlass(context)
                 ? (DS.isDark
-                    ? Colors.white.withOpacity(0.08)
-                    : Colors.white.withOpacity(0.45))
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : Colors.white.withValues(alpha: 0.45))
                 : DS.surfaceContainerLow,
             borderRadius: BorderRadius.circular(DS.radiusSm),
           ),
@@ -86,7 +86,7 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
                   color: DS.onSurface,
                 ),
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
                 '已存 ¥${FormatUtils.formatAmount(widget.wish.currentAmount)} / 心愿 ¥${FormatUtils.formatAmount(widget.wish.targetAmount)}',
                 style: TextStyle(
@@ -95,7 +95,7 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
                 ),
               ),
               if (remaining > 0) ...[
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
                   '还需 ¥${FormatUtils.formatAmount(remaining)}',
                   style: TextStyle(
@@ -108,7 +108,7 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
           ),
         ),
 
-        SizedBox(height: DS.gutter),
+        const SizedBox(height: DS.gutter),
 
         // Quick amounts
         Text(
@@ -121,7 +121,7 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
                 : DS.onSurfaceVariant,
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -138,7 +138,7 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
               stretch: 0.25,
               shape: const LiquidRoundedSuperellipse(borderRadius: 999),
               child: Container(
-                padding: EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 8,
                 ),
@@ -149,20 +149,20 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
                   color: shouldUseLiquidGlass(context)
                       ? (selected
                           ? (DS.isDark
-                              ? Colors.white.withOpacity(0.22)
-                              : Colors.white.withOpacity(0.75))
+                              ? Colors.white.withValues(alpha: 0.22)
+                              : Colors.white.withValues(alpha: 0.75))
                           : (DS.isDark
-                              ? Colors.white.withOpacity(0.12)
-                              : Colors.white.withOpacity(0.45)))
+                              ? Colors.white.withValues(alpha: 0.12)
+                              : Colors.white.withValues(alpha: 0.45)))
                       : DS.surfaceContainerHigh,
                   borderRadius: BorderRadius.circular(DS.radiusFull),
                   border: shouldUseLiquidGlass(context)
                       ? (DS.isDark
                           ? Border.all(
-                              color: Colors.white.withOpacity(0.16),
+                              color: Colors.white.withValues(alpha: 0.16),
                             )
                           : Border.all(
-                              color: Colors.black.withOpacity(0.10),
+                              color: Colors.black.withValues(alpha: 0.10),
                             ))
                       : Border.all(color: DS.emphasis),
                 ),
@@ -181,7 +181,7 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
           }).toList(),
         ),
 
-        SizedBox(height: DS.gutter),
+        const SizedBox(height: DS.gutter),
 
         // Custom amount
         TextField(
@@ -215,12 +215,12 @@ class _AddMoneyDialogState extends State<AddMoneyDialog> {
         title: Row(
           children: [
             Text(_getWishEmoji(widget.wish.title),
-                style: TextStyle(fontSize: 24)),
-            SizedBox(width: 8),
-            Expanded(
-              child: Text(
+                style: const TextStyle(fontSize: 24)),
+            const SizedBox(width: 8),
+            const Expanded(
+              child: const Text(
                 '💰 存入心愿',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
           ],

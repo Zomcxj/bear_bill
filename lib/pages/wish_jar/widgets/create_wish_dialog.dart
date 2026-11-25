@@ -1,4 +1,4 @@
-﻿import 'package:flutter/cupertino.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
     show GlassDialog, GlassDialogAction, GlassQuality;
@@ -87,7 +87,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
                 color: DS.onSurfaceVariant,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -95,15 +95,15 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
                 return GestureDetector(
                   onTap: () => _selectTemplate(tpl),
                   child: Container(
-                    padding: EdgeInsets.symmetric(
+                    padding: const EdgeInsets.symmetric(
                       horizontal: 12,
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
                       color: shouldUseLiquidGlass(context)
                           ? (DS.isDark
-                              ? Colors.white.withOpacity(0.10)
-                              : Colors.white.withOpacity(0.50))
+                              ? Colors.white.withValues(alpha: 0.10)
+                              : Colors.white.withValues(alpha: 0.50))
                           : DS.surfaceContainerLow,
                       borderRadius: BorderRadius.circular(DS.radiusFull),
                       // No border in glass theme; unchanged when disabled
@@ -114,8 +114,8 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(tpl['emoji'], style: TextStyle(fontSize: 16)),
-                        SizedBox(width: 4),
+                        Text(tpl['emoji'], style: const TextStyle(fontSize: 16)),
+                        const SizedBox(width: 4),
                         Text(
                           tpl['name'],
                           style: TextStyle(fontSize: 12, color: DS.onSurface),
@@ -127,7 +127,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
               }).toList(),
             ),
 
-            SizedBox(height: DS.gutter),
+            const SizedBox(height: DS.gutter),
 
             // Wish title
             TextFormField(
@@ -146,7 +146,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
               },
             ),
 
-            SizedBox(height: DS.base),
+            const SizedBox(height: DS.base),
 
             // Wish description (optional)
             TextFormField(
@@ -160,7 +160,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
               maxLines: 2,
             ),
 
-            SizedBox(height: DS.base),
+            const SizedBox(height: DS.base),
 
             // Wish amount
             TextFormField(
@@ -184,7 +184,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
               },
             ),
 
-            SizedBox(height: DS.base),
+            const SizedBox(height: DS.base),
 
             // Deadline
             GestureDetector(
@@ -204,15 +204,15 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
                 }
               },
               child: Container(
-                padding: EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: DS.sm,
                   vertical: DS.base,
                 ),
                 decoration: BoxDecoration(
                   color: shouldUseLiquidGlass(context)
                       ? (DS.isDark
-                          ? Colors.white.withOpacity(0.10)
-                          : Colors.white.withOpacity(0.50))
+                          ? Colors.white.withValues(alpha: 0.10)
+                          : Colors.white.withValues(alpha: 0.50))
                       : DS.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(DS.radiusSm),
                   // No border in glass theme; unchanged when disabled
@@ -223,7 +223,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
                 child: Row(
                   children: [
                     Icon(Icons.calendar_today, size: 18, color: DS.emphasis),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         _deadline != null
@@ -269,7 +269,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
 
     if (!shouldUseLiquidGlass(context)) {
       return AlertDialog(
-        title: Text('✨ 创建新心愿'),
+        title: const Text('✨ 创建新心愿'),
         content: form,
         actions: [
           TextButton(
@@ -281,7 +281,7 @@ class _CreateWishDialogState extends State<CreateWishDialog> {
             style: ElevatedButton.styleFrom(
               backgroundColor: DS.emphasis,
               foregroundColor: DS.isDark ? DS.background : Colors.white,
-              padding: EdgeInsets.symmetric(
+              padding: const EdgeInsets.symmetric(
                 horizontal: DS.md,
                 vertical: DS.base,
               ),

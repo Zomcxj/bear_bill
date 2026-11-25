@@ -49,7 +49,7 @@ void main() {
     });
 
     test('handleAmountInput 最大长度限制', () {
-      final maxed = '1234567890';
+      const maxed = '1234567890';
       expect(FormatUtils.handleAmountInput(maxed, '1'), maxed);
     });
 

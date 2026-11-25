@@ -55,7 +55,7 @@ void main() {
       DS.setDarkMode(true);
       final darkCard = DS.heroCardBg;
 
-      expect(darkCard.opacity, lessThan(lightCard.opacity));
+      expect(darkCard.a, lessThan(lightCard.a));
     });
 
     test('errorDynamic 浅色/深色不同', () {
@@ -70,12 +70,12 @@ void main() {
 
     test('常量颜色不随深色模式变化', () {
       DS.setDarkMode(false);
-      final lightPrimary = DS.primary;
-      final lightError = DS.error;
+      const lightPrimary = DS.primary;
+      const lightError = DS.error;
 
       DS.setDarkMode(true);
-      final darkPrimary = DS.primary;
-      final darkError = DS.error;
+      const darkPrimary = DS.primary;
+      const darkError = DS.error;
 
       expect(lightPrimary, equals(darkPrimary));
       expect(lightError, equals(darkError));

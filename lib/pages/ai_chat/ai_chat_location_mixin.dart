@@ -93,7 +93,7 @@ mixin AiChatLocationMixin on State<AiChatPage> {
           children: [
             ListTile(
               leading: Icon(Icons.my_location, color: DS.emphasis),
-              title: Text('重新获取 GPS 定位'),
+              title: const Text('重新获取 GPS 定位'),
               onTap: () {
                 Navigator.pop(ctx);
                 setState(() {
@@ -105,7 +105,7 @@ mixin AiChatLocationMixin on State<AiChatPage> {
             ),
             ListTile(
               leading: Icon(Icons.map, color: DS.emphasis),
-              title: Text('地图选点'),
+              title: const Text('地图选点'),
               onTap: () {
                 Navigator.pop(ctx);
                 openMapPicker(msgId);
@@ -114,7 +114,7 @@ mixin AiChatLocationMixin on State<AiChatPage> {
             if (msgLocations[msgId] != null)
               ListTile(
                 leading: Icon(Icons.clear, color: DS.outline),
-                title: Text('清除位置'),
+                title: const Text('清除位置'),
                 onTap: () {
                   Navigator.pop(ctx);
                   setState(() {

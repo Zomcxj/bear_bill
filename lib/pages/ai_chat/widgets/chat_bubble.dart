@@ -55,16 +55,16 @@ class ChatBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>(); // theme rebuild
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
       child: Row(
         mainAxisAlignment:
             message.isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (!message.isUser) _buildAvatar(),
-          if (!message.isUser) SizedBox(width: 8),
+          if (!message.isUser) const SizedBox(width: 8),
           Flexible(child: _buildBubble(context)),
-          if (message.isUser) SizedBox(width: 8),
+          if (message.isUser) const SizedBox(width: 8),
           if (message.isUser) _buildUserAvatar(),
         ],
       ),
@@ -90,7 +90,7 @@ class ChatBubble extends StatelessWidget {
       width: 36,
       height: 36,
       decoration: BoxDecoration(
-        color: DS.secondaryContainer.withOpacity(0.2),
+        color: DS.secondaryContainer.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(18),
       ),
       child: const Center(
@@ -114,7 +114,7 @@ class ChatBubble extends StatelessWidget {
 
   Widget _buildTextBubble(BuildContext context, {bool isError = false}) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: message.isUser
             ? DS.emphasis
@@ -128,7 +128,7 @@ class ChatBubble extends StatelessWidget {
         // No border in glass theme; keep the original border when glass is off
         border: message.isUser || shouldUseLiquidGlass(context)
             ? null
-            : Border.all(color: DS.outlineVariant.withOpacity(0.5)),
+            : Border.all(color: DS.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Text(
         message.text,
@@ -153,19 +153,19 @@ class ChatBubble extends StatelessWidget {
     final dateStr = data['date'] as String?;
 
     return Container(
-      padding: EdgeInsets.all(14),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: DS.surfaceContainerLowest,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
-          bottomLeft: Radius.circular(4),
-          bottomRight: Radius.circular(16),
+        borderRadius: const BorderRadius.only(
+          topLeft: const Radius.circular(16),
+          topRight: const Radius.circular(16),
+          bottomLeft: const Radius.circular(4),
+          bottomRight: const Radius.circular(16),
         ),
         // No border in glass theme; keep the original border when glass is off
         border: shouldUseLiquidGlass(context)
             ? null
-            : Border.all(color: DS.emphasis.withOpacity(0.3)),
+            : Border.all(color: DS.emphasis.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,8 +173,8 @@ class ChatBubble extends StatelessWidget {
           // Confirmation title
           Row(
             children: [
-              Text(categoryIcon, style: TextStyle(fontSize: 20)),
-              SizedBox(width: 8),
+              Text(categoryIcon, style: const TextStyle(fontSize: 20)),
+              const SizedBox(width: 8),
               Text(
                 '确认记账',
                 style: TextStyle(
@@ -185,7 +185,7 @@ class ChatBubble extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           // Details
           _buildDetailRow('分类', categoryName),
           _buildDetailRow(
@@ -196,13 +196,13 @@ class ChatBubble extends StatelessWidget {
           if (remark != null && remark.isNotEmpty)
             _buildDetailRow('备注', remark),
           _buildDetailRow('日期', _formatDateLabel(dateStr)),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           // Mood selection
           _buildMoodRow(context),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           // Location info
           _buildLocationRow(),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           // Action buttons
           Row(
             children: [
@@ -214,13 +214,13 @@ class ChatBubble extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(DS.radiusSm),
                     ),
-                    padding: EdgeInsets.symmetric(vertical: 10),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                   ),
                   child: Text('修改',
                       style: TextStyle(color: DS.onSurfaceVariant)),
                 ),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Expanded(
                 child: ElevatedButton(
                   onPressed: confirmed ? null : onConfirm,
@@ -232,7 +232,7 @@ class ChatBubble extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(DS.radiusSm),
                     ),
-                    padding: EdgeInsets.symmetric(vertical: 10),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                   ),
                   child: Text(confirmed ? '已确认' : '确认'),
                 ),
@@ -254,19 +254,19 @@ class ChatBubble extends StatelessWidget {
     final categoryBreakdown = data['categoryBreakdown'] as Map<String, dynamic>?;
 
     return Container(
-      padding: EdgeInsets.all(14),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: DS.surfaceContainerLowest,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
-          bottomLeft: Radius.circular(4),
-          bottomRight: Radius.circular(16),
+        borderRadius: const BorderRadius.only(
+          topLeft: const Radius.circular(16),
+          topRight: const Radius.circular(16),
+          bottomLeft: const Radius.circular(4),
+          bottomRight: const Radius.circular(16),
         ),
         // No border in glass theme; keep the original border when glass is off
         border: shouldUseLiquidGlass(context)
             ? null
-            : Border.all(color: DS.secondaryContainer.withOpacity(0.3)),
+            : Border.all(color: DS.secondaryContainer.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -279,7 +279,7 @@ class ChatBubble extends StatelessWidget {
               color: DS.onSurface,
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           _buildDetailRow('共 $count 笔记录', ''),
           if (totalExpense > 0)
             _buildDetailRow(
@@ -294,9 +294,9 @@ class ChatBubble extends StatelessWidget {
               valueColor: DS.secondary,
             ),
           if (categoryBreakdown != null && categoryBreakdown.isNotEmpty) ...[
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Divider(height: 1, color: DS.outlineVariant),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               '分类明细',
               style: TextStyle(
@@ -305,11 +305,11 @@ class ChatBubble extends StatelessWidget {
                 color: DS.onSurfaceVariant,
               ),
             ),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             ...categoryBreakdown.entries.take(5).map((e) {
               final cat = e.value as Map<String, dynamic>;
               return Padding(
-                padding: EdgeInsets.only(bottom: 4),
+                padding: const EdgeInsets.only(bottom: 4),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -333,14 +333,14 @@ class ChatBubble extends StatelessWidget {
 
   Widget _buildMoodRow(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         children: [
           Text(
             '心情',
             style: TextStyle(fontSize: 13, color: DS.onSurfaceVariant),
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           ...moods.map((mood) {
             final isSelected = selectedMood?.id == mood.id;
             return GestureDetector(
@@ -349,8 +349,8 @@ class ChatBubble extends StatelessWidget {
                 onMoodChanged!(isSelected ? null : mood);
               },
               child: Container(
-                margin: EdgeInsets.only(right: 6),
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                margin: const EdgeInsets.only(right: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: isSelected ? DS.surfaceContainerHigh : DS.background,
                   borderRadius: BorderRadius.circular(DS.radiusFull),
@@ -382,7 +382,7 @@ class ChatBubble extends StatelessWidget {
       child: Row(
         children: [
           Icon(Icons.location_on, size: 14, color: DS.onSurfaceVariant),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           Expanded(
             child: locationLoading
                 ? Row(
@@ -395,7 +395,7 @@ class ChatBubble extends StatelessWidget {
                           color: DS.outline,
                         ),
                       ),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Text(
                         '定位中...',
                         style: TextStyle(
@@ -424,7 +424,7 @@ class ChatBubble extends StatelessWidget {
 
   Widget _buildDetailRow(String label, String value, {Color? valueColor}) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.only(bottom: 6),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

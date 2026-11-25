@@ -46,9 +46,9 @@ class UserProfileCard extends StatelessWidget {
           borderRadius: DS.radiusLg,
           fallbackDecoration: BoxDecoration(
             gradient: DS.heroGradientBlueCurrent,
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(DS.radiusLg),
-              bottomRight: Radius.circular(DS.radiusLg),
+            borderRadius: const BorderRadius.only(
+              bottomLeft: const Radius.circular(DS.radiusLg),
+              bottomRight: const Radius.circular(DS.radiusLg),
             ),
           ),
           padding: EdgeInsets.fromLTRB(
@@ -67,7 +67,7 @@ class UserProfileCard extends StatelessWidget {
                   height: 60,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.12),
+                    color: Colors.white.withValues(alpha: 0.12),
                   ),
                 ),
               ),
@@ -79,7 +79,7 @@ class UserProfileCard extends StatelessWidget {
                   height: 50,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                   ),
                 ),
               ),
@@ -93,13 +93,13 @@ class UserProfileCard extends StatelessWidget {
                           width: 50,
                           height: 50,
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.25),
+                            color: Colors.white.withValues(alpha: 0.25),
                             shape: BoxShape.circle,
                             // No border in glass theme; unchanged when disabled
                             border: shouldUseLiquidGlass(context)
                                 ? null
                                 : Border.all(
-                                    color: Colors.white.withOpacity(0.4),
+                                    color: Colors.white.withValues(alpha: 0.4),
                                     width: 2,
                                   ),
                             image: user.avatar.isNotEmpty
@@ -114,12 +114,12 @@ class UserProfileCard extends StatelessWidget {
                               : Center(
                                   child: Text(
                                     levelInfo['emoji'],
-                                    style: TextStyle(fontSize: 26),
+                                    style: const TextStyle(fontSize: 26),
                                   ),
                                 ),
                         ),
                       ),
-                      SizedBox(width: DS.base),
+                      const SizedBox(width: DS.base),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -130,7 +130,7 @@ class UserProfileCard extends StatelessWidget {
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 color: AppTheme.heroTextMain,
-                                shadows: [
+                                shadows: const [
                                   Shadow(
                                     color: Color(0x26000000),
                                     offset: Offset(0, 1),
@@ -139,16 +139,16 @@ class UserProfileCard extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Row(
                               children: [
                                 Container(
-                                  padding: EdgeInsets.symmetric(
+                                  padding: const EdgeInsets.symmetric(
                                     horizontal: 8,
                                     vertical: 2,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.25),
+                                    color: Colors.white.withValues(alpha: 0.25),
                                     borderRadius:
                                         BorderRadius.circular(DS.radiusFull),
                                   ),
@@ -168,7 +168,7 @@ class UserProfileCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: DS.sm),
+                  const SizedBox(height: DS.sm),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -192,12 +192,12 @@ class UserProfileCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(DS.radiusFull),
                         child: LinearProgressIndicator(
                           value: user.expProgress,
-                          backgroundColor: Colors.white.withOpacity(0.2),
+                          backgroundColor: Colors.white.withValues(alpha: 0.2),
                           valueColor: const AlwaysStoppedAnimation<Color>(
                             Colors.white,
                           ),
@@ -206,16 +206,16 @@ class UserProfileCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: DS.sm),
+                  const SizedBox(height: DS.sm),
                   // Single glass strip: the three stats merged into one bar (glass mode = one glass
                   // strip; disabled = the original fallback fill box, zero drift)
                   GlassSurface(
                     borderRadius: DS.radiusSm,
                     fallbackDecoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
+                      color: Colors.white.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(DS.radiusSm),
                     ),
-                    padding: EdgeInsets.symmetric(vertical: 10),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
@@ -230,7 +230,7 @@ class UserProfileCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  SizedBox(height: DS.base),
+                  const SizedBox(height: DS.base),
                   if (!appProvider.todayChecked)
                     shouldUseLiquidGlass(context)
                         ? GlassButton.custom(
@@ -247,13 +247,13 @@ class UserProfileCard extends StatelessWidget {
                             shape: const LiquidRoundedSuperellipse(borderRadius: 999),
                             child: Container(
                               width: double.infinity,
-                              padding: EdgeInsets.symmetric(vertical: 12),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(Icons.local_fire_department,
                                       size: 18, color: AppTheme.heroTextMain),
-                                  SizedBox(width: 6),
+                                  const SizedBox(width: 6),
                                   Text(
                                     '今日打卡',
                                     style: TextStyle(
@@ -275,12 +275,12 @@ class UserProfileCard extends StatelessWidget {
                             },
                             child: Container(
                         width: double.infinity,
-                        padding: EdgeInsets.symmetric(vertical: 12),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.25),
+                          color: Colors.white.withValues(alpha: 0.25),
                           borderRadius: BorderRadius.circular(DS.radiusFull),
                               border: Border.all(
-                                color: Colors.white.withOpacity(0.4),
+                                color: Colors.white.withValues(alpha: 0.4),
                               ),
                         ),
                         child: Row(
@@ -288,7 +288,7 @@ class UserProfileCard extends StatelessWidget {
                           children: [
                             Icon(Icons.local_fire_department,
                                 size: 18, color: AppTheme.heroTextMain),
-                            SizedBox(width: 6),
+                            const SizedBox(width: 6),
                             Text(
                               '今日打卡',
                               style: TextStyle(
@@ -311,7 +311,7 @@ class UserProfileCard extends StatelessWidget {
                                 borderRadius: 999),
                             child: Container(
                               width: double.infinity,
-                              padding: EdgeInsets.symmetric(vertical: 12),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -323,9 +323,9 @@ class UserProfileCard extends StatelessWidget {
                           )
                         : Container(
                       width: double.infinity,
-                      padding: EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.3),
+                        color: Colors.white.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(DS.radiusFull),
                       ),
                       child: Row(
@@ -333,7 +333,7 @@ class UserProfileCard extends StatelessWidget {
                         children: [
                           Icon(Icons.check_circle,
                               size: 18, color: AppTheme.heroTextMain),
-                          SizedBox(width: 6),
+                          const SizedBox(width: 6),
                           Text(
                             '今日已打卡',
                             style: TextStyle(
@@ -361,14 +361,14 @@ class UserProfileCard extends StatelessWidget {
       child: Column(
         children: [
           Icon(icon, size: 20, color: AppTheme.heroTextMain),
-          SizedBox(height: 2),
+          const SizedBox(height: 2),
           Text(
             value,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w800,
               color: AppTheme.heroTextMain,
-              fontFeatures: [FontFeature.tabularFigures()],
+              fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),
           Text(
@@ -470,13 +470,13 @@ class UserProfileCard extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         child: Container(
-          margin: EdgeInsets.only(top: 60),
-          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          margin: const EdgeInsets.only(top: 60),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           decoration: BoxDecoration(
             color: glass
                 ? (DS.isDark
-                    ? Colors.white.withOpacity(0.16)
-                    : Colors.white.withOpacity(0.80))
+                    ? Colors.white.withValues(alpha: 0.16)
+                    : Colors.white.withValues(alpha: 0.80))
                 : DS.surfaceContainerLowest,
             borderRadius: BorderRadius.circular(DS.radiusMd),
             boxShadow: DS.shadowMd,
@@ -493,9 +493,9 @@ class UserProfileCard extends StatelessWidget {
             children: [
               Text(
                 achievements.first.emoji ?? '🏆',
-                style: TextStyle(fontSize: 40),
+                style: const TextStyle(fontSize: 40),
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -504,7 +504,7 @@ class UserProfileCard extends StatelessWidget {
                     '成就解锁！',
                     style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
                     achievements.first.title ?? '新成就',
                     style: DS.headlineSm.copyWith(

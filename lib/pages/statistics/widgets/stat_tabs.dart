@@ -30,7 +30,7 @@ class StatTabs extends StatelessWidget {
     context.watch<ThemeProvider>(); // theme rebuild
     final glass = shouldUseLiquidGlass(context);
     return Container(
-      padding: EdgeInsets.all(DS.base),
+      padding: const EdgeInsets.all(DS.base),
       decoration: BoxDecoration(
         // Glass theme: no background or border (the page's glass backdrop shows through); unchanged when disabled
         color: glass ? Colors.transparent : DS.surfaceContainerLowest,
@@ -71,8 +71,8 @@ class StatTabs extends StatelessWidget {
                             color: GlassMaterials.isSolid
                                 ? GlassMaterials.solidAccent
                                 : (DS.isDark
-                                    ? Colors.white.withOpacity(0.22)
-                                    : Colors.white.withOpacity(0.65)),
+                                    ? Colors.white.withValues(alpha: 0.22)
+                                    : Colors.white.withValues(alpha: 0.65)),
                             borderRadius:
                                 BorderRadius.circular(DS.radiusFull),
                           ),
@@ -140,7 +140,7 @@ class StatTabs extends StatelessWidget {
                       onTap: () => onTabChanged('expense'),
                     ),
                   ),
-                  SizedBox(width: DS.base),
+                  const SizedBox(width: DS.base),
                   Expanded(
                     child: _classicTab(
                       active: activeTab == 'income',
@@ -188,7 +188,7 @@ class StatTabs extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           color: active ? DS.surfaceContainerHigh : Colors.transparent,
           borderRadius: BorderRadius.circular(DS.radiusMd),
@@ -229,7 +229,7 @@ class StatTabs extends StatelessWidget {
                       : DS.emphasis)
                   : DS.onSurfaceVariant,
             ),
-            SizedBox(width: 4),
+            const SizedBox(width: 4),
             Text(
               label,
               style: TextStyle(
@@ -244,7 +244,7 @@ class StatTabs extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: 4),
+        const SizedBox(height: 4),
         Text(
           '¥${FormatUtils.formatAmount(amount)}',
           style: TextStyle(

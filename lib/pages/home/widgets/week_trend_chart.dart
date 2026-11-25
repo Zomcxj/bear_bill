@@ -76,7 +76,7 @@ class _WeekTrendChartState extends State<WeekTrendChart> {
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>(); // theme rebuild
     return GlassCard(
-      margin: EdgeInsets.symmetric(horizontal: DS.sm),
+      margin: const EdgeInsets.symmetric(horizontal: DS.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -86,8 +86,8 @@ class _WeekTrendChartState extends State<WeekTrendChart> {
               Row(
                 children: [
                   Icon(Icons.insights, size: 18, color: DS.onSurface),
-                  SizedBox(width: DS.xs),
-                  Text('本周趋势', style: DS.headlineSm),
+                  const SizedBox(width: DS.xs),
+                  const Text('本周趋势', style: DS.headlineSm),
                 ],
               ),
               GestureDetector(
@@ -103,13 +103,13 @@ class _WeekTrendChartState extends State<WeekTrendChart> {
                       '详细统计',
                       style: DS.labelSm.copyWith(color: DS.secondary),
                     ),
-                    Icon(Icons.chevron_right, size: 14, color: DS.secondary),
+                    const Icon(Icons.chevron_right, size: 14, color: DS.secondary),
                   ],
                 ),
               ),
             ],
           ),
-          SizedBox(height: DS.sm),
+          const SizedBox(height: DS.sm),
           SizedBox(
             height: 110,
             child: BarChart(
@@ -123,7 +123,7 @@ class _WeekTrendChartState extends State<WeekTrendChart> {
                       final data = _weekData[groupIndex];
                       return BarTooltipItem(
                         '¥${utils.FormatUtils.formatAmount(data['amount'])}',
-                        TextStyle(
+                        const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
@@ -141,7 +141,7 @@ class _WeekTrendChartState extends State<WeekTrendChart> {
                         if (index >= 0 && index < _weekData.length) {
                           final data = _weekData[index];
                           return Padding(
-                            padding: EdgeInsets.only(top: 6),
+                            padding: const EdgeInsets.only(top: 6),
                             child: Text(
                               data['day'],
                               style: TextStyle(
@@ -157,7 +157,7 @@ class _WeekTrendChartState extends State<WeekTrendChart> {
                             ),
                           );
                         }
-                        return Text('');
+                        return const Text('');
                       },
                     ),
                   ),
@@ -183,8 +183,8 @@ class _WeekTrendChartState extends State<WeekTrendChart> {
                         toY: amount,
                         color: isToday ? DS.chartExpense : DS.chartIncome,
                         width: 22,
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(6),
+                        borderRadius: const BorderRadius.vertical(
+                          top: const Radius.circular(6),
                         ),
                         backDrawRodData: BackgroundBarChartRodData(
                           show: true,

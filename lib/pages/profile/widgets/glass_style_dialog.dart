@@ -102,9 +102,9 @@ class _GlassStyleTile extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             color: selected
-                ? DS.emphasis.withOpacity(0.14)
+                ? DS.emphasis.withValues(alpha: 0.14)
                 : (glass
-                    ? Colors.white.withOpacity(0.06)
+                    ? Colors.white.withValues(alpha: 0.06)
                     : DS.surfaceContainerLow),
             borderRadius: BorderRadius.circular(DS.radiusMd),
             border: selected

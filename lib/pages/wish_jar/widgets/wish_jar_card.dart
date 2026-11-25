@@ -31,8 +31,8 @@ class WishJarCard extends StatelessWidget {
     final icon = _getWishIcon(wish.title);
 
     return GlassCard(
-      margin: EdgeInsets.only(bottom: DS.base),
-      padding: EdgeInsets.all(DS.gutter),
+      margin: const EdgeInsets.only(bottom: DS.base),
+      padding: const EdgeInsets.all(DS.gutter),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -42,16 +42,16 @@ class WishJarCard extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: themeColor.withOpacity(0.15),
+                  color: themeColor.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                   // No border in the glass theme; unchanged when disabled
                   border: shouldUseLiquidGlass(context)
                       ? null
-                      : Border.all(color: themeColor.withOpacity(0.3)),
+                      : Border.all(color: themeColor.withValues(alpha: 0.3)),
                 ),
                 child: Icon(icon, size: 22, color: themeColor),
               ),
-              SizedBox(width: DS.sm),
+              const SizedBox(width: DS.sm),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,11 +64,11 @@ class WishJarCard extends StatelessWidget {
                       ),
                     ),
                     if (wish.deadline != null) ...[
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Row(
                         children: [
                           Icon(Icons.event, size: 12, color: DS.outline),
-                          SizedBox(width: 4),
+                          const SizedBox(width: 4),
                           Text(
                             '${wish.deadline!.year}-${wish.deadline!.month.toString().padLeft(2, '0')}-${wish.deadline!.day.toString().padLeft(2, '0')} 截止',
                             style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
@@ -77,7 +77,7 @@ class WishJarCard extends StatelessWidget {
                       ),
                     ],
                     if (wish.description?.isNotEmpty == true) ...[
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text(
                         wish.description!,
                         style: DS.labelSm.copyWith(color: DS.onSurfaceVariant),
@@ -103,7 +103,7 @@ class WishJarCard extends StatelessWidget {
             ],
           ),
 
-          SizedBox(height: DS.sm),
+          const SizedBox(height: DS.sm),
 
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -143,7 +143,7 @@ class WishJarCard extends StatelessWidget {
             ],
           ),
 
-          SizedBox(height: DS.sm),
+          const SizedBox(height: DS.sm),
 
           ClipRRect(
             borderRadius: BorderRadius.circular(DS.radiusFull),
@@ -155,22 +155,22 @@ class WishJarCard extends StatelessWidget {
             ),
           ),
 
-          SizedBox(height: DS.sm),
+          const SizedBox(height: DS.sm),
 
           if (wish.isCompleted)
             Container(
               width: double.infinity,
-              padding: EdgeInsets.symmetric(vertical: DS.sm),
+              padding: const EdgeInsets.symmetric(vertical: DS.sm),
               decoration: BoxDecoration(
                 color: DS.secondary,
                 borderRadius: BorderRadius.circular(DS.radiusFull),
               ),
-              child: Row(
+              child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.check_circle, size: 16, color: DS.onPrimary),
-                  SizedBox(width: DS.xs),
-                  Text('已实现', style: DS.labelMd),
+                  const Icon(Icons.check_circle, size: 16, color: DS.onPrimary),
+                  const SizedBox(width: DS.xs),
+                  const Text('已实现', style: DS.labelMd),
                 ],
               ),
             )
@@ -188,7 +188,7 @@ class WishJarCard extends StatelessWidget {
               shape: const LiquidRoundedSuperellipse(borderRadius: 999),
               child: Container(
                 width: double.infinity,
-                padding: EdgeInsets.symmetric(vertical: DS.sm),
+                padding: const EdgeInsets.symmetric(vertical: DS.sm),
                 // Glass mode: same glass sheet style as the Done key on the
                 // record keypad (highlight gradient + dark/light border + soft
                 // shadow), with no refraction layer — the card itself is
@@ -201,12 +201,12 @@ class WishJarCard extends StatelessWidget {
                           end: Alignment.bottomCenter,
                           colors: DS.isDark
                               ? [
-                                  Colors.white.withOpacity(0.36),
-                                  Colors.white.withOpacity(0.12),
+                                  Colors.white.withValues(alpha: 0.36),
+                                  Colors.white.withValues(alpha: 0.12),
                                 ]
                               : [
-                                  Colors.white.withOpacity(0.69),
-                                  Colors.white.withOpacity(0.45),
+                                  Colors.white.withValues(alpha: 0.69),
+                                  Colors.white.withValues(alpha: 0.45),
                                 ],
                         )
                       : null,
@@ -215,14 +215,14 @@ class WishJarCard extends StatelessWidget {
                   border: shouldUseLiquidGlass(context)
                       ? Border.all(
                           color: DS.isDark
-                              ? Colors.white.withOpacity(0.16)
-                              : Colors.black.withOpacity(0.10),
+                              ? Colors.white.withValues(alpha: 0.16)
+                              : Colors.black.withValues(alpha: 0.10),
                         )
                       : null,
                   boxShadow: shouldUseLiquidGlass(context)
                       ? [
                           BoxShadow(
-                            color: Colors.black.withOpacity(
+                            color: Colors.black.withValues(alpha: 
                               DS.isDark ? 0.20 : 0.06,
                             ),
                             blurRadius: 4,
@@ -241,7 +241,7 @@ class WishJarCard extends StatelessWidget {
                           ? DS.onSurface
                           : (DS.isDark ? DS.background : Colors.white),
                     ),
-                    SizedBox(width: DS.xs),
+                    const SizedBox(width: DS.xs),
                     Text(
                       '存入',
                       style: TextStyle(

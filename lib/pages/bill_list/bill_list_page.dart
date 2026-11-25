@@ -168,9 +168,9 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
               borderRadius: DS.radiusLg,
               fallbackDecoration: BoxDecoration(
                 gradient: DS.heroGradientBlueCurrent,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(DS.radiusLg),
-                  bottomRight: Radius.circular(DS.radiusLg),
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: const Radius.circular(DS.radiusLg),
+                  bottomRight: const Radius.circular(DS.radiusLg),
                 ),
               ),
               padding: EdgeInsets.fromLTRB(DS.containerMargin, MediaQuery.of(context).padding.top + DS.gutter, DS.containerMargin, DS.base),
@@ -179,13 +179,13 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
                   Row(
                     children: [
                       Icon(Icons.receipt_long, size: 22, color: DS.onSurface),
-                      SizedBox(width: DS.sm),
-                      Text('我的账单', style: DS.headlineMd),
+                      const SizedBox(width: DS.sm),
+                      const Text('我的账单', style: DS.headlineMd),
                     ],
                   ),
-                  SizedBox(height: DS.sm),
+                  const SizedBox(height: DS.sm),
                   GlassSurface(
-                    padding: EdgeInsets.symmetric(vertical: DS.gutter),
+                    padding: const EdgeInsets.symmetric(vertical: DS.gutter),
                     fallbackDecoration: BoxDecoration(
                       color: DS.heroCardBg,
                       borderRadius: BorderRadius.circular(DS.radiusMd),
@@ -197,11 +197,11 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
                           Expanded(
                             child: Column(
                               children: [
-                                Text('本月支出', style: DS.labelSm),
-                                SizedBox(height: DS.xs),
+                                const Text('本月支出', style: DS.labelSm),
+                                const SizedBox(height: DS.xs),
                                 Text(
                                   '¥${utils.FormatUtils.formatAmount(_totalExpense)}',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontFamily: DS.fontDisplay,
                                     fontSize: 20,
                                     fontWeight: FontWeight.w800,
@@ -215,11 +215,11 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
                           Expanded(
                             child: Column(
                               children: [
-                                Text('本月收入', style: DS.labelSm),
-                                SizedBox(height: DS.xs),
+                                const Text('本月收入', style: DS.labelSm),
+                                const SizedBox(height: DS.xs),
                                 Text(
                                   '¥${utils.FormatUtils.formatAmount(_totalIncome)}',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontFamily: DS.fontDisplay,
                                     fontSize: 20,
                                     fontWeight: FontWeight.w800,
@@ -233,19 +233,19 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
                       ),
                     ),
                   ),
-                  SizedBox(height: DS.sm),
+                  const SizedBox(height: DS.sm),
                   // Glass mode: the whole date bar uses the same glass bar as the bottom nav (unified with the statistics page);
                   // kept as-is when disabled (zero drift)
                   GlassBarWrap(
                     child: Row(
                       children: [
                         _monthArrow(context, icon: Icons.chevron_left, onTap: _prevMonth),
-                        SizedBox(width: DS.xs),
+                        const SizedBox(width: DS.xs),
                         Expanded(
                           child: GestureDetector(
                             onTap: () => _pickYearMonth(context),
                             child: Container(
-                              padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.xs + 2),
+                              padding: const EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.xs + 2),
                               decoration: BoxDecoration(
                                 // The glass bar is itself a glass surface, so the pill no longer fills
                                 color: shouldUseLiquidGlass(context)
@@ -264,21 +264,21 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
                                     utils.DateUtils.formatMonthCN(_currentMonth),
                                     style: DS.labelMd.copyWith(color: DS.onSurface),
                                   ),
-                                  SizedBox(width: DS.xs),
+                                  const SizedBox(width: DS.xs),
                                   Icon(Icons.unfold_more, size: 14, color: DS.outline),
                                 ],
                               ),
                             ),
                           ),
                         ),
-                        SizedBox(width: DS.xs),
+                        const SizedBox(width: DS.xs),
                         _monthArrow(context, icon: Icons.chevron_right, onTap: _nextMonth),
                       ],
                     ),
                   ),
-                  SizedBox(height: DS.sm),
+                  const SizedBox(height: DS.sm),
                   GlassSurface(
-                    padding: EdgeInsets.symmetric(horizontal: DS.sm),
+                    padding: const EdgeInsets.symmetric(horizontal: DS.sm),
                     fallbackDecoration: BoxDecoration(
                       color: DS.heroCardBg,
                       borderRadius: BorderRadius.circular(DS.radiusFull),
@@ -287,7 +287,7 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
                     child: Row(
                       children: [
                         Icon(Icons.search, size: 18, color: DS.outline),
-                        SizedBox(width: DS.sm),
+                        const SizedBox(width: DS.sm),
                         Expanded(
                           child: TextField(
                             decoration: InputDecoration(
@@ -325,7 +325,7 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
             ),
 
           // Match the spacing of daily groups (groups are also DS.sm apart) to avoid the first group sticking to the top
-          SizedBox(height: DS.sm),
+          const SizedBox(height: DS.sm),
           Expanded(
             child: _loading
                 ? const Center(child: CircularProgressIndicator(color: DS.secondaryContainer))
@@ -349,9 +349,9 @@ class _BillListPageState extends State<BillListPage> with BillFilterMixin {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.search_off, size: 64, color: DS.outlineVariant),
-          SizedBox(height: DS.md),
+          const SizedBox(height: DS.md),
           Text('本月还没有账单', style: DS.bodyMd.copyWith(color: DS.onSurfaceVariant)),
-          SizedBox(height: DS.sm),
+          const SizedBox(height: DS.sm),
           Text('快去记第一笔吧', style: DS.labelSm.copyWith(color: DS.outline)),
         ],
       ),

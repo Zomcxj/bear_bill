@@ -68,7 +68,7 @@ class CheckInBadge extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.local_fire_department, size: 16, color: DS.error),
+            const Icon(Icons.local_fire_department, size: 16, color: DS.error),
             const SizedBox(height: 1),
             Text(
               '$days天',
@@ -107,7 +107,7 @@ class BookSwitchChip extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(icon, style: const TextStyle(fontSize: 14)),
-        SizedBox(width: DS.xs),
+        const SizedBox(width: DS.xs),
         Text(name, style: DS.labelSm.copyWith(color: DS.onSurface)),
         const SizedBox(width: 2),
         Icon(Icons.chevron_right, size: 14, color: DS.outline),
@@ -118,7 +118,7 @@ class BookSwitchChip extends StatelessWidget {
       return GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.xs + 2),
+          padding: const EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.xs + 2),
           decoration: BoxDecoration(
             color: DS.heroCardBg,
             borderRadius: BorderRadius.circular(DS.radiusSm),
@@ -135,7 +135,7 @@ class BookSwitchChip extends StatelessWidget {
       stretch: 0.15,
       shape: const LiquidRoundedSuperellipse(borderRadius: 999),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: DS.sm, vertical: 6),
         child: row,
       ),
     );

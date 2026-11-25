@@ -137,7 +137,7 @@ class _WishJarPageState extends State<WishJarPage>
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
         child: GlassCard(
-          padding: EdgeInsets.all(DS.xl),
+          padding: const EdgeInsets.all(DS.xl),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -147,18 +147,18 @@ class _WishJarPageState extends State<WishJarPage>
                 builder: (context, value, child) {
                   return Transform.scale(
                     scale: 0.5 + (value * 0.5),
-                    child: Icon(Icons.celebration, size: 80, color: DS.secondaryContainer),
+                    child: const Icon(Icons.celebration, size: 80, color: DS.secondaryContainer),
                   );
                 },
               ),
-              SizedBox(height: DS.md),
-              Text('恭喜达成心愿！', style: DS.headlineMd),
-              SizedBox(height: DS.sm),
+              const SizedBox(height: DS.md),
+              const Text('恭喜达成心愿！', style: DS.headlineMd),
+              const SizedBox(height: DS.sm),
               Text(wish.title, style: DS.bodyMd.copyWith(color: DS.onSurfaceVariant)),
-              SizedBox(height: DS.md),
+              const SizedBox(height: DS.md),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text('太棒了！'),
+                child: const Text('太棒了！'),
               ),
             ],
           ),
@@ -185,7 +185,7 @@ class _WishJarPageState extends State<WishJarPage>
               : Column(
                   children: [
                     _buildHeroBanner(),
-                    SizedBox(height: DS.base),
+                    const SizedBox(height: DS.base),
                     Expanded(
                       child: _tabController.index == 0
                           ? _buildWishList(ongoingWishes, emptyText: '暂无进行中的心愿')
@@ -208,8 +208,8 @@ class _WishJarPageState extends State<WishJarPage>
                 // Exception: the ink is drawn on the constant light-blue secondaryContainer,
                 // readable as near-black in both states; emphasis turns near-white in dark mode and loses contrast
                 foregroundColor: DS.primary,
-                icon: Icon(Icons.auto_awesome, size: 20),
-                label: Text('创建心愿', style: DS.labelMd),
+                icon: const Icon(Icons.auto_awesome, size: 20),
+                label: const Text('创建心愿', style: DS.labelMd),
                 elevation: 4,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(DS.radiusFull),
@@ -266,7 +266,7 @@ class _WishJarPageState extends State<WishJarPage>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.savings_outlined, size: 64, color: DS.outlineVariant),
-            SizedBox(height: DS.md),
+            const SizedBox(height: DS.md),
             Text(emptyText, style: DS.bodyMd.copyWith(color: DS.onSurfaceVariant)),
           ],
         ),
@@ -298,9 +298,9 @@ class _WishJarPageState extends State<WishJarPage>
       borderRadius: DS.radiusLg,
       fallbackDecoration: BoxDecoration(
         gradient: DS.heroGradientBlueCurrent,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(DS.radiusLg),
-          bottomRight: Radius.circular(DS.radiusLg),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: const Radius.circular(DS.radiusLg),
+          bottomRight: const Radius.circular(DS.radiusLg),
         ),
       ),
       padding: EdgeInsets.fromLTRB(DS.containerMargin, MediaQuery.of(context).padding.top + DS.gutter, DS.containerMargin, DS.base),
@@ -309,13 +309,13 @@ class _WishJarPageState extends State<WishJarPage>
           Row(
             children: [
               Icon(Icons.savings, size: 22, color: DS.onSurface),
-              SizedBox(width: DS.sm),
-              Text('心愿储蓄罐', style: DS.headlineMd),
+              const SizedBox(width: DS.sm),
+              const Text('心愿储蓄罐', style: DS.headlineMd),
             ],
           ),
-          SizedBox(height: DS.sm),
+          const SizedBox(height: DS.sm),
           GlassCard(
-            padding: EdgeInsets.symmetric(vertical: DS.sm),
+            padding: const EdgeInsets.symmetric(vertical: DS.sm),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -327,11 +327,11 @@ class _WishJarPageState extends State<WishJarPage>
               ],
             ),
           ),
-          SizedBox(height: DS.sm),
+          const SizedBox(height: DS.sm),
           // Tab switcher
           if (!shouldUseLiquidGlass(context))
             Container(
-              padding: EdgeInsets.all(3),
+              padding: const EdgeInsets.all(3),
               decoration: BoxDecoration(
                 color: DS.heroCardBg,
                 borderRadius: BorderRadius.circular(DS.radiusFull),
@@ -342,7 +342,7 @@ class _WishJarPageState extends State<WishJarPage>
                     child: GestureDetector(
                       onTap: () => _tabController.animateTo(0),
                       child: Container(
-                        padding: EdgeInsets.symmetric(vertical: DS.sm),
+                        padding: const EdgeInsets.symmetric(vertical: DS.sm),
                         decoration: BoxDecoration(
                           color: _tabController.index == 0 ? DS.emphasis : Colors.transparent,
                           borderRadius: BorderRadius.circular(DS.radiusFull),
@@ -361,7 +361,7 @@ class _WishJarPageState extends State<WishJarPage>
                     child: GestureDetector(
                       onTap: () => _tabController.animateTo(1),
                       child: Container(
-                        padding: EdgeInsets.symmetric(vertical: DS.sm),
+                        padding: const EdgeInsets.symmetric(vertical: DS.sm),
                         decoration: BoxDecoration(
                           color: _tabController.index == 1 ? DS.emphasis : Colors.transparent,
                           borderRadius: BorderRadius.circular(DS.radiusFull),
@@ -394,7 +394,7 @@ class _WishJarPageState extends State<WishJarPage>
     return Column(
       children: [
         Text(value, style: DS.headlineSm.copyWith(color: DS.onSurface)),
-        SizedBox(height: DS.xs),
+        const SizedBox(height: DS.xs),
         Text(label, style: DS.labelSm.copyWith(color: DS.onSurfaceVariant)),
       ],
     );
@@ -406,15 +406,15 @@ class _WishJarPageState extends State<WishJarPage>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.savings_outlined, size: 80, color: DS.outlineVariant),
-          SizedBox(height: DS.md),
-          Text('还没有心愿罐', style: DS.headlineSm),
-          SizedBox(height: DS.sm),
+          const SizedBox(height: DS.md),
+          const Text('还没有心愿罐', style: DS.headlineSm),
+          const SizedBox(height: DS.sm),
           Text('许下你的第一个心愿吧！', style: DS.bodyMd.copyWith(color: DS.onSurfaceVariant)),
-          SizedBox(height: DS.lg),
+          const SizedBox(height: DS.lg),
           ElevatedButton.icon(
             onPressed: () => _showCreateDialog(),
-            icon: Icon(Icons.add),
-            label: Text('创建第一个心愿'),
+            icon: const Icon(Icons.add),
+            label: const Text('创建第一个心愿'),
           ),
         ],
       ),

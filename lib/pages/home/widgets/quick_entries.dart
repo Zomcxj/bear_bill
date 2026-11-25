@@ -96,18 +96,18 @@ class QuickEntries extends StatelessWidget {
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>(); // theme rebuild
     return GlassCard(
-      margin: EdgeInsets.symmetric(horizontal: DS.sm),
+      margin: const EdgeInsets.symmetric(horizontal: DS.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              Icon(Icons.bolt, size: 18, color: DS.secondaryContainer),
-              SizedBox(width: DS.xs),
-              Text('快捷记账', style: DS.headlineSm),
+              const Icon(Icons.bolt, size: 18, color: DS.secondaryContainer),
+              const SizedBox(width: DS.xs),
+              const Text('快捷记账', style: DS.headlineSm),
             ],
           ),
-          SizedBox(height: DS.sm),
+          const SizedBox(height: DS.sm),
           SizedBox(
             height: 70,
             child: ListView.builder(
@@ -184,16 +184,16 @@ class _QuickEntryItem extends StatelessWidget {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
+              color: color.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
               // No border in glass theme; unchanged when disabled
               border: shouldUseLiquidGlass(context)
                   ? null
-                  : Border.all(color: color.withOpacity(0.3), width: 1),
+                  : Border.all(color: color.withValues(alpha: 0.3), width: 1),
             ),
             child: Icon(icon, size: 20, color: DS.onSurface),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             label,
             style: TextStyle(

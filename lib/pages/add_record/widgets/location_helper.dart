@@ -181,23 +181,23 @@ mixin LocationHelper<T extends StatefulWidget> on State<T> {
         children: [
           ListTile(
             leading: Icon(Icons.edit_location, color: DS.emphasis),
-            title: Text('手动输入'),
-            subtitle: Text('直接输入地点名称'),
+            title: const Text('手动输入'),
+            subtitle: const Text('直接输入地点名称'),
             onTap: () => Navigator.pop(context, 'manual'),
           ),
-          Divider(height: 1),
+          const Divider(height: 1),
           ListTile(
             leading:
-                Icon(Icons.my_location, color: DS.secondaryContainer),
-            title: Text('GPS定位'),
-            subtitle: Text('获取当前设备位置'),
+                const Icon(Icons.my_location, color: DS.secondaryContainer),
+            title: const Text('GPS定位'),
+            subtitle: const Text('获取当前设备位置'),
             onTap: () => Navigator.pop(context, 'gps'),
           ),
-          Divider(height: 1),
+          const Divider(height: 1),
           ListTile(
-            leading: Icon(Icons.map, color: DS.secondary),
-            title: Text('地图选点'),
-            subtitle: Text('打开地图搜索和选择位置'),
+            leading: const Icon(Icons.map, color: DS.secondary),
+            title: const Text('地图选点'),
+            subtitle: const Text('打开地图搜索和选择位置'),
             onTap: () => Navigator.pop(context, 'map'),
           ),
         ],

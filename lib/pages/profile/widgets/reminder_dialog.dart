@@ -39,7 +39,7 @@ Future<void> showReminderDialog(BuildContext context) async {
           decoration: BoxDecoration(
             color: DS.surfaceContainerLowest,
             borderRadius:
-                BorderRadius.vertical(top: Radius.circular(DS.radiusMd)),
+                const BorderRadius.vertical(top: const Radius.circular(DS.radiusMd)),
           ),
           child: _buildContent(
               context,
@@ -98,8 +98,8 @@ Widget _buildContent(
 ) {
   final Color separator = glass
       ? (DS.isDark
-          ? Colors.white.withOpacity(0.12)
-          : Colors.black.withOpacity(0.08))
+          ? Colors.white.withValues(alpha: 0.12)
+          : Colors.black.withValues(alpha: 0.08))
       : DS.outlineVariant;
 
   final TextStyle wheelStyle = TextStyle(
@@ -112,7 +112,7 @@ Widget _buildContent(
     mainAxisSize: MainAxisSize.min,
     children: [
       Padding(
-        padding: EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.sm),
+        padding: const EdgeInsets.symmetric(horizontal: DS.sm, vertical: DS.sm),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -230,7 +230,7 @@ Widget _buildContent(
         ),
       ),
       Padding(
-        padding: EdgeInsets.all(DS.sm),
+        padding: const EdgeInsets.all(DS.sm),
         child: GestureDetector(
           onTap: () async {
             try {
@@ -246,7 +246,7 @@ Widget _buildContent(
                 size: 14,
                 color: glass ? DS.onSurfaceVariant : DS.emphasis,
               ),
-              SizedBox(width: DS.xs),
+              const SizedBox(width: DS.xs),
               Text(
                 '提醒不生效？点击关闭电池优化',
                 style: DS.labelSm.copyWith(

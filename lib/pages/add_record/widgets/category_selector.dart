@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../../../models/models.dart';
 import '../../../theme/app_design_system.dart';
@@ -31,7 +31,7 @@ class CategorySelector extends StatelessWidget {
   Widget build(BuildContext context) {
     context.watch<ThemeProvider>(); // theme rebuild
     return Container(
-      padding: EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
           horizontal: DS.base, vertical: DS.xs),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -41,7 +41,7 @@ class CategorySelector extends StatelessWidget {
             return GestureDetector(
               onTap: () => onSelect(category),
               child: Container(
-                margin: EdgeInsets.only(right: DS.base),
+                margin: const EdgeInsets.only(right: DS.base),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -50,7 +50,7 @@ class CategorySelector extends StatelessWidget {
                       height: 42,
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? _hexToColor(category.color).withOpacity(0.15)
+                            ? _hexToColor(category.color).withValues(alpha: 0.15)
                             : DS.surfaceContainerLowest,
                         borderRadius: BorderRadius.circular(12),
                         // Glass theme has no border, selection is shown by fill; unchanged when off
@@ -66,11 +66,11 @@ class CategorySelector extends StatelessWidget {
                       child: Center(
                         child: Text(
                           category.icon,
-                          style: TextStyle(fontSize: 16),
+                          style: const TextStyle(fontSize: 16),
                         ),
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       category.name,
                       style: TextStyle(

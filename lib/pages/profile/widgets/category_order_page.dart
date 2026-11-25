@@ -29,12 +29,12 @@ class _CategoryOrderPageState extends State<CategoryOrderPage> {
       body: Column(
         children: [
           Padding(
-            padding: EdgeInsets.fromLTRB(DS.base, DS.sm, DS.base, 0),
+            padding: const EdgeInsets.fromLTRB(DS.base, DS.sm, DS.base, 0),
             child: Row(
               children: [
                 Icon(Icons.info_outline,
                     size: 14, color: DS.onSurfaceVariant),
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Expanded(
                   child: Text(
                     '长按整行即可拖动排序，记一笔的分类栏会按此展示',
@@ -46,7 +46,7 @@ class _CategoryOrderPageState extends State<CategoryOrderPage> {
           ),
           Expanded(
             child: ReorderableListView.builder(
-              padding: EdgeInsets.all(DS.base),
+              padding: const EdgeInsets.all(DS.base),
               buildDefaultDragHandles: false,
               itemCount: categories.length,
               onReorder: (oldIndex, newIndex) async {
@@ -72,9 +72,9 @@ class _CategoryOrderPageState extends State<CategoryOrderPage> {
                 final cat = categories[index];
                 return Container(
                   key: ValueKey(cat.id),
-                  margin: EdgeInsets.only(bottom: DS.sm),
+                  margin: const EdgeInsets.only(bottom: DS.sm),
                   padding:
-                      EdgeInsets.symmetric(horizontal: DS.base, vertical: 10),
+                      const EdgeInsets.symmetric(horizontal: DS.base, vertical: 10),
                   decoration: DS.glassDecoration,
                   // Long-press the row to drag; hold the left handle to drag directly (no long press needed)
                   child: ReorderableDelayedDragStartListener(
@@ -86,9 +86,9 @@ class _CategoryOrderPageState extends State<CategoryOrderPage> {
                           child: Icon(Icons.drag_indicator,
                               size: 20, color: DS.onSurfaceVariant),
                          ),
-                        SizedBox(width: DS.sm),
-                        Text(cat.icon, style: TextStyle(fontSize: 22)),
-                        SizedBox(width: DS.sm),
+                        const SizedBox(width: DS.sm),
+                        Text(cat.icon, style: const TextStyle(fontSize: 22)),
+                        const SizedBox(width: DS.sm),
                         Expanded(
                           child: Text(
                             cat.name,
